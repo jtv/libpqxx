@@ -293,11 +293,12 @@ public:
 
   /// Connect to a database with connection string and parameter overrides.
   /** This constructor allows you to specify a connection string and override
-   * specific parameters using a mapping (e.g., std::map, std::vector of pairs).
+   * specific parameters using a mapping (e.g., std::map, std::vector of
+   * pairs).
    *
    * The connection string is parsed first, then the key-value pairs from the
-   * mapping are applied, overriding any matching parameters from the connection
-   * string or adding new ones.
+   * mapping are applied, overriding any matching parameters from the
+   * connection string or adding new ones.
    *
    * The mapping can be anything that can be iterated as a series of pairs of
    * zero-terminated strings: `std::pair<std::string, std::string>`, or
@@ -314,7 +315,8 @@ public:
    * @endcode
    */
   template<internal::ZKey_ZValues MAPPING>
-  inline connection(zview connection_string, MAPPING const &params, sl = sl::current());
+  inline connection(
+    zview connection_string, MAPPING const &params, sl = sl::current());
 
   /// Move constructor.
   /** Moving a connection is not allowed if it has an open transaction, or has
@@ -1277,7 +1279,9 @@ private:
   std::pair<bool, bool> poll_connect(sl);
 
   // Initialise based on connection string and override key/value pairs
-  void init(zview connection_string, const std::vector<const char*>& override_keys, const std::vector<const char*>& override_values, sl);
+  void init(
+    zview connection_string, const std::vector<const char *> &override_keys,
+    const std::vector<const char *> &override_values, sl);
 
   void set_up_notice_handlers();
   /// Do the work that is common to all `init()` overloads.
@@ -1580,7 +1584,8 @@ inline connection::connection(MAPPING const &params, sl loc) :
 
 
 template<internal::ZKey_ZValues MAPPING>
-inline connection::connection(zview connection_string, MAPPING const &params, sl loc)
+inline connection::connection(
+  zview connection_string, MAPPING const &params, sl loc)
 {
   check_version();
 
