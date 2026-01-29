@@ -47,6 +47,10 @@ internal_error::~internal_error() noexcept = default;
 internal_error::internal_error(std::string const &whatarg, sl loc, st &&tr) :
         failure{
           std::format("LIBPQXX INTERNAL ERROR: {}", whatarg), loc,
+          // When there's no support, clang-tidy complains that our placeholder
+          // is trivially copyable and therefore the std::move() is pointless.
+          //
+          // NOLINTNEXTLINE(performance-move-const-arg)
           std::move(tr)}
 {}
 
