@@ -489,9 +489,9 @@ template<std::floating_point T> void check_float(T value)
 
 void test_to_buf_float(pqxx::test::context &tctx)
 {
-  check_float(pqxx::test::make_float_num<float>(rnd));
-  check_float(pqxx::test::make_float_num<double>(rnd));
-  check_float(pqxx::test::make_float_num<long double>(rnd));
+  check_float(tctx.make_float_num<float>());
+  check_float(tctx.make_float_num<double>());
+  check_float(tctx.make_float_num<long double>());
 }
 
 
