@@ -46,7 +46,7 @@ void test_zview_converts_to_string(pqxx::test::context &)
 
 void test_zview_properties(pqxx::test::context &tctx)
 {
-  auto const str{pqxx::test::make_name(rnd, "zv")};
+  auto const str{tctx.make_name("zv")};
   PQXX_CHECK_EQUAL(
     (pqxx::zview{str.c_str(), std::size(str)}), (pqxx::zview{str}));
   PQXX_CHECK_EQUAL((pqxx::zview{str.c_str()}), (pqxx::zview{str}));

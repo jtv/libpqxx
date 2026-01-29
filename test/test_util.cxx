@@ -275,7 +275,7 @@ std::string make_filename(pqxx::test::context &tctx)
   }
   assert(suffix != nullptr);
 
-  return std::format("{}.{}", pqxx::test::make_name(rnd, "source"), suffix);
+  return std::format("{}.{}", tctx.make_name("source"), suffix);
 }
 
 
@@ -328,7 +328,7 @@ std::string make_function(pqxx::test::context &tctx)
   std::string rettype{"void"};
   if (tctx.make_num(5) > 0)
     rettype = make_type(rnd);
-  auto const name{pqxx::test::make_name(rnd, "func")};
+  auto const name{tctx.make_name("func")};
   return std::format("{} {}({})", rettype, name, make_params(rnd));
 }
 

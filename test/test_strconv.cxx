@@ -391,7 +391,7 @@ void test_to_buf_into_buf(pqxx::test::context &tctx)
 
   check_write(""s, "");
   check_write("Blah"s, "Blah");
-  std::string const randstr{pqxx::test::make_name(rnd, "x")};
+  std::string const randstr{tctx.make_name("x")};
   check_write(randstr, randstr);
 
   check_write(""sv, "");
@@ -504,7 +504,7 @@ template<typename T> void check_string(T const &value)
 
 void test_string_to_string(pqxx::test::context &tctx)
 {
-  auto const str{pqxx::test::make_name(rnd, "str")};
+  auto const str{tctx.make_name("str")};
 
   PQXX_CHECK_EQUAL(pqxx::to_string<std::string>(str), str);
   PQXX_CHECK_EQUAL(pqxx::from_string<std::string>(str), str);

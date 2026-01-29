@@ -23,7 +23,7 @@ std::string make_channel(
   // exact same "random" channel name, and dependent probably on timing, one
   // will break because it wasn't expecting a notification that the other did
   // unexpectedly send.  Disambiguate by including the line number.
-  return pqxx::test::make_name(rnd, std::format("{}_{}", prefix, loc.line()));
+  return tctx.make_name(std::format("{}_{}", prefix, loc.line()));
 }
 
 
@@ -255,7 +255,7 @@ void test_notification_channels_are_case_sensitive(pqxx::test::context &tctx)
 {
   pqxx::connection cx;
   std::string in;
-  auto const base{pqxx::test::make_name(rnd, "pqxx-chan")};
+  auto const base{tctx.make_name("pqxx-chan")};
   cx.listen(base + "AbC", [&in](pqxx::notification n) { in = n.channel; });
 
   pqxx::work tx{cx};
