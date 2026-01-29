@@ -218,10 +218,12 @@ std::string describe_failure(std::string_view test, EXCEPTION const &err)
     summary = std::format("{} -- {}", test, summary);
   }
 
+#if defined(PQXX_HAVE_STACKTRACE)
   // TODO: Control this with command-line option, to avoid huge outputs.
   if constexpr (requires { err.trace(); })
     if (err.trace())
       summary = std::format("{}\nTraceback:\n{}", summary, *err.trace());
+#endif
 
   return summary;
 }
