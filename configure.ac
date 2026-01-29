@@ -8,7 +8,7 @@ AC_INIT([libpqxx],[m4_esyscmd_s([./tools/extract_version.sh])],
 # Suppress checks for standard C headers.  One, we're not doing C here; two,
 # if you don't have these, chances are your system is in no shape to build
 # libpqxx; and three, we require C++20.  It's a bit pointless to guard against
-# such specific shortcomings 20th-century compilers.
+# such specific shortcomings of 20th-century compilers.
 m4_define([AC_INCLUDES_DEFAULT], [])
 
 AC_LANG(C++)
