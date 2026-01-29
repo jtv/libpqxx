@@ -44,8 +44,8 @@ deadlock_detected::~deadlock_detected() noexcept = default;
 internal_error::~internal_error() noexcept = default;
 
 // Special case: We add a prefix to the message.
-internal_error::internal_error(std::string const &whatarg, sl loc) :
-        failure{std::format("LIBPQXX INTERNAL ERROR: {}", whatarg), loc}
+internal_error::internal_error(std::string const &whatarg, sl loc, st &&tr) :
+        failure{std::format("LIBPQXX INTERNAL ERROR: {}", whatarg), loc, tr}
 {}
 
 usage_error::~usage_error() noexcept = default;
