@@ -269,17 +269,17 @@ void test_optional(pqxx::test::context &)
 }
 
 
-void test_prepared_statements(pqxx::test::randomizer &rnd)
+void test_prepared_statements(pqxx::test::context &tctx)
 {
-  test_registration_and_invocation(rnd);
-  test_basic_args(rnd);
-  test_multiple_params(rnd);
-  test_nulls(rnd);
-  test_strings(rnd);
-  test_binary(rnd);
-  test_params(rnd);
+  test_registration_and_invocation(tctx);
+  test_basic_args(tctx);
+  test_multiple_params(tctx);
+  test_nulls(tctx);
+  test_strings(tctx);
+  test_binary(tctx);
+  test_params(tctx);
 
-  test_optional(rnd);
+  test_optional(tctx);
 }
 
 
@@ -377,7 +377,7 @@ void test_for_query_prepped(pqxx::test::context &)
 
 
 void test_prepped_query_does_not_need_terminating_zero(
-  pqxx::test::randomizer &)
+  pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::transaction tx{cx};

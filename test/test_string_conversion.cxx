@@ -35,7 +35,7 @@ namespace
 constexpr double thres{0.00001};
 
 
-void test_string_conversion(pqxx::test::randomizer &rnd)
+void test_string_conversion(pqxx::test::context &tctx)
 {
   PQXX_CHECK_EQUAL("C string array", pqxx::to_string("C string array"));
 
@@ -262,7 +262,7 @@ template<> struct string_traits<legacy_item> final
 
 namespace
 {
-void test_legacy_7_conversion_support(pqxx::test::randomizer &rnd)
+void test_legacy_7_conversion_support(pqxx::test::context &tctx)
 {
   legacy_item const leg{pqxx::test::make_num(rnd)};
   auto const as_string{pqxx::to_string(leg)};

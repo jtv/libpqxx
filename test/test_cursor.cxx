@@ -46,7 +46,7 @@ void test_cursor(pqxx::test::context &)
 }
 
 
-void test_cursor_constants(pqxx::test::randomizer &rnd)
+void test_cursor_constants(pqxx::test::context &tctx)
 {
   PQXX_CHECK_GREATER(pqxx::cursor_base::all(), pqxx::test::make_num(rnd));
   PQXX_CHECK_LESS(

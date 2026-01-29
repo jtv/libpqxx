@@ -525,9 +525,8 @@ private:
 
 
 void test_blob_from_file_creates_blob_from_file_contents(
-  pqxx::test::randomizer &rnd)
+  pqxx::test::context &tctx)
 {
-  std::string const temp_file = pqxx::test::make_name(rnd, "blob-test");
   pqxx::bytes const data{std::byte{'4'}, std::byte{'2'}};
 
   pqxx::connection cx;
@@ -544,7 +543,7 @@ void test_blob_from_file_creates_blob_from_file_contents(
 }
 
 
-void test_blob_from_file_with_oid_writes_blob(pqxx::test::randomizer &rnd)
+void test_blob_from_file_with_oid_writes_blob(pqxx::test::context &tctx)
 {
   pqxx::bytes const data{std::byte{'6'}, std::byte{'9'}};
   std::string const temp_file = pqxx::test::make_name(rnd, "pqxx-blob-test");
@@ -585,7 +584,7 @@ void test_blob_append_to_buf_appends(pqxx::test::context &)
 }
 
 
-void test_blob_to_file_writes_file(pqxx::test::randomizer &rnd)
+void test_blob_to_file_writes_file(pqxx::test::context &tctx)
 {
   pqxx::bytes const data{std::byte{'C'}, std::byte{'+'}, std::byte{'+'}};
 

@@ -125,16 +125,16 @@ void test_commit_on_broken_connection(pqxx::test::context &)
 }
 
 
-void test_transaction(pqxx::test::randomizer &rnd)
+void test_transaction(pqxx::test::context &tctx)
 {
-  test_double_close<pqxx::transaction<>>(rnd);
-  test_double_close<pqxx::read_transaction>(rnd);
-  test_double_close<pqxx::nontransaction>(rnd);
-  test_double_close<pqxx::robusttransaction<>>(rnd);
-  test_failed_commit<pqxx::transaction<>>(rnd);
-  test_failed_commit<pqxx::robusttransaction<>>(rnd);
-  test_commit_on_broken_connection<pqxx::transaction<>>(rnd);
-  test_commit_on_broken_connection<pqxx::robusttransaction<>>(rnd);
+  test_double_close<pqxx::transaction<>>(tctx);
+  test_double_close<pqxx::read_transaction>(tctx);
+  test_double_close<pqxx::nontransaction>(tctx);
+  test_double_close<pqxx::robusttransaction<>>(tctx);
+  test_failed_commit<pqxx::transaction<>>(tctx);
+  test_failed_commit<pqxx::robusttransaction<>>(tctx);
+  test_commit_on_broken_connection<pqxx::transaction<>>(tctx);
+  test_commit_on_broken_connection<pqxx::robusttransaction<>>(tctx);
 }
 
 

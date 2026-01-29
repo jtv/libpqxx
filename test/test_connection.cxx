@@ -208,7 +208,7 @@ void test_skip_init_ssl(pqxx::test::context &)
 }
 
 
-void test_connection_client_encoding(pqxx::test::randomizer &rnd)
+void test_connection_client_encoding(pqxx::test::context &tctx)
 {
   pqxx::connection cx;
   std::map<char const *, pqxx::encoding_group> const unsafe_encodings = {

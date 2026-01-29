@@ -263,7 +263,7 @@ void check_write(
 }
 
 
-void test_to_buf_into_buf(pqxx::test::randomizer &rnd)
+void test_to_buf_into_buf(pqxx::test::context &tctx)
 {
   check_write(false, "false");
   check_write(true, "true");
@@ -487,7 +487,7 @@ template<std::floating_point T> void check_float(T value)
 }
 
 
-void test_to_buf_float(pqxx::test::randomizer &rnd)
+void test_to_buf_float(pqxx::test::context &tctx)
 {
   check_float(pqxx::test::make_float_num<float>(rnd));
   check_float(pqxx::test::make_float_num<double>(rnd));
@@ -502,7 +502,7 @@ template<typename T> void check_string(T const &value)
 }
 
 
-void test_string_to_string(pqxx::test::randomizer &rnd)
+void test_string_to_string(pqxx::test::context &tctx)
 {
   auto const str{pqxx::test::make_name(rnd, "str")};
 
