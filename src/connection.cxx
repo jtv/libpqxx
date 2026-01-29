@@ -248,7 +248,7 @@ parsed_connection_string::parsed_connection_string(
   char const connection_string[], sl loc) :
         m_options{nullptr, delete_pg_conn_option}
 {
-  if (connection_string != nullptr)
+  if ((connection_string != nullptr) and (connection_string[0] != '\0'))
   {
     char *errmsg{nullptr};
     m_options = decltype(m_options){
@@ -281,6 +281,18 @@ parsed_connection_string::parse() const
     // A span across the parsed connection string options.
     auto const parsed{span_options(
       reinterpret_cast<PQconninfoOption const *>(m_options.get()))};
+
+    // This will allocate room for all possible options, since the array of
+    // PQconninfoOption we got from libpq includes options that were not
+    // specified (though their "val" will be null and we won't include them in
+    // our putput).  It also includes room for a terminating null.
+    //
+    // The generous allocation is probably no big deal though since there are
+    // only so many different connection options.  It also saves us having to
+    // worry about reserving space when we add in any key/value parameters
+    // later.
+    std::get<0>(output).reserve(std::size(parsed));
+    std::get<1>(output).reserve(std::size(parsed));
 
     // XXX: Pipe syntax to filter out defaulted options?
     for (auto const &opt : parsed)

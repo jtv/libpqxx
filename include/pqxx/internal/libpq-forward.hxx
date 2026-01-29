@@ -13,7 +13,7 @@
 
 extern "C"
 {
-  // TODO: Get these out of the global namespace.  We cast tem anyway.
+  // TODO: Get these out of the global namespace.  We cast them anyway.
   struct pg_conn;
   struct pg_result;
   struct pgNotify;
