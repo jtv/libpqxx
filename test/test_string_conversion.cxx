@@ -66,7 +66,7 @@ void test_string_conversion(pqxx::test::context &tctx)
   pqxx::from_string("-9999", x);
   PQXX_CHECK_EQUAL(-9999, x);
 
-  auto const num{pqxx::test::make_num(rnd)};
+  auto const num{tctx.make_num()};
   PQXX_CHECK_EQUAL(pqxx::to_string(num), std::format("{}", num));
   auto const numstr{std::format("{}", num)};
   PQXX_CHECK_EQUAL(pqxx::to_string(num), pqxx::to_string(numstr));
@@ -264,7 +264,7 @@ namespace
 {
 void test_legacy_7_conversion_support(pqxx::test::context &tctx)
 {
-  legacy_item const leg{pqxx::test::make_num(rnd)};
+  legacy_item const leg{tctx.make_num()};
   auto const as_string{pqxx::to_string(leg)};
   PQXX_CHECK_EQUAL(as_string, pqxx::to_string(leg.get_val()));
   PQXX_CHECK_EQUAL(

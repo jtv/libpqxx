@@ -8,9 +8,9 @@ namespace
 void test_make_num(pqxx::test::context &tctx)
 {
   bool same{true};
-  int last{pqxx::test::make_num(rnd)};
+  int last{tctx.make_num()};
   for (int i{0}; same and (i < 10); ++i)
-    if (pqxx::test::make_num(rnd) != last)
+    if (tctx.make_num() != last)
       same = false;
   PQXX_CHECK(
     not same, std::format("Random numbers all came out as {}.", last));
