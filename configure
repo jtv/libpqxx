@@ -2886,7 +2886,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 # Suppress checks for standard C headers.  One, we're not doing C here; two,
 # if you don't have these, chances are your system is in no shape to build
 # libpqxx; and three, we require C++20.  It's a bit pointless to guard against
-# such specific shortcomings 20th-century compilers.
+# such specific shortcomings of 20th-century compilers.
 
 
 ac_ext=cpp
