@@ -314,7 +314,8 @@ void test_connection_string_with_overrides(pqxx::test::randomizer &)
 {
   // replace parameter from connection string
   {
-    std::map<std::string, std::string> const params{{"application_name", "override_test"}};
+    std::map<std::string, std::string> const params{
+      {"application_name", "override_test"}};
 
     pqxx::connection const cx{"application_name=original", params};
     PQXX_CHECK(cx.is_open(), "Connection with overrides failed to open.");
@@ -331,9 +332,7 @@ void test_connection_string_with_overrides(pqxx::test::randomizer &)
   // Add new parameters not present in connection string
   {
     std::map<std::string, std::string> const params{
-      {"connect_timeout", "30"},
-      {"keepalives_idle", "120"}
-    };
+      {"connect_timeout", "30"}, {"keepalives_idle", "120"}};
 
     pqxx::connection const cx{"", params};
     PQXX_CHECK(cx.is_open(), "Connection with new parameters failed.");
@@ -343,22 +342,18 @@ void test_connection_string_with_overrides(pqxx::test::randomizer &)
       pqxx::str_contains(connstr, "connect_timeout"),
       "New parameter not found.");
     PQXX_CHECK(
-      pqxx::str_contains(connstr, "30"),
-      "New parameter value not found.");
+      pqxx::str_contains(connstr, "30"), "New parameter value not found.");
     PQXX_CHECK(
       pqxx::str_contains(connstr, "keepalives_idle"),
       "New parameter not found.");
     PQXX_CHECK(
-      pqxx::str_contains(connstr, "120"),
-      "New parameter value not found.");
+      pqxx::str_contains(connstr, "120"), "New parameter value not found.");
   }
 
   // Mix - some overrides, some additions, some unchanged
   {
     std::vector<std::pair<std::string, std::string>> const params{
-      {"application_name", "mixed_test"},
-      {"connect_timeout", "45"}
-    };
+      {"application_name", "mixed_test"}, {"connect_timeout", "45"}};
 
     pqxx::connection const cx{
       "application_name=base keepalives_idle=60", params};
@@ -381,8 +376,7 @@ void test_connection_string_with_overrides(pqxx::test::randomizer &)
 
     // Unchanged parameters
     PQXX_CHECK(
-      pqxx::str_contains(connstr, "keepalives_idle"),
-      "Base parameter lost.");
+      pqxx::str_contains(connstr, "keepalives_idle"), "Base parameter lost.");
   }
 
   // Empty override map (equivalent to regular constructor)
@@ -401,9 +395,7 @@ void test_connection_string_with_overrides(pqxx::test::randomizer &)
   // Empty params
   {
     std::vector<std::pair<std::string, std::string>> const params{
-      {"application_name", "empty_params"},
-      {"connect_timeout", "54"}
-    };
+      {"application_name", "empty_params"}, {"connect_timeout", "54"}};
 
     pqxx::connection const cx{"", params};
     PQXX_CHECK(cx.is_open(), "Connection with empty params failed.");
@@ -413,8 +405,7 @@ void test_connection_string_with_overrides(pqxx::test::randomizer &)
       pqxx::str_contains(connstr, "empty_params"),
       "application_name not added.");
     PQXX_CHECK(
-      pqxx::str_contains(connstr, "54"),
-      "connect_timeout not added.");
+      pqxx::str_contains(connstr, "54"), "connect_timeout not added.");
   }
 
   // Empty connection string and empty overrides
@@ -422,7 +413,8 @@ void test_connection_string_with_overrides(pqxx::test::randomizer &)
     std::map<std::string, std::string> const params{};
 
     pqxx::connection const cx{"", params};
-    PQXX_CHECK(cx.is_open(), "Connection with empty base and overrides failed.");
+    PQXX_CHECK(
+      cx.is_open(), "Connection with empty base and overrides failed.");
 
     auto const connstr{cx.connection_string()};
     PQXX_CHECK(not connstr.empty(), "Connection string should not be empty.");
@@ -440,20 +432,18 @@ void test_connection_string_with_overrides(pqxx::test::randomizer &)
   // Multiple overrides of same parameter (last wins)
   {
     std::vector<std::pair<std::string, std::string>> const params{
-      {"application_name", "first"},
-      {"application_name", "second"}
-    };
+      {"application_name", "first"}, {"application_name", "second"}};
 
     pqxx::connection const cx{"", params};
     auto const connstr{cx.connection_string()};
     PQXX_CHECK(
-      pqxx::str_contains(connstr, "second"),
-      "Last override should win.");
+      pqxx::str_contains(connstr, "second"), "Last override should win.");
   }
 
   // Verify connection actually works
   {
-    std::map<std::string, std::string> const params{{"application_name", "query_test"}};
+    std::map<std::string, std::string> const params{
+      {"application_name", "query_test"}};
 
     pqxx::connection cx{"", params};
     PQXX_CHECK(cx.is_open(), "Connection failed.");
@@ -467,8 +457,8 @@ void test_connection_string_with_overrides(pqxx::test::randomizer &)
     std::map<std::string, std::string> params{{"host", "doesnotexist"}};
 
     PQXX_CHECK_THROWS(
-      (pqxx::connection{"host=localhost", params}),
-      pqxx::broken_connection, R"(could not translate host name "doesnotexist" to address: Name or service not known)");
+      (pqxx::connection{"host=localhost", params}), pqxx::broken_connection,
+      R"(could not translate host name "doesnotexist" to address: Name or service not known)");
   }
 }
 
