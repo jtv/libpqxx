@@ -4,7 +4,15 @@
 AC_PREREQ([2.71])
 AC_INIT([libpqxx],[m4_esyscmd_s([./tools/extract_version.sh])],
 	[Jeroen T. Vermeulen])
+
+# Suppress checks for standard C headers.  One, we're not doing C here; two,
+# if you don't have these, chances are your system is in no shape to build
+# libpqxx; and three, we require C++20.  It's a bit pointless to guard against
+# such specific shortcomings 20th-century compilers.
+m4_define([AC_INCLUDES_DEFAULT], [])
+
 AC_LANG(C++)
+AX_CXX_COMPILE_STDCXX([20])
 
 AC_CONFIG_SRCDIR([src/connection.cxx])
 AC_CONFIG_AUX_DIR(config)
@@ -90,27 +98,6 @@ add_compiler_opts_if_ok() {
 add_compiler_opts() {
 	CXXFLAGS="$CXXFLAGS $*"
 }
-
-
-# It's tempting to use Autoconf Archive's AX_CXX_COMPILE_STDCXX_* for this,
-# but it's not getting a lot of maintenance.
-# Seems simpler and more reliable for the user to arrange for the desired
-# language versions by setting the appropriate option for their compiler.
-AC_MSG_CHECKING([for sufficient C++ language/library level])
-sufficient_cxx=yes
-AC_COMPILE_IFELSE(
-	[AC_LANG_SOURCE([
-	#if __cplusplus < 202002L
-	#error "Need C++20 or better."
-	#endif
-	])],
-	sufficient_cxx=yes,
-	sufficient_cxx=no)
-AC_MSG_RESULT($sufficient_cxx)
-if test "$sufficient_cxx" != "yes"
-then
-	AC_MSG_ERROR([This libpqxx version needs at least C++20.])
-fi
 
 
 # Let's try to get the compiler to be helpful.
@@ -353,17 +340,6 @@ else
         AC_MSG_NOTICE([finding PostgreSQL headers using $POSTGRES_INCLUDE])
     else
         POSTGRES_INCLUDE=""
-
-        # We have nothing to tell us where the libpq headers are.  That's fine
-        # if the compiler can find it, but if not, fail here.
-        AC_CHECK_HEADER(
-	        [libpq-fe.h],
-	        [],
-	[AC_MSG_ERROR([
-Can't find the main PostgreSQL client header, libpq-fe.h.  Make sure that it
-is installed, and either use the --with-postgres-include option or install
-pkg-config.
-])])
     fi
 fi
 AC_SUBST(POSTGRES_INCLUDE)
