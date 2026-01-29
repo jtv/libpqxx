@@ -20774,6 +20774,10 @@ printf %s "checking stacktrace_support... " >&6; }
 stacktrace_support=yes
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
+#include <format>
+
+#include <iostream>
+
 #include <stacktrace>
 
 
@@ -20782,7 +20786,7 @@ int main()
 
 {
 
-  return std::stacktrace::current().size() > 0u;
+  std::cout << std::format("{}", std::stacktrace::current());
 
 }
 
@@ -20953,6 +20957,10 @@ printf %s "checking for std::stacktrace support... " >&6; }
 have_stacktrace=yes
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
+#include <format>
+
+#include <iostream>
+
 #include <stacktrace>
 
 
@@ -20961,7 +20969,7 @@ int main()
 
 {
 
-  return std::stacktrace::current().size() > 0u;
+  std::cout << std::format("{}", std::stacktrace::current());
 
 }
 
