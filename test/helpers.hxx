@@ -22,7 +22,10 @@ using randomizer = std::mt19937;
 struct context
 {
   /// Create a context for one thread to run tests.
-  context(std::size_t random_seed) : rnd_seed{random_seed} {}
+  /** Seeds the randommiser with a highly predictable 0 initially.  Call the
+   * @ref seed() function before consuming random values.
+   */
+  context(std::size_t random_seed) : rnd{0}, rnd_seed{random_seed} {}
 
   context() = delete;
   context(context const &) = delete;
@@ -50,7 +53,7 @@ struct context
     return static_cast<char>(static_cast<std::uint8_t>(make_num(255) + 1));
   }
 
-  /// Return an arbitrary numeric floating-point value.  (No NaN or inifinity.)
+  /// Return an arbitrary numeric floating-point value.  (No NaN or infinity.)
   template<std::floating_point T> T make_float_num()
   {
     auto const x{make_num()}, z{make_num()};
@@ -62,20 +65,18 @@ struct context
   /// Generate a name with a given prefix and a randomised suffix.
   std::string make_name(std::string_view prefix)
   {
-    // In principle we should seed the random generator, but the scheduling of
-    // threads will jumble up the numbers anyway.
     return std::format("{}_{}", prefix, make_num());
   }
 
 private:
-  /// A factory of hash values for strings.
-  std::hash<std::string_view> string_hasher;
-
   /// A random engine.
   randomizer rnd;
 
   /// The random seed
   std::size_t rnd_seed;
+
+  /// A factory of hash values for strings.
+  std::hash<std::string_view> string_hasher;
 };
 
 

@@ -320,11 +320,12 @@ private:
 };
 
 
+/// Work through tests waiting to be executed.  Runs in each worker thread.
 void execute(
   dispatcher &disp,
   std::map<std::string_view, pqxx::test::testfunc> const &all_tests,
   std::mutex &fail_lock, std::vector<std::string> &failures,
-  unsigned random_seed)
+  std::size_t random_seed)
 {
   // Thread-local test context.
   pqxx::test::context tctx{random_seed};
@@ -368,7 +369,7 @@ struct options final
   /// Random seed for randomised values in tests.
   /** If seed is zero (the default), we'll use something variable.
    */
-  unsigned seed{0};
+  std::size_t seed{0};
 };
 
 
@@ -401,7 +402,7 @@ options parse_command_line(int argc, char const *argv[])
     }
     else if (want_seed)
     {
-      opts.seed = pqxx::from_string<unsigned>(elt);
+      opts.seed = pqxx::from_string<std::size_t>(elt);
       want_seed = false;
     }
     else if ((elt == "-j") or (elt == "--jobs"))
@@ -426,11 +427,11 @@ options parse_command_line(int argc, char const *argv[])
     }
     else if (elt.starts_with("-s"))
     {
-      opts.seed = pqxx::from_string<unsigned>(elt.substr(2));
+      opts.seed = pqxx::from_string<std::size_t>(elt.substr(2));
     }
     else if (elt.starts_with("--seed="))
     {
-      opts.seed = pqxx::from_string<unsigned>(elt.substr(7));
+      opts.seed = pqxx::from_string<std::size_t>(elt.substr(7));
     }
     else
     {
@@ -450,7 +451,7 @@ options parse_command_line(int argc, char const *argv[])
 
 
 /// Choose a random seed: either the given one, or if zero, a random one.
-unsigned get_random_seed(unsigned seed_opt)
+std::size_t get_random_seed(std::size_t seed_opt)
 {
   if (seed_opt == 0u)
     return std::random_device{}();
