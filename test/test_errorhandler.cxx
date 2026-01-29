@@ -212,7 +212,7 @@ void test_get_errorhandlers(pqxx::connection &cx)
 }
 
 
-void test_errorhandler(pqxx::test::randomizer &)
+void test_errorhandler(pqxx::test::context &)
 {
   pqxx::connection cx;
   test_process_notice_calls_errorhandler(cx);

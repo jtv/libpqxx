@@ -234,7 +234,7 @@ void test_too_many_fields_fold(pqxx::connection &connection)
 }
 
 
-void test_stream_to_does_nonnull_optional(pqxx::test::randomizer &)
+void test_stream_to_does_nonnull_optional(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -283,7 +283,7 @@ void test_stream_to_optional_fold(pqxx::connection &connection)
 
 
 // As an alternative to a tuple, you can also insert a container.
-void test_container_stream_to(pqxx::test::randomizer &)
+void test_container_stream_to(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -328,7 +328,7 @@ void clear_table(pqxx::connection &cx)
 }
 
 
-void test_stream_to(pqxx::test::randomizer &)
+void test_stream_to(pqxx::test::context &)
 {
   pqxx::connection cx;
   cx.set_client_encoding("UTF8");
@@ -374,7 +374,7 @@ void test_stream_to(pqxx::test::randomizer &)
 }
 
 
-void test_stream_to_factory_with_static_columns(pqxx::test::randomizer &)
+void test_stream_to_factory_with_static_columns(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -391,7 +391,7 @@ void test_stream_to_factory_with_static_columns(pqxx::test::randomizer &)
 }
 
 
-void test_stream_to_factory_with_dynamic_columns(pqxx::test::randomizer &)
+void test_stream_to_factory_with_dynamic_columns(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -409,7 +409,7 @@ void test_stream_to_factory_with_dynamic_columns(pqxx::test::randomizer &)
 }
 
 
-void test_stream_to_quotes_arguments(pqxx::test::randomizer &)
+void test_stream_to_quotes_arguments(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -431,7 +431,7 @@ void test_stream_to_quotes_arguments(pqxx::test::randomizer &)
 }
 
 
-void test_stream_to_optionals(pqxx::test::randomizer &)
+void test_stream_to_optionals(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -480,7 +480,7 @@ void test_stream_to_optionals(pqxx::test::randomizer &)
 }
 
 
-void test_stream_to_escaping(pqxx::test::randomizer &)
+void test_stream_to_escaping(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -518,7 +518,7 @@ void test_stream_to_escaping(pqxx::test::randomizer &)
 }
 
 
-void test_stream_to_moves_into_optional(pqxx::test::randomizer &)
+void test_stream_to_moves_into_optional(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::transaction tx{cx};
@@ -535,7 +535,7 @@ void test_stream_to_moves_into_optional(pqxx::test::randomizer &)
 }
 
 
-void test_stream_to_empty_strings(pqxx::test::randomizer &)
+void test_stream_to_empty_strings(pqxx::test::context &)
 {
   // Reproduce #816: Streaming an array of 4 or more empty strings to a table
   // using stream_to crashes.
@@ -606,7 +606,7 @@ void check_stream_to_encodes(pqxx::connection &cx)
 }
 
 
-void test_stream_to_transcodes(pqxx::test::randomizer &)
+void test_stream_to_transcodes(pqxx::test::context &)
 {
   pqxx::connection cx;
   {
@@ -692,7 +692,7 @@ template<pqxx::encoding_group ENC> void check_attack(pqxx::connection &cx)
 }
 
 
-void test_stream_to_handles_embedded_special_values(pqxx::test::randomizer &)
+void test_stream_to_handles_embedded_special_values(pqxx::test::context &)
 {
   pqxx::connection cx;
   {

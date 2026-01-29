@@ -210,7 +210,7 @@ void test_stream_from_optional(pqxx::connection &connection)
 }
 
 
-void test_stream_from(pqxx::test::randomizer &)
+void test_stream_from(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -245,7 +245,7 @@ void test_stream_from(pqxx::test::randomizer &)
 }
 
 
-void test_stream_from_does_escaping(pqxx::test::randomizer &)
+void test_stream_from_does_escaping(pqxx::test::context &)
 {
   std::string const input{"a\t\n\n\n \\b\nc"};
   pqxx::connection cx;
@@ -260,7 +260,7 @@ void test_stream_from_does_escaping(pqxx::test::randomizer &)
 }
 
 
-void test_stream_from_does_iteration(pqxx::test::randomizer &)
+void test_stream_from_does_iteration(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -294,7 +294,7 @@ void test_stream_from_does_iteration(pqxx::test::randomizer &)
 }
 
 
-void test_stream_from_read_row(pqxx::test::randomizer &)
+void test_stream_from_read_row(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -317,7 +317,7 @@ void test_stream_from_read_row(pqxx::test::randomizer &)
 }
 
 
-void test_stream_from_parses_awkward_strings(pqxx::test::randomizer &)
+void test_stream_from_parses_awkward_strings(pqxx::test::context &)
 {
   pqxx::connection cx;
 

@@ -7,7 +7,7 @@
 // Test program for libpqxx.  Attempt to perform nested transactions.
 namespace
 {
-void test_088(pqxx::test::randomizer &)
+void test_088(pqxx::test::context &)
 {
   pqxx::connection cx;
 

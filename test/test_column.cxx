@@ -4,7 +4,7 @@
 
 namespace
 {
-void test_table_column(pqxx::test::randomizer &)
+void test_table_column(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};

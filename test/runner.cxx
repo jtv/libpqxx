@@ -229,12 +229,11 @@ std::string describe_failure(std::string_view desc, std::string_view test)
 
 /// Run one test.  Return optional failure message.
 std::optional<std::string> run_test(
-  std::string_view name, pqxx::test::testfunc func,
-  pqxx::test::randomizer &rnd)
+  std::string_view name, pqxx::test::testfunc func, pqxx::test::context &tctx)
 {
   try
   {
-    func(rnd);
+    func(tctx);
   }
   catch (pqxx::test::test_failure const &e)
   {
@@ -321,31 +320,23 @@ private:
 };
 
 
+/// Work through tests waiting to be executed.  Runs in each worker thread.
 void execute(
   dispatcher &disp,
   std::map<std::string_view, pqxx::test::testfunc> const &all_tests,
   std::mutex &fail_lock, std::vector<std::string> &failures,
-  unsigned random_seed)
+  std::size_t random_seed)
 {
-  // Thread-local random engine.
-  // We seed it here even though we'll seed it again before we start using it,
-  // just to shut up clang-tidy's cert-msc32-c rule.
-  pqxx::test::randomizer rnd{random_seed};
+  // Thread-local test context.
+  pqxx::test::context tctx{random_seed};
 
   // Execute tests while there are any left to do.
   for (std::string_view test{disp.next()}; not std::empty(test);
        test = disp.next())
   {
-    // It's difficult to produce a consistent chain of random values
-    // throughout the test suite when the worker threads run the tests in
-    // indeterminate orders and distributed indeterminately across threads.
-    //
-    // So, we re-seed the random engine for every test.
-    // TODO: Hash the test function into the seed.
-    rnd.seed(random_seed);
-
+    tctx.seed(test);
     auto const func{all_tests.at(test)};
-    auto const msg{run_test(test, func, rnd)};
+    auto const msg{run_test(test, func, tctx)};
     if (msg.has_value())
     {
       std::lock_guard<std::mutex> const l{fail_lock};
@@ -378,7 +369,7 @@ struct options final
   /// Random seed for randomised values in tests.
   /** If seed is zero (the default), we'll use something variable.
    */
-  unsigned seed{0};
+  std::size_t seed{0};
 };
 
 
@@ -411,7 +402,7 @@ options parse_command_line(int argc, char const *argv[])
     }
     else if (want_seed)
     {
-      opts.seed = pqxx::from_string<unsigned>(elt);
+      opts.seed = pqxx::from_string<std::size_t>(elt);
       want_seed = false;
     }
     else if ((elt == "-j") or (elt == "--jobs"))
@@ -436,11 +427,11 @@ options parse_command_line(int argc, char const *argv[])
     }
     else if (elt.starts_with("-s"))
     {
-      opts.seed = pqxx::from_string<unsigned>(elt.substr(2));
+      opts.seed = pqxx::from_string<std::size_t>(elt.substr(2));
     }
     else if (elt.starts_with("--seed="))
     {
-      opts.seed = pqxx::from_string<unsigned>(elt.substr(7));
+      opts.seed = pqxx::from_string<std::size_t>(elt.substr(7));
     }
     else
     {
@@ -460,7 +451,7 @@ options parse_command_line(int argc, char const *argv[])
 
 
 /// Choose a random seed: either the given one, or if zero, a random one.
-unsigned get_random_seed(unsigned seed_opt)
+std::size_t get_random_seed(std::size_t seed_opt)
 {
   if (seed_opt == 0u)
     return std::random_device{}();

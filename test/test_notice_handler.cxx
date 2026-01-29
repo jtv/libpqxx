@@ -5,7 +5,7 @@
 
 namespace
 {
-void test_notice_handler_receives_notice(pqxx::test::randomizer &)
+void test_notice_handler_receives_notice(pqxx::test::context &)
 {
   pqxx::connection cx;
   int notices{0};
@@ -20,8 +20,7 @@ void test_notice_handler_receives_notice(pqxx::test::randomizer &)
 }
 
 
-void test_notice_handler_works_after_connection_closes(
-  pqxx::test::randomizer &)
+void test_notice_handler_works_after_connection_closes(pqxx::test::context &)
 {
   pqxx::result r;
   int notices{0};
@@ -43,7 +42,7 @@ void test_notice_handler_works_after_connection_closes(
 }
 
 
-void test_process_notice_calls_notice_handler(pqxx::test::randomizer &)
+void test_process_notice_calls_notice_handler(pqxx::test::context &)
 {
   int calls{0};
   std::string received;
@@ -93,7 +92,7 @@ void notice_handler_test_func(pqxx::zview)
 }
 
 
-void test_notice_handler_accepts_function(pqxx::test::randomizer &)
+void test_notice_handler_accepts_function(pqxx::test::context &)
 {
   pqxx::connection cx;
   cx.set_notice_handler(notice_handler_test_func);
@@ -105,7 +104,7 @@ void test_notice_handler_accepts_function(pqxx::test::randomizer &)
 // Global counter so we can count calls to a captureless lambda.
 int notice_handler_test_lambda_counter{0}; // NOLINT
 
-void test_notice_handler_accepts_stateless_lambda(pqxx::test::randomizer &)
+void test_notice_handler_accepts_stateless_lambda(pqxx::test::context &)
 {
   pqxx::connection cx;
   cx.set_notice_handler(
@@ -134,7 +133,7 @@ private:
 };
 
 
-void test_notice_handler_accepts_functor(pqxx::test::randomizer &)
+void test_notice_handler_accepts_functor(pqxx::test::context &)
 {
   std::string const hello{"Hello world"};
 
@@ -154,8 +153,7 @@ void test_notice_handler_accepts_functor(pqxx::test::randomizer &)
 }
 
 
-void test_notice_handler_works_after_moving_connection(
-  pqxx::test::randomizer &)
+void test_notice_handler_works_after_moving_connection(pqxx::test::context &)
 {
   bool got_message{false};
   pqxx::connection cx;

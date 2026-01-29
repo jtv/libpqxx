@@ -9,7 +9,7 @@ namespace
 constexpr int boring_year_39{1977};
 
 
-void test_039(pqxx::test::randomizer &)
+void test_039(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::nontransaction tx1{cx};

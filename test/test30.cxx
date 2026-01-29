@@ -6,7 +6,7 @@
 // Test program for libpqxx.  Query a table and report its metadata.
 namespace
 {
-void test_030(pqxx::test::randomizer &)
+void test_030(pqxx::test::context &)
 {
   std::string const table{"pg_tables"};
 

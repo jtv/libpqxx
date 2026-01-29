@@ -7,7 +7,7 @@ namespace
 {
 // Simple test program and example for libpqxx.  Open a connection to the
 // database, start a transaction, and perform a query inside it.
-void test_001(pqxx::test::randomizer &)
+void test_001(pqxx::test::context &)
 {
   // Creating a pqxx::connection is the same thing as connecting to a database.
   // We can pass an optional connection string with connection options.  Our

@@ -145,7 +145,7 @@ void test_esc_like(pqxx::transaction_base &tx)
 }
 
 
-void test_escaping(pqxx::test::randomizer &)
+void test_escaping(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -157,7 +157,7 @@ void test_escaping(pqxx::test::randomizer &)
 }
 
 
-void test_esc_escapes_into_buffer(pqxx::test::randomizer &)
+void test_esc_escapes_into_buffer(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work const tx{cx};
@@ -175,7 +175,7 @@ void test_esc_escapes_into_buffer(pqxx::test::randomizer &)
 }
 
 
-void test_esc_accepts_various_types(pqxx::test::randomizer &)
+void test_esc_accepts_various_types(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work const tx{cx};
@@ -193,7 +193,7 @@ void test_esc_accepts_various_types(pqxx::test::randomizer &)
 }
 
 
-void test_binary_esc_checks_buffer_length(pqxx::test::randomizer &)
+void test_binary_esc_checks_buffer_length(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};

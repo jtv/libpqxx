@@ -5,7 +5,7 @@
 // Simple test program for libpqxx.  Test string conversion routines.
 namespace
 {
-void test_076(pqxx::test::randomizer &)
+void test_076(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::nontransaction tx{cx};

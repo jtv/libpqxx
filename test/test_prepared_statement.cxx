@@ -50,7 +50,7 @@ subst(pqxx::transaction_base &t, std::string const &q, CNTNR const &patterns)
 }
 
 
-void test_registration_and_invocation(pqxx::test::randomizer &)
+void test_registration_and_invocation(pqxx::test::context &)
 {
   constexpr auto count_to_5{"SELECT * FROM generate_series(1, 5)"};
 
@@ -78,7 +78,7 @@ void test_registration_and_invocation(pqxx::test::randomizer &)
 }
 
 
-void test_basic_args(pqxx::test::randomizer &)
+void test_basic_args(pqxx::test::context &)
 {
   pqxx::connection cx;
   cx.prepare("EchoNum", "SELECT $1::int");
@@ -94,7 +94,7 @@ void test_basic_args(pqxx::test::randomizer &)
 }
 
 
-void test_multiple_params(pqxx::test::randomizer &)
+void test_multiple_params(pqxx::test::context &)
 {
   pqxx::connection cx;
   cx.prepare("CountSeries", "SELECT * FROM generate_series($1::int, $2::int)");
@@ -113,7 +113,7 @@ void test_multiple_params(pqxx::test::randomizer &)
 }
 
 
-void test_nulls(pqxx::test::randomizer &)
+void test_nulls(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -128,7 +128,7 @@ void test_nulls(pqxx::test::randomizer &)
 }
 
 
-void test_strings(pqxx::test::randomizer &)
+void test_strings(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -157,7 +157,7 @@ void test_strings(pqxx::test::randomizer &)
 }
 
 
-void test_binary(pqxx::test::randomizer &)
+void test_binary(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -228,7 +228,7 @@ void test_binary(pqxx::test::randomizer &)
 }
 
 
-void test_params(pqxx::test::randomizer &)
+void test_params(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -251,7 +251,7 @@ void test_params(pqxx::test::randomizer &)
 }
 
 
-void test_optional(pqxx::test::randomizer &)
+void test_optional(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -269,21 +269,21 @@ void test_optional(pqxx::test::randomizer &)
 }
 
 
-void test_prepared_statements(pqxx::test::randomizer &rnd)
+void test_prepared_statements(pqxx::test::context &tctx)
 {
-  test_registration_and_invocation(rnd);
-  test_basic_args(rnd);
-  test_multiple_params(rnd);
-  test_nulls(rnd);
-  test_strings(rnd);
-  test_binary(rnd);
-  test_params(rnd);
+  test_registration_and_invocation(tctx);
+  test_basic_args(tctx);
+  test_multiple_params(tctx);
+  test_nulls(tctx);
+  test_strings(tctx);
+  test_binary(tctx);
+  test_params(tctx);
 
-  test_optional(rnd);
+  test_optional(tctx);
 }
 
 
-void test_placeholders_generates_names(pqxx::test::randomizer &)
+void test_placeholders_generates_names(pqxx::test::context &)
 {
   using pqxx::operator""_zv;
   pqxx::placeholders name;
@@ -320,7 +320,7 @@ void test_placeholders_generates_names(pqxx::test::randomizer &)
 }
 
 
-void test_wrong_number_of_params(pqxx::test::randomizer &)
+void test_wrong_number_of_params(pqxx::test::context &)
 {
   {
     pqxx::connection conn1;
@@ -341,7 +341,7 @@ void test_wrong_number_of_params(pqxx::test::randomizer &)
 }
 
 
-void test_query_prepped(pqxx::test::randomizer &)
+void test_query_prepped(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::transaction tx{cx};
@@ -354,7 +354,7 @@ void test_query_prepped(pqxx::test::randomizer &)
 }
 
 
-void test_query_value_prepped(pqxx::test::randomizer &)
+void test_query_value_prepped(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::transaction tx{cx};
@@ -363,7 +363,7 @@ void test_query_value_prepped(pqxx::test::randomizer &)
 }
 
 
-void test_for_query_prepped(pqxx::test::randomizer &)
+void test_for_query_prepped(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::transaction tx{cx};
@@ -376,8 +376,7 @@ void test_for_query_prepped(pqxx::test::randomizer &)
 }
 
 
-void test_prepped_query_does_not_need_terminating_zero(
-  pqxx::test::randomizer &)
+void test_prepped_query_does_not_need_terminating_zero(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::transaction tx{cx};

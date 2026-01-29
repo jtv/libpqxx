@@ -4,7 +4,7 @@
 
 namespace
 {
-void test_field(pqxx::test::randomizer &)
+void test_field(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};

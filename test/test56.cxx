@@ -7,7 +7,7 @@
 // error.
 namespace
 {
-void test_056(pqxx::test::randomizer &)
+void test_056(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};

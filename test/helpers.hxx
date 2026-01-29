@@ -15,6 +15,73 @@ namespace pqxx::test
 using randomizer = std::mt19937;
 
 
+/// Context for running a test.
+/** Defines various utilities that can help tests: randomisers, a temporary
+ * filesystem directory.
+ */
+struct context
+{
+  /// Create a context for one thread to run tests.
+  /** Seeds the randommiser with a highly predictable 0 initially.  Call the
+   * @ref seed() function before consuming random values.
+   */
+  context(std::size_t random_seed) : rnd{0}, rnd_seed{random_seed} {}
+
+  context() = delete;
+  context(context const &) = delete;
+  context(context &&) = delete;
+  context &operator=(context const &) = delete;
+  context &operator=(context &&) = delete;
+
+  /// Seed the randomiser using the original seed.
+  /** Do this before every individual test to get reproducible test sequences.
+   */
+  void seed(std::string_view test_name)
+  {
+    auto const seed{static_cast<randomizer::result_type>(
+      rnd_seed ^ string_hasher(test_name))};
+    rnd.seed(seed);
+  }
+
+  /// Return an arbitrary nonnegative integer.
+  int make_num() { return static_cast<int>(rnd() >> 1); }
+
+  /// Return an arbitrary nonnegative integer below `ceiling`.
+  int make_num(int ceiling) { return make_num() % ceiling; }
+
+  /// Return an arbitrary nonzero `char` value from the full 8-bit range.
+  char random_char()
+  {
+    return static_cast<char>(static_cast<std::uint8_t>(make_num(255) + 1));
+  }
+
+  /// Return an arbitrary numeric floating-point value.  (No NaN or infinity.)
+  template<std::floating_point T> T make_float_num()
+  {
+    auto const x{make_num()}, z{make_num()};
+    auto y{make_num()};
+    while (y == x) y = make_num();
+    return static_cast<T>(x - y) / static_cast<T>(z);
+  }
+
+  /// Generate a name with a given prefix and a randomised suffix.
+  std::string make_name(std::string_view prefix)
+  {
+    return std::format("{}_{}", prefix, make_num());
+  }
+
+private:
+  /// A random engine.
+  randomizer rnd;
+
+  /// The random seed
+  std::size_t rnd_seed;
+
+  /// A factory of hash values for strings.
+  std::hash<std::string_view> string_hasher;
+};
+
+
 /// Exception: A test does not satisfy expected condition.
 class test_failure : public std::logic_error
 {
@@ -43,7 +110,7 @@ void drop_table(
   transaction_base &, std::string const &table, sl loc = sl::current());
 
 
-using testfunc = void (*)(pqxx::test::randomizer &);
+using testfunc = void (*)(pqxx::test::context &);
 
 
 /// Maximum number of tests in the test suite.
@@ -92,48 +159,6 @@ struct registrar final
     pqxx::test::suite::register_test(name, func);
   }
 };
-
-
-/// Return an arbitrary nonnegative integer.
-inline int make_num(pqxx::test::randomizer &rnd)
-{
-  return static_cast<int>(rnd() >> 1);
-}
-
-
-/// Return an arbitrary nonnegative integer below `ceiling`.
-inline int make_num(pqxx::test::randomizer &rnd, int ceiling)
-{
-  return make_num(rnd) % ceiling;
-}
-
-
-/// Return an arbitrary nonzero `char` value from the full 8-bit range.
-inline char random_char(pqxx::test::randomizer &rnd)
-{
-  return static_cast<char>(
-    static_cast<std::uint8_t>(pqxx::test::make_num(rnd, 255) + 1));
-}
-
-
-/// Return an arbitrary numeric floating-point value.  (No NaN or inifinity.)
-template<std::floating_point T> T make_float_num(pqxx::test::randomizer &rnd)
-{
-  auto const x{make_num(rnd)}, z{make_num(rnd)};
-  auto y{make_num(rnd)};
-  while (y == x) y = make_num(rnd);
-  return static_cast<T>(x - y) / static_cast<T>(z);
-}
-
-
-/// Generate a name with a given prefix and a randomised suffix.
-inline std::string
-make_name(pqxx::test::randomizer &rnd, std::string_view prefix)
-{
-  // In principle we should seed the random generator, but the scheduling of
-  // threads will jumble up the numbers anyway.
-  return std::format("{}_{}", prefix, make_num(rnd));
-}
 
 
 // Unconditional test failure.

@@ -47,7 +47,7 @@ void check_setting_datestyle(
 }
 
 
-void test_060(pqxx::test::randomizer &)
+void test_060(pqxx::test::context &)
 {
   pqxx::connection cx;
 

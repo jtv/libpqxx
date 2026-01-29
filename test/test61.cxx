@@ -32,7 +32,7 @@ void RedoDatestyle(
 }
 
 
-void test_061(pqxx::test::randomizer &)
+void test_061(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};

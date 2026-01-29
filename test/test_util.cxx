@@ -5,18 +5,17 @@
 
 namespace
 {
-void test_make_num(pqxx::test::randomizer &rnd)
+void test_make_num(pqxx::test::context &tctx)
 {
   bool same{true};
-  int last{pqxx::test::make_num(rnd)};
+  int last{tctx.make_num()};
   for (int i{0}; same and (i < 10); ++i)
-    if (pqxx::test::make_num(rnd) != last)
+    if (tctx.make_num() != last)
       same = false;
   PQXX_CHECK(
     not same, std::format("Random numbers all came out as {}.", last));
 
-  for (int i{0}; i < 100; ++i)
-    PQXX_CHECK_BOUNDS(pqxx::test::make_num(rnd, 10), 0, 10);
+  for (int i{0}; i < 100; ++i) PQXX_CHECK_BOUNDS(tctx.make_num(10), 0, 10);
 }
 
 
@@ -38,7 +37,7 @@ template<typename T> void test_for(T const &val)
 }
 
 
-void test_binary_cast(pqxx::test::randomizer &)
+void test_binary_cast(pqxx::test::context &)
 {
   std::byte const bytes_c_array[]{
     std::byte{0x22}, std::byte{0x23}, std::byte{0x24}};
@@ -175,7 +174,7 @@ template<std::floating_point TO> inline void check_inf_to()
 }
 
 
-void test_check_cast(pqxx::test::randomizer &)
+void test_check_cast(pqxx::test::context &)
 {
   check_all_casts(0);
   check_all_casts(1);
@@ -244,7 +243,7 @@ void test_check_cast(pqxx::test::randomizer &)
 }
 
 
-void test_source_loc_renders_real_source_location(pqxx::test::randomizer &)
+void test_source_loc_renders_real_source_location(pqxx::test::context &)
 {
   auto const loc{pqxx::sl::current()};
   auto const loc_text{pqxx::source_loc(loc)};
@@ -260,10 +259,10 @@ void test_source_loc_renders_real_source_location(pqxx::test::randomizer &)
 
 
 /// Make up an arbitrary source code filename.
-std::string make_filename(pqxx::test::randomizer &rnd)
+std::string make_filename(pqxx::test::context &tctx)
 {
   char const *suffix{nullptr};
-  switch (pqxx::test::make_num(rnd, 7))
+  switch (tctx.make_num(7))
   {
   case 0: suffix = "cxx"; break;
   case 1: suffix = "cpp"; break;
@@ -275,14 +274,14 @@ std::string make_filename(pqxx::test::randomizer &rnd)
   }
   assert(suffix != nullptr);
 
-  return std::format("{}.{}", pqxx::test::make_name(rnd, "source"), suffix);
+  return std::format("{}.{}", tctx.make_name("source"), suffix);
 }
 
 
 /// Make up an arbitrary C++ type name.
-std::string make_type(pqxx::test::randomizer &rnd)
+std::string make_type(pqxx::test::context &tctx)
 {
-  switch (pqxx::test::make_num(rnd, 10))
+  switch (tctx.make_num(10))
   {
   case 0: return "int";
   case 1: return "char *";
@@ -290,10 +289,10 @@ std::string make_type(pqxx::test::randomizer &rnd)
   case 3: return "std::string";
   case 4: return "unsigned int";
   case 5: return "double";
-  case 6: return std::format("std::vector<{}> &", make_type(rnd));
+  case 6: return std::format("std::vector<{}> &", make_type(tctx));
   case 7: {
-    auto const tp1{make_type(rnd)};
-    auto const tp2{make_type(rnd)};
+    auto const tp1{make_type(tctx)};
+    auto const tp2{make_type(tctx)};
     return std::format("std::map<{}, {}> &", tp1, tp2);
   }
   case 8: return "bool";
@@ -305,15 +304,15 @@ std::string make_type(pqxx::test::randomizer &rnd)
 
 
 /// Make up an arbitrary C++ parameters list.
-std::string make_params(pqxx::test::randomizer &rnd)
+std::string make_params(pqxx::test::context &tctx)
 {
-  switch (pqxx::test::make_num(rnd, 3))
+  switch (tctx.make_num(3))
   {
   case 0: return "";
-  case 1: return make_type(rnd);
+  case 1: return make_type(tctx);
   case 2: {
-    auto const tp1{make_type(rnd)};
-    auto const tp2{make_type(rnd)};
+    auto const tp1{make_type(tctx)};
+    auto const tp2{make_type(tctx)};
     return std::format("{}, {}", tp1, tp2);
   }
   default: break;
@@ -323,13 +322,13 @@ std::string make_params(pqxx::test::randomizer &rnd)
 
 
 /// Make up an arbitrary function name.
-std::string make_function(pqxx::test::randomizer &rnd)
+std::string make_function(pqxx::test::context &tctx)
 {
   std::string rettype{"void"};
-  if (pqxx::test::make_num(rnd, 5) > 0)
-    rettype = make_type(rnd);
-  auto const name{pqxx::test::make_name(rnd, "func")};
-  return std::format("{} {}({})", rettype, name, make_params(rnd));
+  if (tctx.make_num(5) > 0)
+    rettype = make_type(tctx);
+  auto const name{tctx.make_name("func")};
+  return std::format("{} {}({})", rettype, name, make_params(tctx));
 }
 
 
@@ -363,20 +362,20 @@ struct fake_sl
 
 
 /// Return an arbitrary positive number.
-std::uint_least32_t make_pos_num(pqxx::test::randomizer &rnd)
+std::uint_least32_t make_pos_num(pqxx::test::context &tctx)
 {
-  return static_cast<std::uint_least32_t>(pqxx::test::make_num(rnd, 9999) + 1);
+  return static_cast<std::uint_least32_t>(tctx.make_num(9999) + 1);
 }
 
 
-void test_source_loc_handles_full_location(pqxx::test::randomizer &rnd)
+void test_source_loc_handles_full_location(pqxx::test::context &tctx)
 {
-  std::string const func{make_function(rnd)};
+  std::string const func{make_function(tctx)};
   fake_sl const loc{
-    .fil = make_filename(rnd),
+    .fil = make_filename(tctx),
     .fun = func.c_str(),
-    .lin = make_pos_num(rnd),
-    .col = make_pos_num(rnd),
+    .lin = make_pos_num(tctx),
+    .col = make_pos_num(tctx),
   };
 
   PQXX_CHECK_EQUAL(
@@ -385,13 +384,13 @@ void test_source_loc_handles_full_location(pqxx::test::randomizer &rnd)
 }
 
 
-void test_source_loc_handles_missing_column(pqxx::test::randomizer &rnd)
+void test_source_loc_handles_missing_column(pqxx::test::context &tctx)
 {
-  std::string const func{make_function(rnd)};
+  std::string const func{make_function(tctx)};
   fake_sl const loc{
-    .fil = make_filename(rnd),
+    .fil = make_filename(tctx),
     .fun = func.c_str(),
-    .lin = make_pos_num(rnd),
+    .lin = make_pos_num(tctx),
   };
 
   PQXX_CHECK_EQUAL(
@@ -400,13 +399,13 @@ void test_source_loc_handles_missing_column(pqxx::test::randomizer &rnd)
 }
 
 
-void test_source_loc_handles_missing_line(pqxx::test::randomizer &rnd)
+void test_source_loc_handles_missing_line(pqxx::test::context &tctx)
 {
-  std::string const func{make_function(rnd)};
+  std::string const func{make_function(tctx)};
   fake_sl const loc{
-    .fil = make_filename(rnd),
+    .fil = make_filename(tctx),
     .fun = func.c_str(),
-    .col = make_pos_num(rnd),
+    .col = make_pos_num(tctx),
   };
 
   PQXX_CHECK_EQUAL(
@@ -414,12 +413,12 @@ void test_source_loc_handles_missing_line(pqxx::test::randomizer &rnd)
 }
 
 
-void test_source_loc_handles_missing_function(pqxx::test::randomizer &rnd)
+void test_source_loc_handles_missing_function(pqxx::test::context &tctx)
 {
   fake_sl const loc{
-    .fil = make_filename(rnd),
-    .lin = make_pos_num(rnd),
-    .col = make_pos_num(rnd),
+    .fil = make_filename(tctx),
+    .lin = make_pos_num(tctx),
+    .col = make_pos_num(tctx),
   };
 
   PQXX_CHECK_EQUAL(
@@ -428,39 +427,38 @@ void test_source_loc_handles_missing_function(pqxx::test::randomizer &rnd)
 }
 
 
-void test_source_loc_handles_line_only(pqxx::test::randomizer &rnd)
+void test_source_loc_handles_line_only(pqxx::test::context &tctx)
 {
   fake_sl const loc{
-    .fil = make_filename(rnd),
-    .lin = make_pos_num(rnd),
+    .fil = make_filename(tctx),
+    .lin = make_pos_num(tctx),
   };
   PQXX_CHECK_EQUAL(
     pqxx::source_loc(loc), std::format("{}:{}:", loc.fil, loc.lin));
 }
 
 
-void test_source_loc_handles_column_only(pqxx::test::randomizer &rnd)
+void test_source_loc_handles_column_only(pqxx::test::context &tctx)
 {
-  fake_sl const loc{.fil = make_filename(rnd), .col = make_pos_num(rnd)};
+  fake_sl const loc{.fil = make_filename(tctx), .col = make_pos_num(tctx)};
   // We don't bother printing a column number without a line number.
   PQXX_CHECK_EQUAL(pqxx::source_loc(loc), std::format("{}:", loc.fil));
 }
 
 
-void test_source_loc_handles_func_only(pqxx::test::randomizer &rnd)
+void test_source_loc_handles_func_only(pqxx::test::context &tctx)
 {
-  std::string const func{make_function(rnd)};
-  fake_sl const loc{.fil = make_filename(rnd), .fun = func.c_str()};
+  std::string const func{make_function(tctx)};
+  fake_sl const loc{.fil = make_filename(tctx), .fun = func.c_str()};
 
   PQXX_CHECK_EQUAL(
     pqxx::source_loc(loc), std::format("{}: ({})", loc.fil, loc.fun));
 }
 
 
-void test_source_loc_handles_minimal_source_location(
-  pqxx::test::randomizer &rnd)
+void test_source_loc_handles_minimal_source_location(pqxx::test::context &tctx)
 {
-  fake_sl const loc{.fil = make_filename(rnd)};
+  fake_sl const loc{.fil = make_filename(tctx)};
   PQXX_CHECK_EQUAL(pqxx::source_loc(loc), std::format("{}:", loc.fil));
 }
 

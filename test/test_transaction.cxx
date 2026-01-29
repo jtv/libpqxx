@@ -6,7 +6,7 @@
 
 namespace
 {
-void test_nontransaction_continues_after_error(pqxx::test::randomizer &)
+void test_nontransaction_continues_after_error(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::nontransaction tx{cx};
@@ -47,7 +47,7 @@ int count_temp_table(pqxx::transaction_base &tx)
 }
 
 
-void test_nontransaction_autocommits(pqxx::test::randomizer &)
+void test_nontransaction_autocommits(pqxx::test::context &)
 {
   pqxx::connection cx;
 
@@ -68,7 +68,7 @@ void test_nontransaction_autocommits(pqxx::test::randomizer &)
 }
 
 
-template<typename TX> void test_double_close(pqxx::test::randomizer &)
+template<typename TX> void test_double_close(pqxx::test::context &)
 {
   pqxx::connection cx;
 
@@ -95,7 +95,7 @@ template<typename TX> void test_double_close(pqxx::test::randomizer &)
 }
 
 
-template<typename TX> void test_failed_commit(pqxx::test::randomizer &)
+template<typename TX> void test_failed_commit(pqxx::test::context &)
 {
   pqxx::connection cx;
   TX tx{cx};
@@ -116,7 +116,7 @@ template<typename TX> void test_failed_commit(pqxx::test::randomizer &)
 
 
 template<typename TX>
-void test_commit_on_broken_connection(pqxx::test::randomizer &)
+void test_commit_on_broken_connection(pqxx::test::context &)
 {
   pqxx::connection cx;
   TX tx{cx};
@@ -125,16 +125,16 @@ void test_commit_on_broken_connection(pqxx::test::randomizer &)
 }
 
 
-void test_transaction(pqxx::test::randomizer &rnd)
+void test_transaction(pqxx::test::context &tctx)
 {
-  test_double_close<pqxx::transaction<>>(rnd);
-  test_double_close<pqxx::read_transaction>(rnd);
-  test_double_close<pqxx::nontransaction>(rnd);
-  test_double_close<pqxx::robusttransaction<>>(rnd);
-  test_failed_commit<pqxx::transaction<>>(rnd);
-  test_failed_commit<pqxx::robusttransaction<>>(rnd);
-  test_commit_on_broken_connection<pqxx::transaction<>>(rnd);
-  test_commit_on_broken_connection<pqxx::robusttransaction<>>(rnd);
+  test_double_close<pqxx::transaction<>>(tctx);
+  test_double_close<pqxx::read_transaction>(tctx);
+  test_double_close<pqxx::nontransaction>(tctx);
+  test_double_close<pqxx::robusttransaction<>>(tctx);
+  test_failed_commit<pqxx::transaction<>>(tctx);
+  test_failed_commit<pqxx::robusttransaction<>>(tctx);
+  test_commit_on_broken_connection<pqxx::transaction<>>(tctx);
+  test_commit_on_broken_connection<pqxx::robusttransaction<>>(tctx);
 }
 
 

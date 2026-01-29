@@ -10,7 +10,7 @@
 
 namespace
 {
-void test_blob_is_useless_by_default(pqxx::test::randomizer &)
+void test_blob_is_useless_by_default(pqxx::test::context &)
 {
   pqxx::blob b{};
   pqxx::bytes buf;
@@ -19,7 +19,7 @@ void test_blob_is_useless_by_default(pqxx::test::randomizer &)
 }
 
 
-void test_blob_create_makes_empty_blob(pqxx::test::randomizer &)
+void test_blob_create_makes_empty_blob(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -30,7 +30,7 @@ void test_blob_create_makes_empty_blob(pqxx::test::randomizer &)
 }
 
 
-void test_blob_create_with_oid_requires_oid_be_free(pqxx::test::randomizer &)
+void test_blob_create_with_oid_requires_oid_be_free(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -40,7 +40,7 @@ void test_blob_create_with_oid_requires_oid_be_free(pqxx::test::randomizer &)
 }
 
 
-void test_blob_create_with_oid_obeys_oid(pqxx::test::randomizer &)
+void test_blob_create_with_oid_obeys_oid(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -53,7 +53,7 @@ void test_blob_create_with_oid_obeys_oid(pqxx::test::randomizer &)
 }
 
 
-void test_blobs_are_transactional(pqxx::test::randomizer &)
+void test_blobs_are_transactional(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -64,7 +64,7 @@ void test_blobs_are_transactional(pqxx::test::randomizer &)
 }
 
 
-void test_blob_remove_removes_blob(pqxx::test::randomizer &)
+void test_blob_remove_removes_blob(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -76,7 +76,7 @@ void test_blob_remove_removes_blob(pqxx::test::randomizer &)
 }
 
 
-void test_blob_remove_is_not_idempotent(pqxx::test::randomizer &)
+void test_blob_remove_is_not_idempotent(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -86,7 +86,7 @@ void test_blob_remove_is_not_idempotent(pqxx::test::randomizer &)
 }
 
 
-void test_blob_checks_open_mode(pqxx::test::randomizer &)
+void test_blob_checks_open_mode(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -118,7 +118,7 @@ unsigned byte_as_num(std::byte b)
 }
 
 
-void test_blob_supports_move(pqxx::test::randomizer &)
+void test_blob_supports_move(pqxx::test::context &)
 {
   pqxx::bytes buf;
   buf.push_back(std::byte{'x'});
@@ -158,7 +158,7 @@ void test_blob_supports_move(pqxx::test::randomizer &)
 }
 
 
-void test_blob_read_reads_data(pqxx::test::randomizer &)
+void test_blob_read_reads_data(pqxx::test::context &)
 {
   pqxx::bytes const data{std::byte{'a'}, std::byte{'b'}, std::byte{'c'}};
 
@@ -177,7 +177,7 @@ void test_blob_read_reads_data(pqxx::test::randomizer &)
 }
 
 
-void test_blob_read_reads_generic_data(pqxx::test::randomizer &)
+void test_blob_read_reads_generic_data(pqxx::test::context &)
 {
   std::array<std::byte, 3> const data{
     std::byte{'a'}, std::byte{'b'}, std::byte{'c'}};
@@ -204,7 +204,7 @@ template<typename BYTE> inline unsigned byte_val(BYTE val)
 }
 
 
-void test_blob_read_span(pqxx::test::randomizer &)
+void test_blob_read_span(pqxx::test::context &)
 {
   pqxx::bytes const data{std::byte{'u'}, std::byte{'v'}, std::byte{'w'},
                          std::byte{'x'}, std::byte{'y'}, std::byte{'z'}};
@@ -245,7 +245,7 @@ void test_blob_read_span(pqxx::test::randomizer &)
 }
 
 
-void test_blob_reads_vector(pqxx::test::randomizer &)
+void test_blob_reads_vector(pqxx::test::context &)
 {
   char const content[]{"abcd"};
   pqxx::connection cx;
@@ -261,7 +261,7 @@ void test_blob_reads_vector(pqxx::test::randomizer &)
 }
 
 
-void test_blob_write_appends_at_insertion_point(pqxx::test::randomizer &)
+void test_blob_write_appends_at_insertion_point(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -292,7 +292,7 @@ void test_blob_write_appends_at_insertion_point(pqxx::test::randomizer &)
 }
 
 
-void test_blob_writes_span(pqxx::test::randomizer &)
+void test_blob_writes_span(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -315,7 +315,7 @@ void test_blob_writes_span(pqxx::test::randomizer &)
 }
 
 
-void test_blob_resize_shortens_to_desired_length(pqxx::test::randomizer &)
+void test_blob_resize_shortens_to_desired_length(pqxx::test::context &)
 {
   pqxx::bytes const data{
     std::byte{'w'}, std::byte{'o'}, std::byte{'r'}, std::byte{'k'}};
@@ -331,7 +331,7 @@ void test_blob_resize_shortens_to_desired_length(pqxx::test::randomizer &)
 }
 
 
-void test_blob_resize_extends_to_desired_length(pqxx::test::randomizer &)
+void test_blob_resize_extends_to_desired_length(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -345,7 +345,7 @@ void test_blob_resize_extends_to_desired_length(pqxx::test::randomizer &)
 }
 
 
-void test_blob_tell_tracks_position(pqxx::test::randomizer &)
+void test_blob_tell_tracks_position(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -364,7 +364,7 @@ void test_blob_tell_tracks_position(pqxx::test::randomizer &)
 }
 
 
-void test_blob_seek_sets_positions(pqxx::test::randomizer &)
+void test_blob_seek_sets_positions(pqxx::test::context &)
 {
   pqxx::bytes const data{
     std::byte{0}, std::byte{1}, std::byte{2}, std::byte{3}, std::byte{4},
@@ -389,7 +389,7 @@ void test_blob_seek_sets_positions(pqxx::test::randomizer &)
 }
 
 
-void test_blob_from_buf_interoperates_with_to_buf(pqxx::test::randomizer &)
+void test_blob_from_buf_interoperates_with_to_buf(pqxx::test::context &)
 {
   pqxx::bytes const data{std::byte{'h'}, std::byte{'i'}};
   pqxx::bytes buf;
@@ -400,7 +400,7 @@ void test_blob_from_buf_interoperates_with_to_buf(pqxx::test::randomizer &)
 }
 
 
-void test_blob_append_from_buf_appends(pqxx::test::randomizer &)
+void test_blob_append_from_buf_appends(pqxx::test::context &)
 {
   pqxx::bytes const data{std::byte{'h'}, std::byte{'o'}};
   pqxx::connection cx;
@@ -423,7 +423,7 @@ void test_blob_append_from_buf_appends(pqxx::test::randomizer &)
 }
 
 
-void test_blob_generic_append_from_buf_appends(pqxx::test::randomizer &)
+void test_blob_generic_append_from_buf_appends(pqxx::test::context &)
 {
   std::array<std::byte, 2> const data{std::byte{'h'}, std::byte{'o'}};
   pqxx::connection cx;
@@ -525,9 +525,9 @@ private:
 
 
 void test_blob_from_file_creates_blob_from_file_contents(
-  pqxx::test::randomizer &rnd)
+  pqxx::test::context &tctx)
 {
-  std::string const temp_file = pqxx::test::make_name(rnd, "blob-test");
+  std::string const temp_file = tctx.make_name("pqxx-blob");
   pqxx::bytes const data{std::byte{'4'}, std::byte{'2'}};
 
   pqxx::connection cx;
@@ -544,10 +544,10 @@ void test_blob_from_file_creates_blob_from_file_contents(
 }
 
 
-void test_blob_from_file_with_oid_writes_blob(pqxx::test::randomizer &rnd)
+void test_blob_from_file_with_oid_writes_blob(pqxx::test::context &tctx)
 {
   pqxx::bytes const data{std::byte{'6'}, std::byte{'9'}};
-  std::string const temp_file = pqxx::test::make_name(rnd, "pqxx-blob-test");
+  std::string const temp_file = tctx.make_name("pqxx-blob");
   pqxx::bytes buf;
 
   pqxx::connection cx;
@@ -566,7 +566,7 @@ void test_blob_from_file_with_oid_writes_blob(pqxx::test::randomizer &rnd)
 }
 
 
-void test_blob_append_to_buf_appends(pqxx::test::randomizer &)
+void test_blob_append_to_buf_appends(pqxx::test::context &)
 {
   pqxx::bytes const data{
     std::byte{'b'}, std::byte{'l'}, std::byte{'u'}, std::byte{'b'}};
@@ -585,11 +585,11 @@ void test_blob_append_to_buf_appends(pqxx::test::randomizer &)
 }
 
 
-void test_blob_to_file_writes_file(pqxx::test::randomizer &rnd)
+void test_blob_to_file_writes_file(pqxx::test::context &tctx)
 {
   pqxx::bytes const data{std::byte{'C'}, std::byte{'+'}, std::byte{'+'}};
 
-  std::string const temp_file = pqxx::test::make_name(rnd, "blob-test");
+  std::string const temp_file = tctx.make_name("blob-test");
   pqxx::connection cx;
   pqxx::work tx{cx};
   auto id{pqxx::blob::from_buf(tx, data)};
@@ -610,7 +610,7 @@ void test_blob_to_file_writes_file(pqxx::test::randomizer &rnd)
 }
 
 
-void test_blob_close_leaves_blob_unusable(pqxx::test::randomizer &)
+void test_blob_close_leaves_blob_unusable(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};

@@ -12,7 +12,7 @@
 // well.
 namespace
 {
-void test_084(pqxx::test::randomizer &rnd)
+void test_084(pqxx::test::context &tctx)
 {
   pqxx::connection cx;
   pqxx::transaction<pqxx::serializable> tx{cx};
@@ -27,7 +27,7 @@ void test_084(pqxx::test::randomizer &rnd)
     "Not enough rows in " + Table + ", cannot test.");
 
   // Create an SQL cursor and, for good measure, muddle up its state a bit.
-  std::string const CurName{pqxx::test::make_name(rnd, "pqxx-cur")},
+  std::string const CurName{tctx.make_name("pqxx-cur")},
     Query{"SELECT * FROM " + Table + " ORDER BY " + Key};
   constexpr int InitialSkip{2}, GetRows{3};
 

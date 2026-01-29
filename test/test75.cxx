@@ -9,7 +9,7 @@
 // result to a regular, const_iterator iteration.
 namespace
 {
-void test_075(pqxx::test::randomizer &)
+void test_075(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
