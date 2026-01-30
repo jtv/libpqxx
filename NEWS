@@ -3,7 +3,7 @@
  - Any changes will be logged under "8.0.0".
  - `pqxx::zview` default constructor now also zero-terminates.
  - Libpqxx exceptions now have a `std::stacktrace`, if available.
- - Replace generated config headers with just `config-compiler.h` etc. (#1152)
+ - Replace generated config headers with just `config-compiler.h`. (#1152)
 8.0.0
  - C++20 is now the oldest C++ version that libpqxx supports.
  - Requires PostgreSQL 11 or better.

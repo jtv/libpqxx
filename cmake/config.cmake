@@ -23,22 +23,25 @@ try_compile(
 set(AC_CONFIG_H_IN "${PROJECT_SOURCE_DIR}/include/pqxx/config.h.in")
 set(CM_CONFIG_H_IN "${PROJECT_BINARY_DIR}/include/pqxx/config_cmake.h.in")
 set(CONFIG_H "${PROJECT_BINARY_DIR}/include/pqxx/config.h")
+set(CONFIG_H_COM "${PROJECT_BINARY_DIR}/include/pqxx/config-compiler.h")
 message(STATUS "Generating configuration headers")
-file(WRITE "${CONFIG_H}" "")
-file(STRINGS "${CONFIG_H_IN}" lines)
-# TODO: Synthesise the autotools header ourselves?
+
+# First we write config_cmake.h.in based on autoconf's config.h.in.
+file(WRITE "${CM_CONFIG_H_IN}" "")
+file(STRINGS "${AC_CONFIG_H_IN}" lines)
 foreach(line ${lines})
     string(REGEX REPLACE "^#undef" "#cmakedefine" l "${line}")
     file(APPEND "${CM_CONFIG_H_IN}" "${l}\n")
 endforeach()
+
+# Now have CMake write config.h based on that config_cmake.h.in.  This makes the
+# process look as much like the autoconf one as we can.
 configure_file("${CM_CONFIG_H_IN}" "${CONFIG_H}" @ONLY)
+
+# Then grab the PQXX macros from config.h and write them to config-compiler.h.
 execute_process(
-    COMMAND ${CMAKE_COMMAND} -E env python3
-            ${CMAKE_SOURCE_DIR}/tools/splitconfig.py ${CMAKE_SOURCE_DIR}
+    COMMAND grep PQXX "${CONFIG_H}"
+    OUTPUT_FILE "${CONFIG_H_COM}"
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    RESULT_VARIABLE split_result
 )
-if(NOT split_result EQUAL 0)
-    message(FATAL_ERROR "Could not split config headers.")
-endif()
 message(STATUS "Generating configuration headers - done")
