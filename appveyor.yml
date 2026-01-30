@@ -40,6 +40,7 @@ configuration: Debug
 build:
   parallel: true
   project: libpqxx.sln
+  verbosity: minimal
 
 test_script:
   - ps: $env:Path +=
