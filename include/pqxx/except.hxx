@@ -373,7 +373,6 @@ struct PQXX_LIBEXPORT sql_error : public failure
   bool poisons_transaction() const noexcept override { return true; }
 };
 
-// XXX: Update vtors from here.
 
 /// Exception class for mis-communication with the server.
 /** This happens when the conversation between libpq and the server gets messed
