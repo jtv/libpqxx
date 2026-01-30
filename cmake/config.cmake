@@ -22,15 +22,23 @@ try_compile(
 
 set(AC_CONFIG_H_IN "${PROJECT_SOURCE_DIR}/include/pqxx/config.h.in")
 set(CM_CONFIG_H_IN "${PROJECT_BINARY_DIR}/include/pqxx/config_cmake.h.in")
-set(CM_CONFIG_COM "${PROJECT_BINARY_DIR}/include/pqxx/config-compiler.h")
-set(CM_CONFIG_PQ "${PROJECT_BINARY_DIR}/include/pqxx/config-libpq.h")
-message(STATUS "Generating config.h")
-file(WRITE "${CM_CONFIG_H_IN}" "")
-file(STRINGS "${AC_CONFIG_H_IN}" lines)
+set(CONFIG_H "${PROJECT_BINARY_DIR}/include/pqxx/config.h")
+message(STATUS "Generating configuration headers")
+file(WRITE "${CONFIG_H}" "")
+file(STRINGS "${CONFIG_H_IN}" lines)
+# TODO: Synthesise the autotools header ourselves?
 foreach(line ${lines})
     string(REGEX REPLACE "^#undef" "#cmakedefine" l "${line}")
     file(APPEND "${CM_CONFIG_H_IN}" "${l}\n")
 endforeach()
-configure_file("${CM_CONFIG_H_IN}" "${CM_CONFIG_COM}" @ONLY)
-configure_file("${CM_CONFIG_H_IN}" "${CM_CONFIG_PQ}" @ONLY)
-message(STATUS "Generating config.h - done")
+configure_file("${CM_CONFIG_H_IN}" "${CONFIG_H}" @ONLY)
+execute_process(
+    COMMAND ${CMAKE_COMMAND} -E env python3
+            ${CMAKE_SOURCE_DIR}/tools/splitconfig.py ${CMAKE_SOURCE_DIR}
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    RESULT_VARIABLE split_result
+)
+if(NOT split_result EQUAL 0)
+    message(FATAL_ERROR "Could not split config headers.")
+endif()
+message(STATUS "Generating configuration headers - done")
