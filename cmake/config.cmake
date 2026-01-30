@@ -22,11 +22,8 @@ try_compile(
 
 set(AC_CONFIG_H_IN "${PROJECT_SOURCE_DIR}/include/pqxx/config.h.in")
 set(CM_CONFIG_H_IN "${PROJECT_BINARY_DIR}/include/pqxx/config_cmake.h.in")
-set(CM_CONFIG_PUB "${PROJECT_BINARY_DIR}/include/pqxx/config-public-compiler.h")
-set(CM_CONFIG_INT
-    "${PROJECT_BINARY_DIR}/include/pqxx/config-internal-compiler.h"
-)
-set(CM_CONFIG_PQ "${PROJECT_BINARY_DIR}/include/pqxx/config-internal-libpq.h")
+set(CM_CONFIG_COM "${PROJECT_BINARY_DIR}/include/pqxx/config-compiler.h")
+set(CM_CONFIG_PQ "${PROJECT_BINARY_DIR}/include/pqxx/config-libpq.h")
 message(STATUS "Generating config.h")
 file(WRITE "${CM_CONFIG_H_IN}" "")
 file(STRINGS "${AC_CONFIG_H_IN}" lines)
@@ -34,7 +31,6 @@ foreach(line ${lines})
     string(REGEX REPLACE "^#undef" "#cmakedefine" l "${line}")
     file(APPEND "${CM_CONFIG_H_IN}" "${l}\n")
 endforeach()
-configure_file("${CM_CONFIG_H_IN}" "${CM_CONFIG_INT}" @ONLY)
-configure_file("${CM_CONFIG_H_IN}" "${CM_CONFIG_PUB}" @ONLY)
+configure_file("${CM_CONFIG_H_IN}" "${CM_CONFIG_COM}" @ONLY)
 configure_file("${CM_CONFIG_H_IN}" "${CM_CONFIG_PQ}" @ONLY)
 message(STATUS "Generating config.h - done")

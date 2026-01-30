@@ -2,18 +2,12 @@
 
 """Extract configuration items into various configuration headers.
 
-This uses the configitems file, a database consisting of text lines with the
-following single-tab-separated fields:
- - Name of the configuration item, e.g. PQXX_HAVE_PTRDIFF_T.
- - Publication marker: public or internal.
- - A single environmental factor determining the item, e.g. libpq or compiler.
-"""
+This uses the configitems file, a database consisting of text lines with these
+whitespace-separated fields:
 
-from __future__ import (
-    absolute_import,
-    print_function,
-    unicode_literals,
-    )
+* Name of the configuration item, e.g. `PQXX_HAVE_PTRDIFF_T`.
+* The environmental factor determining the item, e.g. autotools or compiler.
+"""
 
 from argparse import ArgumentParser
 from errno import ENOENT
@@ -26,7 +20,9 @@ from sys import (
     stdout,
     )
 
-__metaclass__ = type
+
+class Fail(Exception):
+    """User-presentable exception, no traceback needed."""
 
 
 def guess_fs_encoding():
@@ -41,8 +37,7 @@ def guess_fs_encoding():
         'utf-8',
         ]
     for encoding in candidates:
-        lower = encoding.lower()
-        if lower != 'ascii' and lower != 'ansi_x3.4-1968':
+        if encoding.lower() not in ('ascii', 'ansi_x3.4-1968'):
             return encoding
     raise AssertionError("unreachable code reached.")
 
@@ -99,14 +94,14 @@ def read_configitems(filename):
 
 
 def map_configitems(items):
-    """Map each config item to publication/factor.
+    """Map each config item to factor.
 
-    :param items: Sequence of config items: (name, publication, factor).
-    :return: Dict mapping each item name to a tuple (publication, factor).
+    :param items: Sequence of config items: (name, factor).
+    :return: Dict mapping each item name to a factor.
     """
     return {
-        item: (publication, factor)
-        for item, publication, factor in items
+        item: factor
+        for item, factor in items
         }
 
 
@@ -137,12 +132,11 @@ def extract_macro_name(config_line):
         return match.group(1)
 
 
-def extract_section(header_lines, items, publication, factor):
-    """Extract config items for given publication/factor from header lines.
+def extract_section(header_lines, items, factor):
+    """Extract config items for given factor from header lines.
 
     :param header_lines: Sequence of header lines from config.h.
-    :param items: Dict mapping macro names to (publication, factor).
-    :param publication: Extract only macros for this publication tag.
+    :param items: Dict mapping macro names to factors.
     :param factor: Extract only macros for this environmental factor.
     :return: Sequence of `#define` lines from `header_lines` insofar they
         fall within the requested section.
@@ -150,20 +144,17 @@ def extract_section(header_lines, items, publication, factor):
     return sorted(
         line.strip()
         for line in header_lines
-        if items.get(extract_macro_name(line)) == (publication, factor)
+        if items.get(extract_macro_name(line)) == factor
         )
 
 
-def compose_header(lines, publication, factor):
+def compose_header(lines, factor):
     """Generate header text containing given lines."""
-    intro = (
-        "/* Automatically generated from config.h: %s/%s config. */"
-        % (publication, factor)
-        )
+    intro = f"/* Automatically generated from config.h: {factor} config. */"
     return '\n'.join([intro, ''] + lines + [''])
 
 
-def generate_config(source_tree, header_lines, items, publication, factor):
+def generate_config(source_tree, header_lines, items, factor):
     """Generate config file for a given section, if appropriate.
 
     Writes nothing if the configuration file ends up identical to one that's
@@ -171,22 +162,20 @@ def generate_config(source_tree, header_lines, items, publication, factor):
 
     :param source_tree: Location of the libpqxx source tree.
     :param header_lines: Sequence of header lines from config.h.
-    :param items: Dict mapping macro names to (publication, factor).
-    :param publication: Extract only macros for this publication tag.
+    :param items: Dict mapping macro names to factor.
     :param factor: Extract only macros for this environmental factor.
     """
     assert isinstance(source_tree, type(''))
     config_file = os.path.join(
-        source_tree, 'include', 'pqxx',
-        'config-%s-%s.h' % (publication, factor))
+        source_tree, 'include', 'pqxx', f'config-{factor}.h')
     unicode_path = config_file.encode(guess_output_encoding(), 'replace')
-    section = extract_section(header_lines, items, publication, factor)
-    contents = compose_header(section, publication, factor)
+    section = extract_section(header_lines, items, factor)
+    contents = compose_header(section, factor)
     if read_text_file(config_file) == contents:
-        print("Generating %s: no changes--skipping." % unicode_path)
+        print(f"Generating {unicode_path}: no changes--skipping.")
         return
 
-    print("Generating %s: %d item(s)." % (unicode_path, len(section)))
+    print(f"Generating {unicode_path}: {len(section)} item(s).")
     path = encode_path(config_file)
     with open(path, 'w', encoding='ascii', newline='\n') as header:
         header.write(contents)
@@ -206,7 +195,7 @@ def parse_args():
 def check_args(args):
     """Validate command-line arguments."""
     if not os.path.isdir(args.sourcetree):
-        raise Exception("Not a directory: '%s'." % args.sourcetree)
+        raise Fail(f"Not a directory: '{args.sourcetree}'.")
 
 
 def get_current_dir():
@@ -223,8 +212,7 @@ def main():
     check_args(args)
     # The configitems file is under revision control; it's in sourcetree.
     items = read_configitems(os.path.join(args.sourcetree, 'configitems'))
-    publications = sorted(set(item[1] for item in items))
-    factors = sorted(set(item[2] for item in items))
+    factors = sorted(set(item[1] for item in items))
     # The config.h header is generated; it's in the build tree, which should
     # be where we are.
     directory = get_current_dir()
@@ -233,10 +221,8 @@ def main():
         os.path.join('include', 'pqxx', 'config.h'))
     items_map = map_configitems(items)
 
-    for publication in publications:
-        for factor in factors:
-            generate_config(
-                directory, original_header, items_map, publication, factor)
+    for factor in factors:
+        generate_config(directory, original_header, items_map, factor)
 
 
 if __name__ == '__main__':

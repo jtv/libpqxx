@@ -77,7 +77,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 
 
 nobase_nodist_include_HEADERS = \
-	pqxx/config-public-compiler.h
+	pqxx/config-compiler.h
 
 EXTRA_DIST = \
 	pqxx/doc/*.md \
