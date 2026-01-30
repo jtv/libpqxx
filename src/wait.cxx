@@ -2,6 +2,8 @@
  */
 #include "pqxx-source.hxx"
 
+#include "pqxx/config-compiler.h"
+
 #include <array>
 
 // For WSAPoll().

@@ -21354,6 +21354,13 @@ ac_config_files="$ac_config_files Makefile config/Makefile doc/Makefile examples
 
 
 
+# We've let autoconf generate a config.h.  But there's a lot of stuff in there
+# that we don't need, and that we absolutely do not want.  We'd like to avoid
+# polluting the application's namespace with macros that aren't clearly marked
+# as libpqxx-related.
+#
+# So we take just the ones with the "PQXX" marker and write them into a
+# header just for compiler-related configuration.
 ac_config_commands="$ac_config_commands configitems"
 
 
@@ -23896,7 +23903,7 @@ compiler_lib_search_path=$lt_compiler_lib_search_path_CXX
 _LT_EOF
 
  ;;
-    "configitems":C) "${srcdir}/tools/splitconfig.py" "${srcdir}" ;;
+    "configitems":C) grep PQXX include/pqxx/config.h >include/pqxx/config-compiler.h ;;
 
   esac
 done # for ac_tag

@@ -43,7 +43,7 @@
 
 
 // Workarounds & definitions that need to be included even in library's headers
-#include "pqxx/config-public-compiler.h"
+#include "pqxx/config-compiler.h"
 
 // MSVC has a nonstandard definition of __cplusplus.
 #if defined(_MSC_VER)
