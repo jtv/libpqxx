@@ -13,20 +13,18 @@ branches:
   only:
     - master
 
+# Set up to run the build across multiple C++ language versions.
 environment:
   # PostgreSQL version.  We need it in several places.
   PGVERSION: 15
-
-services: postgresql%PGVERSION%
-install:
-  - net start postgresql-x64-%PGVERSION%
-
-# Set up to run the build across multiple C++ language versions.
-environment:
   matrix:
     - CXX_VERSION: 20
     - CXX_VERSION: 23
   MSVC: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC"
+
+services: postgresql%PGVERSION%
+install:
+  - net start postgresql-x64-%PGVERSION%
 
 # Run CMake to build libpqxx.sln.
 #
