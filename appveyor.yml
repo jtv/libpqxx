@@ -13,26 +13,30 @@ branches:
   only:
     - master
 
-# TODO: Do we really have to spell out the postgres version in 3 places?
-services: postgresql15
-install:
-  - net start postgresql-x64-15
-
 # Set up to run the build across multiple C++ language versions.
 environment:
+  # PostgreSQL version.  We need it in several places.
+  PGVERSION: 15
   matrix:
     - CXX_VERSION: 20
     - CXX_VERSION: 23
   MSVC: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC"
 
+services: postgresql%PGVERSION%
+install:
+  - net start postgresql-x64-%PGVERSION%
+
 # Run CMake to build libpqxx.sln.
+#
+# 7z's -bsp0 option is supposed to suppress its progress bar.
 before_build:
   - cmd: "call \"%MSVC%\\Auxiliary\\Build\\vcvars64.bat\"\n\
     cmake -DBUILD_SHARED_LIBS=1 -DCMAKE_CXX_STANDARD=%CXX_VERSION% \
         -DCMAKE_CXX_FLAGS=\"/analyze /EHsc /Wall /sdl /options:strict /MP \
         /wd4514 /wd4702 /wd4800 /wd4820 /wd4866 /wd4868 /wd5031 /wd5032 \
-        /wd5045 /wd5246 /wd5264 /wd6924\"\n\
-    7z a config-headers.zip \
+        /wd5045 /wd5246 /wd5264 /wd6924\" \
+        .\n\
+    7z a -bsp0 config-headers.zip \
         \"%APPVEYOR_BUILD_FOLDER%/include/pqxx/config-*.h*\"\n\
     appveyor PushArtifact config-headers.zip"
 
@@ -40,10 +44,11 @@ configuration: Debug
 build:
   parallel: true
   project: libpqxx.sln
+  verbosity: minimal
 
 test_script:
   - ps: $env:Path +=
-      ";.\\src\\Debug;C:\\Program Files\\PostgreSQL\\15\\bin" ;
+      ";.\\src\\Debug;C:\\Program Files\\PostgreSQL\\$env:PGVERSION\\bin" ;
       $env:PGUSER = "postgres" ;
       $env:PGPASSWORD = "Password12!" ;
       .\\test\\Debug\\runner.exe
