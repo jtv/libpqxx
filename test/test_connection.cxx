@@ -405,7 +405,7 @@ void test_connection_duplicate_params_overwrite(pqxx::test::context &tctx)
     {"application_name", name2},
   };
 
-  pqxx::connection cx{"", args};
+  pqxx::connection const cx{"", args};
   auto const connstr{cx.connection_string()};
   PQXX_CHECK(not pqxx::str_contains(connstr, name1));
   PQXX_CHECK(pqxx::str_contains(connstr, name2));
