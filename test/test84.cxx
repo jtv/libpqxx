@@ -17,27 +17,20 @@ void test_084(pqxx::test::context &tctx)
   pqxx::connection cx;
   pqxx::transaction<pqxx::serializable> tx{cx};
 
-  std::string const Table{"pg_tables"}, Key{"tablename"};
-
-  // Count rows.
-  pqxx::result R(tx.exec("SELECT count(*) FROM " + Table));
-
-  PQXX_CHECK(
-    R.at(0).at(0).as<long>() > 20,
-    "Not enough rows in " + Table + ", cannot test.");
+  int const table_size{20};
 
   // Create an SQL cursor and, for good measure, muddle up its state a bit.
-  std::string const CurName{tctx.make_name("pqxx-cur")},
-    Query{"SELECT * FROM " + Table + " ORDER BY " + Key};
-  constexpr int InitialSkip{2}, GetRows{3};
+  std::string const cur_name{tctx.make_name("pqxx-cur")},
+    query{std::format("SELECT * FROM generate_series(0, {})", table_size)};
+  constexpr int initial_skip{2}, get_rows{3};
 
-  tx.exec("DECLARE " + tx.quote_name(CurName) + " CURSOR FOR " + Query)
+  tx.exec("DECLARE " + tx.quote_name(cur_name) + " CURSOR FOR " + query)
     .no_rows();
   tx.exec(
-      "MOVE " + pqxx::to_string(InitialSkip * GetRows) +
+      "MOVE " + pqxx::to_string(initial_skip * get_rows) +
       " "
       "IN " +
-      tx.quote_name(CurName))
+      tx.quote_name(cur_name))
     .no_rows();
 
   // Wrap cursor in cursor stream.  Apply some trickery to get its name inside
@@ -45,19 +38,19 @@ void test_084(pqxx::test::context &tctx)
   // supposed to be easy; normally we'd only construct streams around existing
   // SQL cursors if they were being returned by functions.
   pqxx::icursorstream C{
-    tx, tx.exec("SELECT $1", pqxx::params{CurName}).one_field(), GetRows};
+    tx, tx.exec("SELECT $1", pqxx::params{cur_name}).one_field(), get_rows};
 
   // Create parallel cursor to check results
-  pqxx::icursorstream C2{tx, Query, "CHECKCUR", GetRows};
+  pqxx::icursorstream C2{tx, query, "CHECKCUR", get_rows};
   pqxx::icursor_iterator i2{C2};
 
-  // Remember, our adopted cursor is at position (InitialSkip*GetRows)
+  // Remember, our adopted cursor is at position (initial_skip*get_rows)
   pqxx::icursor_iterator i3(i2);
 
   PQXX_CHECK((i3 == i2) and not(i3 != i2));
   PQXX_CHECK(not(i3 > i2) and not(i3 < i2) and (i3 <= i2) and (i3 >= i2));
 
-  i3 += InitialSkip;
+  i3 += initial_skip;
 
   PQXX_CHECK(not(i3 <= i2));
 
@@ -68,35 +61,36 @@ void test_084(pqxx::test::context &tctx)
   PQXX_CHECK(i4 == iend);
 
   // Now start testing our new Cursor.
-  C >> R;
+  pqxx::result res;
+  C >> res;
   i2 = i3;
-  pqxx::result R2(*i2++);
+  pqxx::result res2(*i2++);
 
   PQXX_CHECK_EQUAL(
-    std::size(R), static_cast<pqxx::result::size_type>(GetRows));
+    std::size(res), static_cast<pqxx::result::size_type>(get_rows));
 
-  PQXX_CHECK_EQUAL(pqxx::to_string(R), pqxx::to_string(R2));
+  PQXX_CHECK_EQUAL(pqxx::to_string(res), pqxx::to_string(res2));
 
-  C.get(R);
-  R2 = *i2;
-  PQXX_CHECK_EQUAL(pqxx::to_string(R), pqxx::to_string(R2));
+  C.get(res);
+  res2 = *i2;
+  PQXX_CHECK_EQUAL(pqxx::to_string(res), pqxx::to_string(res2));
   i2 += 1;
 
-  C.ignore(GetRows);
-  C.get(R);
-  R2 = *++i2;
+  C.ignore(get_rows);
+  C.get(res);
+  res2 = *++i2;
 
-  PQXX_CHECK_EQUAL(pqxx::to_string(R), pqxx::to_string(R2));
+  PQXX_CHECK_EQUAL(pqxx::to_string(res), pqxx::to_string(res2));
 
   ++i2;
-  R2 = *i2++;
-  for (int i{1}; C.get(R) and i2 != iend; R2 = *i2++, ++i)
+  res2 = *i2++;
+  for (int i{1}; C.get(res) and i2 != iend; res2 = *i2++, ++i)
     PQXX_CHECK_EQUAL(
-      pqxx::to_string(R), pqxx::to_string(R2),
+      pqxx::to_string(res), pqxx::to_string(res2),
       "Unexpected result in iteration at " + pqxx::to_string(i));
 
   PQXX_CHECK(i2 == iend);
-  PQXX_CHECK(not(C >> R));
+  PQXX_CHECK(not(C >> res));
 }
 } // namespace
 
