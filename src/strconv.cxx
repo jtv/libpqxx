@@ -139,30 +139,30 @@ inline char *wrap_to_chars(std::span<char> buf, T const &value, pqxx::sl loc)
 
 namespace pqxx
 {
-template<pqxx::internal::integer T>
+template<pqxx::internal::integer TYPE>
 inline std::string_view
 // NOLINTNEXTLINE(readability-non-const-parameter)
-string_traits<T>::to_buf(std::span<char> buf, T const &value, ctx c)
+string_traits<TYPE>::to_buf(std::span<char> buf, TYPE const &value, ctx c)
 {
-  static_assert(std::is_integral_v<T>);
+  static_assert(std::is_integral_v<TYPE>);
   auto const space{std::size(buf)}, need{size_buffer(value)};
   if (std::cmp_less(space, need))
     throw conversion_overrun{
       std::format(
         "Could not convert {} to string: buffer too small.  {}",
-        name_type<T>(), pqxx::internal::state_buffer_overrun(space, need)),
+        name_type<TYPE>(), pqxx::internal::state_buffer_overrun(space, need)),
       c.loc};
 
   auto const end{std::data(buf) + std::size(buf)};
   char const *const pos{[end, &value]() {
-    if constexpr (std::is_unsigned_v<T>)
+    if constexpr (std::is_unsigned_v<TYPE>)
       return nonneg_to_buf(end, value);
     else if (value >= 0)
       return nonneg_to_buf(end, value);
-    else if (value > bottom<T>)
+    else if (value > bottom<TYPE>)
       return neg_to_buf(end, -value);
     else
-      return bottom_to_buf<T>(end);
+      return bottom_to_buf<TYPE>(end);
   }()};
   return {pos, static_cast<std::size_t>(end - pos)};
 }
@@ -429,10 +429,10 @@ template struct float_string_traits<long double>;
 
 namespace pqxx
 {
-template<pqxx::internal::integer T>
-T string_traits<T>::from_string(std::string_view text, ctx c)
+template<pqxx::internal::integer TYPE>
+TYPE string_traits<TYPE>::from_string(std::string_view text, ctx c)
 {
-  return from_string_arithmetic<T>(text, c);
+  return from_string_arithmetic<TYPE>(text, c);
 }
 
 template short string_traits<short>::from_string(std::string_view, ctx c);
