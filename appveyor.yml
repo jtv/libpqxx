@@ -13,10 +13,13 @@ branches:
   only:
     - master
 
-# TODO: Do we really have to spell out the postgres version in 3 places?
-services: postgresql15
+environment:
+  # PostgreSQL version.  We need it in several places.
+  PGVERSION: 15
+
+services: postgresql%PGVERSION%
 install:
-  - net start postgresql-x64-15
+  - net start postgresql-x64-%PGVERSION%
 
 # Set up to run the build across multiple C++ language versions.
 environment:
@@ -47,7 +50,7 @@ build:
 
 test_script:
   - ps: $env:Path +=
-      ";.\\src\\Debug;C:\\Program Files\\PostgreSQL\\15\\bin" ;
+      ";.\\src\\Debug;C:\\Program Files\\PostgreSQL\\%PGVERSION%\\bin" ;
       $env:PGUSER = "postgres" ;
       $env:PGPASSWORD = "Password12!" ;
       .\\test\\Debug\\runner.exe
