@@ -7,7 +7,7 @@ namespace pqxx::internal
 struct pg_conn_option;
 
 
-/// Helper for parsing a connection string into option keys and their values.
+/// Parse a connection string into option keys and their values.
 /** This is a class and not a function for just one reason: the outputs contain
  * pointers to storage that needs to be held in memory.
  */
