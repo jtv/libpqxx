@@ -84,5 +84,68 @@ void test_connection_string_escapes(pqxx::test::context &)
 }
 
 
+/// Convenience alias for a long, long name.
+using parser = pqxx::internal::connection_string_parser;
+
+
+void test_connection_string_parser_accepts_empty_string(pqxx::test::context &)
+{
+  parser const p{""};
+  auto const [keys, values]{p.parse()};
+  PQXX_CHECK(keys.empty());
+  PQXX_CHECK(values.empty());
+}
+
+
+void test_connection_string_parser_accepts_connection_string(
+  pqxx::test::context &tctx)
+{
+  int const timeout{tctx.make_num(10) + 5};
+  parser const p{std::format("connect_timeout={}", timeout).c_str()};
+  auto const [keys, values]{p.parse()};
+  PQXX_CHECK_EQUAL(std::size(keys), std::size(values));
+  PQXX_CHECK_EQUAL(std::size(keys), 1u);
+  PQXX_CHECK_EQUAL(std::string{keys.at(0)}, "connect_timeout");
+  PQXX_CHECK_EQUAL(pqxx::from_string<int>(values.at(0)), timeout);
+}
+
+
+void test_connection_string_parser_deduplicates(pqxx::test::context &tctx)
+{
+  auto const name1{tctx.make_name()}, name2{tctx.make_name()};
+  parser const p{
+    std::format("application_name={} application_name={}", name1, name2)
+      .c_str()};
+  auto const [keys, values]{p.parse()};
+  PQXX_CHECK_EQUAL(std::size(keys), std::size(values));
+  PQXX_CHECK_EQUAL(std::size(keys), 1u);
+  PQXX_CHECK_EQUAL((std::string{keys.at(0)}), "application_name");
+  PQXX_CHECK_EQUAL((std::string{values.at(0)}), name2);
+}
+
+
+void test_connection_string_parser_unquotes(pqxx::test::context &)
+{
+  parser const p1{"application_name='q u o t e d'"};
+  auto const [k1, v1]{p1.parse()};
+  PQXX_CHECK_EQUAL(std::size(k1), 1u);
+  PQXX_CHECK_EQUAL(std::string{v1.at(0)}, "q u o t e d");
+}
+
+
+void test_connection_string_parser_unescapes(pqxx::test::context &)
+{
+  parser const p1{"application_name=can\\'t"};
+  auto const [k1, v1]{p1.parse()};
+  PQXX_CHECK_EQUAL(std::size(k1), 1u);
+  PQXX_CHECK_EQUAL(std::string{v1.at(0)}, "can't");
+}
+
+
 PQXX_REGISTER_TEST(test_connection_string_escapes);
+PQXX_REGISTER_TEST(test_connection_string_parser_accepts_empty_string);
+PQXX_REGISTER_TEST(test_connection_string_parser_accepts_connection_string);
+PQXX_REGISTER_TEST(test_connection_string_parser_deduplicates);
+PQXX_REGISTER_TEST(test_connection_string_parser_unquotes);
+PQXX_REGISTER_TEST(test_connection_string_parser_unescapes);
 } // namespace

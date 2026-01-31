@@ -310,156 +310,105 @@ void test_connection_client_encoding(pqxx::test::context &tctx)
 }
 
 
-void test_connection_string_with_overrides(pqxx::test::context &)
+/// Simple check: does `cx` work?
+void check_connection_works(pqxx::connection &cx, pqxx::test::context &tctx)
 {
-  // replace parameter from connection string
-  {
-    std::map<std::string, std::string> const params{
-      {"application_name", "override_test"}};
+  pqxx::work tx{cx};
+  int const value{tctx.make_num()};
+  PQXX_CHECK_EQUAL(tx.query_value<int>("SELECT $1", {value}), value);
+}
 
-    pqxx::connection const cx{"application_name=original", params};
-    PQXX_CHECK(cx.is_open(), "Connection with overrides failed to open.");
 
-    auto const connstr{cx.connection_string()};
-    PQXX_CHECK(
-      pqxx::str_contains(connstr, "override_test"),
-      "Override parameter not found in connection string.");
-    PQXX_CHECK(
-      not pqxx::str_contains(connstr, "original"),
-      "Original parameter was not overridden.");
-  }
+void test_connection_takes_string_and_params(pqxx::test::context &tctx)
+{
+  int const timeout{tctx.make_num(10) + 5};
+  std::string const appname{tctx.make_name()};
+  pqxx::connection cx{
+    std::format("connect_timeout={}", timeout),
+    std::map<std::string, std::string>{{"application_name", appname}}};
 
-  // Add new parameters not present in connection string
-  {
-    std::map<std::string, std::string> const params{
-      {"connect_timeout", "30"}, {"keepalives_idle", "120"}};
+  check_connection_works(cx, tctx);
 
-    pqxx::connection const cx{"", params};
-    PQXX_CHECK(cx.is_open(), "Connection with new parameters failed.");
+  // The connection combines settings from both the connection string and the
+  // parameters map.
+  auto const connstr{cx.connection_string()};
+  PQXX_CHECK(pqxx::str_contains(connstr, "application_name"));
+  PQXX_CHECK(pqxx::str_contains(connstr, appname));
+  PQXX_CHECK(
+    pqxx::str_contains(connstr, std::format("connect_timeout={}", timeout)));
+}
 
-    auto const connstr{cx.connection_string()};
-    PQXX_CHECK(
-      pqxx::str_contains(connstr, "connect_timeout"),
-      "New parameter not found.");
-    PQXX_CHECK(
-      pqxx::str_contains(connstr, "30"), "New parameter value not found.");
-    PQXX_CHECK(
-      pqxx::str_contains(connstr, "keepalives_idle"),
-      "New parameter not found.");
-    PQXX_CHECK(
-      pqxx::str_contains(connstr, "120"), "New parameter value not found.");
-  }
 
-  // Mix - some overrides, some additions, some unchanged
-  {
-    std::vector<std::pair<std::string, std::string>> const params{
-      {"application_name", "mixed_test"}, {"connect_timeout", "45"}};
+void test_connection_params_override_string(pqxx::test::context &tctx)
+{
+  auto const first{tctx.make_name("1")}, second{tctx.make_name("2")};
+  pqxx::connection cx{
+    std::format("application_name={}", first),
+    std::map<char const *, pqxx::zview>{{"application_name", second}}};
 
-    pqxx::connection const cx{
-      "application_name=base keepalives_idle=60", params};
-    PQXX_CHECK(cx.is_open(), "Mixed connection failed.");
+  check_connection_works(cx, tctx);
 
-    auto const connstr{cx.connection_string()};
+  auto const connstr{cx.connection_string()};
+  PQXX_CHECK(not pqxx::str_contains(connstr, first));
+  PQXX_CHECK(pqxx::str_contains(connstr, second));
+}
 
-    // Overrides
-    PQXX_CHECK(
-      pqxx::str_contains(connstr, "mixed_test"),
-      "application_name not overridden.");
-    PQXX_CHECK(
-      not pqxx::str_contains(connstr, "base"),
-      "Original application_name not replaced.");
 
-    // New parameters
-    PQXX_CHECK(
-      pqxx::str_contains(connstr, "connect_timeout"),
-      "New parameter not added.");
+void test_connection_takes_string_and_empty_params(pqxx::test::context &tctx)
+{
+  auto const appname{tctx.make_name()};
+  pqxx::connection cx{std::format("application_name={}", appname)};
 
-    // Unchanged parameters
-    PQXX_CHECK(
-      pqxx::str_contains(connstr, "keepalives_idle"), "Base parameter lost.");
-  }
+  check_connection_works(cx, tctx);
 
-  // Empty override map (equivalent to regular constructor)
-  {
-    std::map<std::string, std::string> const params{};
+  PQXX_CHECK(pqxx::str_contains(cx.connection_string(), appname));
+}
 
-    pqxx::connection const cx{"application_name=empty_override", params};
-    PQXX_CHECK(cx.is_open(), "Connection with empty overrides failed.");
 
-    auto const connstr{cx.connection_string()};
-    PQXX_CHECK(
-      pqxx::str_contains(connstr, "empty_override"),
-      "Base connection string not used.");
-  }
+void test_connection_takes_empty_string_and_params(pqxx::test::context &tctx)
+{
+  auto const appname{tctx.make_name()};
+  pqxx::connection cx{
+    "", std::map<char const *, std::string const &>{
+          {"application_name", appname}}};
 
-  // Empty params
-  {
-    std::vector<std::pair<std::string, std::string>> const params{
-      {"application_name", "empty_params"}, {"connect_timeout", "54"}};
+  check_connection_works(cx, tctx);
 
-    pqxx::connection const cx{"", params};
-    PQXX_CHECK(cx.is_open(), "Connection with empty params failed.");
+  PQXX_CHECK(pqxx::str_contains(cx.connection_string(), appname));
+}
 
-    auto const connstr{cx.connection_string()};
-    PQXX_CHECK(
-      pqxx::str_contains(connstr, "empty_params"),
-      "application_name not added.");
-    PQXX_CHECK(
-      pqxx::str_contains(connstr, "54"), "connect_timeout not added.");
-  }
 
-  // Empty connection string and empty overrides
-  {
-    std::map<std::string, std::string> const params{};
+void test_connection_takes_empty_string_and_empty_params(
+  pqxx::test::context &tctx)
+{
+  pqxx::connection cx{"", std::map<std::string, std::string>{}};
+  check_connection_works(cx, tctx);
+}
 
-    pqxx::connection const cx{"", params};
-    PQXX_CHECK(
-      cx.is_open(), "Connection with empty base and overrides failed.");
 
-    auto const connstr{cx.connection_string()};
-    PQXX_CHECK(not connstr.empty(), "Connection string should not be empty.");
-  }
+void test_connection_rejects_bad_string(pqxx::test::context &tctx)
+{
+  PQXX_CHECK_THROWS(
+    (pqxx::connection{tctx.make_name(), std::map<std::string, std::string>{}}),
+    pqxx::broken_connection);
+}
 
-  // Invalid connection string throws
-  {
-    std::map<std::string, std::string> const params{};
 
-    PQXX_CHECK_THROWS(
-      (pqxx::connection{"invalid=syntax===bad", params}),
-      pqxx::broken_connection, "Invalid connection string should throw.");
-  }
+void test_connection_duplicate_params_overwrite(pqxx::test::context &tctx)
+{
+  auto const name1{tctx.make_name()}, name2{tctx.make_name()};
+  // Use a vector here, not a map, so that we're really passing multiple
+  // parameters with identical keys to the connection.
+  std::vector<std::pair<char const *, pqxx::zview>> const args{
+    {"application_name", name1},
+    {"connect_timeout", "1"},
+    {"application_name", name2},
+  };
 
-  // Multiple overrides of same parameter (last wins)
-  {
-    std::vector<std::pair<std::string, std::string>> const params{
-      {"application_name", "first"}, {"application_name", "second"}};
-
-    pqxx::connection const cx{"", params};
-    auto const connstr{cx.connection_string()};
-    PQXX_CHECK(
-      pqxx::str_contains(connstr, "second"), "Last override should win.");
-  }
-
-  // Verify connection actually works
-  {
-    std::map<std::string, std::string> const params{
-      {"application_name", "query_test"}};
-
-    pqxx::connection cx{"", params};
-    PQXX_CHECK(cx.is_open(), "Connection failed.");
-    pqxx::nontransaction tx{cx};
-    auto const result{tx.query_value<int>("SELECT 42")};
-    PQXX_CHECK_EQUAL(result, 42, "Query failed with override constructor.");
-  }
-
-  // Verify connecting to overridden host
-  {
-    std::map<std::string, std::string> params{{"host", "doesnotexist"}};
-
-    PQXX_CHECK_THROWS(
-      (pqxx::connection{"host=localhost", params}), pqxx::broken_connection,
-      R"(could not translate host name "doesnotexist" to address: Name or service not known)");
-  }
+  pqxx::connection const cx{"", args};
+  auto const connstr{cx.connection_string()};
+  PQXX_CHECK(not pqxx::str_contains(connstr, name1));
+  PQXX_CHECK(pqxx::str_contains(connstr, name2));
 }
 
 
@@ -488,6 +437,12 @@ PQXX_REGISTER_TEST(test_raw_connection);
 PQXX_REGISTER_TEST(test_closed_connection);
 PQXX_REGISTER_TEST(test_skip_init_ssl);
 PQXX_REGISTER_TEST(test_connection_client_encoding);
-PQXX_REGISTER_TEST(test_connection_string_with_overrides);
 PQXX_REGISTER_TEST(test_quote_columns_quotes_and_escapes);
+PQXX_REGISTER_TEST(test_connection_takes_string_and_params);
+PQXX_REGISTER_TEST(test_connection_params_override_string);
+PQXX_REGISTER_TEST(test_connection_takes_string_and_empty_params);
+PQXX_REGISTER_TEST(test_connection_takes_empty_string_and_params);
+PQXX_REGISTER_TEST(test_connection_takes_empty_string_and_empty_params);
+PQXX_REGISTER_TEST(test_connection_rejects_bad_string);
+PQXX_REGISTER_TEST(test_connection_duplicate_params_overwrite);
 } // namespace

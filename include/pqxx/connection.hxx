@@ -32,6 +32,7 @@
 
 #include "pqxx/errorhandler.hxx"
 #include "pqxx/except.hxx"
+#include "pqxx/internal/connection-string.hxx"
 #include "pqxx/params.hxx"
 #include "pqxx/result.hxx"
 #include "pqxx/separated_list.hxx"
@@ -77,9 +78,11 @@ namespace pqxx::internal
 class sql_cursor;
 
 /// Concept: T is a range of pairs of zero-terminated strings.
+/** For example, this could be a `std::map<char const *, std::string>`, or a
+ * `std::vector<std::pair<pqxx::zview, char const *>`.
+ */
 template<typename T>
 concept ZKey_ZValues = std::ranges::input_range<T> and requires(T t) {
-  { std::cbegin(t) };
   { std::get<0>(*std::cbegin(t)) } -> ZString;
   { std::get<1>(*std::cbegin(t)) } -> ZString;
 } and std::tuple_size_v<typename std::ranges::iterator_t<T>::value_type> == 2;
@@ -278,27 +281,26 @@ public:
   /// Connect to a database, using `options` string.
   PQXX_ZARGS explicit connection(
     char const options[], sl loc = sl::current()) :
-          m_created_loc{loc}
-  {
-    check_version();
-    init(pqxx::zview{options}, {}, {}, loc);
-  }
+          connection{options, std::map<char const *, char const *>{}, loc}
+  {}
 
   /// Connect to a database, using `options` string.
   explicit connection(zview options, sl loc = sl::current()) :
           connection{options.c_str(), loc}
-  {
-    // (Delegates to other constructor which calls check_version for us.)
-  }
+  {}
 
-  /// Connect to a database with connection string and parameter overrides.
-  /** This constructor allows you to specify a connection string and override
-   * specific parameters using a mapping (e.g., std::map, std::vector of
-   * pairs).
+  /// Connect to a database with both connection string and parameter pairs.
+  /** The parameter pairs are key/value pairs similar to the parameters you can
+   * also encode in a connection string.
    *
-   * The connection string is parsed first, then the key-value pairs from the
-   * mapping are applied, overriding any matching parameters from the
-   * connection string or adding new ones.
+   * Use this to combine a connection string with parameter pairs.  This can
+   * be useful when you have a fixed basic connection string, but sometimes
+   * want to override specific parameters.
+   *
+   * For any parameter which occurs both in the connection strings and in the
+   * parameter mapping, the latter's value takes effect.  For any parameter
+   * which occurs in the mapping multiple times, the last occurrence's value
+   * takes effect.
    *
    * The mapping can be anything that can be iterated as a series of pairs of
    * zero-terminated strings: `std::pair<std::string, std::string>`, or
@@ -306,17 +308,51 @@ public:
    * `std::map<std::string, pqxx::zview>`, and so on.
    *
    * Example:
-   * @code
-   * std::map<std::string, std::string> params = {
+   * ```cxx
+   * std::map<std::string, std::string> const params = {
    *   {"application_name", "my_app"},
    *   {"connect_timeout", "30"}
    * };
    * pqxx::connection cx{"host=localhost dbname=test", params};
-   * @endcode
+   * ```
    */
   template<internal::ZKey_ZValues MAPPING>
   inline connection(
-    zview connection_string, MAPPING const &params, sl = sl::current());
+    char const connection_string[], MAPPING const &params, sl = sl::current());
+
+  // XXX: Can we loosen the zero-termination requirements now!?
+  /// Connect to a database with both connection string and parameter pairs.
+  /** The parameter pairs are key/value pairs similar to the parameters you can
+   * also encode in a connection string.
+   *
+   * Use this to combine a connection string with parameter pairs.  This can
+   * be useful when you have a fixed basic connection string, but sometimes
+   * want to override specific parameters.
+   *
+   * For any parameter which occurs both in the connection strings and in the
+   * parameter mapping, the latter's value takes effect.  For any parameter
+   * which occurs in the mapping multiple times, the last occurrence's value
+   * takes effect.
+   *
+   * The mapping can be anything that can be iterated as a series of pairs of
+   * zero-terminated strings: `std::pair<std::string, std::string>`, or
+   * `std::tuple<pqxx::zview, char const *>`, or
+   * `std::map<std::string, pqxx::zview>`, and so on.
+   *
+   * Example:
+   * ```cxx
+   * std::map<std::string, std::string> const params = {
+   *   {"application_name", "my_app"},
+   *   {"connect_timeout", "30"}
+   * };
+   * pqxx::connection cx{"host=localhost dbname=test", params};
+   * ```
+   */
+  template<internal::ZKey_ZValues MAPPING>
+  inline connection(
+    zview connection_string, MAPPING const &params, sl loc = sl::current()) :
+          connection{connection_string.c_str(), params, loc}
+  {}
 
   /// Move constructor.
   /** Moving a connection is not allowed if it has an open transaction, or has
@@ -340,7 +376,9 @@ public:
    * `std::map<std::string, pqxx::zview>`, and so on.
    */
   template<internal::ZKey_ZValues MAPPING>
-  inline connection(MAPPING const &params, sl = sl::current());
+  inline connection(MAPPING const &params, sl loc = sl::current()) :
+          connection{"", params, loc}
+  {}
 
   ~connection()
   {
@@ -1278,14 +1316,15 @@ private:
    */
   std::pair<bool, bool> poll_connect(sl);
 
-  // Initialise based on connection string and override key/value pairs
+  // Initialise based on connection string and key/value parameter pairs.
   void init(
-    zview connection_string, const std::vector<const char *> &override_keys,
-    const std::vector<const char *> &override_values, sl);
+    std::vector<const char *> const &override_keys,
+    std::vector<const char *> const &override_values, sl);
 
   void set_up_notice_handlers();
-  /// Do the work that is common to all `init()` overloads.
-  void complete_init(sl);
+
+  /// Complete setup after libpq has completed creating its connection.
+  void complete_connection(sl);
 
   result make_result(
     internal::pq::PGresult *pgr, std::shared_ptr<std::string> const &query,
@@ -1297,8 +1336,6 @@ private:
   {
     return make_result(pgr, query, "", loc);
   }
-
-  PQXX_PRIVATE void set_up_state(sl);
 
   PQXX_PRIVATE int status() const noexcept;
 
@@ -1346,7 +1383,7 @@ private:
    * a buffer containing the line, and size will be its length not including
    * the newline at the end.
    */
-  std::pair<std::unique_ptr<char, void (*)(void const *)>, std::size_t>
+  std::pair<std::unique_ptr<char[], void (*)(void const *)>, std::size_t>
     read_copy_line(sl);
 
   friend class internal::gate::connection_stream_to;
@@ -1562,49 +1599,54 @@ connection::quote_columns(STRINGS const &columns, sl loc) const
 
 
 template<internal::ZKey_ZValues MAPPING>
-inline connection::connection(MAPPING const &params, sl loc) :
+inline connection::connection(
+  char const connection_string[], MAPPING const &params, sl loc) :
         m_created_loc{loc}
 {
   check_version();
 
-  std::vector<char const *> keys, values;
-  if constexpr (std::ranges::sized_range<MAPPING>)
+  pqxx::internal::connection_string_parser const parsed_string{
+    connection_string, loc};
+  auto [keys, values]{parsed_string.parse()};
+
+  // Merge key/value pairs into the pairs we got from the connection string.
+  for (auto const &[org_key, org_value] : params)
   {
-    auto const size{std::ranges::size(params) + 1};
-    keys.reserve(size);
-    values.reserve(size);
+    auto const key{pqxx::internal::as_c_string(org_key)},
+      value{pqxx::internal::as_c_string(org_value)};
+
+    // Did we have a value for key already?  This is a horrible O(n^2) search,
+    // in principle, but there's only so many possible options.  Trying to
+    // optimise this might make it worse in common practical cases.
+    //
+    // (Landau's "large O" notation really only applies to inputs growing
+    // towards infinity.  If there's a known constant bound b such that n < b,
+    // then O(n^2) is at worst O(b^2).  Since b is a constant, O(b^2) boils
+    // down to O(1).)
+    auto const it{std::ranges::find_if(keys, [key](char const *existing) {
+      return std::strcmp(existing, key) == 0;
+    })};
+
+    if (it == keys.end())
+    {
+      // New key.  Append.
+      keys.push_back(key);
+      values.push_back(value);
+    }
+    else
+    {
+      // A key we've already seen.  Override.
+      auto const idx{
+        static_cast<std::size_t>(std::distance(keys.begin(), it))};
+      values[idx] = value;
+    }
   }
-  for (auto const &[key, value] : params)
-  {
-    keys.push_back(internal::as_c_string(key));
-    values.push_back(internal::as_c_string(value));
-  }
-  init(pqxx::zview{""}, keys, values, loc);
+
+  // Null-terminate both arrays.
+  keys.push_back(nullptr);
+  values.push_back(nullptr);
+
+  init(keys, values, loc);
 }
-
-
-template<internal::ZKey_ZValues MAPPING>
-inline connection::connection(
-  zview connection_string, MAPPING const &params, sl loc)
-{
-  check_version();
-
-  std::vector<char const *> override_keys, override_values;
-  if constexpr (std::ranges::sized_range<MAPPING>)
-  {
-    auto const size{std::ranges::size(params)};
-    override_keys.reserve(size);
-    override_values.reserve(size);
-  }
-  for (auto const &[key, value] : params)
-  {
-    override_keys.push_back(internal::as_c_string(key));
-    override_values.push_back(internal::as_c_string(value));
-  }
-
-  init(connection_string, override_keys, override_values, loc);
-}
-
-
 } // namespace pqxx
 #endif

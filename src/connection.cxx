@@ -180,7 +180,7 @@ void pqxx::connection::set_up_notice_handlers()
 }
 
 
-void pqxx::connection::complete_init(sl loc)
+void pqxx::connection::complete_connection(sl loc)
 {
   if (m_conn == nullptr)
     throw std::bad_alloc{};
@@ -189,7 +189,27 @@ void pqxx::connection::complete_init(sl loc)
     if (not is_open())
       throw broken_connection{PQerrorMessage(m_conn), loc};
 
-    set_up_state(loc);
+    constexpr int min_proto{3};
+    if (auto const proto_ver{protocol_version()}; proto_ver < min_proto)
+    {
+      if (proto_ver == 0)
+        throw broken_connection{"No connection.", loc};
+      else
+        throw version_mismatch{
+          std::format(
+            "Unsupported frontend/backend protocol version; {} is the "
+            "minimum.",
+            min_proto),
+          loc};
+    }
+
+    constexpr int min_server{110'000};
+    if (server_version() < min_server)
+      throw version_mismatch{
+        std::format(
+          "Unsupported server version; the minimum is {}.{}.",
+          min_server / 10'000, min_server % 10'000),
+        loc};
   }
   catch (std::exception const &)
   {
@@ -200,78 +220,102 @@ void pqxx::connection::complete_init(sl loc)
 }
 
 
-void pqxx::connection::init(
-  zview connection_string, const std::vector<const char *> &override_keys,
-  const std::vector<const char *> &override_values, sl loc)
+namespace
 {
-  char *errmsg{nullptr};
-  std::unique_ptr<PQconninfoOption, decltype(&PQconninfoFree)> const parsed{
-    PQconninfoParse(connection_string.c_str(), &errmsg), PQconninfoFree};
-  std::unique_ptr<char, decltype(&pqxx::internal::pq::pqfreemem)> const
-    errmsg_guard{errmsg, pqxx::internal::pq::pqfreemem};
-  if (parsed == nullptr)
+/// Return value-terminated array of `PQconninfoOption` into a `std::range`.
+/** The termination condition is the `keyword` field being null.
+ */
+std::span<PQconninfoOption const>
+span_options(PQconninfoOption const *opts) noexcept
+{
+  PQconninfoOption const *here{opts};
+  while (here->keyword != nullptr) ++here;
+  return {opts, static_cast<std::size_t>(here - opts)};
+}
+
+
+/// If `opts` is not null, free the options array to which it points.
+void delete_pg_conn_option(pqxx::internal::pg_conn_option opts[]) noexcept
+{
+  PQconninfoFree(reinterpret_cast<PQconninfoOption *>(opts));
+}
+} // namespace
+
+
+namespace pqxx::internal
+{
+connection_string_parser::connection_string_parser(
+  char const connection_string[], sl loc) :
+        m_options{nullptr, delete_pg_conn_option}
+{
+  if ((connection_string != nullptr) and (connection_string[0] != '\0'))
   {
-    std::string error_message{"Failed to parse connection string"};
-    if (errmsg != nullptr)
+    char *errmsg{nullptr};
+    m_options = decltype(m_options){
+      reinterpret_cast<pqxx::internal::pg_conn_option *>(
+        PQconninfoParse(connection_string, &errmsg)),
+      delete_pg_conn_option};
+    std::unique_ptr<char[], decltype(&pqxx::internal::pq::pqfreemem)> const
+      errmsg_guard{errmsg, pqxx::internal::pq::pqfreemem};
+    if (not m_options)
     {
-      error_message += ": ";
-      error_message += errmsg;
-    }
-    throw broken_connection{error_message, loc};
-  }
-
-  std::size_t parsed_count = 0;
-  for (auto *opt = parsed.get(); opt->keyword != nullptr; ++opt)
-  {
-    if (opt->val != nullptr)
-      ++parsed_count;
-  }
-
-  std::size_t const override_count = override_keys.size();
-
-  // merge options
-  std::vector<char const *> merged_keys, merged_values;
-  merged_keys.reserve(parsed_count + override_count + 1);
-  merged_values.reserve(parsed_count + override_count + 1);
-
-  // Copy parsed options
-  for (auto *opt{parsed.get()}; opt->keyword != nullptr; ++opt)
-  {
-    if (opt->val != nullptr)
-    {
-      merged_keys.push_back(opt->keyword);
-      merged_values.push_back(opt->val);
-    }
-  }
-
-  // Apply overrides
-  for (std::size_t i{0}; i < override_count; ++i)
-  {
-    auto it{std::find_if(
-      merged_keys.begin(), merged_keys.end(),
-      [key = override_keys[i]](char const *existing) {
-        return std::strcmp(existing, key) == 0;
-      })};
-
-    if (it != merged_keys.end())
-    {
-      auto const idx{
-        static_cast<std::size_t>(std::distance(merged_keys.begin(), it))};
-      merged_values[idx] = override_values[i];
-    }
-    else
-    {
-      merged_keys.push_back(override_keys[i]);
-      merged_values.push_back(override_values[i]);
+      if (errmsg)
+        throw broken_connection{
+          std::format("Error in connection string: {}", errmsg), loc};
+      else
+        throw broken_connection{"Could not parse connection string.", loc};
     }
   }
+}
 
-  merged_keys.push_back(nullptr);
-  merged_values.push_back(nullptr);
 
-  m_conn = PQconnectdbParams(merged_keys.data(), merged_values.data(), 0);
+connection_string_parser::~connection_string_parser() noexcept = default;
+
+
+std::array<std::vector<char const *>, 2u>
+connection_string_parser::parse() const
+{
+  std::array<std::vector<char const *>, 2u> output{};
+  if (m_options)
+  {
+    // Was a value specified for this connection option?
+    static constexpr auto has_value{
+      [](PQconninfoOption const &o) { return o.val != nullptr; }};
+
+    // A span across the parsed connection string options.
+    auto const parsed{span_options(
+      reinterpret_cast<PQconninfoOption const *>(m_options.get()))};
+
+    // This will allocate room for all possible options, since the array of
+    // PQconninfoOption we got from libpq includes options that were not
+    // specified (though their "val" will be null and we won't include them in
+    // our output).  It also includes room for a terminating null.
+    //
+    // The generous allocation is probably no big deal though since there are
+    // only so many different connection options.  It also saves us having to
+    // worry about reserving space when we add in any key/value parameters
+    // later.
+    std::get<0>(output).reserve(std::size(parsed));
+    std::get<1>(output).reserve(std::size(parsed));
+
+    for (auto const &o : parsed | std::ranges::views::filter(has_value))
+    {
+      std::get<0>(output).push_back(o.keyword);
+      std::get<1>(output).push_back(o.val);
+    }
+  }
+  return output;
+}
+} // namespace pqxx::internal
+
+
+void pqxx::connection::init(
+  std::vector<const char *> const &keys,
+  std::vector<const char *> const &values, sl loc)
+{
+  m_conn = PQconnectdbParams(keys.data(), values.data(), 0);
   set_up_notice_handlers();
-  complete_init(loc);
+  complete_connection(loc);
 }
 
 
@@ -393,36 +437,6 @@ std::string pqxx::connection::get_var(std::string_view var, sl loc)
   return exec(std::format("SHOW {}", quote_name(var)), loc)
     .one_field_ref(loc)
     .as<std::string>(loc);
-}
-
-
-// XXX: Inline this into complete_init().
-/** Set up various parts of logical connection state that may need to be
- * recovered because the physical connection to the database was lost and is
- * being reset, or that may not have been initialized yet.
- */
-void pqxx::connection::set_up_state(sl loc)
-{
-  int const min_proto{3};
-  if (auto const proto_ver{protocol_version()}; proto_ver < min_proto)
-  {
-    if (proto_ver == 0)
-      throw broken_connection{"No connection.", loc};
-    else
-      throw version_mismatch{
-        std::format(
-          "Unsupported frontend/backend protocol version; {} is the minimum.",
-          min_proto),
-        loc};
-  }
-
-  constexpr int min_server{110'000};
-  if (server_version() < min_server)
-    throw version_mismatch{
-      std::format(
-        "Unsupported server version; the minimum is {}.{}.",
-        min_server / 10'000, min_server % 10'000),
-      loc};
 }
 
 
@@ -818,7 +832,7 @@ std::string pqxx::connection::encrypt_password(
   char const user[], char const password[], char const *algorithm)
 {
   auto const buf{PQencryptPasswordConn(m_conn, password, user, algorithm)};
-  std::unique_ptr<char const, void (*)(void const *)> const ptr{
+  std::unique_ptr<char const[], void (*)(void const *)> const ptr{
     buf, pqxx::internal::pq::pqfreemem};
   return (ptr.get());
 }
@@ -949,7 +963,7 @@ void pqxx::connection::unregister_transaction(transaction_base *t) noexcept
 }
 
 
-std::pair<std::unique_ptr<char, void (*)(void const *)>, std::size_t>
+std::pair<std::unique_ptr<char[], void (*)(void const *)>, std::size_t>
 pqxx::connection::read_copy_line(sl loc)
 {
   char *buf{nullptr};
@@ -967,7 +981,7 @@ pqxx::connection::read_copy_line(sl loc)
   case -1: // End of COPY.
     make_result(PQgetResult(m_conn), q, *q, loc);
     return std::make_pair(
-      std::unique_ptr<char, void (*)(void const *)>{
+      std::unique_ptr<char[], void (*)(void const *)>{
         nullptr, pqxx::internal::pq::pqfreemem},
       0u);
 
@@ -980,7 +994,7 @@ pqxx::connection::read_copy_line(sl loc)
       // Line size includes a trailing zero, which we ignore.
       auto const text_len{static_cast<std::size_t>(line_len) - 1};
       return std::make_pair(
-        std::unique_ptr<char, void (*)(void const *)>{
+        std::unique_ptr<char[], void (*)(void const *)>{
           buf, pqxx::internal::pq::pqfreemem},
         text_len);
     }
@@ -1072,7 +1086,7 @@ std::string pqxx::connection::quote_raw(bytes_view bytes) const
 
 std::string pqxx::connection::quote_name(std::string_view identifier) const
 {
-  std::unique_ptr<char, void (*)(void const *)> const buf{
+  std::unique_ptr<char[], void (*)(void const *)> const buf{
     PQescapeIdentifier(m_conn, identifier.data(), std::size(identifier)),
     pqxx::internal::pq::pqfreemem};
   if (buf == nullptr) [[unlikely]]
@@ -1337,8 +1351,8 @@ std::string pqxx::connection::connection_string() const
   if (m_conn == nullptr) [[unlikely]]
     throw usage_error{"Can't get connection string: connection is not open."};
 
-  std::unique_ptr<PQconninfoOption, void (*)(PQconninfoOption *)> const parms{
-    PQconninfo(m_conn), pqconninfofree};
+  std::unique_ptr<PQconninfoOption[], void (*)(PQconninfoOption *)> const
+    parms{PQconninfo(m_conn), pqconninfofree};
   if (parms == nullptr)
     throw std::bad_alloc{};
 
@@ -1391,7 +1405,7 @@ pqxx::connection pqxx::connecting::produce(sl loc) &&
   if (!done())
     throw usage_error{
       "Tried to produce a nonblocking connection before it was done.", loc};
-  m_conn.complete_init(loc);
+  m_conn.complete_connection(loc);
   return {std::move(m_conn), loc};
 }
 #endif // defined(_WIN32) || __has_include(<fcntl.h>)
