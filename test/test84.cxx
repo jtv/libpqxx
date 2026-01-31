@@ -21,7 +21,7 @@ void test_084(pqxx::test::context &tctx)
 
   // Create an SQL cursor and, for good measure, muddle up its state a bit.
   std::string const cur_name{tctx.make_name("pqxx-cur")},
-    query{std::format("SELECT * FROM generate_series(0, {})", table_size)};
+    query{std::format("SELECT * FROM generate_series(1, {})", table_size)};
   constexpr int initial_skip{2}, get_rows{3};
 
   tx.exec("DECLARE " + tx.quote_name(cur_name) + " CURSOR FOR " + query)
