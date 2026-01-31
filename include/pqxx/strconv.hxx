@@ -528,10 +528,10 @@ template<>
  * the argument you pass.  But there are disadvantages: it requires an
  * assignment operator, and it may be less efficient.
  */
-template<typename T>
-inline void from_string(std::string_view text, T &value, ctx c = {})
+template<typename TYPE>
+inline void from_string(std::string_view text, TYPE &value, ctx c = {})
 {
-  value = from_string<T>(text, c);
+  value = from_string<TYPE>(text, c);
 }
 
 
@@ -800,7 +800,7 @@ template<typename TYPE> inline constexpr bool is_unquoted_safe{false};
 
 
 /// Element separator between SQL array elements of this type.
-template<typename T> inline constexpr char array_separator{','};
+template<typename TYPE> inline constexpr char array_separator{','};
 
 
 /// What's the preferred format for passing non-null parameters of this type?

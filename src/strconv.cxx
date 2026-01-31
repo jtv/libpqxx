@@ -31,21 +31,21 @@ using namespace std::literals;
 
 namespace
 {
-/// The lowest possible value of integral type T.
-template<pqxx::internal::integer T>
-constexpr T bottom{std::numeric_limits<T>::min()};
+/// The lowest possible value of integral type TYPE.
+template<pqxx::internal::integer TYPE>
+constexpr TYPE bottom{std::numeric_limits<TYPE>::min()};
 
-/// The highest possible value of integral type T.
-template<pqxx::internal::integer T>
-constexpr T top{std::numeric_limits<T>::max()};
+/// The highest possible value of integral type TYPE.
+template<pqxx::internal::integer TYPE>
+constexpr TYPE top{std::numeric_limits<TYPE>::max()};
 
 /// Write nonnegative integral value at end of buffer.  Return start.
 /** Assumes a sufficiently large buffer.
  *
  * Includes a single trailing null byte, right before @c *end.
  */
-template<pqxx::internal::integer T>
-constexpr inline char *nonneg_to_buf(char *end, T value)
+template<pqxx::internal::integer TYPE>
+constexpr inline char *nonneg_to_buf(char *end, TYPE value)
 {
   assert(std::cmp_greater_equal(value, 0));
   constexpr int ten{10};
@@ -55,7 +55,7 @@ constexpr inline char *nonneg_to_buf(char *end, T value)
   char *pos = end;
   do {
     *--pos = pqxx::internal::number_to_digit(int(value % ten));
-    value = T(value / ten);
+    value = TYPE(value / ten);
   } while (value > 0);
   return pos;
 }
@@ -64,8 +64,8 @@ constexpr inline char *nonneg_to_buf(char *end, T value)
 /// Write negative version of value at end of buffer.  Return start.
 /** Like @c nonneg_to_buf, but prefixes a minus sign.
  */
-template<pqxx::internal::integer T>
-constexpr inline char *neg_to_buf(char *end, T value)
+template<pqxx::internal::integer TYPE>
+constexpr inline char *neg_to_buf(char *end, TYPE value)
 {
   assert(std::cmp_greater_equal(value, 0));
   // Seeming bug in clang-tidy rule: it thinks we can make pos a "char const *"
@@ -80,26 +80,26 @@ constexpr inline char *neg_to_buf(char *end, T value)
 /// Write lowest possible negative value at end of buffer.
 /** Like @c neg_to_buf, but for the special case of the bottom value.
  */
-template<pqxx::internal::integer T>
+template<pqxx::internal::integer TYPE>
 constexpr inline char *bottom_to_buf(char *end)
 {
-  static_assert(std::is_signed_v<T>);
+  static_assert(std::is_signed_v<TYPE>);
 
   // This is the hard case.  In two's-complement systems, which includes
   // any modern-day system I can think of, a signed type's bottom value
   // has no positive equivalent.  Luckily the C++ standards committee can't
   // think of any exceptions either, so it's the required representation as
   // of C++20.
-  static_assert(-(bottom<T> + 1) == top<T>);
+  static_assert(-(bottom<TYPE> + 1) == top<TYPE>);
 
-  // The unsigned version of T does have the unsigned version of bottom.
-  using unsigned_t = std::make_unsigned_t<T>;
+  // The unsigned version of TYPE does have the unsigned version of bottom.
+  using unsigned_t = std::make_unsigned_t<TYPE>;
 
   // Careful though.  If we tried to negate value in order to promote to
   // unsigned_t, the value will overflow, which means behaviour is
   // undefined.  Promotion of a negative value to an unsigned type is
   // well-defined, given a representation, so let's do that:
-  constexpr auto positive{static_cast<unsigned_t>(bottom<T>)};
+  constexpr auto positive{static_cast<unsigned_t>(bottom<TYPE>)};
 
   // As luck would have it, in two's complement, this gives us exactly the
   // value we want.
@@ -111,13 +111,14 @@ constexpr inline char *bottom_to_buf(char *end)
 }
 
 
-template<typename T>
-concept arith = pqxx::internal::integer<T> or std::floating_point<T>;
+template<typename TYPE>
+concept arith = pqxx::internal::integer<TYPE> or std::floating_point<TYPE>;
 
 
 /// Call to_chars, report errors as exceptions, add zero, return pointer.
-template<arith T>
-inline char *wrap_to_chars(std::span<char> buf, T const &value, pqxx::sl loc)
+template<arith TYPE>
+inline char *
+wrap_to_chars(std::span<char> buf, TYPE const &value, pqxx::sl loc)
 {
   auto const begin{std::data(buf)}, end{begin + std::size(buf)};
   auto res{std::to_chars(begin, end, value)};
@@ -127,11 +128,11 @@ inline char *wrap_to_chars(std::span<char> buf, T const &value, pqxx::sl loc)
     throw pqxx::conversion_overrun{
       std::format(
         "Could not convert {} to string: buffer too small ({} bytes).",
-        pqxx::name_type<T>(), std::size(buf)),
+        pqxx::name_type<TYPE>(), std::size(buf)),
       loc};
   else
     throw pqxx::conversion_error{
-      std::format("Could not convert {} to string.", pqxx::name_type<T>()),
+      std::format("Could not convert {} to string.", pqxx::name_type<TYPE>()),
       loc};
 }
 } // namespace
@@ -267,7 +268,7 @@ constexpr bool valid_infinity_string(std::string_view text) noexcept
  * And that's why we need to wrap this in a class.  We can't just do it at the
  * call site, or we'd still be doing it for every call.
  */
-template<arith T> class dumb_stringstream : public std::stringstream
+template<arith TYPE> class dumb_stringstream : public std::stringstream
 {
 public:
   // Do not initialise the base-class object using "stringstream{}" (with curly
@@ -276,7 +277,7 @@ public:
   PQXX_COLD dumb_stringstream()
   {
     this->imbue(std::locale::classic());
-    this->precision(std::numeric_limits<T>::max_digits10);
+    this->precision(std::numeric_limits<TYPE>::max_digits10);
   }
 };
 
@@ -291,17 +292,18 @@ PQXX_COLD inline bool from_dumb_stringstream(
 
 
 // These are hard, and some popular compilers still lack std::from_chars.
-template<std::floating_point T>
-PQXX_COLD inline T from_string_awful_float(std::string_view text, pqxx::ctx c)
+template<std::floating_point TYPE>
+PQXX_COLD inline TYPE
+from_string_awful_float(std::string_view text, pqxx::ctx c)
 {
   if (std::empty(text))
     throw pqxx::conversion_error{
       std::format(
-        "Trying to convert empty string to {}.", pqxx::name_type<T>()),
+        "Trying to convert empty string to {}.", pqxx::name_type<TYPE>()),
       c.loc};
 
   bool ok{false};
-  T result;
+  TYPE result;
 
   switch (text[0])
   {
@@ -311,24 +313,24 @@ PQXX_COLD inline T from_string_awful_float(std::string_view text, pqxx::ctx c)
     ok =
       (std::size(text) == 3 and (text[1] == 'A' or text[1] == 'a') and
        (text[2] == 'N' or text[2] == 'n'));
-    result = std::numeric_limits<T>::quiet_NaN();
+    result = std::numeric_limits<TYPE>::quiet_NaN();
     break;
 
   case 'I':
   case 'i':
     ok = valid_infinity_string(text);
-    result = std::numeric_limits<T>::infinity();
+    result = std::numeric_limits<TYPE>::infinity();
     break;
 
   default:
     if (text[0] == '-' and valid_infinity_string(text.substr(1)))
     {
       ok = true;
-      result = -std::numeric_limits<T>::infinity();
+      result = -std::numeric_limits<TYPE>::infinity();
     }
     else [[likely]]
     {
-      thread_local dumb_stringstream<T> S;
+      thread_local dumb_stringstream<TYPE> S;
       // Visual Studio 2017 seems to fail on repeated conversions if the
       // clear() is done before the seekg().  Still don't know why!  See #124
       // and #125.
@@ -366,8 +368,8 @@ to_dumb_stringstream(dumb_stringstream<F> &s, F value)
 namespace pqxx::internal
 {
 /// Floating-point implementations for @c pqxx::to_string().
-template<std::floating_point T>
-std::string to_string_float(T value, [[maybe_unused]] ctx c)
+template<std::floating_point TYPE>
+std::string to_string_float(TYPE value, [[maybe_unused]] ctx c)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
   {
@@ -384,20 +386,20 @@ std::string to_string_float(T value, [[maybe_unused]] ctx c)
 }
 
 
-template<std::floating_point T>
-T float_string_traits<T>::from_string(std::string_view text, pqxx::ctx c)
+template<std::floating_point TYPE>
+TYPE float_string_traits<TYPE>::from_string(std::string_view text, pqxx::ctx c)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
-  return from_string_arithmetic<T>(text, c);
+  return from_string_arithmetic<TYPE>(text, c);
 #else
-  return from_string_awful_float<T>(text, c);
+  return from_string_awful_float<TYPE>(text, c);
 #endif
 }
 
 
-template<std::floating_point T>
-std::string_view
-float_string_traits<T>::to_buf(std::span<char> buf, T const &value, ctx c)
+template<std::floating_point TYPE>
+std::string_view float_string_traits<TYPE>::to_buf(
+  std::span<char> buf, TYPE const &value, ctx c)
 {
   auto const begin{std::data(buf)};
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
@@ -413,7 +415,7 @@ float_string_traits<T>::to_buf(std::span<char> buf, T const &value, ctx c)
     if (std::cmp_greater_equal(res.size, end - begin))
       throw conversion_overrun{
         std::format(
-          "Buffer too small for converting {} to string.", name_type<T>()),
+          "Buffer too small for converting {} to string.", name_type<TYPE>()),
         c.loc};
     return {begin, static_cast<std::size_t>(res.size)};
   }

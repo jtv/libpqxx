@@ -92,15 +92,15 @@ struct disallowed_ambiguous_char_conversion
 };
 
 
-template<std::floating_point T>
-PQXX_LIBEXPORT extern std::string to_string_float(T, ctx = {});
+template<std::floating_point TYPE>
+PQXX_LIBEXPORT extern std::string to_string_float(TYPE, ctx = {});
 
 
 /// Generic implementation for `into_buf()`, on top of `to_buf()`.
-template<typename T>
+template<typename TYPE>
 [[deprecated("into_buf() is no longer part of the string conversion API.")]]
 inline char *
-generic_into_buf(char *begin, char *end, T const &value, ctx c = {})
+generic_into_buf(char *begin, char *end, TYPE const &value, ctx c = {})
 {
   zview text{to_buf({begin, end}, value, c)};
   auto const space{end - begin};
@@ -108,7 +108,7 @@ generic_into_buf(char *begin, char *end, T const &value, ctx c = {})
   auto const len = std::size(text) + 1;
   if (std::cmp_greater(len, space))
     throw conversion_overrun{
-      std::format("Not enough buffer space to insert {}.", name_type<T>()) +
+      std::format("Not enough buffer space to insert {}.", name_type<TYPE>()) +
         state_buffer_overrun(space, len),
       c.loc};
   std::memmove(begin, std::data(text), len);
@@ -117,10 +117,10 @@ generic_into_buf(char *begin, char *end, T const &value, ctx c = {})
 
 
 /// Generic implementation for `into_buf()`, on top of `to_buf()`.
-template<typename T>
+template<typename TYPE>
 [[deprecated("into_buf() is no longer part of the string conversion API.")]]
 inline std::size_t
-generic_into_buf(std::span<char> buf, T const &value, ctx c = {})
+generic_into_buf(std::span<char> buf, TYPE const &value, ctx c = {})
 {
   auto const begin{std::data(buf)};
   zview text{to_buf(buf, value, c)};
@@ -129,7 +129,8 @@ generic_into_buf(std::span<char> buf, T const &value, ctx c = {})
   auto const len = std::size(text) + 1;
   if (std::cmp_greater(len, space))
     throw conversion_overrun{
-      std::format("Not enough buffer space to insert {}.  ", name_type<T>()) +
+      std::format(
+        "Not enough buffer space to insert {}.  ", name_type<TYPE>()) +
         state_buffer_overrun(space, len),
       c.loc};
   std::memmove(begin, std::data(text), len);
@@ -139,18 +140,18 @@ generic_into_buf(std::span<char> buf, T const &value, ctx c = {})
 
 /// String traits for builtin floating-point types.
 /** It _would_ make sense to define this directly as the definition for
- * `pqxx::string_traits<T>` where `T` is a `std::floating_point`.  However
+ * `pqxx::string_traits<TYPE>` where `TYPE` is a `std::floating_point`. However
  * Viual Studio 2022 does not seem to accept that syntax.
  *
  * So instead, we create a separate base class for `std::floating_point` types
  * and then derive specialisatinos of `pqxx::string_traits` from that.
  */
-template<std::floating_point T> struct float_string_traits
+template<std::floating_point TYPE> struct float_string_traits
 {
-  PQXX_LIBEXPORT static T from_string(std::string_view text, ctx = {});
+  PQXX_LIBEXPORT static TYPE from_string(std::string_view text, ctx = {});
 
   PQXX_LIBEXPORT static std::string_view
-  to_buf(std::span<char> buf, T const &value, ctx c = {});
+  to_buf(std::span<char> buf, TYPE const &value, ctx c = {});
 
   // Return a nonnegative integral value's number of decimal digits.
   static constexpr std::size_t digits10(std::size_t value) noexcept
@@ -161,9 +162,10 @@ template<std::floating_point T> struct float_string_traits
       return 1 + digits10(value / 10);
   }
 
-  PQXX_INLINE_COV static constexpr std::size_t size_buffer(T const &) noexcept
+  PQXX_INLINE_COV static constexpr std::size_t
+  size_buffer(TYPE const &) noexcept
   {
-    using lims = std::numeric_limits<T>;
+    using lims = std::numeric_limits<TYPE>;
     // See #328 for a detailed discussion on the maximum number of digits.
     //
     // In a nutshell: for the big cases, the scientific notation is always
@@ -180,10 +182,10 @@ template<std::floating_point T> struct float_string_traits
     // (The extra 1 is because 10^n takes up 1 + n digits, not n.)
     //
     // The longest negative exponent is a bit harder: min_exponent10 gives us
-    // the smallest power of 10 which a normalised version of T can represent.
-    // But the smallest denormalised power of 10 that T can represent is
-    // another max_digits10 powers of 10 below that.
-    // needs a minus sign.
+    // the smallest power of 10 which a normalised version of TYPE can
+    // represent. But the smallest denormalised power of 10 that TYPE can
+    // represent is another max_digits10 powers of 10 below that. needs a minus
+    // sign.
     //
     // All this stuff messes with my head a bit because it's on the order of
     // log10(log10(n)).  It's easy to get the number of logs wrong.
@@ -192,11 +194,11 @@ template<std::floating_point T> struct float_string_traits
     // problems with std::abs.  So we use -lims::min_exponent10 instead.
     auto const max_neg_exp{
       digits10(lims::max_digits10 - lims::min_exponent10)};
-    return 1 +                                    // Sign.
-           1 +                                    // Decimal point.
-           std::numeric_limits<T>::max_digits10 + // Mantissa digits.
-           1 +                                    // Exponent "e".
-           1 +                                    // Exponent sign.
+    return 1 +                                       // Sign.
+           1 +                                       // Decimal point.
+           std::numeric_limits<TYPE>::max_digits10 + // Mantissa digits.
+           1 +                                       // Exponent "e".
+           1 +                                       // Exponent sign.
            // Spell this weirdly to stop Windows compilers from reading this as
            // a call to their "max" macro when NOMINMAX is not defined.
            (std::max)(max_pos_exp, max_neg_exp); // Exponent digits.
@@ -211,36 +213,37 @@ namespace pqxx
 /** Not-a-Number values (or NaNs for short) behave a lot like an SQL null, but
  * they are not nulls.  A non-null SQL float can be NaN.
  */
-template<typename T>
-  requires std::is_arithmetic_v<T>
-struct nullness<T> final : no_null<T>
+template<typename TYPE>
+  requires std::is_arithmetic_v<TYPE>
+struct nullness<TYPE> final : no_null<TYPE>
 {};
 
 
 /// String traits for builtin integer types.
 /** This does not cover `bool` or (unlike `std::integral`) the `char` types.
  */
-template<pqxx::internal::integer T> struct string_traits<T> final
+template<pqxx::internal::integer TYPE> struct string_traits<TYPE> final
 {
-  PQXX_LIBEXPORT static T from_string(std::string_view text, ctx = {});
+  PQXX_LIBEXPORT static TYPE from_string(std::string_view text, ctx = {});
   PQXX_LIBEXPORT static std::string_view
-  to_buf(std::span<char> buf, T const &value, ctx c = {});
+  to_buf(std::span<char> buf, TYPE const &value, ctx c = {});
 
-  PQXX_INLINE_ONLY static constexpr std::size_t size_buffer(T const &) noexcept
+  PQXX_INLINE_ONLY static constexpr std::size_t
+  size_buffer(TYPE const &) noexcept
   {
     /** Includes a sign if needed; the number of base-10 digits which the type
      * can reliably represent; and the one extra base-10 digit which the type
      * can only partially represent.
      */
-    return std::is_signed_v<T> + std::numeric_limits<T>::digits10 + 1;
+    return std::is_signed_v<TYPE> + std::numeric_limits<TYPE>::digits10 + 1;
   }
 };
 
 
-template<pqxx::internal::integer T>
-inline constexpr bool is_unquoted_safe<T>{true};
-template<std::floating_point T>
-inline constexpr bool is_unquoted_safe<T>{true};
+template<pqxx::internal::integer TYPE>
+inline constexpr bool is_unquoted_safe<TYPE>{true};
+template<std::floating_point TYPE>
+inline constexpr bool is_unquoted_safe<TYPE>{true};
 
 
 template<>
@@ -273,34 +276,34 @@ template<> struct string_traits<bool> final
 template<> inline constexpr bool is_unquoted_safe<bool>{true};
 
 
-template<typename T> struct nullness<std::optional<T>> final
+template<typename TYPE> struct nullness<std::optional<TYPE>> final
 {
   static constexpr bool has_null = true;
   /// Technically, you could have an optional of an always-null type.
-  static constexpr bool always_null = pqxx::always_null<T>();
+  static constexpr bool always_null = pqxx::always_null<TYPE>();
   [[nodiscard]] PQXX_PURE static constexpr bool
-  is_null(std::optional<T> const &v) noexcept
+  is_null(std::optional<TYPE> const &v) noexcept
   {
     return ((not v.has_value()) or pqxx::is_null(*v));
   }
-  [[nodiscard]] PQXX_PURE static constexpr std::optional<T> null() noexcept
+  [[nodiscard]] PQXX_PURE static constexpr std::optional<TYPE> null() noexcept
   {
     return {};
   }
 };
 
 
-template<typename T>
-inline constexpr format param_format(std::optional<T> const &value)
+template<typename TYPE>
+inline constexpr format param_format(std::optional<TYPE> const &value)
 {
   return param_format(*value);
 }
 
 
-template<typename T> struct string_traits<std::optional<T>> final
+template<typename TYPE> struct string_traits<std::optional<TYPE>> final
 {
   static std::string_view
-  to_buf(std::span<char> buf, std::optional<T> const &value, ctx c = {})
+  to_buf(std::span<char> buf, std::optional<TYPE> const &value, ctx c = {})
   {
     if (pqxx::is_null(value))
       return {};
@@ -308,12 +311,13 @@ template<typename T> struct string_traits<std::optional<T>> final
       return pqxx::to_buf(buf, *value, c);
   }
 
-  static std::optional<T> from_string(std::string_view text, ctx c = {})
+  static std::optional<TYPE> from_string(std::string_view text, ctx c = {})
   {
-    return std::optional<T>{std::in_place, pqxx::from_string<T>(text, c)};
+    return std::optional<TYPE>{
+      std::in_place, pqxx::from_string<TYPE>(text, c)};
   }
 
-  static std::size_t size_buffer(std::optional<T> const &value) noexcept
+  static std::size_t size_buffer(std::optional<TYPE> const &value) noexcept
   {
     if (pqxx::is_null(value))
       return 0;
@@ -323,16 +327,17 @@ template<typename T> struct string_traits<std::optional<T>> final
 };
 
 
-template<typename T>
-inline constexpr bool is_unquoted_safe<std::optional<T>>{is_unquoted_safe<T>};
+template<typename TYPE>
+inline constexpr bool is_unquoted_safe<std::optional<TYPE>>{
+  is_unquoted_safe<TYPE>};
 
 
-template<typename... T> struct nullness<std::variant<T...>> final
+template<typename... TYPE> struct nullness<std::variant<TYPE...>> final
 {
-  static constexpr bool has_null = (pqxx::has_null<T>() or ...);
-  static constexpr bool always_null = (pqxx::always_null<T>() and ...);
+  static constexpr bool has_null = (pqxx::has_null<TYPE>() or ...);
+  static constexpr bool always_null = (pqxx::always_null<TYPE>() and ...);
   [[nodiscard]] PQXX_PURE static constexpr bool
-  is_null(std::variant<T...> const &value) noexcept
+  is_null(std::variant<TYPE...> const &value) noexcept
   {
     return value.valueless_by_exception() or
            std::visit(
@@ -346,14 +351,14 @@ template<typename... T> struct nullness<std::variant<T...>> final
   /** It would be technically possible to have a `null` in the case where just
    * one of the types has a null, but it gets complicated and arbitrary.
    */
-  static constexpr std::variant<T...> null() = delete;
+  static constexpr std::variant<TYPE...> null() = delete;
 };
 
 
-template<typename... T> struct string_traits<std::variant<T...>> final
+template<typename... TYPE> struct string_traits<std::variant<TYPE...>> final
 {
   static std::string_view
-  to_buf(std::span<char> buf, std::variant<T...> const &value, ctx c = {})
+  to_buf(std::span<char> buf, std::variant<TYPE...> const &value, ctx c = {})
   {
     return std::visit(
       [buf, c](auto const &i) {
@@ -362,7 +367,7 @@ template<typename... T> struct string_traits<std::variant<T...>> final
       },
       value);
   }
-  static std::size_t size_buffer(std::variant<T...> const &value) noexcept
+  static std::size_t size_buffer(std::variant<TYPE...> const &value) noexcept
   {
     if (pqxx::is_null(value))
       return 0;
@@ -375,7 +380,8 @@ template<typename... T> struct string_traits<std::variant<T...>> final
    * like "pick the first type which fits the value," but we'd have to look
    * into how natural that API feels to users.
    */
-  static std::variant<T...> from_string(std::string_view, ctx = {}) = delete;
+  static std::variant<TYPE...>
+    from_string(std::string_view, ctx = {}) = delete;
 };
 
 
@@ -386,15 +392,15 @@ inline constexpr format param_format(std::variant<Args...> const &value)
 }
 
 
-template<typename... T>
-inline constexpr bool is_unquoted_safe<std::variant<T...>>{
-  (is_unquoted_safe<T> and ...)};
+template<typename... TYPE>
+inline constexpr bool is_unquoted_safe<std::variant<TYPE...>>{
+  (is_unquoted_safe<TYPE> and ...)};
 
 
-template<typename T>
-inline T from_string(std::stringstream const &text, ctx c = {})
+template<typename TYPE>
+inline TYPE from_string(std::stringstream const &text, ctx c = {})
 {
-  return from_string<T>(text.str(), c);
+  return from_string<TYPE>(text.str(), c);
 }
 
 
@@ -693,40 +699,43 @@ struct nullness<std::monostate> final
 {};
 
 
-template<typename T> struct nullness<std::unique_ptr<T>> final
+template<typename TYPE> struct nullness<std::unique_ptr<TYPE>> final
 {
   static constexpr bool has_null = true;
   static constexpr bool always_null = false;
   [[nodiscard]] PQXX_PURE static constexpr bool
-  is_null(std::unique_ptr<T> const &t) noexcept
+  is_null(std::unique_ptr<TYPE> const &t) noexcept
   {
     return not t or pqxx::is_null(*t);
   }
-  [[nodiscard]] PQXX_PURE static constexpr std::unique_ptr<T> null() noexcept
+  [[nodiscard]] PQXX_PURE static constexpr std::unique_ptr<TYPE>
+  null() noexcept
   {
     return {};
   }
 };
 
 
-template<typename T, typename... Args>
-struct string_traits<std::unique_ptr<T, Args...>> final
+template<typename TYPE, typename... Args>
+struct string_traits<std::unique_ptr<TYPE, Args...>> final
 {
-  static std::unique_ptr<T> from_string(std::string_view text, ctx c = {})
+  static std::unique_ptr<TYPE> from_string(std::string_view text, ctx c = {})
   {
-    return std::make_unique<T>(pqxx::from_string<T>(text, c));
+    return std::make_unique<TYPE>(pqxx::from_string<TYPE>(text, c));
   }
 
   static std::string_view to_buf(
-    std::span<char> buf, std::unique_ptr<T, Args...> const &value, ctx c = {})
+    std::span<char> buf, std::unique_ptr<TYPE, Args...> const &value,
+    ctx c = {})
   {
     if (not value)
-      internal::throw_null_conversion(name_type<std::unique_ptr<T>>(), c.loc);
+      internal::throw_null_conversion(
+        name_type<std::unique_ptr<TYPE>>(), c.loc);
     return pqxx::to_buf(buf, *value, c);
   }
 
   static std::size_t
-  size_buffer(std::unique_ptr<T, Args...> const &value) noexcept
+  size_buffer(std::unique_ptr<TYPE, Args...> const &value) noexcept
   {
     if (pqxx::is_null(value))
       return 0;
@@ -736,49 +745,51 @@ struct string_traits<std::unique_ptr<T, Args...>> final
 };
 
 
-template<typename T, typename... Args>
-inline format param_format(std::unique_ptr<T, Args...> const &value)
+template<typename TYPE, typename... Args>
+inline format param_format(std::unique_ptr<TYPE, Args...> const &value)
 {
   return param_format(*value);
 }
 
 
-template<typename T, typename... Args>
-inline constexpr bool is_unquoted_safe<std::unique_ptr<T, Args...>>{
-  is_unquoted_safe<T>};
+template<typename TYPE, typename... Args>
+inline constexpr bool is_unquoted_safe<std::unique_ptr<TYPE, Args...>>{
+  is_unquoted_safe<TYPE>};
 
 
-template<typename T> struct nullness<std::shared_ptr<T>> final
+template<typename TYPE> struct nullness<std::shared_ptr<TYPE>> final
 {
   static constexpr bool has_null = true;
   static constexpr bool always_null = false;
   [[nodiscard]] PQXX_PURE static constexpr bool
-  is_null(std::shared_ptr<T> const &t) noexcept
+  is_null(std::shared_ptr<TYPE> const &t) noexcept
   {
     return not t or pqxx::is_null(*t);
   }
-  [[nodiscard]] PQXX_PURE static constexpr std::shared_ptr<T> null() noexcept
+  [[nodiscard]] PQXX_PURE static constexpr std::shared_ptr<TYPE>
+  null() noexcept
   {
     return {};
   }
 };
 
 
-template<typename T> struct string_traits<std::shared_ptr<T>> final
+template<typename TYPE> struct string_traits<std::shared_ptr<TYPE>> final
 {
-  static std::shared_ptr<T> from_string(std::string_view text, ctx c = {})
+  static std::shared_ptr<TYPE> from_string(std::string_view text, ctx c = {})
   {
-    return std::make_shared<T>(pqxx::from_string<T>(text, c));
+    return std::make_shared<TYPE>(pqxx::from_string<TYPE>(text, c));
   }
 
   static std::string_view
-  to_buf(std::span<char> buf, std::shared_ptr<T> const &value, ctx c = {})
+  to_buf(std::span<char> buf, std::shared_ptr<TYPE> const &value, ctx c = {})
   {
     if (not value)
-      internal::throw_null_conversion(name_type<std::shared_ptr<T>>(), c.loc);
+      internal::throw_null_conversion(
+        name_type<std::shared_ptr<TYPE>>(), c.loc);
     return pqxx::to_buf(buf, *value, c);
   }
-  static std::size_t size_buffer(std::shared_ptr<T> const &value) noexcept
+  static std::size_t size_buffer(std::shared_ptr<TYPE> const &value) noexcept
   {
     if (pqxx::is_null(value))
       return 0;
@@ -788,15 +799,15 @@ template<typename T> struct string_traits<std::shared_ptr<T>> final
 };
 
 
-template<typename T> format param_format(std::shared_ptr<T> const &value)
+template<typename TYPE> format param_format(std::shared_ptr<TYPE> const &value)
 {
   return param_format(*value);
 }
 
 
-template<typename T>
-inline constexpr bool is_unquoted_safe<std::shared_ptr<T>>{
-  is_unquoted_safe<T>};
+template<typename TYPE>
+inline constexpr bool is_unquoted_safe<std::shared_ptr<TYPE>>{
+  is_unquoted_safe<TYPE>};
 
 
 template<binary DATA> struct nullness<DATA> final : no_null<DATA>
@@ -867,13 +878,13 @@ inline std::size_t array_into_buf(
 /** We use the same code for the `pqxx::array` traits, and I'm not sure how to
  * delegate directly to a specialisation for a broader concept.
  */
-template<typename T> struct nonbinary_range_traits
+template<typename TYPE> struct nonbinary_range_traits
 {
-  using elt_type = std::remove_cvref_t<value_type<T>>;
+  using elt_type = std::remove_cvref_t<value_type<TYPE>>;
   using elt_traits = string_traits<elt_type>;
   static constexpr zview s_null{"NULL"};
 
-  static std::size_t size_buffer(T const &value) noexcept
+  static std::size_t size_buffer(TYPE const &value) noexcept
   {
     if constexpr (is_unquoted_safe<elt_type>)
       return 3 + std::accumulate(
@@ -903,7 +914,7 @@ template<typename T> struct nonbinary_range_traits
   }
 
   static std::string_view
-  to_buf(std::span<char> buf, T const &value, ctx c = {})
+  to_buf(std::span<char> buf, TYPE const &value, ctx c = {})
   {
     auto const sz{
       pqxx::internal::array_into_buf(buf, value, size_buffer(value), c)};
@@ -915,7 +926,7 @@ template<typename T> struct nonbinary_range_traits
 
 namespace pqxx
 {
-template<nonbinary_range T> struct nullness<T> final : no_null<T>
+template<nonbinary_range TYPE> struct nullness<TYPE> final : no_null<TYPE>
 {};
 
 
@@ -925,26 +936,27 @@ template<nonbinary_range T> struct nullness<T> final : no_null<T>
  * array of a more or less arbitrary C++ type, but it's handy for converting
  * various container types _to_ strings.
  */
-template<nonbinary_range T>
-struct string_traits<T> final : pqxx::internal::nonbinary_range_traits<T>
+template<nonbinary_range TYPE>
+struct string_traits<TYPE> final : pqxx::internal::nonbinary_range_traits<TYPE>
 {};
 
 
 /// We don't know how to pass array params in binary format, so pass as text.
-template<nonbinary_range T> inline constexpr format param_format(T const &)
+template<nonbinary_range TYPE>
+inline constexpr format param_format(TYPE const &)
 {
   return format::text;
 }
 
 
 /// A contiguous range of `std::byte` is a binary string; other ranges are not.
-template<binary T> inline constexpr format param_format(T const &)
+template<binary TYPE> inline constexpr format param_format(TYPE const &)
 {
   return format::binary;
 }
 
 
-template<nonbinary_range T> inline constexpr bool is_sql_array<T>{true};
+template<nonbinary_range TYPE> inline constexpr bool is_sql_array<TYPE>{true};
 
 
 template<typename TYPE>
@@ -994,12 +1006,13 @@ template<> inline std::string to_string(std::stringstream const &value, ctx)
 }
 
 
-template<typename T>
-inline void into_string(T const &value, std::string &out, ctx c = {})
+template<typename TYPE>
+inline void into_string(TYPE const &value, std::string &out, ctx c = {})
 {
   if (is_null(value))
     throw conversion_error{
-      std::format("Attempt to convert null {} to a string.", name_type<T>()),
+      std::format(
+        "Attempt to convert null {} to a string.", name_type<TYPE>()),
       c.loc};
 
   // We can't just reserve() data; modifying the terminating zero leads to
