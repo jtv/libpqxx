@@ -65,9 +65,14 @@ struct context
   }
 
   /// Generate a name with a given prefix and a randomised suffix.
-  std::string make_name(std::string_view prefix)
+  std::string make_name(std::string_view prefix = {})
   {
-    return std::format("{}_{}", prefix, make_num());
+    int const num{make_num()};
+    // TODO: Use wider character set than just those digits.
+    if (std::empty(prefix))
+      return std::format("{}", num);
+    else
+      return std::format("{}_{}", prefix, make_num());
   }
 
 private:
