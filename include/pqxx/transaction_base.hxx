@@ -466,7 +466,7 @@ public:
   /** This is convenience shorthand for querying exactly one value from the
    * database.  It returns that value, converted to the type you specify.
    */
-  template<typename TYPE>
+  template<not_borrowed TYPE>
   [[deprecated("The desc parameter is going away.")]]
   TYPE query_value(std::string_view query, std::string_view desc)
   {
