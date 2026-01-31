@@ -72,7 +72,7 @@ struct context
     if (std::empty(prefix))
       return std::format("{}", num);
     else
-      return std::format("{}_{}", prefix, make_num());
+      return std::format("{}_{}", prefix, num);
   }
 
 private:
