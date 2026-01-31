@@ -244,7 +244,7 @@ void delete_pg_conn_option(pqxx::internal::pg_conn_option opts[]) noexcept
 
 namespace pqxx::internal
 {
-parsed_connection_string::parsed_connection_string(
+connection_string_parser::connection_string_parser(
   char const connection_string[], sl loc) :
         m_options{nullptr, delete_pg_conn_option}
 {
@@ -269,11 +269,11 @@ parsed_connection_string::parsed_connection_string(
 }
 
 
-parsed_connection_string::~parsed_connection_string() noexcept = default;
+connection_string_parser::~connection_string_parser() noexcept = default;
 
 
 std::array<std::vector<char const *>, 2u>
-parsed_connection_string::parse() const
+connection_string_parser::parse() const
 {
   std::array<std::vector<char const *>, 2u> output{};
   if (m_options)

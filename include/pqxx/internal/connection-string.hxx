@@ -11,21 +11,21 @@ struct pg_conn_option;
 /** This is a class and not a function for just one reason: the outputs contain
  * pointers to storage that needs to be held in memory.
  */
-class PQXX_LIBEXPORT parsed_connection_string final
+class PQXX_LIBEXPORT connection_string_parser final
 {
 public:
-  explicit parsed_connection_string(
+  explicit connection_string_parser(
     char const connection_string[], sl = sl::current());
-  parsed_connection_string() = delete;
+  connection_string_parser() = delete;
 
-  ~parsed_connection_string() noexcept;
+  ~connection_string_parser() noexcept;
 
   /// Parse the string, return matching vectors of option names & values.
   /** The two vectors are of equal length.  The first holds the option names
    * and the second their respective values.
    *
    * The outputs remain valid only for as long as the whole
-   * `parsed_connection_string` does.  You can call `parse()` as many times as
+   * `connection_string_parser` does.  You can call `parse()` as many times as
    * you like.  The calls will produce distinct outputs but the ultimate string
    * pointers will be the same, and in the same order.
    *

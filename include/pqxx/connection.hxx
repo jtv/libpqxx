@@ -1605,7 +1605,7 @@ inline connection::connection(
 {
   check_version();
 
-  pqxx::internal::parsed_connection_string const parsed_string{
+  pqxx::internal::connection_string_parser const parsed_string{
     connection_string, loc};
   auto [keys, values]{parsed_string.parse()};
 
