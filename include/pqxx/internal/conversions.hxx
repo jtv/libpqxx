@@ -202,25 +202,11 @@ template<std::floating_point T> struct float_string_traits
            (std::max)(max_pos_exp, max_neg_exp); // Exponent digits.
   }
 };
-} // namespace pqxx::internal
-
-
-namespace pqxx
-{
-/// The built-in arithmetic types do not have inherent null values.
-/** Not-a-Number values (or NaNs for short) behave a lot like an SQL null, but
- * they are not nulls.  A non-null SQL float can be NaN.
- */
-template<typename T>
-  requires std::is_arithmetic_v<T>
-struct nullness<T> final : no_null<T>
-{};
-
 
 /// String traits for builtin integer types.
 /** This does not cover `bool` or (unlike `std::integral`) the `char` types.
  */
-template<pqxx::internal::integer T> struct string_traits<T> final
+template<pqxx::internal::integer T> struct integer_string_traits
 {
   PQXX_LIBEXPORT static T from_string(std::string_view text, ctx = {});
   PQXX_LIBEXPORT static std::string_view
@@ -235,6 +221,18 @@ template<pqxx::internal::integer T> struct string_traits<T> final
     return std::is_signed_v<T> + std::numeric_limits<T>::digits10 + 1;
   }
 };
+} // namespace pqxx::internal
+
+namespace pqxx
+{
+/// The built-in arithmetic types do not have inherent null values.
+/** Not-a-Number values (or NaNs for short) behave a lot like an SQL null, but
+ * they are not nulls.  A non-null SQL float can be NaN.
+ */
+template<typename T>
+  requires std::is_arithmetic_v<T>
+struct nullness<T> final : no_null<T>
+{};
 
 
 template<pqxx::internal::integer T>
@@ -242,6 +240,22 @@ inline constexpr bool is_unquoted_safe<T>{true};
 template<std::floating_point T>
 inline constexpr bool is_unquoted_safe<T>{true};
 
+#  define PQXX_SPECIALIZE_INT_TRAIT(typ)                                          \
+    template<>                                                                \
+    struct string_traits<typ> final                                           \
+            : pqxx::internal::integer_string_traits<typ>                      \
+    {}
+
+PQXX_SPECIALIZE_INT_TRAIT(short);
+PQXX_SPECIALIZE_INT_TRAIT(unsigned short);
+PQXX_SPECIALIZE_INT_TRAIT(int);
+PQXX_SPECIALIZE_INT_TRAIT(unsigned);
+PQXX_SPECIALIZE_INT_TRAIT(long);
+PQXX_SPECIALIZE_INT_TRAIT(unsigned long);
+PQXX_SPECIALIZE_INT_TRAIT(long long);
+PQXX_SPECIALIZE_INT_TRAIT(unsigned long long);
+
+#  undef PQXX_SPECIALIZE_INT_TRAIT
 
 template<>
 struct string_traits<float> final : pqxx::internal::float_string_traits<float>

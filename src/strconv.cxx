@@ -136,49 +136,6 @@ inline char *wrap_to_chars(std::span<char> buf, T const &value, pqxx::sl loc)
 }
 } // namespace
 
-
-namespace pqxx
-{
-template<pqxx::internal::integer T>
-inline std::string_view
-// NOLINTNEXTLINE(readability-non-const-parameter)
-string_traits<T>::to_buf(std::span<char> buf, T const &value, ctx c)
-{
-  static_assert(std::is_integral_v<T>);
-  auto const space{std::size(buf)}, need{size_buffer(value)};
-  if (std::cmp_less(space, need))
-    throw conversion_overrun{
-      std::format(
-        "Could not convert {} to string: buffer too small.  {}",
-        name_type<T>(), pqxx::internal::state_buffer_overrun(space, need)),
-      c.loc};
-
-  auto const end{std::data(buf) + std::size(buf)};
-  char const *const pos{[end, &value]() {
-    if constexpr (std::is_unsigned_v<T>)
-      return nonneg_to_buf(end, value);
-    else if (value >= 0)
-      return nonneg_to_buf(end, value);
-    else if (value > bottom<T>)
-      return neg_to_buf(end, -value);
-    else
-      return bottom_to_buf<T>(end);
-  }()};
-  return {pos, static_cast<std::size_t>(end - pos)};
-}
-
-
-template struct string_traits<short>;
-template struct string_traits<unsigned short>;
-template struct string_traits<int>;
-template struct string_traits<unsigned>;
-template struct string_traits<long>;
-template struct string_traits<unsigned long>;
-template struct string_traits<long long>;
-template struct string_traits<unsigned long long>;
-} // namespace pqxx
-
-
 namespace pqxx::internal
 {
 // TODO: Equivalents for converting a null in the other direction.
@@ -427,28 +384,52 @@ template struct float_string_traits<long double>;
 } // namespace pqxx::internal
 
 
-namespace pqxx
+namespace pqxx::internal
 {
-template<pqxx::internal::integer T>
-T string_traits<T>::from_string(std::string_view text, ctx c)
+template<pqxx::internal::integer TYPE>
+TYPE integer_string_traits<TYPE>::from_string(std::string_view text, ctx c)
 {
-  return from_string_arithmetic<T>(text, c);
+  return from_string_arithmetic<TYPE>(text, c);
 }
 
-template short string_traits<short>::from_string(std::string_view, ctx c);
-template unsigned short
-string_traits<unsigned short>::from_string(std::string_view, ctx c);
-template int string_traits<int>::from_string(std::string_view, ctx c);
-template unsigned
-string_traits<unsigned>::from_string(std::string_view, ctx c);
-template long string_traits<long>::from_string(std::string_view, ctx c);
-template unsigned long
-string_traits<unsigned long>::from_string(std::string_view, ctx c);
-template long long
-string_traits<long long>::from_string(std::string_view, ctx c);
-template unsigned long long
-string_traits<unsigned long long>::from_string(std::string_view, ctx c);
-} // namespace pqxx
+template<pqxx::internal::integer TYPE>
+inline std::string_view
+// NOLINTNEXTLINE(readability-non-const-parameter)
+integer_string_traits<TYPE>::to_buf(
+  std::span<char> buf, TYPE const &value, ctx c)
+{
+  static_assert(std::is_integral_v<TYPE>);
+  auto const space{std::size(buf)}, need{size_buffer(value)};
+  if (std::cmp_less(space, need))
+    throw conversion_overrun{
+      std::format(
+        "Could not convert {} to string: buffer too small.  {}",
+        name_type<TYPE>(), pqxx::internal::state_buffer_overrun(space, need)),
+      c.loc};
+
+  auto const end{std::data(buf) + std::size(buf)};
+  char const *const pos{[end, &value]() {
+    if constexpr (std::is_unsigned_v<TYPE>)
+      return nonneg_to_buf(end, value);
+    else if (value >= 0)
+      return nonneg_to_buf(end, value);
+    else if (value > bottom<TYPE>)
+      return neg_to_buf(end, -value);
+    else
+      return bottom_to_buf<TYPE>(end);
+  }()};
+  return {pos, static_cast<std::size_t>(end - pos)};
+}
+
+template struct integer_string_traits<short>;
+template struct integer_string_traits<unsigned short>;
+template struct integer_string_traits<int>;
+template struct integer_string_traits<unsigned>;
+template struct integer_string_traits<long>;
+template struct integer_string_traits<unsigned long>;
+template struct integer_string_traits<long long>;
+template struct integer_string_traits<unsigned long long>;
+} // namespace pqxx::internal
 
 
 namespace pqxx::internal
