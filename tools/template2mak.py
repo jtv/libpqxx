@@ -172,12 +172,12 @@ def write_header(stream, template_path=None):
     hr = ('# ' + '#' * 78) + "\n"
     script = os.path.basename(argv[0])
 
-    outstream.write(hr)
-    outstream.write(OUTPUT_HEADER.format(script=script))
+    stream.write(hr)
+    stream.write(OUTPUT_HEADER.format(script=script))
     if template_path is not None:
-        outstream.write("#\n")
-        outstream.write("# Generated from template '%s'.\n" % template_path)
-    outstream.write(hr)
+        stream.write("#\n")
+        stream.write("# Generated from template '%s'.\n" % template_path)
+    stream.write(hr)
 
 
 if __name__ == '__main__':
