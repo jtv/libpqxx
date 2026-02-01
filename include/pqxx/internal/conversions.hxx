@@ -245,7 +245,7 @@ inline constexpr bool is_unquoted_safe<T>{true};
 template<std::floating_point T>
 inline constexpr bool is_unquoted_safe<T>{true};
 
-#  define PQXX_SPECIALIZE_INT_TRAIT(typ)                                          \
+#  define PQXX_SPECIALIZE_INT_TRAIT(typ)                                      \
     template<>                                                                \
     struct string_traits<typ> final                                           \
             : pqxx::internal::integer_string_traits<typ>                      \
