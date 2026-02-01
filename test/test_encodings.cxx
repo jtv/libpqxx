@@ -167,7 +167,12 @@ auto find_x(std::array<char, N> const &data, pqxx::encoding_group enc)
 void test_find_chars_reports_malencoded_text(pqxx::test::context &tctx)
 {
   // Set up an array containing random char values, but not '|'.
-  std::array<char, 500> data{};
+  //
+  // We really need an amazingly large array here, since our encoding support
+  // is only designed to detect structural problems, not invalid characters per
+  // se.  So even an array of 500 bytes will pass the SJIS checks far too
+  // often.
+  std::array<char, 1000> data{};
   for (std::size_t i{0}; i < std::size(data); ++i)
   {
     data.at(i) = tctx.random_char();
