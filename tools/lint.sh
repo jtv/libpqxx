@@ -158,23 +158,23 @@ EOF
 pylint() {
     if which pyflakes >/dev/null
     then
-        pyflakes "$SRCDIR"/tools/*.py
+        pyflakes "$SRCDIR"
     else
-        uv -q run --with=pyflakes pyflakes "$SRCDIR"/tools/*.py
+        uv -q run --with=pyflakes pyflakes "$SRCDIR"
     fi
 
     if which ruff >/dev/null
     then
         ruff check -q "$SRCDIR"/tools/*.py
     else
-        uv -q run --with=ruff ruff check -q "$SRCDIR"/tools/*.py
+        uv -q run --with=ruff ruff check -q "$SRCDIR"
     fi
 
     if which pyrefly >/dev/null
     then
         pyrefly check .
     else
-        uv -q run --with=pyrefly pyrefly check "$SRCDIR"
+        uv -q run --with=pyrefly pyrefly check --summary=none "$SRCDIR"
     fi
 }
 
