@@ -7,6 +7,7 @@
  - Replace generated config headers with just `config-compiler.h`. (#1152)
  - CMake build now filters `config-compiler.h`, like the autoconfig build does.
  - No longer generate `config-autotools.h`.
+ - Build fix for MSVC 2026. (#1160)
 8.0.0
  - C++20 is now the oldest C++ version that libpqxx supports.
  - Requires PostgreSQL 11 or better.

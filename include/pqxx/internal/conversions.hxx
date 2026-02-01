@@ -140,10 +140,10 @@ generic_into_buf(std::span<char> buf, T const &value, ctx c = {})
 /// String traits for builtin floating-point types.
 /** It _would_ make sense to define this directly as the definition for
  * `pqxx::string_traits<T>` where `T` is a `std::floating_point`.  However
- * Viual Studio 2022 does not seem to accept that syntax.
+ * Visual Studio 2022 does not seem to accept that syntax.
  *
  * So instead, we create a separate base class for `std::floating_point` types
- * and then derive specialisatinos of `pqxx::string_traits` from that.
+ * and then derive specialisations of `pqxx::string_traits` from that.
  */
 template<std::floating_point T> struct float_string_traits
 {
@@ -205,6 +205,11 @@ template<std::floating_point T> struct float_string_traits
 
 /// String traits for builtin integer types.
 /** This does not cover `bool` or (unlike `std::integral`) the `char` types.
+ *
+ * Once upon a time this was a partial specialisation of `string_traits` for
+ * the `pqxx::internal::integer` concept, but MSVC 2026 had a mysterious
+ * problem with that (see #1160).  So, we had to revert to a much clunkier way
+ * of creating those specialisations.
  */
 template<pqxx::internal::integer T> struct integer_string_traits
 {
