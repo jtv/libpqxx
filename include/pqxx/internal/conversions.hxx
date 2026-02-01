@@ -221,8 +221,13 @@ struct nullness<TYPE> final : no_null<TYPE>
 
 /// String traits for builtin integer types.
 /** This does not cover `bool` or (unlike `std::integral`) the `char` types.
+ *
+ * (Using `requires` syntax here because MSVC 2026 reports error C3855 when we
+ * use a straightforward `template<pqxx::internal::integer TYPE>`.)
  */
-template<pqxx::internal::integer TYPE> struct string_traits<TYPE> final
+template<typename TYPE>
+  requires pqxx::internal::integer<TYPE>
+struct string_traits<TYPE> final
 {
   PQXX_LIBEXPORT static TYPE from_string(std::string_view text, ctx = {});
   PQXX_LIBEXPORT static std::string_view

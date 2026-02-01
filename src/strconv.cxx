@@ -140,7 +140,8 @@ wrap_to_chars(std::span<char> buf, TYPE const &value, pqxx::sl loc)
 
 namespace pqxx
 {
-template<pqxx::internal::integer TYPE>
+template<typename TYPE>
+  requires pqxx::internal::integer<TYPE>
 inline std::string_view
 // NOLINTNEXTLINE(readability-non-const-parameter)
 string_traits<TYPE>::to_buf(std::span<char> buf, TYPE const &value, ctx c)
@@ -431,7 +432,8 @@ template struct float_string_traits<long double>;
 
 namespace pqxx
 {
-template<pqxx::internal::integer TYPE>
+template<typename TYPE>
+  requires pqxx::internal::integer<TYPE>
 TYPE string_traits<TYPE>::from_string(std::string_view text, ctx c)
 {
   return from_string_arithmetic<TYPE>(text, c);
