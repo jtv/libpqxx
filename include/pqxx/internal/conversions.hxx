@@ -141,10 +141,10 @@ generic_into_buf(std::span<char> buf, TYPE const &value, ctx c = {})
 /// String traits for builtin floating-point types.
 /** It _would_ make sense to define this directly as the definition for
  * `pqxx::string_traits<TYPE>` where `TYPE` is a `std::floating_point`. However
- * Viual Studio 2022 does not seem to accept that syntax.
+ * Visual Studio 2022 does not seem to accept that syntax.
  *
  * So instead, we create a separate base class for `std::floating_point` types
- * and then derive specialisatinos of `pqxx::string_traits` from that.
+ * and then derive specialisations of `pqxx::string_traits` from that.
  */
 template<std::floating_point TYPE> struct float_string_traits
 {
@@ -184,8 +184,8 @@ template<std::floating_point TYPE> struct float_string_traits
     // The longest negative exponent is a bit harder: min_exponent10 gives us
     // the smallest power of 10 which a normalised version of TYPE can
     // represent. But the smallest denormalised power of 10 that TYPE can
-    // represent is another max_digits10 powers of 10 below that. needs a minus
-    // sign.
+    // represent is another max_digits10 powers of 10 below that.  Plus it
+    // needs room for a minus sign.
     //
     // All this stuff messes with my head a bit because it's on the order of
     // log10(log10(n)).  It's easy to get the number of logs wrong.
