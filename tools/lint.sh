@@ -169,6 +169,13 @@ pylint() {
     else
         uv -q run --with=ruff ruff check -q "$SRCDIR"/tools/*.py
     fi
+
+    if which pyrefly >/dev/null
+    then
+        pyrefly check .
+    else
+        uv -q run --with=pyrefly pyrefly check .
+    fi
 }
 
 
