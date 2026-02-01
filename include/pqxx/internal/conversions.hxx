@@ -182,8 +182,8 @@ template<std::floating_point T> struct float_string_traits
     // The longest negative exponent is a bit harder: min_exponent10 gives us
     // the smallest power of 10 which a normalised version of T can represent.
     // But the smallest denormalised power of 10 that T can represent is
-    // another max_digits10 powers of 10 below that.
-    // needs a minus sign.
+    // another max_digits10 powers of 10 below that.  It also needs room for a
+    // a minus sign.
     //
     // All this stuff messes with my head a bit because it's on the order of
     // log10(log10(n)).  It's easy to get the number of logs wrong.
