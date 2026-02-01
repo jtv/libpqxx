@@ -174,7 +174,7 @@ pylint() {
     then
         pyrefly check .
     else
-        uv -q run --with=pyrefly pyrefly check .
+        uv -q run --with=pyrefly pyrefly check "$SRCDIR"
     fi
 }
 
