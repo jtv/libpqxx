@@ -135,44 +135,6 @@ check_cast(FROM value, std::string_view description, sl loc = sl::current())
 }
 
 
-/** Check library version at link time.
- *
- * Ensures a failure when linking an application against a radically
- * different libpqxx version than the one against which it was compiled.
- *
- * Sometimes application builds fail in unclear ways because they compile
- * using headers from libpqxx version X, but then link against libpqxx
- * binary version Y.  A typical scenario would be one where you're building
- * against a libpqxx which you have built yourself, but a different version
- * is installed on the system.
- *
- * The check_library_version template is declared for any library version,
- * but only actually defined for the version of the libpqxx binary against
- * which the code is linked.
- *
- * If the library binary is a different version than the one declared in
- * these headers, then this call will fail to link: there will be no
- * definition for the function with these exact template parameter values.
- * There will be a definition, but the version in the parameter values will
- * be different.
- */
-PQXX_PRIVATE inline void check_version() noexcept
-{
-  // There is no particular reason to do this here in @ref connection, except
-  // to ensure that every meaningful libpqxx client will execute it.  The call
-  // must be in the execution path somewhere or the compiler won't try to link
-  // it.  We can't use it to initialise a global or class-static variable,
-  // because a smart compiler might resolve it at compile time.
-  //
-  // On the other hand, we don't want to make a useless function call too
-  // often for performance reasons.  A local static variable is initialised
-  // only on the definition's first execution.  Compilers will be well
-  // optimised for this behaviour, so there's a minimal one-time cost.
-  [[maybe_unused]] static auto const version_ok{
-    internal::PQXX_VERSION_CHECK()};
-}
-
-
 // TODO: No longer useful as of PostgreSQL 17: libpq is always thread-safe.
 /// Descriptor of library's thread-safety model.
 /** This describes what the library knows about various risks to thread-safety.
@@ -410,6 +372,26 @@ PQXX_PURE inline std::string source_loc(LOC const &loc)
 namespace pqxx::internal
 {
 using namespace std::literals;
+
+
+/// Check library binary version against application's expectations.
+/** Helps detect version mismatches between libpqxx headers and the libpqxx
+ * library binary.
+ *
+ * Sometimes users run into trouble linking their code against libpqxx because
+ * they build their own libpqxx, but the system also has a different version
+ * installed; or, they install a dynamically linked application with a
+ * mismatched libpqxx binary.
+ *
+ * This function's definition is in the libpqxx binary, so it knows the version
+ * as it stood when the libpqxx binary was compiled.  The calling binary
+ * contains a call to this function (inlined from @ref check_version()),
+ * passing the version numbers as they applied when the application was
+ * compiled.  That's why they're called "the app's" version components.
+ */
+PQXX_LIBEXPORT PQXX_NOINLINE int check_libpqxx_version(
+  int apps_major, int apps_minor, int apps_patch,
+  std::string_view apps_version);
 
 
 // LCOV_EXCL_START

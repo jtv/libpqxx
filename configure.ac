@@ -2,7 +2,7 @@
 # package installed.  (The configure script itself does not require it though.)
 
 AC_PREREQ([2.71])
-AC_INIT([libpqxx],[m4_esyscmd_s([./tools/extract_version.sh])],
+AC_INIT([libpqxx],[m4_esyscmd_s([./tools/extract_version.py])],
 	[Jeroen T. Vermeulen])
 
 # Suppress checks for standard C headers.  One, we're not doing C here; two,
@@ -19,7 +19,7 @@ AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR([config/m4])
 AM_INIT_AUTOMAKE([subdir-objects])
 
-PQXX_ABI=m4_esyscmd_s([./tools/extract_version.sh --abi])
+PQXX_ABI=m4_esyscmd_s([./tools/extract_version.py --abi])
 AC_SUBST(PQXXVERSION, $PACKAGE_VERSION)
 AC_SUBST(PQXX_ABI)
 

@@ -1,6 +1,6 @@
 EXTRA_DIST = \
 	deprecations.sh \
-	extract_version.sh \
+	extract_version.py \
 	format.sh \
 	generate_check_config.py \
 	generate_cxx_checks.py \

@@ -1603,7 +1603,23 @@ inline connection::connection(
   char const connection_string[], MAPPING const &params, sl loc) :
         m_created_loc{loc}
 {
-  check_version();
+  // Check that the libpqxx binary library version is compatible with the
+  // version against which the application was compiled.  We're in an inline
+  // function, so this _call_ ends up in the application binary.  On the other
+  // hand, `check_libpqxx_version()` is compiled into the libpqx binary.
+  // That's how the function is in a position to compare the two versions.
+  //
+  // There is no particular reason to do this here in @ref connection, except
+  // to ensure that every meaningful libpqxx client will execute it, while
+  // minimising overhead.  The ideal would be to pay a small price exactly once
+  // per application run.
+  //
+  // A local static variable is initialised only on the definition's first
+  // execution.  Compilers will be well optimised for this, so there's a
+  // minimal one-time cost.
+  [[maybe_unused]] static auto const version_check{
+    pqxx::internal::check_libpqxx_version(
+      version_major, version_minor, version_patch, version)};
 
   pqxx::internal::connection_string_parser const parsed_string{
     connection_string, loc};

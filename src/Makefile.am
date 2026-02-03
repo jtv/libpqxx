@@ -25,7 +25,6 @@ libpqxx_la_SOURCES = \
 	row.cxx \
 	types.cxx \
 	util.cxx \
-	version.cxx \
 	wait.cxx
 
 libpqxx_version = -release $(PQXX_ABI)
