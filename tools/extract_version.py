@@ -2,9 +2,7 @@
 
 """Print libpqx version information based on the source tree's VERSION file.
 
-Version strings look like: "<major>.<minor>.<patch>".  Both <major> and <minor>
-must be simple decimal numbers; <patch> is a decimal number that may have a
-suffix like "rc3".
+Version strings look like: "<major>.<minor>.<patch>".
 """
 
 from argparse import ArgumentParser, Namespace
