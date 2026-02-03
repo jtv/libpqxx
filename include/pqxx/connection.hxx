@@ -1603,7 +1603,7 @@ inline connection::connection(
   char const connection_string[], MAPPING const &params, sl loc) :
         m_created_loc{loc}
 {
-  check_version();
+  pqxx::internal::check_version();
 
   pqxx::internal::connection_string_parser const parsed_string{
     connection_string, loc};

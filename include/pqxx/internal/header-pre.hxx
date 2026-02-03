@@ -98,6 +98,19 @@
 #endif
 
 
+/// Never inline this function.
+/** Bear in mind that this only works for the specific compilers for which we
+ * know non-standard attributes that achieve this.
+ */
+#if __has_cpp_attribute(gnu::noinline)
+#  define PQXX_NOINLINE [[gnu::noinline]]
+#elif __has_cpp_attribute(msvc::noinline)
+#  define PQXX_NOINLINE [[msvc::noinline]]
+#else
+#  define PQXX_NOINLINE /* noinline */
+#endif
+
+
 #if __has_cpp_attribute(gnu::returns_nonnull)
 /// For functions returning a pointer: the pointer is never null.
 #  define PQXX_RETURNS_NONNULL [[gnu::returns_nonnull]]
