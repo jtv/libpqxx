@@ -463,6 +463,68 @@ void test_source_loc_handles_minimal_source_location(pqxx::test::context &tctx)
 }
 
 
+void test_version_check_requires_identical_abi(pqxx::test::context &)
+{
+  // (Baseline check)
+  PQXX_CHECK_SUCCEEDS(pqxx::internal::check_libpqxx_version(
+    pqxx::version_major, pqxx::version_minor, pqxx::version_patch,
+    pqxx::version));
+
+  PQXX_CHECK_THROWS(
+    pqxx::internal::check_libpqxx_version(
+      pqxx::version_major + 1, pqxx::version_minor, pqxx::version_patch,
+      pqxx::version),
+    pqxx::version_mismatch);
+  PQXX_CHECK_THROWS(
+    pqxx::internal::check_libpqxx_version(
+      pqxx::version_major, pqxx::version_minor + 1, pqxx::version_patch,
+      pqxx::version),
+    pqxx::version_mismatch);
+}
+
+
+void test_version_check_accepts_patch_upgrade(pqxx::test::context &)
+{
+  // (Baseline check)
+  PQXX_CHECK_SUCCEEDS(pqxx::internal::check_libpqxx_version(
+    pqxx::version_major, pqxx::version_minor, pqxx::version_patch,
+    pqxx::version));
+
+  // We don't meddle with the version numbers stored inside the library binary,
+  // meaning we can't test both the "special version" scenario and the
+  // "regular" scenario.  We'll just check which kind of version we are, and
+  // test the corresponding scenario.  In time, all shall be tested.
+  if constexpr (pqxx::version_patch >= 0)
+  {
+    // We're a regular version.
+
+    // Checking an older app build for the same ABI version succeeds.
+    PQXX_CHECK_SUCCEEDS(pqxx::internal::check_libpqxx_version(
+      pqxx::version_major, pqxx::version_minor, pqxx::version_patch - 1,
+      pqxx::version));
+
+    // Checking a newer app build for the same ABI version fails.
+    //
+    // In the special case where our patch level is zero, subtracting one will
+    // simulate a special version, which should also fail.
+    PQXX_CHECK_THROWS(
+      pqxx::internal::check_libpqxx_version(
+        pqxx::version_major, pqxx::version_minor, pqxx::version_patch + 1,
+        pqxx::version),
+      pqxx::version_mismatch);
+  }
+  else
+  {
+    // We're a special version.  Even if the application was compiled against
+    // the oldest possible patch level, it fails.
+    PQXX_CHECK_THROWS(
+      pqxx::internal::check_libpqxx_version(
+        pqxx::version_major, pqxx::version_minor, 0, pqxx::version),
+      pqxx::version_mismatch);
+  }
+}
+
+
 PQXX_REGISTER_TEST(test_make_num);
 PQXX_REGISTER_TEST(test_binary_cast);
 PQXX_REGISTER_TEST(test_check_cast);
@@ -475,4 +537,6 @@ PQXX_REGISTER_TEST(test_source_loc_handles_line_only);
 PQXX_REGISTER_TEST(test_source_loc_handles_column_only);
 PQXX_REGISTER_TEST(test_source_loc_handles_func_only);
 PQXX_REGISTER_TEST(test_source_loc_handles_minimal_source_location);
+PQXX_REGISTER_TEST(test_version_check_requires_identical_abi);
+PQXX_REGISTER_TEST(test_version_check_accepts_patch_upgrade);
 } // namespace
