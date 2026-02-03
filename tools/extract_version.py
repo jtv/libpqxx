@@ -48,9 +48,13 @@ def parse_args() -> Namespace:
         help="Source directory; defaults to '$srddir' or '.'.",
     )
     args = parser.parse_args()
-    actions = list(filter(None, [args.abi, args.full, args.major, args.minor, args.patch]))
+    actions = list(
+        filter(None, [args.abi, args.full, args.major, args.minor, args.patch])
+    )
     if len(actions) > 1:
-        raise Fail("Parse at most one of --abi, --full, --major, --minor, or --patch.")
+        raise Fail(
+            "Parse at most one of --abi, --full, --major, --minor, or --patch."
+        )
     return args
 
 
