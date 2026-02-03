@@ -320,7 +320,6 @@ public:
   inline connection(
     char const connection_string[], MAPPING const &params, sl = sl::current());
 
-  // XXX: Can we loosen the zero-termination requirements now!?
   /// Connect to a database with both connection string and parameter pairs.
   /** The parameter pairs are key/value pairs similar to the parameters you can
    * also encode in a connection string.
