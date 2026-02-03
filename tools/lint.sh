@@ -19,7 +19,7 @@ then
 fi
 
 SRCDIR="${srcdir:-$(dirname "${BASH_SOURCE[0]}")/..}"
-PQXXVERSION="$(cd "$SRCDIR" && "$SRCDIR/tools/extract_version.sh")"
+PQXXVERSION="$(cd "$SRCDIR" && "$SRCDIR/tools/extract_version.py")"
 
 ARGS="${1:-}"
 

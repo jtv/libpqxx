@@ -3,10 +3,11 @@
 
 set -Cue -o pipefail
 
-PQXXVERSION=$(./tools/extract_version.sh)
-PQXX_ABI=$(./tools/extract_version.sh --abi)
-PQXX_MAJOR=$(./tools/extract_version.sh --major)
-PQXX_MINOR=$(./tools/extract_version.sh --minor)
+PQXXVERSION=$(./tools/extract_version.py)
+PQXX_ABI=$(./tools/extract_version.py --abi)
+PQXX_MAJOR=$(./tools/extract_version.py --major)
+PQXX_MINOR=$(./tools/extract_version.py --minor)
+PQXX_PATCH=$(./tools/extract_version.py --patch)
 echo "libpqxx version $PQXXVERSION"
 echo "libpqxx ABI version $PQXX_ABI"
 
@@ -20,6 +21,7 @@ substitute() {
     sed -e "s/@PQXXVERSION@/$PQXXVERSION/g" \
         -e "s/@PQXX_MAJOR@/$PQXX_MAJOR/g" \
         -e "s/@PQXX_MINOR@/$PQXX_MINOR/g" \
+        -e "s/@PQXX_PATCH@/$PQXX_PATCH/g" \
         -e "s/@PQXX_ABI@/$PQXX_ABI/g" \
         "$infile" >|"$outfile.tmp"
 

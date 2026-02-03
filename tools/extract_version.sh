@@ -1,6 +1,8 @@
 #! /bin/sh
 set -Cue
 
+echo "*** DEPRECATED: Use extract_version.py, not extract_version.sh. ***" >&2
+
 ARG="${1:-}"
 
 # Source directory.  In out-of-tree builds, Automake sets this for us.
