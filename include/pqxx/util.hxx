@@ -404,7 +404,7 @@ PQXX_LIBEXPORT PQXX_NOINLINE int check_libpqxx_version(
  * This function calls @ref check_libpqxx_version(), but tries to do it as
  * rarely as possible to minimise runtime overhead.
  */
-PQXX_PRIVATE PQXX_INLINE_ONLY inline void check_version() noexcept
+PQXX_PRIVATE PQXX_INLINE_ONLY inline void check_version()
 {
   // There is no particular reason to do this here in @ref connection, except
   // to ensure that every meaningful libpqxx client will execute it, while

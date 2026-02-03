@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-"""Print libpqx version information based on the source tree's VERSION file.
+"""Print libpqxx version information based on the source tree's VERSION file.
 
 Version strings look like: "<major>.<minor>.<patch>".
 """
@@ -45,7 +45,7 @@ def parse_args() -> Namespace:
         "--srcdir",
         "-s",
         type=Path,
-        help="Source directory; defaults to '$srddir' or '.'.",
+        help="Source directory; defaults to '$srcdir' or '.'.",
     )
     args = parser.parse_args()
     actions = list(

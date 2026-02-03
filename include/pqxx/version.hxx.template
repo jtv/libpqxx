@@ -29,7 +29,7 @@ constexpr inline std::string_view const version{"@PQXXVERSION@"};
  *
  * @warning Many factors can influence the library's ABI, including compiler,
  * compiler version, and compilation options.  An ABI can also change radically
- * during release candidate developmet.  So don't count fully on it.
+ * during release candidate development.  So don't count fully on it.
  */
 constexpr inline std::string_view const abi_version{"@PQXX_ABI@"};
 
@@ -54,8 +54,8 @@ constexpr inline int const version_patch{@PQXX_PATCH@};
 #  define PQXX_VERSION "@PQXXVERSION@"
 /// Library ABI version.  @deprecated Use @ref pqxx::abi_version instead.
 #  define PQXX_ABI "@PQXX_ABI@"
-/// Major version number.  @deprecated Use @ref pqxx::major_version instead.
+/// Major version number.  @deprecated Use @ref pqxx::version_major instead.
 #  define PQXX_VERSION_MAJOR @PQXX_MAJOR@
-/// Minor version number.  @deprecated Use @ref pqxx::minor_version instead.
+/// Minor version number.  @deprecated Use @ref pqxx::version_minor instead.
 #  define PQXX_VERSION_MINOR @PQXX_MINOR@
 #endif
