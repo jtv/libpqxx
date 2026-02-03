@@ -389,7 +389,9 @@ using namespace std::literals;
  * passing the version numbers as they applied when the application was
  * compiled.  That's why they're called "the app's" version components.
  */
-PQXX_LIBEXPORT PQXX_NOINLINE int check_libpqxx_version(int apps_major, int apps_minor, int apps_patch, std::string_view apps_version);
+PQXX_LIBEXPORT PQXX_NOINLINE int check_libpqxx_version(
+  int apps_major, int apps_minor, int apps_patch,
+  std::string_view apps_version);
 
 
 /// Check that libpqxx binary matches the application's expected version.
@@ -412,8 +414,8 @@ PQXX_PRIVATE PQXX_INLINE_ONLY inline void check_version() noexcept
   // A local static variable is initialised only on the definition's first
   // execution.  Compilers will be well optimised for this, so there's a
   // minimal one-time cost.
-  [[maybe_unused]] static auto const version_ok{
-    check_libpqxx_version(version_major, version_minor, version_patch, version)};
+  [[maybe_unused]] static auto const version_ok{check_libpqxx_version(
+    version_major, version_minor, version_patch, version)};
 }
 
 

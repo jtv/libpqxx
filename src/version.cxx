@@ -22,7 +22,8 @@ namespace pqxx::internal
 {
 PQXX_NOINLINE
 int check_libpqxx_version(
-  int apps_major, int apps_minor, int apps_patch, std::string_view apps_version)
+  int apps_major, int apps_minor, int apps_patch,
+  std::string_view apps_version)
 {
   if ((apps_major == version_major) and (apps_minor == version_minor))
   {
