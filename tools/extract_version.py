@@ -40,6 +40,8 @@ def parse_args() -> Namespace:
         "--patch", "-p", action="store_true", help="Show patch version."
     )
     parser.add_argument(
+        "--patch-num", '-P', action='store_true', help="Show patch version if it's a number, or -1 otherwise.")
+    parser.add_argument(
         "--srcdir",
         "-s",
         type=Path,
@@ -47,16 +49,16 @@ def parse_args() -> Namespace:
     )
     args = parser.parse_args()
     actions = list(
-        filter(None, [args.abi, args.full, args.major, args.minor, args.patch])
+        filter(None, [args.abi, args.full, args.major, args.minor, args.patch, args.patch_num])
     )
     if len(actions) > 1:
         raise Fail(
-            "Parse at most one of --abi, --full, --major, --minor, or --patch."
+            "Parse at most one of --abi, --full, --major, --minor, --patch, or --patch-num."
         )
     return args
 
 
-def find_srcdir(args_srcdir) -> Path:
+def find_srcdir(args_srcdir: Path) -> Path:
     """Locate the root source directory."""
     return Path(args_srcdir or getenv("srcdir") or Path.cwd())
 
@@ -72,6 +74,14 @@ def read_version(srcdir: Path) -> str:
     return version
 
 
+def patch_num(patch_str: str) -> int:
+    """Return patch number as `int`, or -1 if it's not numeric."""
+    if patch_str.isdigit():
+        return int(patch_str)
+    else:
+        return -1
+
+
 def work() -> None:
     """Do the actual work."""
     args = parse_args()
@@ -82,6 +92,8 @@ def work() -> None:
         print(version.split(".")[1])
     elif args.patch:
         print(version.split(".")[2])
+    elif args.patch_num:
+        print(patch_num(version.split(".")[2]))
     elif args.abi:
         print(version.rsplit(".", 1)[0])
     else:

@@ -7,7 +7,7 @@ PQXXVERSION=$(./tools/extract_version.py)
 PQXX_ABI=$(./tools/extract_version.py --abi)
 PQXX_MAJOR=$(./tools/extract_version.py --major)
 PQXX_MINOR=$(./tools/extract_version.py --minor)
-PQXX_PATCH=$(./tools/extract_version.py --patch)
+PQXX_PATCH=$(./tools/extract_version.py --patch-num)
 echo "libpqxx version $PQXXVERSION"
 echo "libpqxx ABI version $PQXX_ABI"
 
