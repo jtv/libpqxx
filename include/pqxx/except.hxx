@@ -154,6 +154,9 @@ struct PQXX_LIBEXPORT failure : std::exception
    *
    * If your connection is poisoned, then it follows that any ongoing
    * transaction will no longer be usable either.
+   *
+   * @note This is a general indication based on the _type_ of exception.  It
+   * can be wrong for some specific situations.
    */
   virtual bool poisons_connection() const noexcept { return false; }
 
@@ -167,6 +170,9 @@ struct PQXX_LIBEXPORT failure : std::exception
    * derived from @ref dbtransaction.  So if you see an exception which reports
    * that it poisons transactions but not the connection, then a
    * @ref nontransaction should still be usable.
+   *
+   * @note This is a general indication based on the _type_ of exception.  It
+   * can be wrong for some specific situations.
    */
   virtual bool poisons_transaction() const noexcept { return false; }
 
