@@ -394,31 +394,6 @@ PQXX_LIBEXPORT PQXX_NOINLINE int check_libpqxx_version(
   std::string_view apps_version);
 
 
-/// Check that libpqxx binary matches the application's expected version.
-/** Sometimes application builds fail in unclear ways because they compile
- * using headers from libpqxx version X, but then link against libpqxx
- * binary version Y.  A typical scenario would be one where you're building
- * against a libpqxx which you have built yourself, but a different version
- * is installed on the system.
- *
- * This function calls @ref check_libpqxx_version(), but tries to do it as
- * rarely as possible to minimise runtime overhead.
- */
-PQXX_PRIVATE PQXX_INLINE_ONLY inline void check_version()
-{
-  // There is no particular reason to do this here in @ref connection, except
-  // to ensure that every meaningful libpqxx client will execute it, while
-  // minimising overhead.  The ideal would be to pay a small price exactly once
-  // per application run.
-  //
-  // A local static variable is initialised only on the definition's first
-  // execution.  Compilers will be well optimised for this, so there's a
-  // minimal one-time cost.
-  [[maybe_unused]] static auto const version_ok{check_libpqxx_version(
-    version_major, version_minor, version_patch, version)};
-}
-
-
 // LCOV_EXCL_START
 /// A safer and more generic replacement for `std::isdigit`.
 /** Turns out `std::isdigit` isn't as easy to use as it sounds.  It takes an

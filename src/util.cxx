@@ -154,8 +154,9 @@ static_assert(nibble('f') == 15);
 } // namespace
 
 
-void pqxx::internal::esc_bin(
-  bytes_view binary_data, std::span<char> buffer) noexcept
+namespace pqxx::internal
+{
+void esc_bin(bytes_view binary_data, std::span<char> buffer) noexcept
 {
   assert(std::size(buffer) >= size_esc_bin(std::size(binary_data)));
   std::size_t here{0u};
@@ -178,7 +179,7 @@ void pqxx::internal::esc_bin(
 }
 
 
-std::string pqxx::internal::esc_bin(bytes_view binary_data)
+std::string esc_bin(bytes_view binary_data)
 {
   auto const bytes{size_esc_bin(std::size(binary_data))};
   std::string buf;
@@ -190,7 +191,7 @@ std::string pqxx::internal::esc_bin(bytes_view binary_data)
 }
 
 
-void pqxx::internal::unesc_bin(
+void unesc_bin(
   std::string_view escaped_data, std::span<std::byte> buffer, sl loc)
 {
   auto const in_size{std::size(escaped_data)};
@@ -219,7 +220,7 @@ void pqxx::internal::unesc_bin(
 }
 
 
-pqxx::bytes pqxx::internal::unesc_bin(std::string_view escaped_data, sl loc)
+pqxx::bytes unesc_bin(std::string_view escaped_data, sl loc)
 {
   auto const bytes{size_unesc_bin(std::size(escaped_data))};
   pqxx::bytes buf;
@@ -229,11 +230,36 @@ pqxx::bytes pqxx::internal::unesc_bin(std::string_view escaped_data, sl loc)
 }
 
 
-int pqxx::internal::check_libpqxx_version(
+/// Persistent copies of libpqxx version information.
+/** These are not efficient.  They are stored here for one reason only: to
+ * ensure that the libpqxx library binary contains its own version inforamtion,
+ * even if the application code that calls libpqxx is compiled against a
+ * different version.  (We allow some slight differences.)  That way we can
+ * compare the binary version against the version that was in the headers.
+ *
+ * The `volatile` is probably overkill.  I just want this to have linkage as
+ * far as compilation is concerned.
+ */
+volatile int const binary_major{version_major}, binary_minor{version_minor},
+  binary_patch{version_patch};
+
+
+/// Peristent copy of libpqxx version string.
+/** I'd like to make this `volatile`, but there are just too many complications
+ * along the way.  Which is probably for the best.
+ *
+ * Let's just hope that this declaration is enough to prevent the compiler from
+ * optimising this away completely.  (I wouldn't particularly mind if the
+ * linker did so though.)
+ */
+std::string const binary_version{version};
+
+
+int check_libpqxx_version(
   int apps_major, int apps_minor, int apps_patch,
   std::string_view apps_version)
 {
-  if ((apps_major == version_major) and (apps_minor == version_minor))
+  if ((apps_major == binary_major) and (apps_minor == binary_minor))
   {
     // Major and minor versions match.  Without that, the odds of even getting
     // to this point in the code are pretty slim anyway.
@@ -244,9 +270,9 @@ int pqxx::internal::check_libpqxx_version(
       // cool so long as the libpqxx binary is also regular, and the binary's
       // patch level is no less than the one used in the application build.
       //
-      // (If 0 <= apps_patch <= patch, then it follows that 0 <= patch.  No
-      // need to check that.)
-      if (apps_patch <= version_patch)
+      // (If 0 <= apps_patch <= version_patch, then it follows that
+      // 0 <= version_patch.  No need to check that.)
+      if (apps_patch <= binary_patch)
         return 1;
     }
     else
@@ -255,7 +281,7 @@ int pqxx::internal::check_libpqxx_version(
       // candidate.  We don't try to get clever about tolerating mismatches in
       // such cases; there's just too much that can go wrong.  Demand an exact
       // string match.
-      if (apps_version == version)
+      if (apps_version == binary_version)
         return 2;
     }
   }
@@ -263,8 +289,9 @@ int pqxx::internal::check_libpqxx_version(
   throw version_mismatch{std::format(
     "Mismatch in libpqxx versions: Compiled against libpqxx {} headers, "
     "but libpqxx binary is {}.",
-    apps_version, version)};
+    apps_version, binary_version)};
 }
+} // namespace pqxx::internal
 
 
 namespace pqxx::internal::pq
