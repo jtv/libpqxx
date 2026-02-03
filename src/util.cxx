@@ -252,7 +252,7 @@ volatile int const binary_major{version_major}, binary_minor{version_minor},
  * optimising this away completely.  (I wouldn't particularly mind if the
  * linker did so though.)
  */
-std::string const binary_version{version};
+std::string_view const binary_version{version};
 
 
 int check_libpqxx_version(
