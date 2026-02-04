@@ -252,9 +252,8 @@ public:
    * identifiers get converted to lower-case, and of course special characters
    * such as quotes also cause problems.
    *
-   * Therefore, if you think that the column name may contain any upper-case
-   * letters that you do not want lower-cased, or special characters, escape
-   * and quote it first:
+   * Therefore, if the column name may contain any upper-case letters that you
+   * do not want lower-cased, or special characters, escape and quote it first:
    * `myresult.column_number(mytransaction.quote_name(name))`.
    */
   [[nodiscard]] row_size_type
@@ -293,9 +292,8 @@ public:
    * identifiers get converted to lower-case, and of course special characters
    * such as quotes also cause problems.
    *
-   * Therefore, if you think that the column name may contain any upper-case
-   * letters that you do not want lower-cased, or special characters, escape
-   * and quote it first:
+   * Therefore, if the column name may contain any upper-case letters that you
+   * do not want lower-cased, or special characters, escape and quote it first:
    * `myresult.column_type(mytransaction.quote_name(col_name))`.
    */
   [[nodiscard]] oid column_type(zview col_name, sl loc = sl::current()) const
@@ -312,9 +310,8 @@ public:
    * identifiers get converted to lower-case, and of course special characters
    * such as quotes also cause problems.
    *
-   * Therefore, if you think that the column name may contain any upper-case
-   * letters that you do not want lower-cased, or special characters, escape
-   * and quote it first:
+   * Therefore, if the column name may contain any upper-case letters that you
+   * do not want lower-cased, or special characters, escape and quote it first:
    * `myresult.column_table(mytransaction.quote_name(name))`.
    */
   [[nodiscard]] oid column_table(zview col_name, sl loc = sl::current()) const
@@ -331,9 +328,8 @@ public:
    * identifiers get converted to lower-case, and of course special characters
    * such as quotes also cause problems.
    *
-   * Therefore, if you think that the column name may contain any upper-case
-   * letters that you do not want lower-cased, or special characters, escape
-   * and quote it first:
+   * Therefore, if the column name may contain any upper-case letters that you
+   * do not want lower-cased, or special characters, escape and quote it first:
    * `myresult.table_column(mytransaction.quote_name(col_name))`.
    */
   [[nodiscard]] row_size_type
