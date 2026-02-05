@@ -10,6 +10,7 @@
  - Build fix for MSVC 2026. (#1160)
  - Deprecated `extract_version.sh`; use `extract_version.py`.
  - Rewrote header/binary version compatibility check.
+ - For `stream()`, a type must be convertible and move-constructible. (#1168)
 8.0.0
  - C++20 is now the oldest C++ version that libpqxx supports.
  - Requires PostgreSQL 11 or better.
