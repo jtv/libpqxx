@@ -301,18 +301,18 @@ template<> struct string_traits<limited_type> final
 
 namespace
 {
-void test_stream_only_requires_move_constructor(pqxx::test::context &)
+void test_stream_only_requires_move_constructor(pqxx::test::context &tctx)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
   bool found{false};
-  for (auto [lt] : tx.stream<limited_type>("SELECT 3"))
+  int const number{tctx.make_num()};
+  for (auto [lt] : tx.stream<limited_type>(std::format("SELECT {}", number)))
   {
     found = true;
-    PQXX_CHECK_EQUAL(lt.n, 3);
+    PQXX_CHECK_EQUAL(lt.n, number);
   }
   PQXX_CHECK(found);
-  // XXX:
 }
 
 PQXX_REGISTER_TEST(test_stream_handles_empty);
