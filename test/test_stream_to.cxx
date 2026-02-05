@@ -499,10 +499,14 @@ void test_stream_to_escaping(pqxx::test::context &)
   };
   // NOLINTEND(modernize-raw-string-literal)
 
-  // Stream the input strings into the databsae.
+  // Stream the input strings into the database.
   pqxx::stream_to out{pqxx::stream_to::table(tx, {"foo"}, {"i", "t"})};
-  for (std::size_t i{0}; i < std::size(inputs); ++i)
-    out.write_values(i, inputs.at(i));
+  std::size_t i{0};
+  for (auto const &value : inputs)
+  {
+    out.write_values(i, value);
+    ++i;
+  }
   out.complete();
 
   // Verify.
