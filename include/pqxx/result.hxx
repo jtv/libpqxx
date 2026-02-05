@@ -248,10 +248,18 @@ public:
   [[nodiscard]] PQXX_PURE row_size_type columns() const noexcept;
 
   /// Number of given column (throws exception if it doesn't exist).
+  /** By default, as everywhere in PostgreSQL, upper-case letters in
+   * identifiers get converted to lower-case, and of course special characters
+   * such as quotes also cause problems.
+   *
+   * Therefore, if the column name may contain any upper-case letters that you
+   * do not want lower-cased, or special characters, escape and quote it first:
+   * `myresult.column_number(mytransaction.quote_name(name))`.
+   */
   [[nodiscard]] row_size_type
   column_number(zview name, sl = sl::current()) const;
 
-  /// Name of column with this number (throws exception if it doesn't exist)
+  /// Name of column with this number (throws exception if it doesn't exist).
   [[nodiscard]] PQXX_RETURNS_NONNULL char const *
   column_name(row_size_type number, sl = sl::current()) const &;
 
@@ -280,6 +288,14 @@ public:
   column_type(row_size_type col_num, sl = sl::current()) const;
 
   /// Return column's type, as an OID from the system catalogue.
+  /** By default, as everywhere in PostgreSQL, upper-case letters in
+   * identifiers get converted to lower-case, and of course special characters
+   * such as quotes also cause problems.
+   *
+   * Therefore, if the column name may contain any upper-case letters that you
+   * do not want lower-cased, or special characters, escape and quote it first:
+   * `myresult.column_type(mytransaction.quote_name(col_name))`.
+   */
   [[nodiscard]] oid column_type(zview col_name, sl loc = sl::current()) const
   {
     return column_type(column_number(col_name, loc));
@@ -290,6 +306,14 @@ public:
   column_table(row_size_type col_num, sl = sl::current()) const;
 
   /// What table did this column come from?
+  /** By default, as everywhere in PostgreSQL, upper-case letters in
+   * identifiers get converted to lower-case, and of course special characters
+   * such as quotes also cause problems.
+   *
+   * Therefore, if the column name may contain any upper-case letters that you
+   * do not want lower-cased, or special characters, escape and quote it first:
+   * `myresult.column_table(mytransaction.quote_name(name))`.
+   */
   [[nodiscard]] oid column_table(zview col_name, sl loc = sl::current()) const
   {
     return column_table(column_number(col_name, loc), loc);
@@ -300,6 +324,14 @@ public:
   table_column(row_size_type col_num, sl = sl::current()) const;
 
   /// What column in its table did this column come from?
+  /** By default, as everywhere in PostgreSQL, upper-case letters in
+   * identifiers get converted to lower-case, and of course special characters
+   * such as quotes also cause problems.
+   *
+   * Therefore, if the column name may contain any upper-case letters that you
+   * do not want lower-cased, or special characters, escape and quote it first:
+   * `myresult.table_column(mytransaction.quote_name(col_name))`.
+   */
   [[nodiscard]] row_size_type
   table_column(zview col_name, sl loc = sl::current()) const
   {
