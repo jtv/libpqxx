@@ -530,7 +530,6 @@ public:
       return {};
   }
 
-  // C++20: Update type requirements (see bottom of docs for this function).
   /// Execute a query, in streaming fashion; loop over the results row by row.
   /** Converts the rows to `std::tuple`, of the column types you specify.
    *
@@ -586,12 +585,8 @@ public:
    * RETURNING clause.  See the documentation for PostgreSQL's
    * [COPY command](https://www.postgresql.org/docs/current/sql-copy.html) for
    * the exact restrictions.
-   *
-   * Iterating in this way does require each of the field types you pass to be
-   * default-constructible, copy-constructible, and assignable.  These
-   * requirements may loosen a bit once libpqxx moves on to C++20.
    */
-  template<typename... TYPE>
+  template<std::move_constructible... TYPE>
   [[nodiscard]] auto stream(std::string_view query, sl loc = sl::current()) &
   {
     return pqxx::internal::stream_query<TYPE...>{
