@@ -267,6 +267,7 @@ void test_stream_handles_empty_string(pqxx::test::context &)
  */
 struct limited_type
 {
+  // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
   int n;
 
   limited_type() = delete;
