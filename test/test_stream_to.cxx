@@ -513,7 +513,7 @@ void test_stream_to_escaping(pqxx::test::context &)
   auto outputs{tx.exec("SELECT i, t FROM foo ORDER BY i")};
   PQXX_CHECK_EQUAL(
     static_cast<std::size_t>(std::size(outputs)), std::size(inputs));
-  for (std::size_t i{0}; i < std::size(inputs); ++i)
+  for (i = 0; i < std::size(inputs); ++i)
   {
     int const idx{static_cast<int>(i)};
     PQXX_CHECK_EQUAL(outputs[idx][0].as<std::size_t>(), i);
