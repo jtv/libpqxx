@@ -206,7 +206,13 @@ using ctx = conversion_context const &;
  */
 template<typename TYPE> struct string_traits final
 {
-  /// Return a @c string_view representing `value`.
+  /// Estimate how much buffer space is needed to represent value as SQL text.
+  /** The estimate may be a little pessimistic, if it saves time.
+   */
+  [[nodiscard]] static inline std::size_t
+  size_buffer(TYPE const &value) noexcept;
+
+  /// Return a @c string_view representing `value` in SQL text.
   /** Produces a view on a PostgreSQL string representation for @c value.
    *
    * @warning A null value has no string representation.  Do not pass a null.
@@ -246,12 +252,6 @@ template<typename TYPE> struct string_traits final
    */
   [[nodiscard]] static inline TYPE
   from_string(std::string_view text, ctx = {});
-
-  /// Estimate how much buffer space is needed to represent value.
-  /** The estimate may be a little pessimistic, if it saves time.
-   */
-  [[nodiscard]] static inline std::size_t
-  size_buffer(TYPE const &value) noexcept;
 
   // TODO: Move is_unquoted_safe into the traits after all?
 };
@@ -368,9 +368,9 @@ concept to_buf_8 = requires(
 
 /// Signature for string_traits<TYPE>::from_string() in libpqxx 8.
 template<typename TYPE>
-concept from_string_8 = requires(TYPE out, std::string_view text, ctx c) {
-  out = string_traits<TYPE>::from_string(text, c);
-  out = string_traits<TYPE>::from_string(text);
+concept from_string_8 = requires(std::string_view text, ctx c) {
+  TYPE{string_traits<TYPE>::from_string(text, c)};
+  TYPE{string_traits<TYPE>::from_string(text)};
 };
 
 /// Signature for string_traits<TYPE>::from_string() in libpqxx 7.
@@ -378,8 +378,8 @@ concept from_string_8 = requires(TYPE out, std::string_view text, ctx c) {
  * optional @ref conversion_context argument.
  */
 template<typename TYPE>
-concept from_string_7 = requires(TYPE out, std::string_view text) {
-  out = string_traits<TYPE>::from_string(text);
+concept from_string_7 = requires(std::string_view text) {
+  TYPE{string_traits<TYPE>::from_string(text)};
 };
 } // namespace pqxx::internal
 

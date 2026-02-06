@@ -262,6 +262,61 @@ void test_stream_handles_empty_string(pqxx::test::context &)
 }
 
 
+/// A simple type with move constructor only, no assignment operators.
+/** We'll show that even this type can be streamed.
+ */
+struct limited_type
+{
+  // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
+  int n;
+
+  limited_type() = delete;
+  limited_type(limited_type const &) = delete;
+  limited_type(limited_type &&) = default;
+  limited_type const &operator=(limited_type const &) = delete;
+  limited_type const &operator=(limited_type &&) = delete;
+  ~limited_type() = default;
+
+  explicit limited_type(int number) : n{number} {}
+};
+
+
+static_assert(std::move_constructible<limited_type>);
+static_assert(not std::copy_constructible<limited_type>);
+static_assert(not std::assignable_from<limited_type, limited_type const &>);
+} // namespace
+
+
+namespace pqxx
+{
+template<> struct nullness<limited_type> : pqxx::no_null<limited_type>
+{};
+
+template<> struct string_traits<limited_type> final
+{
+  static limited_type from_string(std::string_view v, ctx = {})
+  {
+    return limited_type{pqxx::from_string<int>(v)};
+  }
+};
+} // namespace pqxx
+
+namespace
+{
+void test_stream_only_requires_move_constructor(pqxx::test::context &tctx)
+{
+  pqxx::connection cx;
+  pqxx::work tx{cx};
+  bool found{false};
+  int const number{tctx.make_num()};
+  for (auto [lt] : tx.stream<limited_type>(std::format("SELECT {}", number)))
+  {
+    found = true;
+    PQXX_CHECK_EQUAL(lt.n, number);
+  }
+  PQXX_CHECK(found);
+}
+
 PQXX_REGISTER_TEST(test_stream_handles_empty);
 PQXX_REGISTER_TEST(test_stream_does_escaping);
 PQXX_REGISTER_TEST(test_stream_reads_simple_values);
@@ -272,4 +327,5 @@ PQXX_REGISTER_TEST(test_stream_reads_arrays);
 PQXX_REGISTER_TEST(test_stream_parses_awkward_strings);
 PQXX_REGISTER_TEST(test_stream_handles_nulls_in_all_places);
 PQXX_REGISTER_TEST(test_stream_handles_empty_string);
+PQXX_REGISTER_TEST(test_stream_only_requires_move_constructor);
 } // namespace
