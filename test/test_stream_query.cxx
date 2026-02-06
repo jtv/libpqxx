@@ -275,6 +275,7 @@ struct limited_type
   limited_type(limited_type &&) = default;
   limited_type const &operator=(limited_type const &) = delete;
   limited_type const &operator=(limited_type &&) = delete;
+  ~limit_type() = default;
 
   explicit limited_type(int number) : n{number} {}
 };
