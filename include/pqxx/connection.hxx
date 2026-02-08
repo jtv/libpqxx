@@ -313,7 +313,7 @@ public:
    * https://postgresql.org/docs/current/libpq-connect.html#LIBPQ-PARAMKEYWORDS
    *
    * _Connection strings_ can be in one of two formats: a custom key-value
-   * format, or a RFC 3986 Uniform Resource Identifer (URI).  They are
+   * format, or a RFC 3986 Uniform Resource Identifier (URI).  They are
    * documented here:
    *
    * https://postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING
