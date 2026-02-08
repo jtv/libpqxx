@@ -1286,7 +1286,8 @@ public:
 
 private:
   /// Type for empty connection parameters sequence.
-  using empty_params_t = std::array<std::pair<char const *, char const *>, 0u>;
+  using empty_params_t =
+    std::initializer_list<std::pair<char const *, char const *>>;
 
   friend class connecting;
   enum connect_mode
