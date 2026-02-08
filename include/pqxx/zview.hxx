@@ -179,16 +179,6 @@ operator""_zv(char const str[], std::size_t len) noexcept
 {
   return zview{str, len};
 }
-} // namespace pqxx
-
-
-/// A zview is a view.
-template<> inline constexpr bool std::ranges::enable_view<pqxx::zview>{true};
-
-
-/// A zview is a borrowed range.
-template<>
-inline constexpr bool std::ranges::enable_borrowed_range<pqxx::zview>{true};
 
 
 /// Disambiguating comparison operator: leave it to `std::string_view`.
@@ -203,4 +193,14 @@ constexpr inline bool operator!=(char const lhs[], pqxx::zview rhs) noexcept
 {
   return std::string_view{lhs} != std::string_view{rhs};
 }
+} // namespace pqxx
+
+
+/// A zview is a view.
+template<> inline constexpr bool std::ranges::enable_view<pqxx::zview>{true};
+
+
+/// A zview is a borrowed range.
+template<>
+inline constexpr bool std::ranges::enable_borrowed_range<pqxx::zview>{true};
 #endif
