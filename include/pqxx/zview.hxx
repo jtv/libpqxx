@@ -31,9 +31,10 @@ class zview;
  */
 template<typename T>
 concept ZString =
-  std::is_convertible_v<std::remove_cvref_t<T>, char const *> or
-  std::is_convertible_v<std::remove_cvref_t<T>, zview> or
-  std::is_convertible_v<T, std::string const &>;
+  (std::is_convertible_v<std::remove_cvref_t<T>, char const *> or
+   std::is_convertible_v<std::remove_cvref_t<T>, zview> or
+   std::is_convertible_v<T, std::string const &>) and
+  not std::is_convertible_v<T, std::nullptr_t>;
 
 
 /// Marker-type wrapper: zero-terminated `std::string_view`.
