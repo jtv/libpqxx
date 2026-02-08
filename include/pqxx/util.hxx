@@ -394,6 +394,24 @@ PQXX_LIBEXPORT PQXX_NOINLINE int check_libpqxx_version(
   std::string_view apps_version);
 
 
+/// Get a raw C string pointer.
+PQXX_ZARGS inline constexpr char const *as_c_string(char const str[]) noexcept
+{
+  return str;
+}
+/// Get a raw C string pointer.
+template<std::size_t N>
+inline constexpr char const *as_c_string(char (&str)[N]) noexcept
+{
+  return str;
+}
+/// Get a raw C string pointer.
+inline constexpr char const *as_c_string(std::string const &str) noexcept
+{
+  return str.c_str();
+}
+
+
 // LCOV_EXCL_START
 /// A safer and more generic replacement for `std::isdigit`.
 /** Turns out `std::isdigit` isn't as easy to use as it sounds.  It takes an

@@ -21,12 +21,27 @@
 
 namespace pqxx
 {
+class zview;
+
+
+/// Concept: T is a known zero-terminated string type.
+/** There's no unified API for these string types.  It's just a check for some
+ * known types.  Any code that makes use of the concept will still have to
+ * support each of these individually.
+ */
+template<typename T>
+concept ZString =
+  std::is_convertible_v<std::remove_cvref_t<T>, char const *> or
+  std::is_convertible_v<std::remove_cvref_t<T>, zview> or
+  std::is_convertible_v<T, std::string const &>;
+
+
 /// Marker-type wrapper: zero-terminated `std::string_view`.
 /** @warning Use this only if the underlying string is zero-terminated.
  *
- * When you construct a zview, you are promising that if the data pointer is
- * non-null, the underlying string is zero-terminated.  It otherwise behaves
- * exactly like a std::string_view.
+ * When you construct a zview, you are promising that the data pointer is
+ * non-null, and the underlying string is zero-terminated.  It otherwise
+ * behaves exactly like a `std::string_view`.
  *
  * The terminating zero is not "in" the string, so it does not count as part of
  * the view's length.
@@ -35,7 +50,7 @@ namespace pqxx
  * matters since libpqxx builds on top of a C library.  For this reason, zview
  * also adds a @ref c_str method.
  */
-class PQXX_LIBEXPORT zview : public std::string_view
+class PQXX_LIBEXPORT zview final : public std::string_view
 {
 public:
   /// Default constructor produces a zero-terminated empty string.
@@ -99,6 +114,8 @@ public:
     invariant();
   }
 
+  zview(std::nullptr_t) = delete;
+
   /// Construct a `zview` from a string literal.
   /** A C++ string literal ("foo") normally looks a lot like a pointer to
    * char const, but that's not really true.  It's actually an array of char,
@@ -113,19 +130,32 @@ public:
           zview(literal, size - 1)
   {}
 
-  /// Either a null pointer, or a zero-terminated text buffer.
+  /// Return as C string.
   [[nodiscard]] constexpr char const *c_str() const & noexcept
   {
     return data();
+  }
+
+  /// Return as C string.
+  constexpr operator char const *() const noexcept { return data(); }
+
+  /// Disambiguating comparison operator: leave it to `std::string_view`.
+  constexpr bool operator==(zview const &rhs) const noexcept
+  {
+    return std::string_view{*this} == std::string_view{rhs};
+  }
+  /// Disambiguating comparison operator: leave it to `std::string_view`.
+  constexpr bool operator!=(zview const &rhs) const noexcept
+  {
+    return std::string_view{*this} != std::string_view{rhs};
   }
 
 private:
   /// Check invariant: unless `data()` is null, must be zero-terminated.
   [[maybe_unused]] constexpr void invariant() const noexcept
   {
-    assert(
-      (std::data(*this) == nullptr) or
-      (std::data(*this)[std::size(*this)] == '\0'));
+    assert(std::data(*this) != nullptr);
+    assert(std::data(*this)[std::size(*this)] == '\0');
   }
 };
 
@@ -160,43 +190,17 @@ template<> inline constexpr bool std::ranges::enable_view<pqxx::zview>{true};
 template<>
 inline constexpr bool std::ranges::enable_borrowed_range<pqxx::zview>{true};
 
-namespace pqxx::internal
+
+/// Disambiguating comparison operator: leave it to `std::string_view`.
+constexpr inline bool operator==(char const lhs[], pqxx::zview rhs) noexcept
 {
-/// Concept: T is a known zero-terminated string type.
-/** There's no unified API for these string types.  It's just a check for some
- * known types.  Any code that makes use of the concept will still have to
- * support each of these individually.
- */
-template<typename T>
-concept ZString =
-  std::is_convertible_v<std::remove_cvref_t<T>, char const *> or
-  std::is_convertible_v<std::remove_cvref_t<T>, zview> or
-  std::is_convertible_v<T, std::string const &>;
-} // namespace pqxx::internal
+  return std::string_view{lhs} == std::string_view{rhs};
+}
 
 
-namespace pqxx::internal
+/// Disambiguating comparison operator: leave it to `std::string_view`.
+constexpr inline bool operator!=(char const lhs[], pqxx::zview rhs) noexcept
 {
-/// Get a raw C string pointer.
-PQXX_ZARGS inline constexpr char const *as_c_string(char const str[]) noexcept
-{
-  return str;
+  return std::string_view{lhs} != std::string_view{rhs};
 }
-/// Get a raw C string pointer.
-template<std::size_t N>
-inline constexpr char const *as_c_string(char (&str)[N]) noexcept
-{
-  return str;
-}
-/// Get a raw C string pointer.
-inline constexpr char const *as_c_string(pqxx::zview str) noexcept
-{
-  return str.c_str();
-}
-/// Get a raw C string pointer.
-inline constexpr char const *as_c_string(std::string const &str) noexcept
-{
-  return str.c_str();
-}
-} // namespace pqxx::internal
 #endif

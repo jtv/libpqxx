@@ -77,16 +77,6 @@ namespace pqxx::internal
 {
 class sql_cursor;
 
-/// Concept: T is a range of pairs of zero-terminated strings.
-/** For example, this could be a `std::map<char const *, std::string>`, or a
- * `std::vector<std::pair<pqxx::zview, char const *>`.
- */
-template<typename T>
-concept ZKey_ZValues = std::ranges::input_range<T> and requires(T t) {
-  { std::get<0>(*std::cbegin(t)) } -> ZString;
-  { std::get<1>(*std::cbegin(t)) } -> ZString;
-} and std::tuple_size_v<typename std::ranges::iterator_t<T>::value_type> == 2;
-
 
 /// Control OpenSSL/crypto library initialisation.
 /** This is an internal helper.  Unless you're working on libpqxx itself, use
@@ -117,6 +107,23 @@ class const_connection_largeobject;
 
 namespace pqxx
 {
+/// Concept: T is a range of pairs of zero-terminated strings.
+/** For example, this could be a `std::map<char const *, std::string>`, or a
+ * `std::vector<std::pair<pqxx::zview, char const *>`, or a
+ * `std::array<std::array<std::string, 2>, 10>`, etc.
+ *
+ * The pairs have to be recognisable as pairs _at compile time._  It's not
+ * enough to pass a container of `std::vector` and ensure at run time that they
+ * each contain 2 elements.
+ */
+template<typename T>
+concept ZKey_ZValues = std::ranges::input_range<T> and requires(T t) {
+  { std::get<0>(*std::cbegin(t)) } -> ZString;
+  { std::get<1>(*std::cbegin(t)) } -> ZString;
+  std::tuple_size_v<std::remove_cvref_t<decltype(*std::cbegin(t))>> == 2u;
+};
+
+
 /// An incoming notification.
 /** PostgreSQL extends SQL with a "message bus" using the `LISTEN` and `NOTIFY`
  * commands.  In libpqxx you use @ref connection::listen() and (optionally)
@@ -241,117 +248,117 @@ enum class error_verbosity : int
 /// Connection to a database.
 /** This is the first class to look at when you wish to work with a database
  * through libpqxx.  As per RAII principles, the connection opens during
- * construction, and closes upon destruction.  If the connection attempt fails,
- * you will not get a @ref connection object; the constructor will fail with a
- * @ref pqxx::broken_connection exception.
- *
- * When creating a connection, you can pass a connection URI or a postgres
- * connection string, to specify the database server's address, a login
- * username, and so on.  If you don't, the connection will try to obtain them
- * from certain environment variables.  If those are not set either, the
- * default is to try and connect to the local system's port 5432.
- *
- * Find more about connection strings here:
- *
- * https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING
- *
- * The variables are documented here:
- *
- * https://www.postgresql.org/docs/current/libpq-envars.html
+ * construction, and closes upon destruction.
  *
  * To query or manipulate the database once connected, use one of the
- * transaction classes (see pqxx/transaction_base.hxx) and perhaps also the
- * transactor framework (see pqxx/transactor.hxx).
+ * _transaction_ classes.  Their API is defined in @ref pqxx::transaction_base.
  *
  * When a connection breaks, or fails to establish itself in the first place,
- * you will typically get a @ref broken_connection exception.  This can happen
- * at almost any point.
+ * you will typically get a @ref broken_connection exception.  In some cases
+ * when a physical network connection disappears, it can take minutes before
+ * this happens, as various layers of software try to reconnect.
  *
  * @warning On Unix-like systems, including GNU and BSD systems, your program
- * may receive the SIGPIPE signal when the connection to the backend breaks. By
- * default this signal will abort your program.  Use "signal(SIGPIPE, SIG_IGN)"
- * if you want your program to continue running after a connection fails.
+ * may receive the SIGPIPE signal when the connection to the backend breaks.
+ * By default this signal will abort your program.  Use
+ * `signal(SIGPIPE, SIG_IGN)` if you want your program to continue running
+ * after a connection fails.
  */
 class PQXX_LIBEXPORT connection final
 {
 public:
-  /// Connect to a database, using the default settings.
-  connection(sl loc = sl::current()) : connection{"", loc} {}
-
-  /// Connect to a database, using `options` string.
-  PQXX_ZARGS explicit connection(
-    char const options[], sl loc = sl::current()) :
-          connection{options, std::map<char const *, char const *>{}, loc}
-  {}
-
-  /// Connect to a database, using `options` string.
-  explicit connection(zview options, sl loc = sl::current()) :
-          connection{options.c_str(), loc}
-  {}
-
-  /// Connect to a database with both connection string and parameter pairs.
-  /** The parameter pairs are key/value pairs similar to the parameters you can
-   * also encode in a connection string.
+  /**
+   * @name Connecting to a database
    *
-   * Use this to combine a connection string with parameter pairs.  This can
-   * be useful when you have a fixed basic connection string, but sometimes
-   * want to override specific parameters.
+   * You connect to a database by creating a `connection` object.  (Except
+   * advanced users can also connect asynchronously using the @ref connecting
+   * class; in that case creating the `connection` is only the beginning.  In
+   * the normal case, however, creating a `connection` and connecting to a
+   * database are the same thing.)
    *
-   * For any parameter which occurs both in the connection strings and in the
-   * parameter mapping, the latter's value takes effect.  For any parameter
-   * which occurs in the mapping multiple times, the last occurrence's value
-   * takes effect.
+   * If the attempt to connect fails, you will not get a @ref connection
+   * object; the constructor will fail with a @ref pqxx::broken_connection
+   * exception.
    *
-   * The mapping can be anything that can be iterated as a series of pairs of
-   * zero-terminated strings: `std::pair<std::string, std::string>`, or
-   * `std::tuple<pqxx::zview, char const *>`, or
-   * `std::map<std::string, pqxx::zview>`, and so on.
+   * You can control each of the details of how to connect (hostname, username,
+   * database name, etc.) in up to 4 ways.  All are optional, and you can
+   * combine some or all of them:
    *
-   * Example:
-   * ```cxx
-   * std::map<std::string, std::string> const params = {
-   *   {"application_name", "my_app"},
-   *   {"connect_timeout", "30"}
-   * };
-   * pqxx::connection cx{"host=localhost dbname=test", params};
-   * ```
+   * 1. You can pass _connection parameters_ to the constructor.
+   * 2. You can pass a _connection string_ to the constructor.
+   * 3. There are environment variables you can set: `PGHOST`, `PGUSER`, etc.
+   * 4. Each has a built-in _default value._
+   *
+   * For each individual item, the connection will take the value from the
+   * first item in this list that defines it.
+   *
+   * @note All of the strings that you pass into the constructor must be
+   * _zero-terminated,_ i.e. they must end in a byte with value zero, like
+   * classic C-style strings.  That's because libpqxx passes them on to the
+   * underlying C library, libpq.  A C++ `std::string` is guaranteed to have a
+   * terminating zero, zo that's fine.  However a `std::string_view` does not,
+   * and that's why libpqxx has @ref pqxx::zview.  A `zview` is like a
+   * `std::string_view` except you promise that there's a terminating zero.
+   *
+   * _Connection parameters_ are individual key/value pairs of strings.  You
+   * can pass these as a `std::map`, or as a `std::vector` of `std::pair`, or
+   * in pretty much any other form that boils down to "a series of pairs of
+   * zero-terminated strings."  If you pass the same parameter multiple times
+   * with different values in the same series of parameters, the latest value
+   * applies.
+   *
+   * The connection parameters are documented here:
+   *
+   * https://postgresql.org/docs/current/libpq-connect.html#LIBPQ-PARAMKEYWORDS
+   *
+   * _Connection strings_ can be in one of two formats: a custom key-value
+   * format, or a RFC 3986 Uniform Resource Identifer (URI).`  They are
+   * documented here:
+   *
+   * https://postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING
+   *
+   * _Environment variables_ for controlling how you connect are documented
+   * here:
+   *
+   * https://postgresql.org/docs/current/libpq-envars.html
    */
-  template<internal::ZKey_ZValues MAPPING>
-  inline connection(
-    char const connection_string[], MAPPING const &params, sl = sl::current());
-
-  /// Connect to a database with both connection string and parameter pairs.
-  /** The parameter pairs are key/value pairs similar to the parameters you can
-   * also encode in a connection string.
-   *
-   * Use this to combine a connection string with parameter pairs.  This can
-   * be useful when you have a fixed basic connection string, but sometimes
-   * want to override specific parameters.
-   *
-   * For any parameter which occurs both in the connection strings and in the
-   * parameter mapping, the latter's value takes effect.  For any parameter
-   * which occurs in the mapping multiple times, the last occurrence's value
-   * takes effect.
-   *
-   * The mapping can be anything that can be iterated as a series of pairs of
-   * zero-terminated strings: `std::pair<std::string, std::string>`, or
-   * `std::tuple<pqxx::zview, char const *>`, or
-   * `std::map<std::string, pqxx::zview>`, and so on.
-   *
-   * Example:
-   * ```cxx
-   * std::map<std::string, std::string> const params = {
-   *   {"application_name", "my_app"},
-   *   {"connect_timeout", "30"}
-   * };
-   * pqxx::connection cx{"host=localhost dbname=test", params};
-   * ```
-   */
-  template<internal::ZKey_ZValues MAPPING>
-  inline connection(
-    zview connection_string, MAPPING const &params, sl loc = sl::current()) :
-          connection{connection_string.c_str(), params, loc}
+  //@{
+  explicit connection(sl loc = sl::current()) :
+          connection("", empty_params_t{}, loc)
   {}
+
+  // XXX: Forward params reference.
+  /// Connect to a database with both connection string and parameter pairs.
+  /** If a parameter is defined both in `connection_string` and in `params`,
+   * the value in `params` takes hold.
+   *
+   * If a parameter is defined more than once in `params`, the last definition
+   * takes hold.
+   */
+  template<pqxx::ZString STRING, ZKey_ZValues MAPPING>
+  explicit inline connection(
+    STRING connection_string, MAPPING const &params = empty_params_t{},
+    sl = sl::current());
+
+  /// Connect to a database, passing a connection string.
+  /** If a parameter is defined both in `connection_string` and in `params`,
+   * the value in `params` takes hold.
+   *
+   * If a parameter is defined more than once in `params`, the last definition
+   * takes hold.
+   */
+  template<pqxx::ZString STRING>
+  explicit connection(STRING connection_string, sl loc = sl::current()) :
+          connection{connection_string, empty_params_t{}, loc}
+  {}
+
+  // XXX: Forward params reference.
+  /// Connect to a database, passing connection parameters.
+  template<ZKey_ZValues MAPPING>
+  explicit connection(MAPPING const &params, sl loc = sl::current()) :
+          connection{"", params, loc}
+  {}
+  //@}
 
   /// Move constructor.
   /** Moving a connection is not allowed if it has an open transaction, or has
@@ -360,24 +367,6 @@ public:
    * invalid and might produce hard-to-diagnose bugs.
    */
   connection(connection &&rhs, sl = sl::current());
-
-  /// Connect to a database, passing options as a range of key/value pairs.
-  /** There's no need to escape the parameter values.
-   *
-   * See the PostgreSQL libpq documentation for the full list of possible
-   * options:
-   *
-   * https://postgresql.org/docs/current/libpq-connect.html#LIBPQ-PARAMKEYWORDS
-   *
-   * The options can be anything that can be iterated as a series of pairs of
-   * zero-terminated strings: `std::pair<std::string, std::string>`, or
-   * `std::tuple<pqxx::zview, char const *>`, or
-   * `std::map<std::string, pqxx::zview>`, and so on.
-   */
-  template<internal::ZKey_ZValues MAPPING>
-  inline connection(MAPPING const &params, sl loc = sl::current()) :
-          connection{"", params, loc}
-  {}
 
   ~connection()
   {
@@ -1296,6 +1285,9 @@ public:
   get_variable(std::string_view, sl loc = sl::current());
 
 private:
+  /// Type for empty connection parameters sequence.
+  using empty_params_t = std::array<std::pair<char const *, char const *>, 0u>;
+
   friend class connecting;
   enum connect_mode
   {
@@ -1597,9 +1589,9 @@ connection::quote_columns(STRINGS const &columns, sl loc) const
 }
 
 
-template<internal::ZKey_ZValues MAPPING>
+template<pqxx::ZString STRING, ZKey_ZValues MAPPING>
 inline connection::connection(
-  char const connection_string[], MAPPING const &params, sl loc) :
+  STRING connection_string, MAPPING const &params, sl loc) :
         m_created_loc{loc}
 {
   // Check that the libpqxx binary library version is compatible with the
@@ -1621,7 +1613,7 @@ inline connection::connection(
       version_major, version_minor, version_patch, version)};
 
   pqxx::internal::connection_string_parser const parsed_string{
-    connection_string, loc};
+    pqxx::internal::as_c_string(connection_string), loc};
   auto [keys, values]{parsed_string.parse()};
 
   // Merge key/value pairs into the pairs we got from the connection string.
