@@ -120,7 +120,8 @@ template<typename T>
 concept ZKey_ZValues = std::ranges::input_range<T> and requires(T t) {
   { std::get<0>(*std::cbegin(t)) } -> ZString;
   { std::get<1>(*std::cbegin(t)) } -> ZString;
-  std::tuple_size_v<std::remove_cvref_t<decltype(*std::cbegin(t))>> == 2u;
+  requires(
+    std::tuple_size_v<std::remove_cvref_t<decltype(*std::cbegin(t))>> == 2u);
 };
 
 
@@ -296,7 +297,7 @@ public:
    * _zero-terminated,_ i.e. they must end in a byte with value zero, like
    * classic C-style strings.  That's because libpqxx passes them on to the
    * underlying C library, libpq.  A C++ `std::string` is guaranteed to have a
-   * terminating zero, zo that's fine.  However a `std::string_view` does not,
+   * terminating zero, so that's fine.  However a `std::string_view` does not,
    * and that's why libpqxx has @ref pqxx::zview.  A `zview` is like a
    * `std::string_view` except you promise that there's a terminating zero.
    *
@@ -312,7 +313,7 @@ public:
    * https://postgresql.org/docs/current/libpq-connect.html#LIBPQ-PARAMKEYWORDS
    *
    * _Connection strings_ can be in one of two formats: a custom key-value
-   * format, or a RFC 3986 Uniform Resource Identifer (URI).`  They are
+   * format, or a RFC 3986 Uniform Resource Identifer (URI).  They are
    * documented here:
    *
    * https://postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING
@@ -336,7 +337,7 @@ public:
    */
   template<pqxx::ZString STRING, ZKey_ZValues MAPPING>
   explicit inline connection(
-    STRING connection_string, MAPPING &&params = empty_params_t{},
+    STRING const &connection_string, MAPPING &&params = empty_params_t{},
     sl = sl::current());
 
   /// Connect to a database, passing a connection string.
@@ -347,7 +348,8 @@ public:
    * takes hold.
    */
   template<pqxx::ZString STRING>
-  explicit connection(STRING connection_string, sl loc = sl::current()) :
+  explicit connection(
+    STRING const &connection_string, sl loc = sl::current()) :
           connection{connection_string, empty_params_t{}, loc}
   {}
 
@@ -1589,7 +1591,7 @@ connection::quote_columns(STRINGS const &columns, sl loc) const
 
 template<pqxx::ZString STRING, ZKey_ZValues MAPPING>
 inline connection::connection(
-  STRING connection_string, MAPPING &&params, sl loc) :
+  STRING const &connection_string, MAPPING &&params, sl loc) :
         m_created_loc{loc}
 {
   // Check that the libpqxx binary library version is compatible with the

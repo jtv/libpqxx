@@ -151,7 +151,7 @@ public:
   }
 
 private:
-  /// Check invariant: unless `data()` is null, must be zero-terminated.
+  /// Check invariant: `data()` must be non-null and zero-terminated.
   [[maybe_unused]] constexpr void invariant() const noexcept
   {
     assert(std::data(*this) != nullptr);
