@@ -325,7 +325,7 @@ public:
    */
   //@{
   explicit connection(sl loc = sl::current()) :
-          connection("", empty_params_t{}, loc)
+          connection("", empty_params_t(), loc)
   {}
 
   /// Connect to a database with both connection string and parameter pairs.
@@ -337,7 +337,7 @@ public:
    */
   template<pqxx::ZString STRING, ZKey_ZValues MAPPING>
   explicit inline connection(
-    STRING const &connection_string, MAPPING &&params = empty_params_t{},
+    STRING const &connection_string, MAPPING &&params = empty_params_t(),
     sl = sl::current());
 
   /// Connect to a database, passing a connection string.
@@ -350,7 +350,7 @@ public:
   template<pqxx::ZString STRING>
   explicit connection(
     STRING const &connection_string, sl loc = sl::current()) :
-          connection{connection_string, empty_params_t{}, loc}
+          connection{connection_string, empty_params_t(), loc}
   {}
 
   /// Connect to a database, passing connection parameters.
