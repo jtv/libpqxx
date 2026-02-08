@@ -327,7 +327,6 @@ public:
           connection("", empty_params_t{}, loc)
   {}
 
-  // XXX: Forward params reference.
   /// Connect to a database with both connection string and parameter pairs.
   /** If a parameter is defined both in `connection_string` and in `params`,
    * the value in `params` takes hold.
@@ -337,7 +336,7 @@ public:
    */
   template<pqxx::ZString STRING, ZKey_ZValues MAPPING>
   explicit inline connection(
-    STRING connection_string, MAPPING const &params = empty_params_t{},
+    STRING connection_string, MAPPING &&params = empty_params_t{},
     sl = sl::current());
 
   /// Connect to a database, passing a connection string.
@@ -352,10 +351,9 @@ public:
           connection{connection_string, empty_params_t{}, loc}
   {}
 
-  // XXX: Forward params reference.
   /// Connect to a database, passing connection parameters.
   template<ZKey_ZValues MAPPING>
-  explicit connection(MAPPING const &params, sl loc = sl::current()) :
+  explicit connection(MAPPING &&params, sl loc = sl::current()) :
           connection{"", params, loc}
   {}
   //@}
@@ -1591,7 +1589,7 @@ connection::quote_columns(STRINGS const &columns, sl loc) const
 
 template<pqxx::ZString STRING, ZKey_ZValues MAPPING>
 inline connection::connection(
-  STRING connection_string, MAPPING const &params, sl loc) :
+  STRING connection_string, MAPPING &&params, sl loc) :
         m_created_loc{loc}
 {
   // Check that the libpqxx binary library version is compatible with the
