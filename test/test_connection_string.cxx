@@ -144,10 +144,10 @@ void test_connection_string_parser_unescapes(pqxx::test::context &)
 
 void test_connection_string_can_be_zview(pqxx::test::context &)
 {
-  pqxx::connection cx_without_params{pqxx::zview{}};
+  pqxx::connection const cx_without_params{pqxx::zview{}};
   PQXX_CHECK(cx_without_params.is_open());
 
-  pqxx::connection cx_with_params{
+  pqxx::connection const cx_with_params{
     pqxx::zview{}, std::array<std::pair<pqxx::zview, std::string>, 1u>{
                      {{"connect_timeout", "5"}}}};
   PQXX_CHECK(cx_with_params.is_open());
@@ -156,10 +156,10 @@ void test_connection_string_can_be_zview(pqxx::test::context &)
 
 void test_connection_string_can_be_c_string(pqxx::test::context &)
 {
-  pqxx::connection cx_without_params{""};
+  pqxx::connection const cx_without_params{""};
   PQXX_CHECK(cx_without_params.is_open());
 
-  pqxx::connection cx_with_params{
+  pqxx::connection const cx_with_params{
     "", std::array<std::pair<pqxx::zview, std::string>, 1u>{
           {{"connect_timeout", "5"}}}};
   PQXX_CHECK(cx_with_params.is_open());
@@ -168,10 +168,10 @@ void test_connection_string_can_be_c_string(pqxx::test::context &)
 
 void test_connection_string_can_be_string(pqxx::test::context &)
 {
-  pqxx::connection cx_without_params{std::string{}};
+  pqxx::connection const cx_without_params{std::string{}};
   PQXX_CHECK(cx_without_params.is_open());
 
-  pqxx::connection cx_with_params{
+  pqxx::connection const cx_with_params{
     std::string{}, std::array<std::pair<pqxx::zview, std::string>, 1u>{
                      {{"connect_timeout", "5"}}}};
   PQXX_CHECK(cx_with_params.is_open());
