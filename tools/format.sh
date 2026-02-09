@@ -18,5 +18,5 @@ if which black >/dev/null
 then
     black -l80 .
 else
-    uv run --with=black=24.2.0 black -l80 .
+    uv run --with=black==24.2.0 black -l80 .
 fi
