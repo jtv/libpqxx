@@ -20,13 +20,13 @@ from __future__ import (
     absolute_import,
     print_function,
     unicode_literals,
-    )
+)
 
 from argparse import (
     ArgumentError,
     ArgumentParser,
     RawDescriptionHelpFormatter,
-    )
+)
 from contextlib import contextmanager
 from glob import glob
 import os
@@ -35,7 +35,7 @@ from sys import (
     stdin,
     stderr,
     stdout,
-    )
+)
 import sys
 from textwrap import dedent
 
@@ -57,11 +57,7 @@ def match_globs(globs):
 
     Eliminates duplicates.
     """
-    return sorted({
-        path
-        for pattern in globs
-        for path in glob(pattern)
-        })
+    return sorted({path for pattern in globs for path in glob(pattern)})
 
 
 def expand_foreach(globs, block, outfile):
@@ -77,7 +73,8 @@ def expand_foreach(globs, block, outfile):
 
 
 # Header to be prefixed to the generated file.
-OUTPUT_HEADER = dedent("""\
+OUTPUT_HEADER = dedent(
+    """\
     # AUTOMATICALLY GENERATED FILE -- DO NOT EDIT.
     #
     # This file is generated automatically by libpqxx's {script} script, and
@@ -87,7 +84,8 @@ OUTPUT_HEADER = dedent("""\
     #
     # The {script} script should be available in the tools directory of the
     # libpqxx source archive.
-    """)
+    """
+)
 
 
 foreach_marker = r"###MAKTEMPLATE:FOREACH "
@@ -102,7 +100,7 @@ def parse_foreach(line):
     """
     line = line.strip()
     if line.startswith(foreach_marker):
-        return line[len(foreach_marker):].split(',')
+        return line[len(foreach_marker) :].split(",")
     else:
         return None
 
@@ -134,7 +132,7 @@ def expand_template(infile, outfile):
 
 
 @contextmanager
-def open_stream(path=None, default=None, mode='r'):
+def open_stream(path=None, default=None, mode="r"):
     """Open file at given path, or yield default.  Close as appropriate.
 
     The default should be a stream, not a path; closing the context will not
@@ -154,14 +152,17 @@ def parse_args():
         for stdout).
     """
     parser = ArgumentParser(
-        description=__doc__, formatter_class=RawDescriptionHelpFormatter)
+        description=__doc__, formatter_class=RawDescriptionHelpFormatter
+    )
 
     parser.add_argument(
-        'template', nargs='?',
-        help="Input template.  Defaults to standard input.")
+        "template",
+        nargs="?",
+        help="Input template.  Defaults to standard input.",
+    )
     parser.add_argument(
-        'output', nargs='?',
-        help="Output file.  Defaults to standard output.")
+        "output", nargs="?", help="Output file.  Defaults to standard output."
+    )
 
     args = parser.parse_args()
     return args.template, args.output
@@ -169,7 +170,7 @@ def parse_args():
 
 def write_header(stream, template_path=None):
     """Write header to stream."""
-    hr = ('# ' + '#' * 78) + "\n"
+    hr = ("# " + "#" * 78) + "\n"
     script = os.path.basename(argv[0])
 
     stream.write(hr)
@@ -180,15 +181,15 @@ def write_header(stream, template_path=None):
     stream.write(hr)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         template_path, output_path = parse_args()
     except ArgumentError as error:
-        stderr.write('%s\n' % error)
+        stderr.write("%s\n" % error)
         sys.exit(2)
 
-    input_stream = open_stream(template_path, stdin, 'r')
-    output_stream = open_stream(output_path, stdout, 'w')
+    input_stream = open_stream(template_path, stdin, "r")
+    output_stream = open_stream(output_path, stdout, "w")
     with input_stream as instream, output_stream as outstream:
         write_header(outstream, template_path)
         expand_template(instream, outstream)
