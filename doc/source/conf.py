@@ -3,12 +3,12 @@
 from pathlib import Path
 
 
-project = 'libpqxx'
-copyright = '2000-2026, Jeroen T. Vermeulen'
-author = 'Jeroen T. Vermeulen'
+project = "libpqxx"
+copyright = "2000-2026, Jeroen T. Vermeulen"
+author = "Jeroen T. Vermeulen"
 
-version = (Path(__file__).parents[2] / 'VERSION').read_text().strip()
-release = '.'.join(version.split('.')[:2])
+version = (Path(__file__).parents[2] / "VERSION").read_text().strip()
+release = ".".join(version.split(".")[:2])
 
 extensions = [
     # TODO: Not actually using Sphinx for now.  Should we?
@@ -18,11 +18,10 @@ extensions = [
     # 'sphinx.ext.autodoc',
     # 'sphinx.ext.autosummary',
     # 'sphinx.ext.intersphinx',
-
     # Additional:
     # TODO: Not using Breathe for now.  Should we?
     # 'breathe',
-    'myst_parser',
+    "myst_parser",
 ]
 
 # TODO: What do these actually mean?
@@ -32,8 +31,8 @@ extensions = [
 # }
 # intersphinx_disabled_domains = ['std']
 
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # -- Options for HTML output
 
-html_theme = 'sphinx_rtd_theme'
+html_theme = "sphinx_rtd_theme"

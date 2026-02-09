@@ -40,7 +40,11 @@ def parse_args() -> Namespace:
         "--patch", "-p", action="store_true", help="Show patch version."
     )
     parser.add_argument(
-        "--patch-num", '-P', action='store_true', help="Show patch version if it's a number, or -1 otherwise.")
+        "--patch-num",
+        "-P",
+        action="store_true",
+        help="Show patch version if it's a number, or -1 otherwise.",
+    )
     parser.add_argument(
         "--srcdir",
         "-s",
@@ -49,7 +53,17 @@ def parse_args() -> Namespace:
     )
     args = parser.parse_args()
     actions = list(
-        filter(None, [args.abi, args.full, args.major, args.minor, args.patch, args.patch_num])
+        filter(
+            None,
+            [
+                args.abi,
+                args.full,
+                args.major,
+                args.minor,
+                args.patch,
+                args.patch_num,
+            ],
+        )
     )
     if len(actions) > 1:
         raise Fail(
