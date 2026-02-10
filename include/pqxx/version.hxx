@@ -21,7 +21,7 @@
 namespace pqxx
 {
 /// Full libpqxx version string.
-constexpr inline std::string_view const version{"8.0.0-rc5"};
+constexpr inline std::string_view const version{"8.0.0"};
 
 
 /// Libpqxx ABI version string: major and minor version, but no patch.
@@ -46,12 +46,12 @@ constexpr inline int const version_minor{0};
 /** For "special" versions such as pre-releases, the last component of the
  * version string is not a simple number, and `version_patch` will be -1.
  */
-constexpr inline int const version_patch{-1};
+constexpr inline int const version_patch{0};
 } // namespace pqxx
 
 
 /// Full libpqxx version string.  @deprecated Use @ref pqxx::version instead.
-#  define PQXX_VERSION "8.0.0-rc5"
+#  define PQXX_VERSION "8.0.0"
 /// Library ABI version.  @deprecated Use @ref pqxx::abi_version instead.
 #  define PQXX_ABI "8.0"
 /// Major version number.  @deprecated Use @ref pqxx::version_major instead.

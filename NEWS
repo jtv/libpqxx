@@ -1,18 +1,3 @@
-8.0.0-rc5
- - Release candidate for 8.0.0.
- - After each candidate release, its changes list will move to "8.0.0".
- - You can now combine connection string & option pairs on connections! (#1133)
- - `pqxx::zview` no longer accepts null pointer.
- - `pqxx::zview` is now `final`.
- - Libpqxx exceptions now have a C++26 `std::stacktrace`, if available.
- - Replace all generated config headers with just `config-compiler.h`. (#1152)
- - CMake build now filters `config-compiler.h`, like the autotools build does.
- - No longer generate `config-autotools.h`.
- - Build fix for MSVC 2026. (#1160)
- - Deprecated `extract_version.sh`; use `extract_version.py`.
- - Rewrote header/binary version compatibility check.
- - For `stream()`, a type must be convertible and move-constructible. (#1168)
- - Build defaults to C++20 minimum.
 8.0.0
  - C++20 is now the oldest C++ version that libpqxx supports.
  - Requires PostgreSQL 11 or better.
@@ -23,6 +8,7 @@
  - **Row/field lifetimes have changed: see `row_ref` and `field_ref`.
  - **`pqxx::bytes` is now a vector of bytes, not a string of bytes.** (#924)
  - All libpqxx exceptions are now derived from `pqxx::failure`.
+ - Libpqxx exceptions now have a C++26 `std::stacktrace`, if available.
  - Use `pqxx::bytes::data()` instead of `pqxx::bytes::c_str()`.
  - The string conversion API has changed! (Old API should still work). (#948)
  - "String conversion" to `std::string_view` etc. is now supported. (#694)
@@ -59,6 +45,7 @@
  - There's now an `unknown` encoding group.  It's the only fully safe default.
  - Dropping JOHAB encoding.  Doesn't work properly on the server either.
  - Array parsing will refuse to work if the encoding group is `UNKNOWN`.
+ - You can now combine connection string & option pairs on connections! (#1133)
  - Encodings support code got smaller, simpler, more efficient.
  - Tests are now in a single directory (#934)
  - Added an "examples" directory: tested, maintained sample code.
@@ -68,9 +55,12 @@
  - Stop trying to figure out link options for filesystem library.
  - You can now set `PQXX_LINT=skip` to skip lint checks.
  - Shell scripts now have "`.sh`" suffix.  Saves hand-coding names.
+ - Deprecated `extract_version.sh`; use `extract_version.py`.
+ - Rewrote header/binary version compatibility check.
  - New helper functions to query a type's nullness properties.
  - More SQL statements can now be `std::string_view` instead of `pqxx::zview`.
  - Work around broken multidim operator[] support in MSVC 2022.
+ - Build fix for MSVC 2026. (#1160)
  - Nicer replacement for `pqxx::connection::port()`: `port_number()`.
  - `pqxx::out_of_memory` is now `pqxx::server_out_of_memory` for clarity.
  - `pqxx::protocol_violation` is now an `sql_error`, not a `broken_connection`.
@@ -80,6 +70,12 @@
  - Stop trying to use/support `std::filesystem`.
  - `composite_into_buf()` now returns a `zview`.
  - Optionally pass `encoding_group` (or connection/transaction) into `params`.
+ - `pqxx::zview` no longer accepts null pointer.
+ - `pqxx::zview` is now `final`.
+ - Replace all generated config headers with just `config-compiler.h`. (#1152)
+ - CMake build now filters `config-compiler.h`, like the autotools build does.
+ - For `stream()`, a type must be convertible and move-constructible. (#1168)
+ - Build defaults to C++20 minimum.
 7.10.5
  - Fix missing types in Doxygen docs (by downgrading Doxygen :-/ ).
  - Tweak `README.md`. (#1111)
