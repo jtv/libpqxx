@@ -1,12 +1,12 @@
 8.0.0-rc5
  - Release candidate for 8.0.0.
- - Any changes will be logged under "8.0.0".
+ - After each candidate release, its changes list will move to "8.0.0".
  - You can now combine connection string & option pairs on connections! (#1133)
  - `pqxx::zview` no longer accepts null pointer.
  - `pqxx::zview` is now `final`.
- - Libpqxx exceptions now have a `std::stacktrace`, if available.
- - Replace generated config headers with just `config-compiler.h`. (#1152)
- - CMake build now filters `config-compiler.h`, like the autoconfig build does.
+ - Libpqxx exceptions now have a C++26 `std::stacktrace`, if available.
+ - Replace all generated config headers with just `config-compiler.h`. (#1152)
+ - CMake build now filters `config-compiler.h`, like the autotools build does.
  - No longer generate `config-autotools.h`.
  - Build fix for MSVC 2026. (#1160)
  - Deprecated `extract_version.sh`; use `extract_version.py`.

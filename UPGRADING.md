@@ -366,6 +366,24 @@ This information is now also available to string conversions, to help them
 parse SQL data that may contain text in the client encoding.
 
 
+Null pointers and `zview`
+-------------------------
+
+It is no longer valid to create a `pqxx::zview` from a `nullptr`.
+
+This eliminates a nasty wart in the class' API that made it very different from
+`std::string_view`.  If a `std::string_view` has a null pointer, so long as its
+length is zero, it can't cause any harm because there are no contents that you
+might attempt to access.  (It was always invalid to construct a `string_view`
+from _just_ a null pointer without a length, but that's another story.)  But a
+`zview` normally promises that you can access the byte at its `end()`, and get
+a zero byte!
+
+The fine print used to say that a `zview` guarateed a terminating zero byte
+_unless the pointer was null,_ but it introduces too much complication and risk
+of mistakes.  So... Just don't do that, okay?
+
+
 Build changes
 -------------
 
@@ -385,3 +403,9 @@ pass that option yourself.
 In the lint script (now called `tools/lint.sh`), set `PQXX_LINT=skip` to skip
 lint checks.  This can speed up `make check` runs, and enable them to run
 without network access.
+
+Both the CMake build and the autotools built now default to C++20 (at minimum,
+I think) if you don't specify a version.  This means that you no longer need to
+set a compiler option yourself just so your C++ compiler doesn't default to an
+older dialect.  (Of course you may still want a _specific_ version, in which
+case you still do need to pass the option of your choice.)
