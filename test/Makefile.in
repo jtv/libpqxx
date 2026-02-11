@@ -430,7 +430,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 with_postgres_lib = @with_postgres_lib@
-EXTRA_DIST = Makefile.am.template
+EXTRA_DIST = Makefile.am.template sample_types.hxx
 
 # Use the serial test runner, so tests don't get run in parallel.  Otherwise,
 # output from test failures will be hidden away in log files where we can't

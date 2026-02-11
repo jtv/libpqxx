@@ -12,6 +12,7 @@ AC_INIT([libpqxx],[m4_esyscmd_s([./tools/extract_version.py])],
 m4_define([AC_INCLUDES_DEFAULT], [])
 
 AC_LANG(C++)
+
 AX_CXX_COMPILE_STDCXX([20])
 
 AC_CONFIG_SRCDIR([src/connection.cxx])
@@ -77,20 +78,10 @@ AS_IF(
 
 # Add options to compiler command line, if compiler accepts them.
 add_compiler_opts_if_ok() {
-	for option in $*
-	do
-		ACO_SAVE_CXXFLAGS="$CXXFLAGS"
-		CXXFLAGS="$CXXFLAGS $option"
-		AC_MSG_CHECKING([whether $CXX accepts $option])
-		AC_COMPILE_IFELSE(
-			[AC_LANG_PROGRAM([], [])],
-			has_option=yes,
-			has_option=no)
-		AC_MSG_RESULT($has_option)
-		AS_IF(
-		    [test "$has_option" = "no" ],
-		    [CXXFLAGS="$ACO_SAVE_CXXFLAGS"])
-	done
+	FLAGS_FILE="$1"
+	CXXFLAGS="$CXXFLAGS $(
+		${srcdir}/tools/compiler_flags.py \
+			-c "$CXX $CXXFLAGS" -f "$FLAGS_FILE" -s)"
 }
 
 
@@ -153,44 +144,7 @@ then
 		# but we can't use it because as of gcc 13.2.0 we still see it
 		# generating errors for the standard library.
 		add_compiler_opts_if_ok \
-			-fnothrow-opt \
-			-Wanalyzer-double-fclose \
-			-Wanalyzer-double-free \
-			-Wanalyzer-exposure-through-output-file \
-			-Wanalyzer-file-leak \
-			-Wanalyzer-free-of-non-heap \
-			-Wanalyzer-malloc-leak \
-			-Wanalyzer-possible-null-dereference \
-			-Wanalyzer-mismatching-deallocation \
-			-Wanalyzer-null-dereference \
-			-Wanalyzer-null-argument \
-			-Wanalyzer-possible-null-argument \
-			-Wanalyzer-shift-count-negative \
-			-Wanalyzer-overflow \
-			-Wanalyzer-stale-setjmp-buffer \
-			-Wanalyzer-tainted-array-index \
-			-Wanalyzer-unsafe-call-within-signal-handler \
-			-Wanalyzer-use-after-free \
-			-Wanalyzer-use-of-pointer-in-stale-stack-frame \
-			-Wanalyzer-use-of-uninitialized-value \
-			-Wanalyzer-write-to-const \
-			-Wanalyzer-write-to-string-literal \
-			-Warray-bounds=2 \
-			-Wattribute-alias=2 \
-			-Wdangling-gsl \
-			-Wdangling-reference \
-			-Wdeprecated-literal-operator \
-			-Wduplicated-branches \
-			-Wduplicated-cond \
-			-Wlogical-op \
-			-Wmismatched-tags \
-			-Wredundant-tags \
-			-Wrestrict \
-			-Wstringop-overflow \
-			-Wsuggest-attribute=noreturn \
-			-Wsuggest-override \
-			-Wtrampolines \
-			-Wunreachable-code
+			"${srcdir}/config/flags/maintainer-mode.txt"
 	fi
 
 	# In "audit," enable all runtime checks we can.
@@ -208,53 +162,21 @@ then
 			-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_DEBUG
 		# Run-time sanitizers and such.  These can differ from one
 		# compiler (or version) to the next.
-		add_compiler_opts_if_ok \
-			-fno-sanitize-recover=all \
-			-fsanitize=address \
-			-fsanitize-address-use-after-scope \
-			-fsanitize=alignment \
-			-fsanitize=bool \
-			-fsanitize=bounds \
-			-fsanitize=bounds-strict \
-			-fsanitize=builtin \
-			-fsanitize=enum \
-			-fsanitize=float-cast-overflow \
-			-fsanitize=float-divide-by-zero \
-			-fsanitize=integer-divide-by-zero \
-			-fsanitize=leak \
-			-fsanitize=nonnull-attribute \
-			-fsanitize=null \
-			-fsanitize=object-size \
-			-fsanitize=pointer-compare \
-			-fsanitize=pointer-overflow \
-			-fsanitize=pointer-subtract \
-			-fsanitize=return \
-			-fsanitize=returns-nonnull-attribute \
-			-fsanitize=shift \
-			-fsanitize=shift-base \
-			-fsanitize=shift-exponent \
-			-fsanitize=signed-integer-overflow \
-			-fsanitize=undefined \
-			-fsanitize=unreachable \
-			-fsanitize=vla-bound \
-			-fsanitize=vptr \
-			-fstack-protector-all
+		add_compiler_opts_if_ok "${srcdir}/config/flags/audit-mode.txt"
 	fi
 
 	# In "suggest" mode, enable a bunch of code suggestions.
 	if test "$enable_suggest" = "yes"
 	then
 		add_compiler_opts_if_ok \
-			-Wsuggest-attribute=cold \
-			-Wsuggest-attribute=const \
-			-Wsuggest-attribute=malloc \
-			-Wsuggest-attribute=pure \
-			-Wsuggest-final-types \
-			-Wsuggest-final-methods
+			"${srcdir}/config/flags/suggest-mode.txt"
 	fi
 fi # End of gcc-specific part.
 
 
+# Do the feature checks now, *after* we add all the extra strictness options,
+# so that we don't accidentally enable any features that become unacceptable
+# under our chosen strictness.
 m4_include([pqxx_cxx_feature_checks.ac])
 
 

@@ -312,6 +312,8 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 with_postgres_lib = @with_postgres_lib@
 EXTRA_DIST = \
+	check_ascii.py \
+	compiler_flags.py \
 	deprecations.sh \
 	extract_version.py \
 	format.sh \

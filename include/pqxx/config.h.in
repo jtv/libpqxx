@@ -80,6 +80,3 @@
 
 /* Version number of package */
 #undef VERSION
-
-/* Define if this feature is available. */
-#undef stacktrace_support

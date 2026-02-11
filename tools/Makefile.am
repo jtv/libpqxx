@@ -1,4 +1,6 @@
 EXTRA_DIST = \
+	check_ascii.py \
+	compiler_flags.py \
 	deprecations.sh \
 	extract_version.py \
 	format.sh \

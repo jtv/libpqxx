@@ -1,0 +1,47 @@
+# Compiler flags for "maintainer mode".
+#
+# We run these through compiler_flags.py to figure out which ones the compiler
+# actually supports.  It's a case of "more is better," but it's not a problem
+# if only some compilers support only some of these flags.
+#
+# There's also -fanalyzer, which is a macro for many of these options, but as
+# of gcc 13.2.0 it still causes a lot of errors for the standard library.
+
+-fnothrow-opt
+-Wanalyzer-double-fclose
+-Wanalyzer-double-free
+-Wanalyzer-exposure-through-output-file
+-Wanalyzer-file-leak
+-Wanalyzer-free-of-non-heap
+-Wanalyzer-malloc-leak
+-Wanalyzer-possible-null-dereference
+-Wanalyzer-mismatching-deallocation
+-Wanalyzer-null-dereference
+-Wanalyzer-null-argument
+-Wanalyzer-possible-null-argument
+-Wanalyzer-shift-count-negative
+-Wanalyzer-overflow
+-Wanalyzer-stale-setjmp-buffer
+-Wanalyzer-tainted-array-index
+-Wanalyzer-unsafe-call-within-signal-handler
+-Wanalyzer-use-after-free
+-Wanalyzer-use-of-pointer-in-stale-stack-frame
+-Wanalyzer-use-of-uninitialized-value
+-Wanalyzer-write-to-const
+-Wanalyzer-write-to-string-literal
+-Warray-bounds=2
+-Wattribute-alias=2
+-Wdangling-gsl
+-Wdangling-reference
+-Wdeprecated-literal-operator
+-Wduplicated-branches
+-Wduplicated-cond
+-Wlogical-op
+-Wmismatched-tags
+-Wredundant-tags
+-Wrestrict
+-Wstringop-overflow
+-Wsuggest-attribute=noreturn
+-Wsuggest-override
+-Wtrampolines
+-Wunreachable-code

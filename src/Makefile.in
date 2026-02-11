@@ -395,6 +395,7 @@ AM_CPPFLAGS = \
 # Override automatically generated list of default includes.  It contains only
 # unnecessary entries, and incorrectly mentions include/pqxx directly.
 DEFAULT_INCLUDES = 
+EXTRA_DIST = pqxx-source.hxx
 MAINTAINERCLEANFILES = Makefile.in
 all: all-am
 
