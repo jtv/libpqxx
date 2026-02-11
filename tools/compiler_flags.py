@@ -20,9 +20,10 @@ from tempfile import NamedTemporaryFile
 
 
 EPILOG = """The flags file may contain comments, on lines starting with '#'
-as the first non-whitespace character.  Any whitespace other than newlines is
-ignored, as are blank lines.
+as the first non-whitespace character.  Any whitespace between flags other than
+newlines is ignored, as are blank lines.
 """
+
 
 def parse_args() -> Namespace:
     """Parse command-line options."""
@@ -31,6 +32,7 @@ def parse_args() -> Namespace:
     parser.add_argument(
         "-c",
         "--command",
+        required=True,
         help="The basic compiler command line, e.g. 'c++ -std=c++20 -Werror'.",
     )
     parser.add_argument(
@@ -70,15 +72,15 @@ def compiler_accepts(
     command: str, source: Path, flag: str, prev: str = ""
 ) -> bool:
     """Return whether the compiler seems to accept `flag`."""
-    return run_quietly(f"{command} -c {source} {prev} {flag}")
+    return run_quietly(f"{command} {prev} {flag} -c {source}")
 
 
 def make_source():
     """Create a minimal source file to compile.  Doesn't have to link.
 
-    Can be used as a cnotext manager.
+    Can be used as a context manager.
     """
-    source = NamedTemporaryFile()
+    source = NamedTemporaryFile(mode="r", suffix=".cxx")
     # As it happens, an empty file will do.
     source.flush()
     return source

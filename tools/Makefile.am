@@ -1,4 +1,5 @@
 EXTRA_DIST = \
+	compiler_flags.py \
 	deprecations.sh \
 	extract_version.py \
 	format.sh \
