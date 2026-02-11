@@ -9,6 +9,7 @@ environment support `std::to_chars` for floating-point types?"
 
 In both build systems we test these things by trying to compile a particular
 snippet of code, found in this directry, and seeing whether that succeeds.
+These are the snippets with names like `PQXX_*.cxx`.
 
 To avoid duplicating those snippets for multiple build systems, we put them
 here.  Both the autotools configuration and the CMake configuration can refer to
@@ -24,3 +25,10 @@ chance that I missed something, so be prepared for tests failing for unexpected
 reasons!  Some C++ syntax may end up having an unforeseen meaning in m4, and
 screw up the handling of the code snippet.  Re-configure, and read your logs
 carefully after editing these snippets.
+
+There are also a few other files here, used for other related purposes.  For
+example, `minimal.cxx` is a nearly-blank input just to check whether th
+compiler will accept various options.  And `stacktrace_support.cxx` is used not
+for an automated check, but for a manual one in each of the builds (because it
+needs to be not just compiled, but linked as well for the check to be
+effective.)

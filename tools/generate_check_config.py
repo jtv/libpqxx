@@ -42,7 +42,7 @@ def parse_args() -> Namespace:
 
 def list_snippets(source: Path) -> list[str]:
     """Return list of C++ snippets."""
-    return sorted(map(str, (source / "config-tests").glob("*.cxx")))
+    return sorted(map(str, (source / "config-tests").glob("PQXX_*.cxx")))
 
 
 # Comment header for either autoconf or CMake config we generate.

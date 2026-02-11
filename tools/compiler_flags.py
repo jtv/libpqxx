@@ -16,7 +16,6 @@ from subprocess import (
     DEVNULL,
     run,
 )
-from tempfile import NamedTemporaryFile
 
 
 EPILOG = """The flags file may contain comments, on lines starting with '#'
@@ -75,31 +74,20 @@ def compiler_accepts(
     return run_quietly(f"{command} {prev} {flag} -c {source}")
 
 
-def make_source():
-    """Create a minimal source file to compile.  Doesn't have to link.
-
-    Can be used as a context manager.
-    """
-    source = NamedTemporaryFile(mode="r", suffix=".cxx")
-    # As it happens, an empty file will do.
-    source.flush()
-    return source
-
-
 def main() -> None:
     """Main entry point."""
     args = parse_args()
     good_flags = []
-    with make_source() as source:
-        src = source.name
-        for flag in args.flags:
-            flag = flag.strip()
-            if flag == "" or flag.startswith("#"):
-                continue
-            if compiler_accepts(
-                args.command, Path(src), flag, prev=" ".join(good_flags)
-            ):
-                good_flags.append(flag)
+    source = Path("confg-tests") / "minimal.cxx"
+    src = source.name
+    for flag in args.flags:
+        flag = flag.strip()
+        if flag == "" or flag.startswith("#"):
+            continue
+        if compiler_accepts(
+            args.command, Path(src), flag, prev=" ".join(good_flags)
+        ):
+            good_flags.append(flag)
 
     sep = " " if args.single_line else "\n"
     print(sep.join(good_flags), file=args.output)
