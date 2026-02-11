@@ -2901,6 +2901,7 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 
 
+
 ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -19905,39 +19906,23 @@ then :
 fi
 
 
+# The command name (or path) for the C++ compiler.
+#
+# AX_CXX_COMPILE_STDCXX adds a C++ language version option *into $CXX itself.*
+# That makes it difficult to figure out which part of the string exactly is the
+# compiler itself: what if it's a path with spaces in?
+#
+# So, make the shell parse it as if we were executing the command line, and
+# extract the part we need.
+PLAIN_CXX=$(eval "set -- echo $CXX ; echo \"\$2\"")
+
+
 # Add options to compiler command line, if compiler accepts them.
 add_compiler_opts_if_ok() {
-	for option in $*
-	do
-		ACO_SAVE_CXXFLAGS="$CXXFLAGS"
-		CXXFLAGS="$CXXFLAGS $option"
-		{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether $CXX accepts $option" >&5
-printf %s "checking whether $CXX accepts $option... " >&6; }
-		cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-int
-main (void)
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"
-then :
-  has_option=yes
-else $as_nop
-  has_option=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
-		{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $has_option" >&5
-printf "%s\n" "$has_option" >&6; }
-		if test "$has_option" = "no"
-then :
-  CXXFLAGS="$ACO_SAVE_CXXFLAGS"
-fi
-	done
+	FLAGS_FILE="$1"
+	CXXFLAGS="$CXXFLAGS $(
+		${srcdir}/tools/compiler_flags.py \
+			-c "$PLAIN_CXX" -f "$FLAGS_FILE" -s)"
 }
 
 
@@ -19999,45 +19984,9 @@ then
 		# The -fanalyzer one is a macro option for many of the others,
 		# but we can't use it because as of gcc 13.2.0 we still see it
 		# generating errors for the standard library.
+		# XXX: Use config/flags/maintainer-mode.txt.
 		add_compiler_opts_if_ok \
-			-fnothrow-opt \
-			-Wanalyzer-double-fclose \
-			-Wanalyzer-double-free \
-			-Wanalyzer-exposure-through-output-file \
-			-Wanalyzer-file-leak \
-			-Wanalyzer-free-of-non-heap \
-			-Wanalyzer-malloc-leak \
-			-Wanalyzer-possible-null-dereference \
-			-Wanalyzer-mismatching-deallocation \
-			-Wanalyzer-null-dereference \
-			-Wanalyzer-null-argument \
-			-Wanalyzer-possible-null-argument \
-			-Wanalyzer-shift-count-negative \
-			-Wanalyzer-overflow \
-			-Wanalyzer-stale-setjmp-buffer \
-			-Wanalyzer-tainted-array-index \
-			-Wanalyzer-unsafe-call-within-signal-handler \
-			-Wanalyzer-use-after-free \
-			-Wanalyzer-use-of-pointer-in-stale-stack-frame \
-			-Wanalyzer-use-of-uninitialized-value \
-			-Wanalyzer-write-to-const \
-			-Wanalyzer-write-to-string-literal \
-			-Warray-bounds=2 \
-			-Wattribute-alias=2 \
-			-Wdangling-gsl \
-			-Wdangling-reference \
-			-Wdeprecated-literal-operator \
-			-Wduplicated-branches \
-			-Wduplicated-cond \
-			-Wlogical-op \
-			-Wmismatched-tags \
-			-Wredundant-tags \
-			-Wrestrict \
-			-Wstringop-overflow \
-			-Wsuggest-attribute=noreturn \
-			-Wsuggest-override \
-			-Wtrampolines \
-			-Wunreachable-code
+			"${srcdir}/config/flags/maintainer-mode.txt"
 	fi
 
 	# In "audit," enable all runtime checks we can.
@@ -20055,53 +20004,21 @@ then
 			-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_DEBUG
 		# Run-time sanitizers and such.  These can differ from one
 		# compiler (or version) to the next.
-		add_compiler_opts_if_ok \
-			-fno-sanitize-recover=all \
-			-fsanitize=address \
-			-fsanitize-address-use-after-scope \
-			-fsanitize=alignment \
-			-fsanitize=bool \
-			-fsanitize=bounds \
-			-fsanitize=bounds-strict \
-			-fsanitize=builtin \
-			-fsanitize=enum \
-			-fsanitize=float-cast-overflow \
-			-fsanitize=float-divide-by-zero \
-			-fsanitize=integer-divide-by-zero \
-			-fsanitize=leak \
-			-fsanitize=nonnull-attribute \
-			-fsanitize=null \
-			-fsanitize=object-size \
-			-fsanitize=pointer-compare \
-			-fsanitize=pointer-overflow \
-			-fsanitize=pointer-subtract \
-			-fsanitize=return \
-			-fsanitize=returns-nonnull-attribute \
-			-fsanitize=shift \
-			-fsanitize=shift-base \
-			-fsanitize=shift-exponent \
-			-fsanitize=signed-integer-overflow \
-			-fsanitize=undefined \
-			-fsanitize=unreachable \
-			-fsanitize=vla-bound \
-			-fsanitize=vptr \
-			-fstack-protector-all
+		add_compiler_opts_if_ok "${srcdir}/config/flags/audit-mode.txt"
 	fi
 
 	# In "suggest" mode, enable a bunch of code suggestions.
 	if test "$enable_suggest" = "yes"
 	then
 		add_compiler_opts_if_ok \
-			-Wsuggest-attribute=cold \
-			-Wsuggest-attribute=const \
-			-Wsuggest-attribute=malloc \
-			-Wsuggest-attribute=pure \
-			-Wsuggest-final-types \
-			-Wsuggest-final-methods
+			"${srcdir}/config/flags/suggest-mode.txt"
 	fi
 fi # End of gcc-specific part.
 
 
+# Do the feature checks now, *after* we add all the extra strictness options,
+# so that we don't accidentally enable any features that become unacceptable
+# under our chosen strictness.
 # Configuration for feature checks. Generated by generate_check_config.py.
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking PQXX_HAVE_ASSUME" >&5
 printf %s "checking PQXX_HAVE_ASSUME... " >&6; }
