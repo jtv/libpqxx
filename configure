@@ -19906,23 +19906,12 @@ then :
 fi
 
 
-# The command name (or path) for the C++ compiler.
-#
-# AX_CXX_COMPILE_STDCXX adds a C++ language version option *into $CXX itself.*
-# That makes it difficult to figure out which part of the string exactly is the
-# compiler itself: what if it's a path with spaces in?
-#
-# So, make the shell parse it as if we were executing the command line, and
-# extract the part we need.
-PLAIN_CXX=$(eval "set -- echo $CXX ; echo \"\$2\"")
-
-
 # Add options to compiler command line, if compiler accepts them.
 add_compiler_opts_if_ok() {
 	FLAGS_FILE="$1"
 	CXXFLAGS="$CXXFLAGS $(
 		${srcdir}/tools/compiler_flags.py \
-			-c "$PLAIN_CXX" -f "$FLAGS_FILE" -s)"
+			-c "$CXX $CXXFLAGS" -f "$FLAGS_FILE" -s)"
 }
 
 
