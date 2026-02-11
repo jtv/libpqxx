@@ -19973,7 +19973,6 @@ then
 		# The -fanalyzer one is a macro option for many of the others,
 		# but we can't use it because as of gcc 13.2.0 we still see it
 		# generating errors for the standard library.
-		# XXX: Use config/flags/maintainer-mode.txt.
 		add_compiler_opts_if_ok \
 			"${srcdir}/config/flags/maintainer-mode.txt"
 	fi

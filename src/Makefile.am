@@ -40,4 +40,6 @@ AM_CPPFLAGS = \
 # unnecessary entries, and incorrectly mentions include/pqxx directly.
 DEFAULT_INCLUDES=
 
+EXTRA_DIST=pqxx-source.hxx
+
 MAINTAINERCLEANFILES=Makefile.in

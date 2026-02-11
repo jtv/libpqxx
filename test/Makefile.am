@@ -14,7 +14,7 @@
 # Makefile.am is generated automatically for automake whenever test programs are
 # added to libpqxx.
 
-EXTRA_DIST = Makefile.am.template
+EXTRA_DIST = Makefile.am.template sample_types.hxx
 
 # Use the serial test runner, so tests don't get run in parallel.  Otherwise,
 # output from test failures will be hidden away in log files where we can't
