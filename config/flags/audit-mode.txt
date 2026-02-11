@@ -1,0 +1,37 @@
+# Compiler flags for "audit mode."
+#
+# We run these through compiler_flags.py to figure out which ones the compiler
+# actually supports.  It's a case of "more is better," but it's not a problem
+# if only some compilers support only some of these flags.
+
+-fno-sanitize-recover=all
+-fsanitize=address
+-fsanitize-address-use-after-scope
+-fsanitize=alignment
+-fsanitize=bool
+-fsanitize=bounds
+-fsanitize=bounds-strict
+-fsanitize=builtin
+-fsanitize=enum
+-fsanitize=float-cast-overflow
+-fsanitize=float-divide-by-zero
+-fsanitize=integer-divide-by-zero
+-fsanitize=leak
+-fsanitize=nonnull-attribute
+-fsanitize=null
+-fsanitize=object-size
+-fsanitize=pointer-compare
+-fsanitize=pointer-overflow
+-fsanitize=pointer-subtract
+-fsanitize=return
+-fsanitize=returns-nonnull-attribute
+-fsanitize=shift
+-fsanitize=shift-base
+-fsanitize=shift-exponent
+-fsanitize=signed-integer-overflow
+-fsanitize=undefined
+-fsanitize=unreachable
+-fsanitize=vla-bound
+-fsanitize=vptr
+-fstack-protector-all
+

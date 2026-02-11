@@ -1,0 +1,12 @@
+# Compiler flags for "suggest mode".
+#
+# We run these through compiler_flags.py to figure out which ones the compiler
+# actually supports.  It's a case of "more is better," but it's not a problem
+# if only some compilers support only some of these flags.
+
+-Wsuggest-attribute=cold
+-Wsuggest-attribute=const
+-Wsuggest-attribute=malloc
+-Wsuggest-attribute=pure
+-Wsuggest-final-types
+-Wsuggest-final-methods
