@@ -14,6 +14,27 @@
 
 @SET_MAKE@
 
+# ##############################################################################
+# AUTOMATICALLY GENERATED FILE -- DO NOT EDIT.
+#
+# This file is generated automatically by libpqxx's template2mak.py script, and
+# will be rewritten from time to time.
+#
+# If you modify this file, chances are your modifications will be lost.
+#
+# The template2mak.py script should be available in the tools directory of the
+# libpqxx source archive.
+#
+# Generated from template './Makefile.am.template'.
+# ##############################################################################
+# Template for generating the root Makefile.am.
+#
+# We do all the compiling from this central root-level Makefile.am, even
+# though the actual source files are distributed across several subdirectories.
+# This way we don't waste time waiting to start on the next build target while
+# the ongoing target is still being built in its own subdirectory.
+
+
 
 
 VPATH = @srcdir@
@@ -90,7 +111,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-TESTS = $(am__EXEEXT_1) tools/lint.sh
+noinst_PROGRAMS = $(am__EXEEXT_2)
+TESTS = $(am__EXEEXT_1) tools/lint.sh $(am__EXEEXT_2)
 check_PROGRAMS = $(am__EXEEXT_1)
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -112,6 +134,13 @@ CONFIG_HEADER = $(top_builddir)/include/pqxx/config.h
 CONFIG_CLEAN_FILES = libpqxx.pc compile_flags
 CONFIG_CLEAN_VPATH_FILES =
 am__EXEEXT_1 = test/runner$(EXEEXT)
+am__EXEEXT_2 = examples/complete_example$(EXEEXT) \
+	examples/faster_data$(EXEEXT) examples/from_readme$(EXEEXT) \
+	examples/getting_started_1$(EXEEXT) \
+	examples/getting_started_2$(EXEEXT) \
+	examples/quick_example$(EXEEXT) \
+	examples/simple_queries$(EXEEXT)
+PROGRAMS = $(noinst_PROGRAMS)
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -161,6 +190,38 @@ src_libpqxx_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
 	$(AM_CXXFLAGS) $(CXXFLAGS) $(src_libpqxx_la_LDFLAGS) \
 	$(LDFLAGS) -o $@
+am_examples_complete_example_OBJECTS =  \
+	examples/complete_example.$(OBJEXT)
+examples_complete_example_OBJECTS =  \
+	$(am_examples_complete_example_OBJECTS)
+examples_complete_example_DEPENDENCIES =  \
+	$(top_builddir)/src/libpqxx.la
+am_examples_faster_data_OBJECTS = examples/faster_data.$(OBJEXT)
+examples_faster_data_OBJECTS = $(am_examples_faster_data_OBJECTS)
+examples_faster_data_DEPENDENCIES = $(top_builddir)/src/libpqxx.la
+am_examples_from_readme_OBJECTS = examples/from_readme.$(OBJEXT)
+examples_from_readme_OBJECTS = $(am_examples_from_readme_OBJECTS)
+examples_from_readme_DEPENDENCIES = $(top_builddir)/src/libpqxx.la
+am_examples_getting_started_1_OBJECTS =  \
+	examples/getting_started_1.$(OBJEXT)
+examples_getting_started_1_OBJECTS =  \
+	$(am_examples_getting_started_1_OBJECTS)
+examples_getting_started_1_DEPENDENCIES =  \
+	$(top_builddir)/src/libpqxx.la
+am_examples_getting_started_2_OBJECTS =  \
+	examples/getting_started_2.$(OBJEXT)
+examples_getting_started_2_OBJECTS =  \
+	$(am_examples_getting_started_2_OBJECTS)
+examples_getting_started_2_DEPENDENCIES =  \
+	$(top_builddir)/src/libpqxx.la
+am_examples_quick_example_OBJECTS = examples/quick_example.$(OBJEXT)
+examples_quick_example_OBJECTS = $(am_examples_quick_example_OBJECTS)
+examples_quick_example_DEPENDENCIES = $(top_builddir)/src/libpqxx.la
+am_examples_simple_queries_OBJECTS =  \
+	examples/simple_queries.$(OBJEXT)
+examples_simple_queries_OBJECTS =  \
+	$(am_examples_simple_queries_OBJECTS)
+examples_simple_queries_DEPENDENCIES = $(top_builddir)/src/libpqxx.la
 am_test_runner_OBJECTS = test/test00.$(OBJEXT) test/test01.$(OBJEXT) \
 	test/test02.$(OBJEXT) test/test07.$(OBJEXT) \
 	test/test10.$(OBJEXT) test/test11.$(OBJEXT) \
@@ -226,17 +287,24 @@ am__v_at_0 = @
 am__v_at_1 = 
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = src/$(DEPDIR)/array.Plo src/$(DEPDIR)/blob.Plo \
-	src/$(DEPDIR)/connection.Plo src/$(DEPDIR)/cursor.Plo \
-	src/$(DEPDIR)/encodings.Plo src/$(DEPDIR)/errorhandler.Plo \
-	src/$(DEPDIR)/except.Plo src/$(DEPDIR)/field.Plo \
-	src/$(DEPDIR)/largeobject.Plo src/$(DEPDIR)/notification.Plo \
-	src/$(DEPDIR)/params.Plo src/$(DEPDIR)/pipeline.Plo \
-	src/$(DEPDIR)/result.Plo src/$(DEPDIR)/robusttransaction.Plo \
-	src/$(DEPDIR)/row.Plo src/$(DEPDIR)/sql_cursor.Plo \
-	src/$(DEPDIR)/strconv.Plo src/$(DEPDIR)/stream_from.Plo \
-	src/$(DEPDIR)/stream_to.Plo src/$(DEPDIR)/subtransaction.Plo \
-	src/$(DEPDIR)/time.Plo src/$(DEPDIR)/transaction.Plo \
+am__depfiles_remade = examples/$(DEPDIR)/complete_example.Po \
+	examples/$(DEPDIR)/faster_data.Po \
+	examples/$(DEPDIR)/from_readme.Po \
+	examples/$(DEPDIR)/getting_started_1.Po \
+	examples/$(DEPDIR)/getting_started_2.Po \
+	examples/$(DEPDIR)/quick_example.Po \
+	examples/$(DEPDIR)/simple_queries.Po src/$(DEPDIR)/array.Plo \
+	src/$(DEPDIR)/blob.Plo src/$(DEPDIR)/connection.Plo \
+	src/$(DEPDIR)/cursor.Plo src/$(DEPDIR)/encodings.Plo \
+	src/$(DEPDIR)/errorhandler.Plo src/$(DEPDIR)/except.Plo \
+	src/$(DEPDIR)/field.Plo src/$(DEPDIR)/largeobject.Plo \
+	src/$(DEPDIR)/notification.Plo src/$(DEPDIR)/params.Plo \
+	src/$(DEPDIR)/pipeline.Plo src/$(DEPDIR)/result.Plo \
+	src/$(DEPDIR)/robusttransaction.Plo src/$(DEPDIR)/row.Plo \
+	src/$(DEPDIR)/sql_cursor.Plo src/$(DEPDIR)/strconv.Plo \
+	src/$(DEPDIR)/stream_from.Plo src/$(DEPDIR)/stream_to.Plo \
+	src/$(DEPDIR)/subtransaction.Plo src/$(DEPDIR)/time.Plo \
+	src/$(DEPDIR)/transaction.Plo \
 	src/$(DEPDIR)/transaction_base.Plo src/$(DEPDIR)/types.Plo \
 	src/$(DEPDIR)/util.Plo src/$(DEPDIR)/wait.Plo \
 	test/$(DEPDIR)/runner.Po test/$(DEPDIR)/test00.Po \
@@ -313,8 +381,22 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(src_libpqxx_la_SOURCES) $(test_runner_SOURCES)
-DIST_SOURCES = $(src_libpqxx_la_SOURCES) $(test_runner_SOURCES)
+SOURCES = $(src_libpqxx_la_SOURCES) \
+	$(examples_complete_example_SOURCES) \
+	$(examples_faster_data_SOURCES) \
+	$(examples_from_readme_SOURCES) \
+	$(examples_getting_started_1_SOURCES) \
+	$(examples_getting_started_2_SOURCES) \
+	$(examples_quick_example_SOURCES) \
+	$(examples_simple_queries_SOURCES) $(test_runner_SOURCES)
+DIST_SOURCES = $(src_libpqxx_la_SOURCES) \
+	$(examples_complete_example_SOURCES) \
+	$(examples_faster_data_SOURCES) \
+	$(examples_from_readme_SOURCES) \
+	$(examples_getting_started_1_SOURCES) \
+	$(examples_getting_started_2_SOURCES) \
+	$(examples_quick_example_SOURCES) \
+	$(examples_simple_queries_SOURCES) $(test_runner_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
 	install-data-recursive install-dvi-recursive \
@@ -564,23 +646,8 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 with_postgres_lib = @with_postgres_lib@
 
-# ##############################################################################
-# AUTOMATICALLY GENERATED FILE -- DO NOT EDIT.
-#
-# This file is generated automatically by libpqxx's template2mak.py script, and
-# will be rewritten from time to time.
-#
-# If you modify this file, chances are your modifications will be lost.
-#
-# The template2mak.py script should be available in the tools directory of the
-# libpqxx source archive.
-#
-# Generated from template './Makefile.am.template'.
-# ##############################################################################
-# subdir-objects: compile source files in their various subdirectories, and
-# store the object files there, even if we arrange it all centrally from the
-# root directory.  That way we waste less time finishing up one part of the
-# build completely in one directory before moving on to the next.
+# subdir-objects: store the object files in their source file's respective
+# subdirectories.
 #
 # serial-tests: Use the serial test runner, so tests don't get run in parallel.
 # Otherwise, outputfrom test failures will be hidden away in log files where we
@@ -590,7 +657,7 @@ AUTOMAKE_OPTIONS = subdir-objects serial-tests
 # We must get the local directory built first, because that causes the
 # library binary to be built.  Which is necessary before we can build any of
 # the other binaries.
-SUBDIRS = . include examples tools config doc
+SUBDIRS = . include tools config doc
 EXTRA_DIST = autogen.sh configitems Makefile.am.template README.md VERSION
 noinst_HEADERS = test/helpers.hxx
 CLEANFILES = test/pqxxlo.txt
@@ -600,8 +667,6 @@ MAINTAINERCLEANFILES = \
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libpqxx.pc
-
-# XXX: Also run tools/lint.sh!
 PQXX_TEST_PROGS = test/runner
 AM_CPPFLAGS = \
     -I$(top_srcdir)/include -I$(top_builddir)/include ${POSTGRES_INCLUDE}
@@ -727,6 +792,30 @@ test_runner_SOURCES = \
   test/runner.cxx
 
 test_runner_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
+PQXX_EXAMPLES = \
+  examples/complete_example \
+  examples/faster_data \
+  examples/from_readme \
+  examples/getting_started_1 \
+  examples/getting_started_2 \
+  examples/quick_example \
+  examples/simple_queries \
+  # (End of list)
+
+examples_complete_example_SOURCES = examples/complete_example.cxx
+examples_complete_example_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
+examples_faster_data_SOURCES = examples/faster_data.cxx
+examples_faster_data_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
+examples_from_readme_SOURCES = examples/from_readme.cxx
+examples_from_readme_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
+examples_getting_started_1_SOURCES = examples/getting_started_1.cxx
+examples_getting_started_1_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
+examples_getting_started_2_SOURCES = examples/getting_started_2.cxx
+examples_getting_started_2_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
+examples_quick_example_SOURCES = examples/quick_example.cxx
+examples_quick_example_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
+examples_simple_queries_SOURCES = examples/simple_queries.cxx
+examples_simple_queries_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
 all: all-recursive
 
 .SUFFIXES:
@@ -771,6 +860,15 @@ compile_flags: $(top_builddir)/config.status $(srcdir)/compile_flags.in
 
 clean-checkPROGRAMS:
 	@list='$(check_PROGRAMS)'; test -n "$$list" || exit 0; \
+	echo " rm -f" $$list; \
+	rm -f $$list || exit $$?; \
+	test -n "$(EXEEXT)" || exit 0; \
+	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
+	echo " rm -f" $$list; \
+	rm -f $$list
+
+clean-noinstPROGRAMS:
+	@list='$(noinst_PROGRAMS)'; test -n "$$list" || exit 0; \
 	echo " rm -f" $$list; \
 	rm -f $$list || exit $$?; \
 	test -n "$(EXEEXT)" || exit 0; \
@@ -850,6 +948,54 @@ src/wait.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 
 src/libpqxx.la: $(src_libpqxx_la_OBJECTS) $(src_libpqxx_la_DEPENDENCIES) $(EXTRA_src_libpqxx_la_DEPENDENCIES) src/$(am__dirstamp)
 	$(AM_V_CXXLD)$(src_libpqxx_la_LINK) -rpath $(libdir) $(src_libpqxx_la_OBJECTS) $(src_libpqxx_la_LIBADD) $(LIBS)
+examples/$(am__dirstamp):
+	@$(MKDIR_P) examples
+	@: > examples/$(am__dirstamp)
+examples/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) examples/$(DEPDIR)
+	@: > examples/$(DEPDIR)/$(am__dirstamp)
+examples/complete_example.$(OBJEXT): examples/$(am__dirstamp) \
+	examples/$(DEPDIR)/$(am__dirstamp)
+
+examples/complete_example$(EXEEXT): $(examples_complete_example_OBJECTS) $(examples_complete_example_DEPENDENCIES) $(EXTRA_examples_complete_example_DEPENDENCIES) examples/$(am__dirstamp)
+	@rm -f examples/complete_example$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(examples_complete_example_OBJECTS) $(examples_complete_example_LDADD) $(LIBS)
+examples/faster_data.$(OBJEXT): examples/$(am__dirstamp) \
+	examples/$(DEPDIR)/$(am__dirstamp)
+
+examples/faster_data$(EXEEXT): $(examples_faster_data_OBJECTS) $(examples_faster_data_DEPENDENCIES) $(EXTRA_examples_faster_data_DEPENDENCIES) examples/$(am__dirstamp)
+	@rm -f examples/faster_data$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(examples_faster_data_OBJECTS) $(examples_faster_data_LDADD) $(LIBS)
+examples/from_readme.$(OBJEXT): examples/$(am__dirstamp) \
+	examples/$(DEPDIR)/$(am__dirstamp)
+
+examples/from_readme$(EXEEXT): $(examples_from_readme_OBJECTS) $(examples_from_readme_DEPENDENCIES) $(EXTRA_examples_from_readme_DEPENDENCIES) examples/$(am__dirstamp)
+	@rm -f examples/from_readme$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(examples_from_readme_OBJECTS) $(examples_from_readme_LDADD) $(LIBS)
+examples/getting_started_1.$(OBJEXT): examples/$(am__dirstamp) \
+	examples/$(DEPDIR)/$(am__dirstamp)
+
+examples/getting_started_1$(EXEEXT): $(examples_getting_started_1_OBJECTS) $(examples_getting_started_1_DEPENDENCIES) $(EXTRA_examples_getting_started_1_DEPENDENCIES) examples/$(am__dirstamp)
+	@rm -f examples/getting_started_1$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(examples_getting_started_1_OBJECTS) $(examples_getting_started_1_LDADD) $(LIBS)
+examples/getting_started_2.$(OBJEXT): examples/$(am__dirstamp) \
+	examples/$(DEPDIR)/$(am__dirstamp)
+
+examples/getting_started_2$(EXEEXT): $(examples_getting_started_2_OBJECTS) $(examples_getting_started_2_DEPENDENCIES) $(EXTRA_examples_getting_started_2_DEPENDENCIES) examples/$(am__dirstamp)
+	@rm -f examples/getting_started_2$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(examples_getting_started_2_OBJECTS) $(examples_getting_started_2_LDADD) $(LIBS)
+examples/quick_example.$(OBJEXT): examples/$(am__dirstamp) \
+	examples/$(DEPDIR)/$(am__dirstamp)
+
+examples/quick_example$(EXEEXT): $(examples_quick_example_OBJECTS) $(examples_quick_example_DEPENDENCIES) $(EXTRA_examples_quick_example_DEPENDENCIES) examples/$(am__dirstamp)
+	@rm -f examples/quick_example$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(examples_quick_example_OBJECTS) $(examples_quick_example_LDADD) $(LIBS)
+examples/simple_queries.$(OBJEXT): examples/$(am__dirstamp) \
+	examples/$(DEPDIR)/$(am__dirstamp)
+
+examples/simple_queries$(EXEEXT): $(examples_simple_queries_OBJECTS) $(examples_simple_queries_DEPENDENCIES) $(EXTRA_examples_simple_queries_DEPENDENCIES) examples/$(am__dirstamp)
+	@rm -f examples/simple_queries$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(examples_simple_queries_OBJECTS) $(examples_simple_queries_LDADD) $(LIBS)
 test/$(am__dirstamp):
 	@$(MKDIR_P) test
 	@: > test/$(am__dirstamp)
@@ -1023,6 +1169,7 @@ test/runner$(EXEEXT): $(test_runner_OBJECTS) $(test_runner_DEPENDENCIES) $(EXTRA
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f examples/*.$(OBJEXT)
 	-rm -f src/*.$(OBJEXT)
 	-rm -f src/*.lo
 	-rm -f test/*.$(OBJEXT)
@@ -1030,6 +1177,13 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@examples/$(DEPDIR)/complete_example.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@examples/$(DEPDIR)/faster_data.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@examples/$(DEPDIR)/from_readme.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@examples/$(DEPDIR)/getting_started_1.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@examples/$(DEPDIR)/getting_started_2.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@examples/$(DEPDIR)/quick_example.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@examples/$(DEPDIR)/simple_queries.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/array.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/blob.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/connection.Plo@am__quote@ # am--include-marker
@@ -1172,6 +1326,7 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
+	-rm -rf examples/.libs examples/_libs
 	-rm -rf src/.libs src/_libs
 	-rm -rf test/.libs test/_libs
 
@@ -1598,7 +1753,7 @@ check-am: all-am
 	$(MAKE) $(AM_MAKEFLAGS) $(check_PROGRAMS)
 	$(MAKE) $(AM_MAKEFLAGS) check-TESTS
 check: check-recursive
-all-am: Makefile $(LTLIBRARIES) $(DATA) $(HEADERS)
+all-am: Makefile $(PROGRAMS) $(LTLIBRARIES) $(DATA) $(HEADERS)
 install-checkPROGRAMS: install-libLTLIBRARIES
 
 installdirs: installdirs-recursive
@@ -1633,6 +1788,8 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-rm -f examples/$(DEPDIR)/$(am__dirstamp)
+	-rm -f examples/$(am__dirstamp)
 	-rm -f src/$(DEPDIR)/$(am__dirstamp)
 	-rm -f src/$(am__dirstamp)
 	-rm -f test/$(DEPDIR)/$(am__dirstamp)
@@ -1645,11 +1802,18 @@ maintainer-clean-generic:
 clean: clean-recursive
 
 clean-am: clean-checkPROGRAMS clean-generic clean-libLTLIBRARIES \
-	clean-libtool mostlyclean-am
+	clean-libtool clean-noinstPROGRAMS mostlyclean-am
 
 distclean: distclean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-		-rm -f src/$(DEPDIR)/array.Plo
+		-rm -f examples/$(DEPDIR)/complete_example.Po
+	-rm -f examples/$(DEPDIR)/faster_data.Po
+	-rm -f examples/$(DEPDIR)/from_readme.Po
+	-rm -f examples/$(DEPDIR)/getting_started_1.Po
+	-rm -f examples/$(DEPDIR)/getting_started_2.Po
+	-rm -f examples/$(DEPDIR)/quick_example.Po
+	-rm -f examples/$(DEPDIR)/simple_queries.Po
+	-rm -f src/$(DEPDIR)/array.Plo
 	-rm -f src/$(DEPDIR)/blob.Plo
 	-rm -f src/$(DEPDIR)/connection.Plo
 	-rm -f src/$(DEPDIR)/cursor.Plo
@@ -1802,7 +1966,14 @@ installcheck-am:
 maintainer-clean: maintainer-clean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-		-rm -f src/$(DEPDIR)/array.Plo
+		-rm -f examples/$(DEPDIR)/complete_example.Po
+	-rm -f examples/$(DEPDIR)/faster_data.Po
+	-rm -f examples/$(DEPDIR)/from_readme.Po
+	-rm -f examples/$(DEPDIR)/getting_started_1.Po
+	-rm -f examples/$(DEPDIR)/getting_started_2.Po
+	-rm -f examples/$(DEPDIR)/quick_example.Po
+	-rm -f examples/$(DEPDIR)/simple_queries.Po
+	-rm -f src/$(DEPDIR)/array.Plo
 	-rm -f src/$(DEPDIR)/blob.Plo
 	-rm -f src/$(DEPDIR)/connection.Plo
 	-rm -f src/$(DEPDIR)/cursor.Plo
@@ -1931,22 +2102,22 @@ uninstall-am: uninstall-libLTLIBRARIES uninstall-pkgconfigDATA
 .PHONY: $(am__recursive_targets) CTAGS GTAGS TAGS all all-am \
 	am--depfiles am--refresh check check-TESTS check-am clean \
 	clean-checkPROGRAMS clean-cscope clean-generic \
-	clean-libLTLIBRARIES clean-libtool cscope cscopelist-am ctags \
-	ctags-am dist dist-all dist-bzip2 dist-gzip dist-lzip \
-	dist-shar dist-tarZ dist-xz dist-zip dist-zstd distcheck \
-	distclean distclean-compile distclean-generic \
-	distclean-libtool distclean-tags distcleancheck distdir \
-	distuninstallcheck dvi dvi-am html html-am info info-am \
-	install install-am install-data install-data-am install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am \
-	install-libLTLIBRARIES install-man install-pdf install-pdf-am \
-	install-pkgconfigDATA install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs installdirs-am \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
-	pdf pdf-am ps ps-am tags tags-am uninstall uninstall-am \
-	uninstall-libLTLIBRARIES uninstall-pkgconfigDATA
+	clean-libLTLIBRARIES clean-libtool clean-noinstPROGRAMS cscope \
+	cscopelist-am ctags ctags-am dist dist-all dist-bzip2 \
+	dist-gzip dist-lzip dist-shar dist-tarZ dist-xz dist-zip \
+	dist-zstd distcheck distclean distclean-compile \
+	distclean-generic distclean-libtool distclean-tags \
+	distcleancheck distdir distuninstallcheck dvi dvi-am html \
+	html-am info info-am install install-am install-data \
+	install-data-am install-dvi install-dvi-am install-exec \
+	install-exec-am install-html install-html-am install-info \
+	install-info-am install-libLTLIBRARIES install-man install-pdf \
+	install-pdf-am install-pkgconfigDATA install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
+	installdirs-am maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool pdf pdf-am ps ps-am tags tags-am uninstall \
+	uninstall-am uninstall-libLTLIBRARIES uninstall-pkgconfigDATA
 
 .PRECIOUS: Makefile
 

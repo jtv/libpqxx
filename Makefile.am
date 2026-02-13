@@ -11,10 +11,15 @@
 #
 # Generated from template './Makefile.am.template'.
 # ##############################################################################
-# subdir-objects: compile source files in their various subdirectories, and
-# store the object files there, even if we arrange it all centrally from the
-# root directory.  That way we waste less time finishing up one part of the
-# build completely in one directory before moving on to the next.
+# Template for generating the root Makefile.am.
+#
+# We do all the compiling from this central root-level Makefile.am, even
+# though the actual source files are distributed across several subdirectories.
+# This way we don't waste time waiting to start on the next build target while
+# the ongoing target is still being built in its own subdirectory.
+
+# subdir-objects: store the object files in their source file's respective
+# subdirectories.
 #
 # serial-tests: Use the serial test runner, so tests don't get run in parallel.
 # Otherwise, outputfrom test failures will be hidden away in log files where we
@@ -24,7 +29,7 @@ AUTOMAKE_OPTIONS = subdir-objects serial-tests
 # We must get the local directory built first, because that causes the
 # library binary to be built.  Which is necessary before we can build any of
 # the other binaries.
-SUBDIRS = . include examples tools config doc
+SUBDIRS = . include tools config doc
 
 examples-recursive: src/libpqxx.la
 test-recursive: src/libpqxx.la
@@ -46,9 +51,7 @@ MAINTAINERCLEANFILES = \
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libpqxx.pc
 
-# XXX: Also run tools/lint.sh!
 PQXX_TEST_PROGS = test/runner
-TESTS = $(PQXX_TEST_PROGS) tools/lint.sh
 
 # We use README.md, but automake expects plain README.
 README: README.md
@@ -180,5 +183,35 @@ test_runner_SOURCES = \
   test/runner.cxx
 
 test_runner_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
+
+
+PQXX_EXAMPLES = \
+  examples/complete_example \
+  examples/faster_data \
+  examples/from_readme \
+  examples/getting_started_1 \
+  examples/getting_started_2 \
+  examples/quick_example \
+  examples/simple_queries \
+  # (End of list)
+
+noinst_PROGRAMS = $(PQXX_EXAMPLES)
+
+examples_complete_example_SOURCES = examples/complete_example.cxx
+examples_complete_example_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
+examples_faster_data_SOURCES = examples/faster_data.cxx
+examples_faster_data_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
+examples_from_readme_SOURCES = examples/from_readme.cxx
+examples_from_readme_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
+examples_getting_started_1_SOURCES = examples/getting_started_1.cxx
+examples_getting_started_1_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
+examples_getting_started_2_SOURCES = examples/getting_started_2.cxx
+examples_getting_started_2_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
+examples_quick_example_SOURCES = examples/quick_example.cxx
+examples_quick_example_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
+examples_simple_queries_SOURCES = examples/simple_queries.cxx
+examples_simple_queries_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
+
+TESTS = $(PQXX_TEST_PROGS) tools/lint.sh $(PQXX_EXAMPLES)
 
 check_PROGRAMS = ${PQXX_TEST_PROGS}
