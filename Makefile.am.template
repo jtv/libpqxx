@@ -18,15 +18,11 @@ AUTOMAKE_OPTIONS = subdir-objects serial-tests
 # the other binaries.
 SUBDIRS = . include config doc
 
-# XXX: Do we still need these?
-examples-recursive: src/libpqxx.la
-test-recursive: src/libpqxx.la
-tools-recursive: src/libpqxx.la
-
-EXTRA_DIST = autogen.sh configitems Makefile.am.template README.md VERSION
+EXTRA_DIST = autogen.sh configitems Makefile.am.template README.md VERSION \
 	requirements.json .clang-format .clang-tidy .cmake-format \
 	.inferconfig .lcovrc .lgtm.yml .lift .mdlrc .mdl_style.rb .yamllint \
-	src/pqxx-source.hxx test/lint.sh test/sample_types.hxx \
+	src/pqxx-source.hxx \
+	test/helpers.hxx test/lint.sh test/sample_types.hxx \
 ###MAKTEMPLATE:FOREACH tools/*.sh
   tools/###BASENAME###.sh \
 ###MAKTEMPLATE:ENDFOREACH
