@@ -1,16 +1,3 @@
-# ##############################################################################
-# AUTOMATICALLY GENERATED FILE -- DO NOT EDIT.
-#
-# This file is generated automatically by libpqxx's template2mak.py script, and
-# will be rewritten from time to time.
-#
-# If you modify this file, chances are your modifications will be lost.
-#
-# The template2mak.py script should be available in the tools directory of the
-# libpqxx source archive.
-#
-# Generated from template './Makefile.am.template'.
-# ##############################################################################
 # subdir-objects: compile source files in their various subdirectories, and
 # store the object files there, even if we arrange it all centrally from the
 # root directory.  That way we waste less time finishing up one part of the
@@ -98,85 +85,9 @@ src_libpqxx_la_LDFLAGS = $(libpqxx_version) \
 	${POSTGRES_LIB}
 
 test_runner_SOURCES = \
-  test/test00.cxx \
-  test/test01.cxx \
-  test/test02.cxx \
-  test/test07.cxx \
-  test/test10.cxx \
-  test/test11.cxx \
-  test/test13.cxx \
-  test/test18.cxx \
-  test/test20.cxx \
-  test/test21.cxx \
-  test/test26.cxx \
-  test/test29.cxx \
-  test/test30.cxx \
-  test/test32.cxx \
-  test/test37.cxx \
-  test/test39.cxx \
-  test/test46.cxx \
-  test/test56.cxx \
-  test/test60.cxx \
-  test/test61.cxx \
-  test/test62.cxx \
-  test/test70.cxx \
-  test/test71.cxx \
-  test/test72.cxx \
-  test/test74.cxx \
-  test/test75.cxx \
-  test/test76.cxx \
-  test/test77.cxx \
-  test/test82.cxx \
-  test/test84.cxx \
-  test/test88.cxx \
-  test/test89.cxx \
-  test/test90.cxx \
-  test/test_array.cxx \
-  test/test_blob.cxx \
-  test/test_cancel_query.cxx \
-  test/test_column.cxx \
-  test/test_composite.cxx \
-  test/test_connection.cxx \
-  test/test_connection_string.cxx \
-  test/test_cursor.cxx \
-  test/test_encodings.cxx \
-  test/test_error_verbosity.cxx \
-  test/test_errorhandler.cxx \
-  test/test_escape.cxx \
-  test/test_exceptions.cxx \
-  test/test_field.cxx \
-  test/test_float.cxx \
-  test/test_helpers.cxx \
-  test/test_largeobject.cxx \
-  test/test_nonblocking_connect.cxx \
-  test/test_notice_handler.cxx \
-  test/test_notification.cxx \
-  test/test_params.cxx \
-  test/test_pipeline.cxx \
-  test/test_prepared_statement.cxx \
-  test/test_range.cxx \
-  test/test_read_transaction.cxx \
-  test/test_result_iteration.cxx \
-  test/test_row.cxx \
-  test/test_separated_list.cxx \
-  test/test_simultaneous_transactions.cxx \
-  test/test_sql_cursor.cxx \
-  test/test_stateless_cursor.cxx \
-  test/test_strconv.cxx \
-  test/test_stream_from.cxx \
-  test/test_stream_query.cxx \
-  test/test_stream_to.cxx \
-  test/test_string_conversion.cxx \
-  test/test_subtransaction.cxx \
-  test/test_thread_safety_model.cxx \
-  test/test_time.cxx \
-  test/test_transaction.cxx \
-  test/test_transaction_base.cxx \
-  test/test_transaction_focus.cxx \
-  test/test_transactor.cxx \
-  test/test_type_name.cxx \
-  test/test_util.cxx \
-  test/test_zview.cxx \
+###MAKTEMPLATE:FOREACH test/test*.cxx
+  test/###BASENAME###.cxx \
+###MAKTEMPLATE:ENDFOREACH
   test/runner.cxx
 
 test_runner_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}

@@ -395,8 +395,8 @@ AC_MSG_RESULT(yes)
 AC_PROG_MAKE_SET
 
 AC_CONFIG_FILES([
-	Makefile config/Makefile doc/Makefile examples/Makefile src/Makefile
-	test/Makefile tools/Makefile include/Makefile include/pqxx/Makefile
+	Makefile config/Makefile doc/Makefile examples/Makefile
+	tools/Makefile include/Makefile include/pqxx/Makefile
 	libpqxx.pc])
 
 
