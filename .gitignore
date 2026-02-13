@@ -1,6 +1,5 @@
 autom4te.cache
 build-*.out
-ChangeLog
 CMakeFiles/CMakeTmp
 confdefs.h
 config.log
