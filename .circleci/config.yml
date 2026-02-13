@@ -521,8 +521,8 @@ jobs:
           command: tar --one-top-level=unpacked -xf libpqxx-*.*.tar*
       - run:
           name: Build from extracted tarball
-          command: "cd unpacked && \
-                ./configure CXX=<< parameteres.compiler >> CXXFLAGS=-O0 && \
+          command: "cd unpacked/libpqxx-* && \
+                ./configure CXX=<< parameters.compiler >> CXXFLAGS=-O0 && \
                 make -j4"
 
 
