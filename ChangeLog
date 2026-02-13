@@ -1,3 +1,3 @@
 To produce a change log, run this in the git repo:
 
-    git log --stat --name-only --date=short --abbrev-commit >$@
+    git log --stat --name-only --date=short --abbrev-commit >ChangeLog
