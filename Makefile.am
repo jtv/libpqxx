@@ -17,7 +17,9 @@ TESTS = tools/lint.sh
 dist-hook: ChangeLog
 
 ChangeLog: configure.ac
-	git log --stat --name-only --date=short --abbrev-commit >$@
+	if [ -d .get ] ; then \
+	    git log --stat --name-only --date=short --abbrev-commit >$@ ; \
+	fi
 
 
 # We use README.md, but automake expects plain README.
