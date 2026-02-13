@@ -477,6 +477,47 @@ jobs:
           path: test.log
 
 
+  try-make-dist:
+    parameters:
+      compiler:
+        type: string
+    docker:
+      - image: archlinux
+
+    steps:
+      - checkout
+
+      - run:
+          name: Install
+          command: "./tools/install-deps.sh \
+                archlinux << parameters.compiler >> >/tmp/vars.sh"
+          max_auto_reruns: 3
+      - store_artifacts:
+          path: "/tmp/install.log"
+      - store_artifacts:
+          path: "/tmp/vars.sh"
+
+      - run:
+          name: Autogen
+          command: ". /tmp/vars.sh && autoreconf"
+      - run:
+          name: Configure
+          command: ". /tmp/vars.sh && \
+                ./configure CXX=<< parameters.compiler >> CXXFLAGS=-O0"
+      - run:
+          name: Make dist
+          command: ". /tmp/vars.sh && make -j4 dist"
+      - run:
+          name: Extract tarball
+          command: "tar --one-top-level=unpacked -xf libpqxx-*.*.tar*"
+      - run:
+          name: Build from extracted tarball
+          command: ". /tmp/vars.sh && \
+                cd unpacked/libpqxx-* && \
+                ./configure CXX=<< parameters.compiler >> CXXFLAGS=-O0 && \
+                make -j4"
+
+
 workflows:
   all-tests:
     jobs:
@@ -529,3 +570,8 @@ workflows:
             parameters:
               compiler: ["clang++", "g++"]
               cxx_ver: ["c++20", "c++23", "c++26"]
+
+      - try-make-dist:
+          matrix:
+            parameters:
+              compiler: ["clang++"]
