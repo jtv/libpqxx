@@ -478,6 +478,9 @@ jobs:
 
 
   test-make-dist:
+    parameters:
+      compiler:
+        type: string
     docker:
       - image: archlinux
 
@@ -486,7 +489,8 @@ jobs:
 
       - run:
           name: Install
-          command: "./tools/install-deps.sh archlinux clang++ >/tmp/vars.sh"
+          command: "./tools/install-deps.sh \
+                archlinux << parameters.compiler >> >/tmp/vars.sh"
           max_auto_reruns: 3
       - store_artifacts:
           path: "/tmp/install.log"
@@ -501,7 +505,7 @@ jobs:
           command: ". /tmp/vars.sh && ./configure \
                 --enable-maintainer-mode --enable-audit \
                 --enable-shared --disable-static \
-                CXX=clang++ CXXFLAGS=-O0"
+                CXX=<< parameteres.compiler >> CXXFLAGS=-O0"
       - store_artifacts:
           path: config.log
       - run:
@@ -517,7 +521,8 @@ jobs:
           command: tar --one-top-level=unpacked -xf libpqxx-*.*.tar*
       - run:
           name: Build from extracted tarball
-          command: "cd unpacked && ./configure CXX=clang++ CXXFLAGS=-O0 && \
+          command: "cd unpacked && \
+                ./configure CXX=<< parameteres.compiler >> CXXFLAGS=-O0 && \
                 make -j4"
 
 
@@ -573,3 +578,8 @@ workflows:
             parameters:
               compiler: ["clang++", "g++"]
               cxx_ver: ["c++20", "c++23", "c++26"]
+
+      - test-make-dist:
+          matrix:
+            parameters:
+              compiler: ["clang++", "g++"]
