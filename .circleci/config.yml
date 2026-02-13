@@ -505,7 +505,7 @@ jobs:
           command: ". /tmp/vars.sh && ./configure \
                 --enable-maintainer-mode --enable-audit \
                 --enable-shared --disable-static \
-                CXX=<< parameteres.compiler >> CXXFLAGS=-O0"
+                CXX=<< parameters.compiler >> CXXFLAGS=-O0"
       - store_artifacts:
           path: config.log
       - run:
