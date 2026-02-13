@@ -29,7 +29,7 @@ AUTOMAKE_OPTIONS = subdir-objects serial-tests
 # We must get the local directory built first, because that causes the
 # library binary to be built.  Which is necessary before we can build any of
 # the other binaries.
-SUBDIRS = . include config doc
+SUBDIRS = . include doc
 
 EXTRA_DIST = autogen.sh configitems Makefile.am.template README.md VERSION \
 	requirements.json .clang-format .clang-tidy .cmake-format \
@@ -54,6 +54,9 @@ EXTRA_DIST = autogen.sh configitems Makefile.am.template README.md VERSION \
   tools/generate_cxx_checks.py \
   tools/m4esc.py \
   tools/template2mak.py \
+  config/flags/audit-mode.txt \
+  config/flags/maintainer-mode.txt \
+  config/flags/suggest-mode.txt \
   # (End of list)
 
 noinst_HEADERS = test/helpers.hxx
@@ -62,7 +65,8 @@ CLEANFILES = test/pqxxlo.txt
 
 MAINTAINERCLEANFILES = \
     Makefile.in aclocal.m4 config.h.in config.log configure stamp-h.in \
-    test/Makefile.in
+    config/config.guess config/config.sub config/install-sh config/ltmain.sh \
+    config/missing config/mkinstalldirs
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libpqxx.pc

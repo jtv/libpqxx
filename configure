@@ -21221,7 +21221,7 @@ printf "%s\n" "no" >&6; }
 fi
 
 
-ac_config_files="$ac_config_files Makefile config/Makefile doc/Makefile include/Makefile include/pqxx/Makefile libpqxx.pc"
+ac_config_files="$ac_config_files Makefile doc/Makefile include/Makefile include/pqxx/Makefile libpqxx.pc"
 
 
 
@@ -22356,7 +22356,6 @@ do
     "include/pqxx/config.h") CONFIG_HEADERS="$CONFIG_HEADERS include/pqxx/config.h" ;;
     "libtool") CONFIG_COMMANDS="$CONFIG_COMMANDS libtool" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
-    "config/Makefile") CONFIG_FILES="$CONFIG_FILES config/Makefile" ;;
     "doc/Makefile") CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;
     "include/Makefile") CONFIG_FILES="$CONFIG_FILES include/Makefile" ;;
     "include/pqxx/Makefile") CONFIG_FILES="$CONFIG_FILES include/pqxx/Makefile" ;;
