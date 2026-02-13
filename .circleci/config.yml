@@ -477,7 +477,7 @@ jobs:
           path: test.log
 
 
-  test-make-dist:
+  try-make-dist:
     parameters:
       compiler:
         type: string
@@ -571,7 +571,7 @@ workflows:
               compiler: ["clang++", "g++"]
               cxx_ver: ["c++20", "c++23", "c++26"]
 
-      - test-make-dist:
+      - try-make-dist:
           matrix:
             parameters:
               compiler: ["clang++"]
