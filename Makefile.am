@@ -14,7 +14,7 @@ TESTS = tools/lint.sh
 
 # Generate ChangeLog from git history.  It goes all the way back through
 # the project's git, bzr, svn, and cvs days.
-dist-hook: ChangeLog
+# dist-hook: ChangeLog
 
 ChangeLog: configure.ac
 	if [ -d .get ] ; then \
