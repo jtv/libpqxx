@@ -76,6 +76,7 @@
  - CMake build now filters `config-compiler.h`, like the autotools build does.
  - For `stream()`, a type must be convertible and move-constructible. (#1168)
  - Build defaults to C++20 minimum.
+ - Retired `rmlo` and `pqxxthreadsafety`.
 7.10.5
  - Fix missing types in Doxygen docs (by downgrading Doxygen :-/ ).
  - Tweak `README.md`. (#1111)

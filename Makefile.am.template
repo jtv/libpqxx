@@ -16,8 +16,9 @@ AUTOMAKE_OPTIONS = subdir-objects serial-tests
 # We must get the local directory built first, because that causes the
 # library binary to be built.  Which is necessary before we can build any of
 # the other binaries.
-SUBDIRS = . include tools config doc
+SUBDIRS = . include config doc
 
+# XXX: Do we still need these?
 examples-recursive: src/libpqxx.la
 test-recursive: src/libpqxx.la
 tools-recursive: src/libpqxx.la
@@ -25,7 +26,14 @@ tools-recursive: src/libpqxx.la
 EXTRA_DIST = autogen.sh configitems Makefile.am.template README.md VERSION
 	requirements.json .clang-format .clang-tidy .cmake-format \
 	.inferconfig .lcovrc .lgtm.yml .lift .mdlrc .mdl_style.rb .yamllint \
-	src/pqxx-source.hxx test/lint.sh test/sample_types.hxx
+	src/pqxx-source.hxx test/lint.sh test/sample_types.hxx \
+###MAKTEMPLATE:FOREACH tools/*.sh
+  tools/###BASENAME###.sh \
+###MAKTEMPLATE:ENDFOREACH
+###MAKTEMPLATE:FOREACH tools/*.py
+  tools/###BASENAME###.py \
+###MAKTEMPLATE:ENDFOREACH
+  # (End of list)
 
 noinst_HEADERS = test/helpers.hxx
 
