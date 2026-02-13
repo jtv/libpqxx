@@ -477,6 +477,50 @@ jobs:
           path: test.log
 
 
+  test-make-dist:
+    docker:
+      - image: archlinux
+
+    steps:
+      - checkout
+
+      - run:
+          name: Install
+          command: "./tools/install-deps.sh archlinux clang++ >/tmp/vars.sh"
+          max_auto_reruns: 3
+      - store_artifacts:
+          path: "/tmp/install.log"
+      - store_artifacts:
+          path: "/tmp/vars.sh"
+
+      - run:
+          name: Autogen
+          command: ". /tmp/vars.sh && autoreconf"
+      - run:
+          name: Configure
+          command: ". /tmp/vars.sh && ./configure \
+                --enable-maintainer-mode --enable-audit \
+                --enable-shared --disable-static \
+                CXX=clang++ CXXFLAGS=-O0"
+      - store_artifacts:
+          path: config.log
+      - run:
+          name: Gather config headers
+          command: "tar -czf config-headers.tar.gz include/pqxx/config-*.h*"
+      - store_artifacts:
+          path: config-headers.tar.gz
+      - run:
+          name: Make dist
+          command: make -j4 dist
+      - run:
+          name: Extract tarball
+          command: tar --one-top-level=unpacked -xf libpqxx-*.*.tar*
+      - run:
+          name: Build from extracted tarball
+          command: "cd unpacked && ./configure CXX=clang++ CXXFLAGS=-O0 && \
+                make -j4"
+
+
 workflows:
   all-tests:
     jobs:
