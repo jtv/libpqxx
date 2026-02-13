@@ -26,6 +26,7 @@
 # we can't see them when running in a build slave.
 AUTOMAKE_OPTIONS = subdir-objects serial-tests
 
+# XXX: Stratify further, and eventually drop this variable.
 # We must get the local directory built first, because that causes the
 # library binary to be built.  Which is necessary before we can build any of
 # the other binaries.

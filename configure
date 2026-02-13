@@ -21221,6 +21221,7 @@ printf "%s\n" "no" >&6; }
 fi
 
 
+# XXX: Stratify further, then remove unneeded Makefiles.
 ac_config_files="$ac_config_files Makefile doc/Makefile include/Makefile include/pqxx/Makefile libpqxx.pc"
 
 
