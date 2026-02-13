@@ -650,8 +650,8 @@ with_postgres_lib = @with_postgres_lib@
 # subdirectories.
 #
 # serial-tests: Use the serial test runner, so tests don't get run in parallel.
-# Otherwise, outputfrom test failures will be hidden away in log files where we
-# can't see them when running in a build slave.
+# Otherwise, output from test failures will be hidden away in log files where
+# we can't see them when running in a build slave.
 AUTOMAKE_OPTIONS = subdir-objects serial-tests
 
 # We must get the local directory built first, because that causes the
@@ -662,7 +662,8 @@ EXTRA_DIST = autogen.sh configitems Makefile.am.template README.md VERSION \
 	requirements.json .clang-format .clang-tidy .cmake-format \
 	.inferconfig .lcovrc .lgtm.yml .lift .mdlrc .mdl_style.rb .yamllint \
 	src/pqxx-source.hxx \
-	test/helpers.hxx test/lint.sh test/sample_types.hxx \
+	test/helpers.hxx test/sample_types.hxx \
+	tools/lint.sh \
   tools/count-uncovered.sh \
   tools/deprecations.sh \
   tools/extract_version.sh \

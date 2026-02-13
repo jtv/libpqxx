@@ -9,8 +9,8 @@
 # subdirectories.
 #
 # serial-tests: Use the serial test runner, so tests don't get run in parallel.
-# Otherwise, outputfrom test failures will be hidden away in log files where we
-# can't see them when running in a build slave.
+# Otherwise, output from test failures will be hidden away in log files where
+# we can't see them when running in a build slave.
 AUTOMAKE_OPTIONS = subdir-objects serial-tests
 
 # We must get the local directory built first, because that causes the
