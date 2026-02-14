@@ -141,6 +141,7 @@ docs:
 	    cp -r "$(top_srcdir)"/include/pqxx/* include/pqxx/ ; \
 	    cp -r "$(top_srcdir)"/test test/ ; \
 	fi
+	ls "$(top_srcdir)/doc"  # XXX:
 	$(DOXYGEN) "$(top_srcdir)/doc/Doxyfile"
 else
 docs:
