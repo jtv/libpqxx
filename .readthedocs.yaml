@@ -1,10 +1,10 @@
-# Read the Docs configuration file
-# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+# Read the Docs configuration file.
+#
+# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details.
 
 ---
 version: 2
 
-# Set the version of Python and other tools you might need
 build:
   # Using an old Ubuntu LTS: an apparent bug in Doxygen 1.9.8 "loses" the
   # documentation for pqxx::transaction and pqxx::work.  So for now, stick
@@ -21,14 +21,13 @@ build:
     - "make"
   jobs:
     pre_build:
-      - "lsb_release -a && g++ --version"
       - "./configure CXXFLAGS=\"-O0 -std=c++23\" --enable-documentation"
       - "mkdir -p doc/doxygen-html"
-      - "cd doc && doxygen"
-      - "mkdir -p -- $READTHEDOCS_OUTPUT/html"
+      - "doxygen"
+      - "mkdir -p -- \"$READTHEDOCS_OUTPUT/html\""
     post_build:
-      - "mv -- $READTHEDOCS_OUTPUT/html $READTHEDOCS_OUTPUT/sphinx-html"
-      - "mv -- doc/doxygen-html $READTHEDOCS_OUTPUT/html"
+      - "cd -- \"$READTHEDOCS_OUTPUT\" && mv html sphinx-html"
+      - "mv -- doc/doxygen-html \"$READTHEDOCS_OUTPUT/html\""
 
 
 python:
