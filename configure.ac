@@ -395,9 +395,7 @@ AC_MSG_RESULT(yes)
 AC_PROG_MAKE_SET
 
 # XXX: Stratify further, then remove unneeded Makefiles.
-AC_CONFIG_FILES([
-	Makefile doc/Makefile include/Makefile
-	include/pqxx/Makefile libpqxx.pc])
+AC_CONFIG_FILES([Makefile include/Makefile include/pqxx/Makefile libpqxx.pc])
 
 
 # We've let autoconf generate a config.h.  But there's a lot of stuff in there

@@ -30,11 +30,12 @@ AUTOMAKE_OPTIONS = subdir-objects serial-tests
 # We must get the local directory built first, because that causes the
 # library binary to be built.  Which is necessary before we can build any of
 # the other binaries.
-SUBDIRS = . include doc
+SUBDIRS = . include
 
 EXTRA_DIST = autogen.sh configitems Makefile.am.template README.md VERSION \
 	requirements.json .clang-format .clang-tidy .cmake-format \
 	.inferconfig .lcovrc .lgtm.yml .lift .mdlrc .mdl_style.rb .yamllint \
+	doc/Doxyfile \
 	src/pqxx-source.hxx \
 	test/helpers.hxx test/sample_types.hxx \
   tools/deprecations.sh \
@@ -234,3 +235,32 @@ examples_simple_queries_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
 TESTS = $(PQXX_TEST_PROGS) tools/lint.sh $(PQXX_EXAMPLES)
 
 check_PROGRAMS = ${PQXX_TEST_PROGS}
+
+
+maintainer-clean-local:
+	$(RM) -rf doc/doxygen-html
+	$(MKDIR) doc/doxygen-html
+
+all-local: docs
+
+if BUILD_DOCS
+DOXYGEN = doxygen
+# Doxygen config needs the source files in its local tree.  That means the
+# build tree.  If that differs from the source tree, copy the files.
+docs:
+	if ! [ "$(top_srcdir)/src" -ef src ]; \
+	then \
+	    cp "$(top_srcdir)"/src/*.[ch]xx src/ ; \
+	    cp -r "$(top_srcdir)"/include/pqxx/* include/pqxx/ ; \
+	    cp -r "$(top_srcdir)"/test test/ ; \
+	fi
+	$(DOXYGEN) "$(top_srcdir)/doc/Doxyfile"
+else
+docs:
+endif
+
+dist-hook:
+	if [ -d doc/doxygen-html ]; \
+	then \
+	    cp -pR doc/doxygen-html $(top_distdir)/doc/html ; \
+	fi

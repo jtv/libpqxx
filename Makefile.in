@@ -661,10 +661,11 @@ AUTOMAKE_OPTIONS = subdir-objects serial-tests
 # We must get the local directory built first, because that causes the
 # library binary to be built.  Which is necessary before we can build any of
 # the other binaries.
-SUBDIRS = . include doc
+SUBDIRS = . include
 EXTRA_DIST = autogen.sh configitems Makefile.am.template README.md VERSION \
 	requirements.json .clang-format .clang-tidy .cmake-format \
 	.inferconfig .lcovrc .lgtm.yml .lift .mdlrc .mdl_style.rb .yamllint \
+	doc/Doxyfile \
 	src/pqxx-source.hxx \
 	test/helpers.hxx test/sample_types.hxx \
   tools/deprecations.sh \
@@ -846,6 +847,7 @@ examples_quick_example_SOURCES = examples/quick_example.cxx
 examples_quick_example_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
 examples_simple_queries_SOURCES = examples/simple_queries.cxx
 examples_simple_queries_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
+@BUILD_DOCS_TRUE@DOXYGEN = doxygen
 all: all-recursive
 
 .SUFFIXES:
@@ -1642,6 +1644,9 @@ distdir-am: $(DISTFILES)
 	      || exit 1; \
 	  fi; \
 	done
+	$(MAKE) $(AM_MAKEFLAGS) \
+	  top_distdir="$(top_distdir)" distdir="$(distdir)" \
+	  dist-hook
 	-test -n "$(am__skip_mode_fix)" \
 	|| find "$(distdir)" -type d ! -perm -755 \
 		-exec chmod u+rwx,go+rx {} \; -o \
@@ -1783,7 +1788,8 @@ check-am: all-am
 	$(MAKE) $(AM_MAKEFLAGS) $(check_PROGRAMS)
 	$(MAKE) $(AM_MAKEFLAGS) check-TESTS
 check: check-recursive
-all-am: Makefile $(PROGRAMS) $(LTLIBRARIES) $(DATA) $(HEADERS)
+all-am: Makefile $(PROGRAMS) $(LTLIBRARIES) $(DATA) $(HEADERS) \
+		all-local
 install-checkPROGRAMS: install-libLTLIBRARIES
 
 installdirs: installdirs-recursive
@@ -2110,7 +2116,8 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f test/$(DEPDIR)/test_util.Po
 	-rm -f test/$(DEPDIR)/test_zview.Po
 	-rm -f Makefile
-maintainer-clean-am: distclean-am maintainer-clean-generic
+maintainer-clean-am: distclean-am maintainer-clean-generic \
+	maintainer-clean-local
 
 mostlyclean: mostlyclean-recursive
 
@@ -2129,13 +2136,13 @@ uninstall-am: uninstall-libLTLIBRARIES uninstall-pkgconfigDATA
 
 .MAKE: $(am__recursive_targets) check-am install-am install-strip
 
-.PHONY: $(am__recursive_targets) CTAGS GTAGS TAGS all all-am \
+.PHONY: $(am__recursive_targets) CTAGS GTAGS TAGS all all-am all-local \
 	am--depfiles am--refresh check check-TESTS check-am clean \
 	clean-checkPROGRAMS clean-cscope clean-generic \
 	clean-libLTLIBRARIES clean-libtool clean-noinstPROGRAMS cscope \
 	cscopelist-am ctags ctags-am dist dist-all dist-bzip2 \
-	dist-gzip dist-lzip dist-shar dist-tarZ dist-xz dist-zip \
-	dist-zstd distcheck distclean distclean-compile \
+	dist-gzip dist-hook dist-lzip dist-shar dist-tarZ dist-xz \
+	dist-zip dist-zstd distcheck distclean distclean-compile \
 	distclean-generic distclean-libtool distclean-tags \
 	distcleancheck distdir distuninstallcheck dvi dvi-am html \
 	html-am info info-am install install-am install-data \
@@ -2145,9 +2152,10 @@ uninstall-am: uninstall-libLTLIBRARIES uninstall-pkgconfigDATA
 	install-pdf-am install-pkgconfigDATA install-ps install-ps-am \
 	install-strip installcheck installcheck-am installdirs \
 	installdirs-am maintainer-clean maintainer-clean-generic \
-	mostlyclean mostlyclean-compile mostlyclean-generic \
-	mostlyclean-libtool pdf pdf-am ps ps-am tags tags-am uninstall \
-	uninstall-am uninstall-libLTLIBRARIES uninstall-pkgconfigDATA
+	maintainer-clean-local mostlyclean mostlyclean-compile \
+	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
+	tags tags-am uninstall uninstall-am uninstall-libLTLIBRARIES \
+	uninstall-pkgconfigDATA
 
 .PRECIOUS: Makefile
 
@@ -2155,6 +2163,29 @@ uninstall-am: uninstall-libLTLIBRARIES uninstall-pkgconfigDATA
 # We use README.md, but automake expects plain README.
 README: README.md
 	ln -s $< $@
+
+maintainer-clean-local:
+	$(RM) -rf doc/doxygen-html
+	$(MKDIR) doc/doxygen-html
+
+all-local: docs
+# Doxygen config needs the source files in its local tree.  That means the
+# build tree.  If that differs from the source tree, copy the files.
+@BUILD_DOCS_TRUE@docs:
+@BUILD_DOCS_TRUE@	if ! [ "$(top_srcdir)/src" -ef src ]; \
+@BUILD_DOCS_TRUE@	then \
+@BUILD_DOCS_TRUE@	    cp "$(top_srcdir)"/src/*.[ch]xx src/ ; \
+@BUILD_DOCS_TRUE@	    cp -r "$(top_srcdir)"/include/pqxx/* include/pqxx/ ; \
+@BUILD_DOCS_TRUE@	    cp -r "$(top_srcdir)"/test test/ ; \
+@BUILD_DOCS_TRUE@	fi
+@BUILD_DOCS_TRUE@	$(DOXYGEN) "$(top_srcdir)/doc/Doxyfile"
+@BUILD_DOCS_FALSE@docs:
+
+dist-hook:
+	if [ -d doc/doxygen-html ]; \
+	then \
+	    cp -pR doc/doxygen-html $(top_distdir)/doc/html ; \
+	fi
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

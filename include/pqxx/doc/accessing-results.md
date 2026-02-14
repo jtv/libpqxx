@@ -91,7 +91,7 @@ your data.
 
 
 
-The `result` class
+The 'result' class
 ------------------
 
 Sometimes you want more from a query result than just rows of data.  You may
