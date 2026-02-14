@@ -8,12 +8,10 @@ efficiently: "streaming queries," for reading query results from the
 database; and the @ref pqxx::stream_to class, for writing data from the client
 into a table.
 
-These are less flexible than SQL queries.  _You can't pass parameters with
-these._  There are other complex constructs that won't work due to limitations
-in underlying software layers.  Also, depending on your needs, it may be a
-problem to lose your connection while you're in mid-stream, not knowing that
-the query may not complete.  But, you get some scalability and memory
-efficiencies in return.
+These are less flexible than SQL queries.  _You can't pass parameters into
+streaming queries._  There are also some complex constructs that won't work due
+to limitations in underlying protocol layers.  But, you get some scalability
+and memory efficiencies in return.
 
 Just like regular querying, these streaming mechanisms do data conversion for
 you.  You deal with the C++ data types, and the database deals with the SQL
@@ -46,8 +44,8 @@ wrappers and smart pointers by copying the implementation patterns from the
 existing smart-pointer support.
 
 
-Streaming data _from a query_
------------------------------
+Streaming data from a query
+---------------------------
 
 Use @ref transaction_base::stream to read large amounts of data directly from
 the database.  In terms of API it works just like @ref transaction_base::query,
@@ -150,8 +148,8 @@ takes a more or less constant amount of time, so for larger data sets it will
 tend to become insignificant compared to the other performance costs.
 
 
-Streaming data _into a table_
------------------------------
+Streaming data into a table
+---------------------------
 
 Use `stream_to` to write data directly to a database table.  This saves you
 having to perform an `INSERT` for every row, and so it can be significantly
