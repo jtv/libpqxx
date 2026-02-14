@@ -155,8 +155,8 @@ Use `stream_to` to write data directly to a database table.  This saves you
 having to perform an `INSERT` for every row, and so it can be significantly
 faster if you want to insert more than just one or two rows at a time.
 
-As with `stream_from`, you can specify the table and the columns, and not much
-else.  You insert tuple-like objects of your choice:
+As with `stream()` on a transaction, you can specify the table and the columns,
+and not much else.  You insert tuple-like objects of your choice:
 
 ```cxx
     pqxx::stream_to stream{
@@ -170,9 +170,9 @@ else.  You insert tuple-like objects of your choice:
 
 Each row is processed as you provide it, and not retained in memory after that.
 
-The call to `complete()` is more important here than it is for `stream_from`.
-It's a lot like a "commit" or "abort" at the end of a transaction.  If you omit
-it, it will be done automatically during the stream's destructor.  But since
+The call to `complete()` is more important here than it is for `stream()`.  It's
+a lot like a "commit" or "abort" at the end of a transaction.  If you omit it,
+it will still be done automatically during the stream's destructor.  But, since
 destructors can't throw exceptions, any failures at that stage won't be visible
-in your code.  So, always call `complete()` on a `stream_to` to close it off
-properly!
+to your code.  So, always call `complete()` at the end of a `stream_to`, to
+close it off properly.
