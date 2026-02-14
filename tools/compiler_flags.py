@@ -64,7 +64,8 @@ def run_quietly(cmd: str) -> bool:
 
     **This will run `cmd` through shell interpretation.**
     """
-    return run(cmd, stdout=DEVNULL, stderr=DEVNULL, shell=True).returncode == 0
+    proc = run(cmd, stdout=DEVNULL, stderr=DEVNULL, shell=True, check=False)
+    return proc.returncode == 0
 
 
 def compiler_accepts(
@@ -77,20 +78,23 @@ def compiler_accepts(
 def main() -> None:
     """Main entry point."""
     args = parse_args()
-    good_flags = []
+    good_flags: list[str] = []
     source = Path("confg-tests") / "minimal.cxx"
     src = source.name
-    for flag in args.flags:
-        flag = flag.strip()
-        if flag == "" or flag.startswith("#"):
-            continue
-        if compiler_accepts(
-            args.command, Path(src), flag, prev=" ".join(good_flags)
-        ):
-            good_flags.append(flag)
+    with FileType("r")(args.flags) as flags:
+        for flag in flags:
+            flag = flag.strip()
+            if flag == "" or flag.startswith("#"):
+                continue
+            if compiler_accepts(
+                args.command, Path(src), flag, prev=" ".join(good_flags)
+            ):
+                good_flags.append(flag)
 
     sep = " " if args.single_line else "\n"
-    print(sep.join(good_flags), file=args.output)
+
+    with FileType("w")(args.output) as output:
+        print(sep.join(good_flags), file=output)
 
 
 if __name__ == "__main__":
