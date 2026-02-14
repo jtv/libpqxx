@@ -23,7 +23,7 @@ build:
     pre_build:
       - "./configure CXXFLAGS=\"-O0 -std=c++23\" --enable-documentation"
       - "mkdir -p doc/doxygen-html"
-      - "doxygen"
+      - "doxygen doc/Doxyfile"
       - "mkdir -p -- \"$READTHEDOCS_OUTPUT/html\""
     post_build:
       - "cd -- \"$READTHEDOCS_OUTPUT\" && mv html sphinx-html"
