@@ -109,8 +109,8 @@ The library also provides conversions for `std::optional<T>`,
 have conversions for `T`, you'll also automatically have conversions for those.
 
 
-Specialise `name_type()`
-------------------------
+Specialise 'name\_type()'
+-------------------------
 
 (This is a feature that should disappear once we have introspection in the C++
 language.  The current expectation is that C++26 will have a standard, reliable
@@ -150,7 +150,7 @@ analysis tools may report false posiives when initialising such strings at
 initialisation time.
 
 
-Specialise `nullness`
+Specialise 'nullness'
 ---------------------
 
 A struct template `pqxx::nullness` defines whether your type has a natural
@@ -230,8 +230,8 @@ that, you set `nullness<TYPE>::always_null` to `true` (as well as `has_null`
 of course), and you won't need to define any actual conversions.
 
 
-Specialise `string_traits`
--------------------------
+Specialise 'string\_traits'
+--------------------------
 
 This part is the most work.  You can skip it for types that are always null,
 but of course those are extremely rare.
@@ -393,8 +393,8 @@ the caller to allocate the buffer on the stack, with a size known at compile
 time.
 
 
-Optional: Specialise `is_unquoted_safe`
----------------------------------------
+Optional: Specialise 'is\_unquoted\_safe'
+-----------------------------------------
 
 When converting arrays or composite values to strings, libpqxx may need to
 quote values and escape any special characters.  This takes time.
@@ -427,8 +427,8 @@ semicolon; parenthesis; brace; quote; backslash; newline; or any other
 character that might need escaping.
 
 
-Optional: Specialise `param_format`
------------------------------------
+Optional: Specialise 'param\_format'
+------------------------------------
 
 This one you don't generally need to worry about.  Read on if you're writing a
 type which represents raw binary data, or if you're writing a template where
