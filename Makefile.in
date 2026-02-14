@@ -14,6 +14,29 @@
 
 @SET_MAKE@
 
+# ##############################################################################
+# AUTOMATICALLY GENERATED FILE -- DO NOT EDIT.
+#
+# This file is generated automatically by libpqxx's template2mak.py script, and
+# will be rewritten from time to time.
+#
+# If you modify this file, chances are your modifications will be lost.
+#
+# The template2mak.py script should be available in the tools directory of the
+# libpqxx source archive.
+#
+# Generated from template './Makefile.am.template'.
+# ##############################################################################
+# Template for generating the root Makefile.am.
+#
+# We do all the compiling from this central root-level Makefile.am, even
+# though the actual source files are distributed across several subdirectories.
+# This way we don't waste time waiting to start on the next build target while
+# the ongoing target is still being built in its own subdirectory.
+
+
+
+
 VPATH = @srcdir@
 am__is_gnu_make = { \
   if test -z '$(MAKELEVEL)'; then \
@@ -88,6 +111,9 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
+noinst_PROGRAMS = $(am__EXEEXT_2)
+TESTS = $(am__EXEEXT_1) tools/lint.sh $(am__EXEEXT_2)
+check_PROGRAMS = $(am__EXEEXT_1)
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/config/m4/libtool.m4 \
@@ -100,40 +126,21 @@ am__aclocal_m4_deps = $(top_srcdir)/config/m4/libtool.m4 \
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 DIST_COMMON = $(srcdir)/Makefile.am $(top_srcdir)/configure \
-	$(am__configure_deps) $(am__DIST_COMMON)
+	$(am__configure_deps) $(noinst_HEADERS) $(am__DIST_COMMON)
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/include/pqxx/config.h
 CONFIG_CLEAN_FILES = libpqxx.pc compile_flags
 CONFIG_CLEAN_VPATH_FILES =
-AM_V_P = $(am__v_P_@AM_V@)
-am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
-am__v_P_0 = false
-am__v_P_1 = :
-AM_V_GEN = $(am__v_GEN_@AM_V@)
-am__v_GEN_ = $(am__v_GEN_@AM_DEFAULT_V@)
-am__v_GEN_0 = @echo "  GEN     " $@;
-am__v_GEN_1 = 
-AM_V_at = $(am__v_at_@AM_V@)
-am__v_at_ = $(am__v_at_@AM_DEFAULT_V@)
-am__v_at_0 = @
-am__v_at_1 = 
-SOURCES =
-DIST_SOURCES =
-RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
-	ctags-recursive dvi-recursive html-recursive info-recursive \
-	install-data-recursive install-dvi-recursive \
-	install-exec-recursive install-html-recursive \
-	install-info-recursive install-pdf-recursive \
-	install-ps-recursive install-recursive installcheck-recursive \
-	installdirs-recursive pdf-recursive ps-recursive \
-	tags-recursive uninstall-recursive
-am__can_run_installinfo = \
-  case $$AM_UPDATE_INFO_DIR in \
-    n|no|NO) false;; \
-    *) (install-info --version) >/dev/null 2>&1;; \
-  esac
+am__EXEEXT_1 = test/runner$(EXEEXT)
+am__EXEEXT_2 = examples/complete_example$(EXEEXT) \
+	examples/faster_data$(EXEEXT) examples/from_readme$(EXEEXT) \
+	examples/getting_started_1$(EXEEXT) \
+	examples/getting_started_2$(EXEEXT) \
+	examples/quick_example$(EXEEXT) \
+	examples/simple_queries$(EXEEXT)
+PROGRAMS = $(noinst_PROGRAMS)
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -161,8 +168,250 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-am__installdirs = "$(DESTDIR)$(pkgconfigdir)"
+am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkgconfigdir)"
+LTLIBRARIES = $(lib_LTLIBRARIES)
+src_libpqxx_la_LIBADD =
+am__dirstamp = $(am__leading_dot)dirstamp
+am_src_libpqxx_la_OBJECTS = src/array.lo src/blob.lo src/connection.lo \
+	src/cursor.lo src/encodings.lo src/errorhandler.lo \
+	src/except.lo src/field.lo src/largeobject.lo \
+	src/notification.lo src/params.lo src/pipeline.lo \
+	src/result.lo src/robusttransaction.lo src/sql_cursor.lo \
+	src/strconv.lo src/stream_from.lo src/stream_to.lo \
+	src/subtransaction.lo src/time.lo src/transaction.lo \
+	src/transaction_base.lo src/row.lo src/types.lo src/util.lo \
+	src/wait.lo
+src_libpqxx_la_OBJECTS = $(am_src_libpqxx_la_OBJECTS)
+AM_V_lt = $(am__v_lt_@AM_V@)
+am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
+am__v_lt_0 = --silent
+am__v_lt_1 = 
+src_libpqxx_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) $(src_libpqxx_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
+am_examples_complete_example_OBJECTS =  \
+	examples/complete_example.$(OBJEXT)
+examples_complete_example_OBJECTS =  \
+	$(am_examples_complete_example_OBJECTS)
+examples_complete_example_DEPENDENCIES =  \
+	$(top_builddir)/src/libpqxx.la
+am_examples_faster_data_OBJECTS = examples/faster_data.$(OBJEXT)
+examples_faster_data_OBJECTS = $(am_examples_faster_data_OBJECTS)
+examples_faster_data_DEPENDENCIES = $(top_builddir)/src/libpqxx.la
+am_examples_from_readme_OBJECTS = examples/from_readme.$(OBJEXT)
+examples_from_readme_OBJECTS = $(am_examples_from_readme_OBJECTS)
+examples_from_readme_DEPENDENCIES = $(top_builddir)/src/libpqxx.la
+am_examples_getting_started_1_OBJECTS =  \
+	examples/getting_started_1.$(OBJEXT)
+examples_getting_started_1_OBJECTS =  \
+	$(am_examples_getting_started_1_OBJECTS)
+examples_getting_started_1_DEPENDENCIES =  \
+	$(top_builddir)/src/libpqxx.la
+am_examples_getting_started_2_OBJECTS =  \
+	examples/getting_started_2.$(OBJEXT)
+examples_getting_started_2_OBJECTS =  \
+	$(am_examples_getting_started_2_OBJECTS)
+examples_getting_started_2_DEPENDENCIES =  \
+	$(top_builddir)/src/libpqxx.la
+am_examples_quick_example_OBJECTS = examples/quick_example.$(OBJEXT)
+examples_quick_example_OBJECTS = $(am_examples_quick_example_OBJECTS)
+examples_quick_example_DEPENDENCIES = $(top_builddir)/src/libpqxx.la
+am_examples_simple_queries_OBJECTS =  \
+	examples/simple_queries.$(OBJEXT)
+examples_simple_queries_OBJECTS =  \
+	$(am_examples_simple_queries_OBJECTS)
+examples_simple_queries_DEPENDENCIES = $(top_builddir)/src/libpqxx.la
+am_test_runner_OBJECTS = test/test00.$(OBJEXT) test/test01.$(OBJEXT) \
+	test/test02.$(OBJEXT) test/test07.$(OBJEXT) \
+	test/test10.$(OBJEXT) test/test11.$(OBJEXT) \
+	test/test13.$(OBJEXT) test/test18.$(OBJEXT) \
+	test/test20.$(OBJEXT) test/test21.$(OBJEXT) \
+	test/test26.$(OBJEXT) test/test29.$(OBJEXT) \
+	test/test30.$(OBJEXT) test/test32.$(OBJEXT) \
+	test/test37.$(OBJEXT) test/test39.$(OBJEXT) \
+	test/test46.$(OBJEXT) test/test56.$(OBJEXT) \
+	test/test60.$(OBJEXT) test/test61.$(OBJEXT) \
+	test/test62.$(OBJEXT) test/test70.$(OBJEXT) \
+	test/test71.$(OBJEXT) test/test72.$(OBJEXT) \
+	test/test74.$(OBJEXT) test/test75.$(OBJEXT) \
+	test/test76.$(OBJEXT) test/test77.$(OBJEXT) \
+	test/test82.$(OBJEXT) test/test84.$(OBJEXT) \
+	test/test88.$(OBJEXT) test/test89.$(OBJEXT) \
+	test/test90.$(OBJEXT) test/test_array.$(OBJEXT) \
+	test/test_blob.$(OBJEXT) test/test_cancel_query.$(OBJEXT) \
+	test/test_column.$(OBJEXT) test/test_composite.$(OBJEXT) \
+	test/test_connection.$(OBJEXT) \
+	test/test_connection_string.$(OBJEXT) \
+	test/test_cursor.$(OBJEXT) test/test_encodings.$(OBJEXT) \
+	test/test_error_verbosity.$(OBJEXT) \
+	test/test_errorhandler.$(OBJEXT) test/test_escape.$(OBJEXT) \
+	test/test_exceptions.$(OBJEXT) test/test_field.$(OBJEXT) \
+	test/test_float.$(OBJEXT) test/test_helpers.$(OBJEXT) \
+	test/test_largeobject.$(OBJEXT) \
+	test/test_nonblocking_connect.$(OBJEXT) \
+	test/test_notice_handler.$(OBJEXT) \
+	test/test_notification.$(OBJEXT) test/test_params.$(OBJEXT) \
+	test/test_pipeline.$(OBJEXT) \
+	test/test_prepared_statement.$(OBJEXT) \
+	test/test_range.$(OBJEXT) test/test_read_transaction.$(OBJEXT) \
+	test/test_result_iteration.$(OBJEXT) test/test_row.$(OBJEXT) \
+	test/test_separated_list.$(OBJEXT) \
+	test/test_simultaneous_transactions.$(OBJEXT) \
+	test/test_sql_cursor.$(OBJEXT) \
+	test/test_stateless_cursor.$(OBJEXT) \
+	test/test_strconv.$(OBJEXT) test/test_stream_from.$(OBJEXT) \
+	test/test_stream_query.$(OBJEXT) test/test_stream_to.$(OBJEXT) \
+	test/test_string_conversion.$(OBJEXT) \
+	test/test_subtransaction.$(OBJEXT) \
+	test/test_thread_safety_model.$(OBJEXT) \
+	test/test_time.$(OBJEXT) test/test_transaction.$(OBJEXT) \
+	test/test_transaction_base.$(OBJEXT) \
+	test/test_transaction_focus.$(OBJEXT) \
+	test/test_transactor.$(OBJEXT) test/test_type_name.$(OBJEXT) \
+	test/test_util.$(OBJEXT) test/test_zview.$(OBJEXT) \
+	test/runner.$(OBJEXT)
+test_runner_OBJECTS = $(am_test_runner_OBJECTS)
+test_runner_DEPENDENCIES = $(top_builddir)/src/libpqxx.la
+AM_V_P = $(am__v_P_@AM_V@)
+am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
+am__v_P_0 = false
+am__v_P_1 = :
+AM_V_GEN = $(am__v_GEN_@AM_V@)
+am__v_GEN_ = $(am__v_GEN_@AM_DEFAULT_V@)
+am__v_GEN_0 = @echo "  GEN     " $@;
+am__v_GEN_1 = 
+AM_V_at = $(am__v_at_@AM_V@)
+am__v_at_ = $(am__v_at_@AM_DEFAULT_V@)
+am__v_at_0 = @
+am__v_at_1 = 
+depcomp = $(SHELL) $(top_srcdir)/config/depcomp
+am__maybe_remake_depfiles = depfiles
+am__depfiles_remade = examples/$(DEPDIR)/complete_example.Po \
+	examples/$(DEPDIR)/faster_data.Po \
+	examples/$(DEPDIR)/from_readme.Po \
+	examples/$(DEPDIR)/getting_started_1.Po \
+	examples/$(DEPDIR)/getting_started_2.Po \
+	examples/$(DEPDIR)/quick_example.Po \
+	examples/$(DEPDIR)/simple_queries.Po src/$(DEPDIR)/array.Plo \
+	src/$(DEPDIR)/blob.Plo src/$(DEPDIR)/connection.Plo \
+	src/$(DEPDIR)/cursor.Plo src/$(DEPDIR)/encodings.Plo \
+	src/$(DEPDIR)/errorhandler.Plo src/$(DEPDIR)/except.Plo \
+	src/$(DEPDIR)/field.Plo src/$(DEPDIR)/largeobject.Plo \
+	src/$(DEPDIR)/notification.Plo src/$(DEPDIR)/params.Plo \
+	src/$(DEPDIR)/pipeline.Plo src/$(DEPDIR)/result.Plo \
+	src/$(DEPDIR)/robusttransaction.Plo src/$(DEPDIR)/row.Plo \
+	src/$(DEPDIR)/sql_cursor.Plo src/$(DEPDIR)/strconv.Plo \
+	src/$(DEPDIR)/stream_from.Plo src/$(DEPDIR)/stream_to.Plo \
+	src/$(DEPDIR)/subtransaction.Plo src/$(DEPDIR)/time.Plo \
+	src/$(DEPDIR)/transaction.Plo \
+	src/$(DEPDIR)/transaction_base.Plo src/$(DEPDIR)/types.Plo \
+	src/$(DEPDIR)/util.Plo src/$(DEPDIR)/wait.Plo \
+	test/$(DEPDIR)/runner.Po test/$(DEPDIR)/test00.Po \
+	test/$(DEPDIR)/test01.Po test/$(DEPDIR)/test02.Po \
+	test/$(DEPDIR)/test07.Po test/$(DEPDIR)/test10.Po \
+	test/$(DEPDIR)/test11.Po test/$(DEPDIR)/test13.Po \
+	test/$(DEPDIR)/test18.Po test/$(DEPDIR)/test20.Po \
+	test/$(DEPDIR)/test21.Po test/$(DEPDIR)/test26.Po \
+	test/$(DEPDIR)/test29.Po test/$(DEPDIR)/test30.Po \
+	test/$(DEPDIR)/test32.Po test/$(DEPDIR)/test37.Po \
+	test/$(DEPDIR)/test39.Po test/$(DEPDIR)/test46.Po \
+	test/$(DEPDIR)/test56.Po test/$(DEPDIR)/test60.Po \
+	test/$(DEPDIR)/test61.Po test/$(DEPDIR)/test62.Po \
+	test/$(DEPDIR)/test70.Po test/$(DEPDIR)/test71.Po \
+	test/$(DEPDIR)/test72.Po test/$(DEPDIR)/test74.Po \
+	test/$(DEPDIR)/test75.Po test/$(DEPDIR)/test76.Po \
+	test/$(DEPDIR)/test77.Po test/$(DEPDIR)/test82.Po \
+	test/$(DEPDIR)/test84.Po test/$(DEPDIR)/test88.Po \
+	test/$(DEPDIR)/test89.Po test/$(DEPDIR)/test90.Po \
+	test/$(DEPDIR)/test_array.Po test/$(DEPDIR)/test_blob.Po \
+	test/$(DEPDIR)/test_cancel_query.Po \
+	test/$(DEPDIR)/test_column.Po test/$(DEPDIR)/test_composite.Po \
+	test/$(DEPDIR)/test_connection.Po \
+	test/$(DEPDIR)/test_connection_string.Po \
+	test/$(DEPDIR)/test_cursor.Po test/$(DEPDIR)/test_encodings.Po \
+	test/$(DEPDIR)/test_error_verbosity.Po \
+	test/$(DEPDIR)/test_errorhandler.Po \
+	test/$(DEPDIR)/test_escape.Po \
+	test/$(DEPDIR)/test_exceptions.Po test/$(DEPDIR)/test_field.Po \
+	test/$(DEPDIR)/test_float.Po test/$(DEPDIR)/test_helpers.Po \
+	test/$(DEPDIR)/test_largeobject.Po \
+	test/$(DEPDIR)/test_nonblocking_connect.Po \
+	test/$(DEPDIR)/test_notice_handler.Po \
+	test/$(DEPDIR)/test_notification.Po \
+	test/$(DEPDIR)/test_params.Po test/$(DEPDIR)/test_pipeline.Po \
+	test/$(DEPDIR)/test_prepared_statement.Po \
+	test/$(DEPDIR)/test_range.Po \
+	test/$(DEPDIR)/test_read_transaction.Po \
+	test/$(DEPDIR)/test_result_iteration.Po \
+	test/$(DEPDIR)/test_row.Po \
+	test/$(DEPDIR)/test_separated_list.Po \
+	test/$(DEPDIR)/test_simultaneous_transactions.Po \
+	test/$(DEPDIR)/test_sql_cursor.Po \
+	test/$(DEPDIR)/test_stateless_cursor.Po \
+	test/$(DEPDIR)/test_strconv.Po \
+	test/$(DEPDIR)/test_stream_from.Po \
+	test/$(DEPDIR)/test_stream_query.Po \
+	test/$(DEPDIR)/test_stream_to.Po \
+	test/$(DEPDIR)/test_string_conversion.Po \
+	test/$(DEPDIR)/test_subtransaction.Po \
+	test/$(DEPDIR)/test_thread_safety_model.Po \
+	test/$(DEPDIR)/test_time.Po test/$(DEPDIR)/test_transaction.Po \
+	test/$(DEPDIR)/test_transaction_base.Po \
+	test/$(DEPDIR)/test_transaction_focus.Po \
+	test/$(DEPDIR)/test_transactor.Po \
+	test/$(DEPDIR)/test_type_name.Po test/$(DEPDIR)/test_util.Po \
+	test/$(DEPDIR)/test_zview.Po
+am__mv = mv -f
+CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+LTCXXCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) \
+	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
+	$(AM_CXXFLAGS) $(CXXFLAGS)
+AM_V_CXX = $(am__v_CXX_@AM_V@)
+am__v_CXX_ = $(am__v_CXX_@AM_DEFAULT_V@)
+am__v_CXX_0 = @echo "  CXX     " $@;
+am__v_CXX_1 = 
+CXXLD = $(CXX)
+CXXLINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
+am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
+am__v_CXXLD_0 = @echo "  CXXLD   " $@;
+am__v_CXXLD_1 = 
+SOURCES = $(src_libpqxx_la_SOURCES) \
+	$(examples_complete_example_SOURCES) \
+	$(examples_faster_data_SOURCES) \
+	$(examples_from_readme_SOURCES) \
+	$(examples_getting_started_1_SOURCES) \
+	$(examples_getting_started_2_SOURCES) \
+	$(examples_quick_example_SOURCES) \
+	$(examples_simple_queries_SOURCES) $(test_runner_SOURCES)
+DIST_SOURCES = $(src_libpqxx_la_SOURCES) \
+	$(examples_complete_example_SOURCES) \
+	$(examples_faster_data_SOURCES) \
+	$(examples_from_readme_SOURCES) \
+	$(examples_getting_started_1_SOURCES) \
+	$(examples_getting_started_2_SOURCES) \
+	$(examples_quick_example_SOURCES) \
+	$(examples_simple_queries_SOURCES) $(test_runner_SOURCES)
+RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
+	ctags-recursive dvi-recursive html-recursive info-recursive \
+	install-data-recursive install-dvi-recursive \
+	install-exec-recursive install-html-recursive \
+	install-info-recursive install-pdf-recursive \
+	install-ps-recursive install-recursive installcheck-recursive \
+	installdirs-recursive pdf-recursive ps-recursive \
+	tags-recursive uninstall-recursive
+am__can_run_installinfo = \
+  case $$AM_UPDATE_INFO_DIR in \
+    n|no|NO) false;; \
+    *) (install-info --version) >/dev/null 2>&1;; \
+  esac
 DATA = $(pkgconfig_DATA)
+HEADERS = $(noinst_HEADERS)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 am__recursive_targets = \
@@ -170,8 +419,7 @@ am__recursive_targets = \
   $(RECURSIVE_CLEAN_TARGETS) \
   $(am__extra_recursive_targets)
 AM_RECURSIVE_TARGETS = $(am__recursive_targets:-recursive=) TAGS CTAGS \
-	cscope check recheck distdir distdir-am dist dist-all \
-	distcheck
+	cscope distdir distdir-am dist dist-all distcheck
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
 # and print each of them once, without duplicates.  Input order is
@@ -211,171 +459,19 @@ am__tty_colors = { \
     std='[m'; \
   fi; \
 }
-am__recheck_rx = ^[ 	]*:recheck:[ 	]*
-am__global_test_result_rx = ^[ 	]*:global-test-result:[ 	]*
-am__copy_in_global_log_rx = ^[ 	]*:copy-in-global-log:[ 	]*
-# A command that, given a newline-separated list of test names on the
-# standard input, print the name of the tests that are to be re-run
-# upon "make recheck".
-am__list_recheck_tests = $(AWK) '{ \
-  recheck = 1; \
-  while ((rc = (getline line < ($$0 ".trs"))) != 0) \
-    { \
-      if (rc < 0) \
-        { \
-          if ((getline line2 < ($$0 ".log")) < 0) \
-	    recheck = 0; \
-          break; \
-        } \
-      else if (line ~ /$(am__recheck_rx)[nN][Oo]/) \
-        { \
-          recheck = 0; \
-          break; \
-        } \
-      else if (line ~ /$(am__recheck_rx)[yY][eE][sS]/) \
-        { \
-          break; \
-        } \
-    }; \
-  if (recheck) \
-    print $$0; \
-  close ($$0 ".trs"); \
-  close ($$0 ".log"); \
-}'
-# A command that, given a newline-separated list of test names on the
-# standard input, create the global log from their .trs and .log files.
-am__create_global_log = $(AWK) ' \
-function fatal(msg) \
-{ \
-  print "fatal: making $@: " msg | "cat >&2"; \
-  exit 1; \
-} \
-function rst_section(header) \
-{ \
-  print header; \
-  len = length(header); \
-  for (i = 1; i <= len; i = i + 1) \
-    printf "="; \
-  printf "\n\n"; \
-} \
-{ \
-  copy_in_global_log = 1; \
-  global_test_result = "RUN"; \
-  while ((rc = (getline line < ($$0 ".trs"))) != 0) \
-    { \
-      if (rc < 0) \
-         fatal("failed to read from " $$0 ".trs"); \
-      if (line ~ /$(am__global_test_result_rx)/) \
-        { \
-          sub("$(am__global_test_result_rx)", "", line); \
-          sub("[ 	]*$$", "", line); \
-          global_test_result = line; \
-        } \
-      else if (line ~ /$(am__copy_in_global_log_rx)[nN][oO]/) \
-        copy_in_global_log = 0; \
-    }; \
-  if (copy_in_global_log) \
-    { \
-      rst_section(global_test_result ": " $$0); \
-      while ((rc = (getline line < ($$0 ".log"))) != 0) \
-      { \
-        if (rc < 0) \
-          fatal("failed to read from " $$0 ".log"); \
-        print line; \
-      }; \
-      printf "\n"; \
-    }; \
-  close ($$0 ".trs"); \
-  close ($$0 ".log"); \
-}'
-# Restructured Text title.
-am__rst_title = { sed 's/.*/   &   /;h;s/./=/g;p;x;s/ *$$//;p;g' && echo; }
-# Solaris 10 'make', and several other traditional 'make' implementations,
-# pass "-e" to $(SHELL), and POSIX 2008 even requires this.  Work around it
-# by disabling -e (using the XSI extension "set +e") if it's set.
-am__sh_e_setup = case $$- in *e*) set +e;; esac
-# Default flags passed to test drivers.
-am__common_driver_flags = \
-  --color-tests "$$am__color_tests" \
-  --enable-hard-errors "$$am__enable_hard_errors" \
-  --expect-failure "$$am__expect_failure"
-# To be inserted before the command running the test.  Creates the
-# directory for the log if needed.  Stores in $dir the directory
-# containing $f, in $tst the test, in $log the log.  Executes the
-# developer- defined test setup AM_TESTS_ENVIRONMENT (if any), and
-# passes TESTS_ENVIRONMENT.  Set up options for the wrapper that
-# will run the test scripts (or their associated LOG_COMPILER, if
-# thy have one).
-am__check_pre = \
-$(am__sh_e_setup);					\
-$(am__vpath_adj_setup) $(am__vpath_adj)			\
-$(am__tty_colors);					\
-srcdir=$(srcdir); export srcdir;			\
-case "$@" in						\
-  */*) am__odir=`echo "./$@" | sed 's|/[^/]*$$||'`;;	\
-    *) am__odir=.;; 					\
-esac;							\
-test "x$$am__odir" = x"." || test -d "$$am__odir" 	\
-  || $(MKDIR_P) "$$am__odir" || exit $$?;		\
-if test -f "./$$f"; then dir=./;			\
-elif test -f "$$f"; then dir=;				\
-else dir="$(srcdir)/"; fi;				\
-tst=$$dir$$f; log='$@'; 				\
-if test -n '$(DISABLE_HARD_ERRORS)'; then		\
-  am__enable_hard_errors=no; 				\
-else							\
-  am__enable_hard_errors=yes; 				\
-fi; 							\
-case " $(XFAIL_TESTS) " in				\
-  *[\ \	]$$f[\ \	]* | *[\ \	]$$dir$$f[\ \	]*) \
-    am__expect_failure=yes;;				\
-  *)							\
-    am__expect_failure=no;;				\
-esac; 							\
-$(AM_TESTS_ENVIRONMENT) $(TESTS_ENVIRONMENT)
-# A shell command to get the names of the tests scripts with any registered
-# extension removed (i.e., equivalently, the names of the test logs, with
-# the '.log' extension removed).  The result is saved in the shell variable
-# '$bases'.  This honors runtime overriding of TESTS and TEST_LOGS.  Sadly,
-# we cannot use something simpler, involving e.g., "$(TEST_LOGS:.log=)",
-# since that might cause problem with VPATH rewrites for suffix-less tests.
-# See also 'test-harness-vpath-rewrite.sh' and 'test-trs-basic.sh'.
-am__set_TESTS_bases = \
-  bases='$(TEST_LOGS)'; \
-  bases=`for i in $$bases; do echo $$i; done | sed 's/\.log$$//'`; \
-  bases=`echo $$bases`
-AM_TESTSUITE_SUMMARY_HEADER = ' for $(PACKAGE_STRING)'
-RECHECK_LOGS = $(TEST_LOGS)
-TEST_SUITE_LOG = test-suite.log
-TEST_EXTENSIONS = @EXEEXT@ .test
-LOG_DRIVER = $(SHELL) $(top_srcdir)/config/test-driver
-LOG_COMPILE = $(LOG_COMPILER) $(AM_LOG_FLAGS) $(LOG_FLAGS)
-am__set_b = \
-  case '$@' in \
-    */*) \
-      case '$*' in \
-        */*) b='$*';; \
-          *) b=`echo '$@' | sed 's/\.log$$//'`; \
-       esac;; \
-    *) \
-      b='$*';; \
-  esac
-am__test_logs1 = $(TESTS:=.log)
-am__test_logs2 = $(am__test_logs1:@EXEEXT@.log=.log)
-TEST_LOGS = $(am__test_logs2:.test.log=.log)
-TEST_LOG_DRIVER = $(SHELL) $(top_srcdir)/config/test-driver
-TEST_LOG_COMPILE = $(TEST_LOG_COMPILER) $(AM_TEST_LOG_FLAGS) \
-	$(TEST_LOG_FLAGS)
 DIST_SUBDIRS = $(SUBDIRS)
 am__DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/compile_flags.in \
 	$(srcdir)/libpqxx.pc.in $(top_srcdir)/config/compile \
 	$(top_srcdir)/config/config.guess \
-	$(top_srcdir)/config/config.sub \
+	$(top_srcdir)/config/config.sub $(top_srcdir)/config/depcomp \
 	$(top_srcdir)/config/install-sh $(top_srcdir)/config/ltmain.sh \
 	$(top_srcdir)/config/missing \
 	$(top_srcdir)/config/mkinstalldirs \
-	$(top_srcdir)/config/test-driver AUTHORS COPYING ChangeLog \
-	INSTALL NEWS README README.md
+	$(top_srcdir)/include/pqxx/config.h.in AUTHORS COPYING \
+	ChangeLog INSTALL NEWS README README.md config/compile \
+	config/config.guess config/config.sub config/depcomp \
+	config/install-sh config/ltmain.sh config/missing \
+	config/mkinstalldirs
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -553,21 +649,209 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 with_postgres_lib = @with_postgres_lib@
-SUBDIRS = include src test examples tools config doc
-EXTRA_DIST = autogen.sh configitems README.md VERSION requirements.json \
-	.clang-format .clang-tidy .cmake-format .inferconfig .lcovrc \
-	.lgtm.yml .lift .mdlrc .mdl_style.rb .yamllint
 
+# subdir-objects: store the object files in their source file's respective
+# subdirectories.
+#
+# serial-tests: Use the serial test runner, so tests don't get run in parallel.
+# Otherwise, output from test failures will be hidden away in log files where
+# we can't see them when running in a build slave.
+AUTOMAKE_OPTIONS = subdir-objects serial-tests
+
+# We should probably get all the targets in this Makefile.am built (".") before
+# doing anything like installing the headers.  I'm not sure it matters.
+SUBDIRS = . include
+EXTRA_DIST = autogen.sh configitems Makefile.am.template README.md VERSION \
+	requirements.json .clang-format .clang-tidy .cmake-format \
+	.inferconfig .lcovrc .lgtm.yml .lift .mdlrc .mdl_style.rb .yamllint \
+	doc/Doxyfile \
+	src/pqxx-source.hxx \
+	test/helpers.hxx test/sample_types.hxx \
+	tools/deprecations.sh \
+	tools/extract_version.sh \
+	tools/format.sh \
+	tools/idock.sh \
+	tools/install-deps.sh \
+	tools/lint.sh \
+	tools/run-test-postgres.sh \
+	tools/todo.sh \
+	tools/update-copyright.sh \
+	tools/check_ascii.py \
+	tools/compiler_flags.py \
+	tools/extract_version.py \
+	tools/generate_check_config.py \
+	tools/generate_cxx_checks.py \
+	tools/m4esc.py \
+	tools/template2mak.py \
+	config/flags/audit-mode.txt \
+	config/flags/maintainer-mode.txt \
+	config/flags/suggest-mode.txt \
+	# (End of list)
+
+noinst_HEADERS = test/helpers.hxx
+DISTCLEANFILES = include/pqxx/config-compiler.h
 MAINTAINERCLEANFILES = \
-    Makefile.in aclocal.m4 config.h.in config.log configure stamp-h.in
+    Makefile.in aclocal.m4 config.h.in config.log configure stamp-h.in \
+    config/config.guess config/config.sub config/install-sh config/ltmain.sh \
+    config/missing config/mkinstalldirs \
+    include/pqxx/Makefile.in include/pqxx/stamp-h.in
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libpqxx.pc
-TESTS = tools/lint.sh
+PQXX_TEST_PROGS = test/runner
+AM_CPPFLAGS = \
+    -I$(top_srcdir)/include -I$(top_builddir)/include ${POSTGRES_INCLUDE}
+
+
+# Override automatically generated list of default includes.  It contains only
+# unnecessary entries, and incorrectly mentions include/pqxx directly.
+DEFAULT_INCLUDES = 
+lib_LTLIBRARIES = src/libpqxx.la
+src_libpqxx_la_SOURCES = \
+	src/array.cxx \
+	src/blob.cxx \
+	src/connection.cxx \
+	src/cursor.cxx \
+	src/encodings.cxx \
+	src/errorhandler.cxx \
+	src/except.cxx \
+	src/field.cxx \
+	src/largeobject.cxx \
+	src/notification.cxx \
+	src/params.cxx \
+	src/pipeline.cxx \
+	src/result.cxx \
+	src/robusttransaction.cxx \
+	src/sql_cursor.cxx \
+	src/strconv.cxx \
+	src/stream_from.cxx \
+	src/stream_to.cxx \
+	src/subtransaction.cxx \
+	src/time.cxx \
+	src/transaction.cxx \
+	src/transaction_base.cxx \
+	src/row.cxx \
+	src/types.cxx \
+	src/util.cxx \
+	src/wait.cxx
+
+libpqxx_version = -release $(PQXX_ABI)
+src_libpqxx_la_LDFLAGS = $(libpqxx_version) \
+	-rpath $(libdir) \
+	${POSTGRES_LIB}
+
+test_runner_SOURCES = \
+  test/test00.cxx \
+  test/test01.cxx \
+  test/test02.cxx \
+  test/test07.cxx \
+  test/test10.cxx \
+  test/test11.cxx \
+  test/test13.cxx \
+  test/test18.cxx \
+  test/test20.cxx \
+  test/test21.cxx \
+  test/test26.cxx \
+  test/test29.cxx \
+  test/test30.cxx \
+  test/test32.cxx \
+  test/test37.cxx \
+  test/test39.cxx \
+  test/test46.cxx \
+  test/test56.cxx \
+  test/test60.cxx \
+  test/test61.cxx \
+  test/test62.cxx \
+  test/test70.cxx \
+  test/test71.cxx \
+  test/test72.cxx \
+  test/test74.cxx \
+  test/test75.cxx \
+  test/test76.cxx \
+  test/test77.cxx \
+  test/test82.cxx \
+  test/test84.cxx \
+  test/test88.cxx \
+  test/test89.cxx \
+  test/test90.cxx \
+  test/test_array.cxx \
+  test/test_blob.cxx \
+  test/test_cancel_query.cxx \
+  test/test_column.cxx \
+  test/test_composite.cxx \
+  test/test_connection.cxx \
+  test/test_connection_string.cxx \
+  test/test_cursor.cxx \
+  test/test_encodings.cxx \
+  test/test_error_verbosity.cxx \
+  test/test_errorhandler.cxx \
+  test/test_escape.cxx \
+  test/test_exceptions.cxx \
+  test/test_field.cxx \
+  test/test_float.cxx \
+  test/test_helpers.cxx \
+  test/test_largeobject.cxx \
+  test/test_nonblocking_connect.cxx \
+  test/test_notice_handler.cxx \
+  test/test_notification.cxx \
+  test/test_params.cxx \
+  test/test_pipeline.cxx \
+  test/test_prepared_statement.cxx \
+  test/test_range.cxx \
+  test/test_read_transaction.cxx \
+  test/test_result_iteration.cxx \
+  test/test_row.cxx \
+  test/test_separated_list.cxx \
+  test/test_simultaneous_transactions.cxx \
+  test/test_sql_cursor.cxx \
+  test/test_stateless_cursor.cxx \
+  test/test_strconv.cxx \
+  test/test_stream_from.cxx \
+  test/test_stream_query.cxx \
+  test/test_stream_to.cxx \
+  test/test_string_conversion.cxx \
+  test/test_subtransaction.cxx \
+  test/test_thread_safety_model.cxx \
+  test/test_time.cxx \
+  test/test_transaction.cxx \
+  test/test_transaction_base.cxx \
+  test/test_transaction_focus.cxx \
+  test/test_transactor.cxx \
+  test/test_type_name.cxx \
+  test/test_util.cxx \
+  test/test_zview.cxx \
+  test/runner.cxx
+
+test_runner_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
+PQXX_EXAMPLES = \
+  examples/complete_example \
+  examples/faster_data \
+  examples/from_readme \
+  examples/getting_started_1 \
+  examples/getting_started_2 \
+  examples/quick_example \
+  examples/simple_queries \
+  # (End of list)
+
+examples_complete_example_SOURCES = examples/complete_example.cxx
+examples_complete_example_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
+examples_faster_data_SOURCES = examples/faster_data.cxx
+examples_faster_data_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
+examples_from_readme_SOURCES = examples/from_readme.cxx
+examples_from_readme_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
+examples_getting_started_1_SOURCES = examples/getting_started_1.cxx
+examples_getting_started_1_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
+examples_getting_started_2_SOURCES = examples/getting_started_2.cxx
+examples_getting_started_2_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
+examples_quick_example_SOURCES = examples/quick_example.cxx
+examples_quick_example_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
+examples_simple_queries_SOURCES = examples/simple_queries.cxx
+examples_simple_queries_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
+@BUILD_DOCS_TRUE@DOXYGEN = doxygen
 all: all-recursive
 
 .SUFFIXES:
-.SUFFIXES: .log .test .test$(EXEEXT) .trs
+.SUFFIXES: .cxx .lo .o .obj
 am--refresh: Makefile
 	@:
 $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__configure_deps)
@@ -601,16 +885,497 @@ $(top_srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 	$(am__cd) $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
 $(am__aclocal_m4_deps):
+
+include/pqxx/config.h: include/pqxx/stamp-h1
+	@test -f $@ || rm -f include/pqxx/stamp-h1
+	@test -f $@ || $(MAKE) $(AM_MAKEFLAGS) include/pqxx/stamp-h1
+
+include/pqxx/stamp-h1: $(top_srcdir)/include/pqxx/config.h.in $(top_builddir)/config.status
+	@rm -f include/pqxx/stamp-h1
+	cd $(top_builddir) && $(SHELL) ./config.status include/pqxx/config.h
+$(top_srcdir)/include/pqxx/config.h.in: @MAINTAINER_MODE_TRUE@ $(am__configure_deps) 
+	($(am__cd) $(top_srcdir) && $(AUTOHEADER))
+	rm -f include/pqxx/stamp-h1
+	touch $@
+
+distclean-hdr:
+	-rm -f include/pqxx/config.h include/pqxx/stamp-h1
 libpqxx.pc: $(top_builddir)/config.status $(srcdir)/libpqxx.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 compile_flags: $(top_builddir)/config.status $(srcdir)/compile_flags.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
+
+clean-checkPROGRAMS:
+	@list='$(check_PROGRAMS)'; test -n "$$list" || exit 0; \
+	echo " rm -f" $$list; \
+	rm -f $$list || exit $$?; \
+	test -n "$(EXEEXT)" || exit 0; \
+	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
+	echo " rm -f" $$list; \
+	rm -f $$list
+
+clean-noinstPROGRAMS:
+	@list='$(noinst_PROGRAMS)'; test -n "$$list" || exit 0; \
+	echo " rm -f" $$list; \
+	rm -f $$list || exit $$?; \
+	test -n "$(EXEEXT)" || exit 0; \
+	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
+	echo " rm -f" $$list; \
+	rm -f $$list
+
+install-libLTLIBRARIES: $(lib_LTLIBRARIES)
+	@$(NORMAL_INSTALL)
+	@list='$(lib_LTLIBRARIES)'; test -n "$(libdir)" || list=; \
+	list2=; for p in $$list; do \
+	  if test -f $$p; then \
+	    list2="$$list2 $$p"; \
+	  else :; fi; \
+	done; \
+	test -z "$$list2" || { \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(libdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(libdir)" || exit 1; \
+	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 '$(DESTDIR)$(libdir)'"; \
+	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 "$(DESTDIR)$(libdir)"; \
+	}
+
+uninstall-libLTLIBRARIES:
+	@$(NORMAL_UNINSTALL)
+	@list='$(lib_LTLIBRARIES)'; test -n "$(libdir)" || list=; \
+	for p in $$list; do \
+	  $(am__strip_dir) \
+	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f '$(DESTDIR)$(libdir)/$$f'"; \
+	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f "$(DESTDIR)$(libdir)/$$f"; \
+	done
+
+clean-libLTLIBRARIES:
+	-test -z "$(lib_LTLIBRARIES)" || rm -f $(lib_LTLIBRARIES)
+	@list='$(lib_LTLIBRARIES)'; \
+	locs=`for p in $$list; do echo $$p; done | \
+	      sed 's|^[^/]*$$|.|; s|/[^/]*$$||; s|$$|/so_locations|' | \
+	      sort -u`; \
+	test -z "$$locs" || { \
+	  echo rm -f $${locs}; \
+	  rm -f $${locs}; \
+	}
+src/$(am__dirstamp):
+	@$(MKDIR_P) src
+	@: > src/$(am__dirstamp)
+src/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/$(DEPDIR)
+	@: > src/$(DEPDIR)/$(am__dirstamp)
+src/array.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/blob.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/connection.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/cursor.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/encodings.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/errorhandler.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/except.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/field.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/largeobject.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/notification.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/params.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/pipeline.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/result.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/robusttransaction.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/sql_cursor.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/strconv.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/stream_from.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/stream_to.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/subtransaction.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/time.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/transaction.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/transaction_base.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/row.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/types.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/util.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/wait.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+
+src/libpqxx.la: $(src_libpqxx_la_OBJECTS) $(src_libpqxx_la_DEPENDENCIES) $(EXTRA_src_libpqxx_la_DEPENDENCIES) src/$(am__dirstamp)
+	$(AM_V_CXXLD)$(src_libpqxx_la_LINK) -rpath $(libdir) $(src_libpqxx_la_OBJECTS) $(src_libpqxx_la_LIBADD) $(LIBS)
+examples/$(am__dirstamp):
+	@$(MKDIR_P) examples
+	@: > examples/$(am__dirstamp)
+examples/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) examples/$(DEPDIR)
+	@: > examples/$(DEPDIR)/$(am__dirstamp)
+examples/complete_example.$(OBJEXT): examples/$(am__dirstamp) \
+	examples/$(DEPDIR)/$(am__dirstamp)
+
+examples/complete_example$(EXEEXT): $(examples_complete_example_OBJECTS) $(examples_complete_example_DEPENDENCIES) $(EXTRA_examples_complete_example_DEPENDENCIES) examples/$(am__dirstamp)
+	@rm -f examples/complete_example$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(examples_complete_example_OBJECTS) $(examples_complete_example_LDADD) $(LIBS)
+examples/faster_data.$(OBJEXT): examples/$(am__dirstamp) \
+	examples/$(DEPDIR)/$(am__dirstamp)
+
+examples/faster_data$(EXEEXT): $(examples_faster_data_OBJECTS) $(examples_faster_data_DEPENDENCIES) $(EXTRA_examples_faster_data_DEPENDENCIES) examples/$(am__dirstamp)
+	@rm -f examples/faster_data$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(examples_faster_data_OBJECTS) $(examples_faster_data_LDADD) $(LIBS)
+examples/from_readme.$(OBJEXT): examples/$(am__dirstamp) \
+	examples/$(DEPDIR)/$(am__dirstamp)
+
+examples/from_readme$(EXEEXT): $(examples_from_readme_OBJECTS) $(examples_from_readme_DEPENDENCIES) $(EXTRA_examples_from_readme_DEPENDENCIES) examples/$(am__dirstamp)
+	@rm -f examples/from_readme$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(examples_from_readme_OBJECTS) $(examples_from_readme_LDADD) $(LIBS)
+examples/getting_started_1.$(OBJEXT): examples/$(am__dirstamp) \
+	examples/$(DEPDIR)/$(am__dirstamp)
+
+examples/getting_started_1$(EXEEXT): $(examples_getting_started_1_OBJECTS) $(examples_getting_started_1_DEPENDENCIES) $(EXTRA_examples_getting_started_1_DEPENDENCIES) examples/$(am__dirstamp)
+	@rm -f examples/getting_started_1$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(examples_getting_started_1_OBJECTS) $(examples_getting_started_1_LDADD) $(LIBS)
+examples/getting_started_2.$(OBJEXT): examples/$(am__dirstamp) \
+	examples/$(DEPDIR)/$(am__dirstamp)
+
+examples/getting_started_2$(EXEEXT): $(examples_getting_started_2_OBJECTS) $(examples_getting_started_2_DEPENDENCIES) $(EXTRA_examples_getting_started_2_DEPENDENCIES) examples/$(am__dirstamp)
+	@rm -f examples/getting_started_2$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(examples_getting_started_2_OBJECTS) $(examples_getting_started_2_LDADD) $(LIBS)
+examples/quick_example.$(OBJEXT): examples/$(am__dirstamp) \
+	examples/$(DEPDIR)/$(am__dirstamp)
+
+examples/quick_example$(EXEEXT): $(examples_quick_example_OBJECTS) $(examples_quick_example_DEPENDENCIES) $(EXTRA_examples_quick_example_DEPENDENCIES) examples/$(am__dirstamp)
+	@rm -f examples/quick_example$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(examples_quick_example_OBJECTS) $(examples_quick_example_LDADD) $(LIBS)
+examples/simple_queries.$(OBJEXT): examples/$(am__dirstamp) \
+	examples/$(DEPDIR)/$(am__dirstamp)
+
+examples/simple_queries$(EXEEXT): $(examples_simple_queries_OBJECTS) $(examples_simple_queries_DEPENDENCIES) $(EXTRA_examples_simple_queries_DEPENDENCIES) examples/$(am__dirstamp)
+	@rm -f examples/simple_queries$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(examples_simple_queries_OBJECTS) $(examples_simple_queries_LDADD) $(LIBS)
+test/$(am__dirstamp):
+	@$(MKDIR_P) test
+	@: > test/$(am__dirstamp)
+test/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) test/$(DEPDIR)
+	@: > test/$(DEPDIR)/$(am__dirstamp)
+test/test00.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test01.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test02.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test07.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test10.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test11.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test13.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test18.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test20.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test21.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test26.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test29.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test30.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test32.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test37.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test39.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test46.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test56.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test60.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test61.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test62.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test70.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test71.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test72.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test74.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test75.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test76.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test77.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test82.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test84.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test88.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test89.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test90.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_array.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_blob.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_cancel_query.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_column.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_composite.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_connection.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_connection_string.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_cursor.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_encodings.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_error_verbosity.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_errorhandler.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_escape.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_exceptions.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_field.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_float.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_helpers.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_largeobject.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_nonblocking_connect.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_notice_handler.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_notification.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_params.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_pipeline.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_prepared_statement.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_range.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_read_transaction.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_result_iteration.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_row.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_separated_list.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_simultaneous_transactions.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_sql_cursor.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_stateless_cursor.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_strconv.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_stream_from.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_stream_query.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_stream_to.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_string_conversion.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_subtransaction.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_thread_safety_model.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_time.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_transaction.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_transaction_base.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_transaction_focus.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_transactor.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_type_name.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_util.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/test_zview.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/runner.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+
+test/runner$(EXEEXT): $(test_runner_OBJECTS) $(test_runner_DEPENDENCIES) $(EXTRA_test_runner_DEPENDENCIES) test/$(am__dirstamp)
+	@rm -f test/runner$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(test_runner_OBJECTS) $(test_runner_LDADD) $(LIBS)
+
+mostlyclean-compile:
+	-rm -f *.$(OBJEXT)
+	-rm -f examples/*.$(OBJEXT)
+	-rm -f src/*.$(OBJEXT)
+	-rm -f src/*.lo
+	-rm -f test/*.$(OBJEXT)
+
+distclean-compile:
+	-rm -f *.tab.c
+
+@AMDEP_TRUE@@am__include@ @am__quote@examples/$(DEPDIR)/complete_example.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@examples/$(DEPDIR)/faster_data.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@examples/$(DEPDIR)/from_readme.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@examples/$(DEPDIR)/getting_started_1.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@examples/$(DEPDIR)/getting_started_2.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@examples/$(DEPDIR)/quick_example.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@examples/$(DEPDIR)/simple_queries.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/array.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/blob.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/connection.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/cursor.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/encodings.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/errorhandler.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/except.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/field.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/largeobject.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/notification.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/params.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pipeline.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/result.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/robusttransaction.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/row.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sql_cursor.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/strconv.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/stream_from.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/stream_to.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/subtransaction.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/time.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/transaction.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/transaction_base.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/types.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/util.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/wait.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/runner.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test00.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test01.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test02.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test07.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test10.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test11.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test13.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test18.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test20.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test21.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test26.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test29.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test30.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test32.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test37.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test39.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test46.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test56.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test60.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test61.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test62.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test70.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test71.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test72.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test74.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test75.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test76.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test77.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test82.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test84.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test88.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test89.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test90.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_array.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_blob.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_cancel_query.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_column.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_composite.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_connection.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_connection_string.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_cursor.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_encodings.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_error_verbosity.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_errorhandler.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_escape.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_exceptions.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_field.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_float.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_helpers.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_largeobject.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_nonblocking_connect.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_notice_handler.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_notification.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_params.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_pipeline.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_prepared_statement.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_range.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_read_transaction.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_result_iteration.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_row.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_separated_list.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_simultaneous_transactions.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_sql_cursor.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_stateless_cursor.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_strconv.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_stream_from.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_stream_query.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_stream_to.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_string_conversion.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_subtransaction.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_thread_safety_model.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_time.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_transaction.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_transaction_base.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_transaction_focus.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_transactor.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_type_name.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_util.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_zview.Po@am__quote@ # am--include-marker
+
+$(am__depfiles_remade):
+	@$(MKDIR_P) $(@D)
+	@echo '# dummy' >$@-t && $(am__mv) $@-t $@
+
+am--depfiles: $(am__depfiles_remade)
+
+.cxx.o:
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ $<
+
+.cxx.obj:
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+.cxx.lo:
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
+@am__fastdepCXX_TRUE@	$(LTCXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
 
 mostlyclean-libtool:
 	-rm -f *.lo
 
 clean-libtool:
 	-rm -rf .libs _libs
+	-rm -rf examples/.libs examples/_libs
+	-rm -rf src/.libs src/_libs
+	-rm -rf test/.libs test/_libs
 
 distclean-libtool:
 	-rm -f libtool config.lt
@@ -742,168 +1507,98 @@ distclean-tags:
 	-rm -f TAGS ID GTAGS GRTAGS GSYMS GPATH tags
 	-rm -f cscope.out cscope.in.out cscope.po.out cscope.files
 
-# Recover from deleted '.trs' file; this should ensure that
-# "rm -f foo.log; make foo.trs" re-run 'foo.test', and re-create
-# both 'foo.log' and 'foo.trs'.  Break the recipe in two subshells
-# to avoid problems with "make -n".
-.log.trs:
-	rm -f $< $@
-	$(MAKE) $(AM_MAKEFLAGS) $<
-
-# Leading 'am--fnord' is there to ensure the list of targets does not
-# expand to empty, as could happen e.g. with make check TESTS=''.
-am--fnord $(TEST_LOGS) $(TEST_LOGS:.log=.trs): $(am__force_recheck)
-am--force-recheck:
-	@:
-
-$(TEST_SUITE_LOG): $(TEST_LOGS)
-	@$(am__set_TESTS_bases); \
-	am__f_ok () { test -f "$$1" && test -r "$$1"; }; \
-	redo_bases=`for i in $$bases; do \
-	              am__f_ok $$i.trs && am__f_ok $$i.log || echo $$i; \
-	            done`; \
-	if test -n "$$redo_bases"; then \
-	  redo_logs=`for i in $$redo_bases; do echo $$i.log; done`; \
-	  redo_results=`for i in $$redo_bases; do echo $$i.trs; done`; \
-	  if $(am__make_dryrun); then :; else \
-	    rm -f $$redo_logs && rm -f $$redo_results || exit 1; \
-	  fi; \
-	fi; \
-	if test -n "$$am__remaking_logs"; then \
-	  echo "fatal: making $(TEST_SUITE_LOG): possible infinite" \
-	       "recursion detected" >&2; \
-	elif test -n "$$redo_logs"; then \
-	  am__remaking_logs=yes $(MAKE) $(AM_MAKEFLAGS) $$redo_logs; \
-	fi; \
-	if $(am__make_dryrun); then :; else \
-	  st=0;  \
-	  errmsg="fatal: making $(TEST_SUITE_LOG): failed to create"; \
-	  for i in $$redo_bases; do \
-	    test -f $$i.trs && test -r $$i.trs \
-	      || { echo "$$errmsg $$i.trs" >&2; st=1; }; \
-	    test -f $$i.log && test -r $$i.log \
-	      || { echo "$$errmsg $$i.log" >&2; st=1; }; \
+check-TESTS: $(TESTS)
+	@failed=0; all=0; xfail=0; xpass=0; skip=0; \
+	srcdir=$(srcdir); export srcdir; \
+	list=' $(TESTS) '; \
+	$(am__tty_colors); \
+	if test -n "$$list"; then \
+	  for tst in $$list; do \
+	    if test -f ./$$tst; then dir=./; \
+	    elif test -f $$tst; then dir=; \
+	    else dir="$(srcdir)/"; fi; \
+	    if $(TESTS_ENVIRONMENT) $${dir}$$tst $(AM_TESTS_FD_REDIRECT); then \
+	      all=`expr $$all + 1`; \
+	      case " $(XFAIL_TESTS) " in \
+	      *[\ \	]$$tst[\ \	]*) \
+		xpass=`expr $$xpass + 1`; \
+		failed=`expr $$failed + 1`; \
+		col=$$red; res=XPASS; \
+	      ;; \
+	      *) \
+		col=$$grn; res=PASS; \
+	      ;; \
+	      esac; \
+	    elif test $$? -ne 77; then \
+	      all=`expr $$all + 1`; \
+	      case " $(XFAIL_TESTS) " in \
+	      *[\ \	]$$tst[\ \	]*) \
+		xfail=`expr $$xfail + 1`; \
+		col=$$lgn; res=XFAIL; \
+	      ;; \
+	      *) \
+		failed=`expr $$failed + 1`; \
+		col=$$red; res=FAIL; \
+	      ;; \
+	      esac; \
+	    else \
+	      skip=`expr $$skip + 1`; \
+	      col=$$blu; res=SKIP; \
+	    fi; \
+	    echo "$${col}$$res$${std}: $$tst"; \
 	  done; \
-	  test $$st -eq 0 || exit 1; \
-	fi
-	@$(am__sh_e_setup); $(am__tty_colors); $(am__set_TESTS_bases); \
-	ws='[ 	]'; \
-	results=`for b in $$bases; do echo $$b.trs; done`; \
-	test -n "$$results" || results=/dev/null; \
-	all=`  grep "^$$ws*:test-result:"           $$results | wc -l`; \
-	pass=` grep "^$$ws*:test-result:$$ws*PASS"  $$results | wc -l`; \
-	fail=` grep "^$$ws*:test-result:$$ws*FAIL"  $$results | wc -l`; \
-	skip=` grep "^$$ws*:test-result:$$ws*SKIP"  $$results | wc -l`; \
-	xfail=`grep "^$$ws*:test-result:$$ws*XFAIL" $$results | wc -l`; \
-	xpass=`grep "^$$ws*:test-result:$$ws*XPASS" $$results | wc -l`; \
-	error=`grep "^$$ws*:test-result:$$ws*ERROR" $$results | wc -l`; \
-	if test `expr $$fail + $$xpass + $$error` -eq 0; then \
-	  success=true; \
-	else \
-	  success=false; \
-	fi; \
-	br='==================='; br=$$br$$br$$br$$br; \
-	result_count () \
-	{ \
-	    if test x"$$1" = x"--maybe-color"; then \
-	      maybe_colorize=yes; \
-	    elif test x"$$1" = x"--no-color"; then \
-	      maybe_colorize=no; \
+	  if test "$$all" -eq 1; then \
+	    tests="test"; \
+	    All=""; \
+	  else \
+	    tests="tests"; \
+	    All="All "; \
+	  fi; \
+	  if test "$$failed" -eq 0; then \
+	    if test "$$xfail" -eq 0; then \
+	      banner="$$All$$all $$tests passed"; \
 	    else \
-	      echo "$@: invalid 'result_count' usage" >&2; exit 4; \
+	      if test "$$xfail" -eq 1; then failures=failure; else failures=failures; fi; \
+	      banner="$$All$$all $$tests behaved as expected ($$xfail expected $$failures)"; \
 	    fi; \
-	    shift; \
-	    desc=$$1 count=$$2; \
-	    if test $$maybe_colorize = yes && test $$count -gt 0; then \
-	      color_start=$$3 color_end=$$std; \
+	  else \
+	    if test "$$xpass" -eq 0; then \
+	      banner="$$failed of $$all $$tests failed"; \
 	    else \
-	      color_start= color_end=; \
+	      if test "$$xpass" -eq 1; then passes=pass; else passes=passes; fi; \
+	      banner="$$failed of $$all $$tests did not behave as expected ($$xpass unexpected $$passes)"; \
 	    fi; \
-	    echo "$${color_start}# $$desc $$count$${color_end}"; \
-	}; \
-	create_testsuite_report () \
-	{ \
-	  result_count $$1 "TOTAL:" $$all   "$$brg"; \
-	  result_count $$1 "PASS: " $$pass  "$$grn"; \
-	  result_count $$1 "SKIP: " $$skip  "$$blu"; \
-	  result_count $$1 "XFAIL:" $$xfail "$$lgn"; \
-	  result_count $$1 "FAIL: " $$fail  "$$red"; \
-	  result_count $$1 "XPASS:" $$xpass "$$red"; \
-	  result_count $$1 "ERROR:" $$error "$$mgn"; \
-	}; \
-	{								\
-	  echo "$(PACKAGE_STRING): $(subdir)/$(TEST_SUITE_LOG)" |	\
-	    $(am__rst_title);						\
-	  create_testsuite_report --no-color;				\
-	  echo;								\
-	  echo ".. contents:: :depth: 2";				\
-	  echo;								\
-	  for b in $$bases; do echo $$b; done				\
-	    | $(am__create_global_log);					\
-	} >$(TEST_SUITE_LOG).tmp || exit 1;				\
-	mv $(TEST_SUITE_LOG).tmp $(TEST_SUITE_LOG);			\
-	if $$success; then						\
-	  col="$$grn";							\
-	 else								\
-	  col="$$red";							\
-	  test x"$$VERBOSE" = x || cat $(TEST_SUITE_LOG);		\
-	fi;								\
-	echo "$${col}$$br$${std}"; 					\
-	echo "$${col}Testsuite summary"$(AM_TESTSUITE_SUMMARY_HEADER)"$${std}";	\
-	echo "$${col}$$br$${std}"; 					\
-	create_testsuite_report --maybe-color;				\
-	echo "$$col$$br$$std";						\
-	if $$success; then :; else					\
-	  echo "$${col}See $(subdir)/$(TEST_SUITE_LOG)$${std}";		\
-	  if test -n "$(PACKAGE_BUGREPORT)"; then			\
-	    echo "$${col}Please report to $(PACKAGE_BUGREPORT)$${std}";	\
-	  fi;								\
-	  echo "$$col$$br$$std";					\
-	fi;								\
-	$$success || exit 1
-
-check-TESTS: 
-	@list='$(RECHECK_LOGS)';           test -z "$$list" || rm -f $$list
-	@list='$(RECHECK_LOGS:.log=.trs)'; test -z "$$list" || rm -f $$list
-	@test -z "$(TEST_SUITE_LOG)" || rm -f $(TEST_SUITE_LOG)
-	@set +e; $(am__set_TESTS_bases); \
-	log_list=`for i in $$bases; do echo $$i.log; done`; \
-	trs_list=`for i in $$bases; do echo $$i.trs; done`; \
-	log_list=`echo $$log_list`; trs_list=`echo $$trs_list`; \
-	$(MAKE) $(AM_MAKEFLAGS) $(TEST_SUITE_LOG) TEST_LOGS="$$log_list"; \
-	exit $$?;
-recheck: all 
-	@test -z "$(TEST_SUITE_LOG)" || rm -f $(TEST_SUITE_LOG)
-	@set +e; $(am__set_TESTS_bases); \
-	bases=`for i in $$bases; do echo $$i; done \
-	         | $(am__list_recheck_tests)` || exit 1; \
-	log_list=`for i in $$bases; do echo $$i.log; done`; \
-	log_list=`echo $$log_list`; \
-	$(MAKE) $(AM_MAKEFLAGS) $(TEST_SUITE_LOG) \
-	        am__force_recheck=am--force-recheck \
-	        TEST_LOGS="$$log_list"; \
-	exit $$?
-tools/lint.sh.log: tools/lint.sh
-	@p='tools/lint.sh'; \
-	b='tools/lint.sh'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-.test.log:
-	@p='$<'; \
-	$(am__set_b); \
-	$(am__check_pre) $(TEST_LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_TEST_LOG_DRIVER_FLAGS) $(TEST_LOG_DRIVER_FLAGS) -- $(TEST_LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-@am__EXEEXT_TRUE@.test$(EXEEXT).log:
-@am__EXEEXT_TRUE@	@p='$<'; \
-@am__EXEEXT_TRUE@	$(am__set_b); \
-@am__EXEEXT_TRUE@	$(am__check_pre) $(TEST_LOG_DRIVER) --test-name "$$f" \
-@am__EXEEXT_TRUE@	--log-file $$b.log --trs-file $$b.trs \
-@am__EXEEXT_TRUE@	$(am__common_driver_flags) $(AM_TEST_LOG_DRIVER_FLAGS) $(TEST_LOG_DRIVER_FLAGS) -- $(TEST_LOG_COMPILE) \
-@am__EXEEXT_TRUE@	"$$tst" $(AM_TESTS_FD_REDIRECT)
+	  fi; \
+	  dashes="$$banner"; \
+	  skipped=""; \
+	  if test "$$skip" -ne 0; then \
+	    if test "$$skip" -eq 1; then \
+	      skipped="($$skip test was not run)"; \
+	    else \
+	      skipped="($$skip tests were not run)"; \
+	    fi; \
+	    test `echo "$$skipped" | wc -c` -le `echo "$$banner" | wc -c` || \
+	      dashes="$$skipped"; \
+	  fi; \
+	  report=""; \
+	  if test "$$failed" -ne 0 && test -n "$(PACKAGE_BUGREPORT)"; then \
+	    report="Please report to $(PACKAGE_BUGREPORT)"; \
+	    test `echo "$$report" | wc -c` -le `echo "$$banner" | wc -c` || \
+	      dashes="$$report"; \
+	  fi; \
+	  dashes=`echo "$$dashes" | sed s/./=/g`; \
+	  if test "$$failed" -eq 0; then \
+	    col="$$grn"; \
+	  else \
+	    col="$$red"; \
+	  fi; \
+	  echo "$${col}$$dashes$${std}"; \
+	  echo "$${col}$$banner$${std}"; \
+	  test -z "$$skipped" || echo "$${col}$$skipped$${std}"; \
+	  test -z "$$report" || echo "$${col}$$report$${std}"; \
+	  echo "$${col}$$dashes$${std}"; \
+	  test "$$failed" -eq 0; \
+	else :; fi
 distdir: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) distdir-am
 
@@ -964,6 +1659,9 @@ distdir-am: $(DISTFILES)
 	      || exit 1; \
 	  fi; \
 	done
+	$(MAKE) $(AM_MAKEFLAGS) \
+	  top_distdir="$(top_distdir)" distdir="$(distdir)" \
+	  dist-hook
 	-test -n "$(am__skip_mode_fix)" \
 	|| find "$(distdir)" -type d ! -perm -755 \
 		-exec chmod u+rwx,go+rx {} \; -o \
@@ -1102,12 +1800,16 @@ distcleancheck: distclean
 	       $(distcleancheck_listfiles) ; \
 	       exit 1; } >&2
 check-am: all-am
+	$(MAKE) $(AM_MAKEFLAGS) $(check_PROGRAMS)
 	$(MAKE) $(AM_MAKEFLAGS) check-TESTS
 check: check-recursive
-all-am: Makefile $(DATA)
+all-am: Makefile $(PROGRAMS) $(LTLIBRARIES) $(DATA) $(HEADERS) \
+		all-local
+install-checkPROGRAMS: install-libLTLIBRARIES
+
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(pkgconfigdir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkgconfigdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-recursive
@@ -1130,15 +1832,19 @@ install-strip:
 	    "INSTALL_PROGRAM_ENV=STRIPPROG='$(STRIP)'" install; \
 	fi
 mostlyclean-generic:
-	-test -z "$(TEST_LOGS)" || rm -f $(TEST_LOGS)
-	-test -z "$(TEST_LOGS:.log=.trs)" || rm -f $(TEST_LOGS:.log=.trs)
-	-test -z "$(TEST_SUITE_LOG)" || rm -f $(TEST_SUITE_LOG)
 
 clean-generic:
 
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-rm -f examples/$(DEPDIR)/$(am__dirstamp)
+	-rm -f examples/$(am__dirstamp)
+	-rm -f src/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/$(am__dirstamp)
+	-rm -f test/$(DEPDIR)/$(am__dirstamp)
+	-rm -f test/$(am__dirstamp)
+	-test -z "$(DISTCLEANFILES)" || rm -f $(DISTCLEANFILES)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -1146,13 +1852,127 @@ maintainer-clean-generic:
 	-test -z "$(MAINTAINERCLEANFILES)" || rm -f $(MAINTAINERCLEANFILES)
 clean: clean-recursive
 
-clean-am: clean-generic clean-libtool mostlyclean-am
+clean-am: clean-checkPROGRAMS clean-generic clean-libLTLIBRARIES \
+	clean-libtool clean-noinstPROGRAMS mostlyclean-am
 
 distclean: distclean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
+		-rm -f examples/$(DEPDIR)/complete_example.Po
+	-rm -f examples/$(DEPDIR)/faster_data.Po
+	-rm -f examples/$(DEPDIR)/from_readme.Po
+	-rm -f examples/$(DEPDIR)/getting_started_1.Po
+	-rm -f examples/$(DEPDIR)/getting_started_2.Po
+	-rm -f examples/$(DEPDIR)/quick_example.Po
+	-rm -f examples/$(DEPDIR)/simple_queries.Po
+	-rm -f src/$(DEPDIR)/array.Plo
+	-rm -f src/$(DEPDIR)/blob.Plo
+	-rm -f src/$(DEPDIR)/connection.Plo
+	-rm -f src/$(DEPDIR)/cursor.Plo
+	-rm -f src/$(DEPDIR)/encodings.Plo
+	-rm -f src/$(DEPDIR)/errorhandler.Plo
+	-rm -f src/$(DEPDIR)/except.Plo
+	-rm -f src/$(DEPDIR)/field.Plo
+	-rm -f src/$(DEPDIR)/largeobject.Plo
+	-rm -f src/$(DEPDIR)/notification.Plo
+	-rm -f src/$(DEPDIR)/params.Plo
+	-rm -f src/$(DEPDIR)/pipeline.Plo
+	-rm -f src/$(DEPDIR)/result.Plo
+	-rm -f src/$(DEPDIR)/robusttransaction.Plo
+	-rm -f src/$(DEPDIR)/row.Plo
+	-rm -f src/$(DEPDIR)/sql_cursor.Plo
+	-rm -f src/$(DEPDIR)/strconv.Plo
+	-rm -f src/$(DEPDIR)/stream_from.Plo
+	-rm -f src/$(DEPDIR)/stream_to.Plo
+	-rm -f src/$(DEPDIR)/subtransaction.Plo
+	-rm -f src/$(DEPDIR)/time.Plo
+	-rm -f src/$(DEPDIR)/transaction.Plo
+	-rm -f src/$(DEPDIR)/transaction_base.Plo
+	-rm -f src/$(DEPDIR)/types.Plo
+	-rm -f src/$(DEPDIR)/util.Plo
+	-rm -f src/$(DEPDIR)/wait.Plo
+	-rm -f test/$(DEPDIR)/runner.Po
+	-rm -f test/$(DEPDIR)/test00.Po
+	-rm -f test/$(DEPDIR)/test01.Po
+	-rm -f test/$(DEPDIR)/test02.Po
+	-rm -f test/$(DEPDIR)/test07.Po
+	-rm -f test/$(DEPDIR)/test10.Po
+	-rm -f test/$(DEPDIR)/test11.Po
+	-rm -f test/$(DEPDIR)/test13.Po
+	-rm -f test/$(DEPDIR)/test18.Po
+	-rm -f test/$(DEPDIR)/test20.Po
+	-rm -f test/$(DEPDIR)/test21.Po
+	-rm -f test/$(DEPDIR)/test26.Po
+	-rm -f test/$(DEPDIR)/test29.Po
+	-rm -f test/$(DEPDIR)/test30.Po
+	-rm -f test/$(DEPDIR)/test32.Po
+	-rm -f test/$(DEPDIR)/test37.Po
+	-rm -f test/$(DEPDIR)/test39.Po
+	-rm -f test/$(DEPDIR)/test46.Po
+	-rm -f test/$(DEPDIR)/test56.Po
+	-rm -f test/$(DEPDIR)/test60.Po
+	-rm -f test/$(DEPDIR)/test61.Po
+	-rm -f test/$(DEPDIR)/test62.Po
+	-rm -f test/$(DEPDIR)/test70.Po
+	-rm -f test/$(DEPDIR)/test71.Po
+	-rm -f test/$(DEPDIR)/test72.Po
+	-rm -f test/$(DEPDIR)/test74.Po
+	-rm -f test/$(DEPDIR)/test75.Po
+	-rm -f test/$(DEPDIR)/test76.Po
+	-rm -f test/$(DEPDIR)/test77.Po
+	-rm -f test/$(DEPDIR)/test82.Po
+	-rm -f test/$(DEPDIR)/test84.Po
+	-rm -f test/$(DEPDIR)/test88.Po
+	-rm -f test/$(DEPDIR)/test89.Po
+	-rm -f test/$(DEPDIR)/test90.Po
+	-rm -f test/$(DEPDIR)/test_array.Po
+	-rm -f test/$(DEPDIR)/test_blob.Po
+	-rm -f test/$(DEPDIR)/test_cancel_query.Po
+	-rm -f test/$(DEPDIR)/test_column.Po
+	-rm -f test/$(DEPDIR)/test_composite.Po
+	-rm -f test/$(DEPDIR)/test_connection.Po
+	-rm -f test/$(DEPDIR)/test_connection_string.Po
+	-rm -f test/$(DEPDIR)/test_cursor.Po
+	-rm -f test/$(DEPDIR)/test_encodings.Po
+	-rm -f test/$(DEPDIR)/test_error_verbosity.Po
+	-rm -f test/$(DEPDIR)/test_errorhandler.Po
+	-rm -f test/$(DEPDIR)/test_escape.Po
+	-rm -f test/$(DEPDIR)/test_exceptions.Po
+	-rm -f test/$(DEPDIR)/test_field.Po
+	-rm -f test/$(DEPDIR)/test_float.Po
+	-rm -f test/$(DEPDIR)/test_helpers.Po
+	-rm -f test/$(DEPDIR)/test_largeobject.Po
+	-rm -f test/$(DEPDIR)/test_nonblocking_connect.Po
+	-rm -f test/$(DEPDIR)/test_notice_handler.Po
+	-rm -f test/$(DEPDIR)/test_notification.Po
+	-rm -f test/$(DEPDIR)/test_params.Po
+	-rm -f test/$(DEPDIR)/test_pipeline.Po
+	-rm -f test/$(DEPDIR)/test_prepared_statement.Po
+	-rm -f test/$(DEPDIR)/test_range.Po
+	-rm -f test/$(DEPDIR)/test_read_transaction.Po
+	-rm -f test/$(DEPDIR)/test_result_iteration.Po
+	-rm -f test/$(DEPDIR)/test_row.Po
+	-rm -f test/$(DEPDIR)/test_separated_list.Po
+	-rm -f test/$(DEPDIR)/test_simultaneous_transactions.Po
+	-rm -f test/$(DEPDIR)/test_sql_cursor.Po
+	-rm -f test/$(DEPDIR)/test_stateless_cursor.Po
+	-rm -f test/$(DEPDIR)/test_strconv.Po
+	-rm -f test/$(DEPDIR)/test_stream_from.Po
+	-rm -f test/$(DEPDIR)/test_stream_query.Po
+	-rm -f test/$(DEPDIR)/test_stream_to.Po
+	-rm -f test/$(DEPDIR)/test_string_conversion.Po
+	-rm -f test/$(DEPDIR)/test_subtransaction.Po
+	-rm -f test/$(DEPDIR)/test_thread_safety_model.Po
+	-rm -f test/$(DEPDIR)/test_time.Po
+	-rm -f test/$(DEPDIR)/test_transaction.Po
+	-rm -f test/$(DEPDIR)/test_transaction_base.Po
+	-rm -f test/$(DEPDIR)/test_transaction_focus.Po
+	-rm -f test/$(DEPDIR)/test_transactor.Po
+	-rm -f test/$(DEPDIR)/test_type_name.Po
+	-rm -f test/$(DEPDIR)/test_util.Po
+	-rm -f test/$(DEPDIR)/test_zview.Po
 	-rm -f Makefile
-distclean-am: clean-am distclean-generic distclean-libtool \
-	distclean-tags
+distclean-am: clean-am distclean-compile distclean-generic \
+	distclean-hdr distclean-libtool distclean-tags
 
 dvi: dvi-recursive
 
@@ -1172,7 +1992,7 @@ install-dvi: install-dvi-recursive
 
 install-dvi-am:
 
-install-exec-am:
+install-exec-am: install-libLTLIBRARIES
 
 install-html: install-html-recursive
 
@@ -1197,12 +2017,127 @@ installcheck-am:
 maintainer-clean: maintainer-clean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
+		-rm -f examples/$(DEPDIR)/complete_example.Po
+	-rm -f examples/$(DEPDIR)/faster_data.Po
+	-rm -f examples/$(DEPDIR)/from_readme.Po
+	-rm -f examples/$(DEPDIR)/getting_started_1.Po
+	-rm -f examples/$(DEPDIR)/getting_started_2.Po
+	-rm -f examples/$(DEPDIR)/quick_example.Po
+	-rm -f examples/$(DEPDIR)/simple_queries.Po
+	-rm -f src/$(DEPDIR)/array.Plo
+	-rm -f src/$(DEPDIR)/blob.Plo
+	-rm -f src/$(DEPDIR)/connection.Plo
+	-rm -f src/$(DEPDIR)/cursor.Plo
+	-rm -f src/$(DEPDIR)/encodings.Plo
+	-rm -f src/$(DEPDIR)/errorhandler.Plo
+	-rm -f src/$(DEPDIR)/except.Plo
+	-rm -f src/$(DEPDIR)/field.Plo
+	-rm -f src/$(DEPDIR)/largeobject.Plo
+	-rm -f src/$(DEPDIR)/notification.Plo
+	-rm -f src/$(DEPDIR)/params.Plo
+	-rm -f src/$(DEPDIR)/pipeline.Plo
+	-rm -f src/$(DEPDIR)/result.Plo
+	-rm -f src/$(DEPDIR)/robusttransaction.Plo
+	-rm -f src/$(DEPDIR)/row.Plo
+	-rm -f src/$(DEPDIR)/sql_cursor.Plo
+	-rm -f src/$(DEPDIR)/strconv.Plo
+	-rm -f src/$(DEPDIR)/stream_from.Plo
+	-rm -f src/$(DEPDIR)/stream_to.Plo
+	-rm -f src/$(DEPDIR)/subtransaction.Plo
+	-rm -f src/$(DEPDIR)/time.Plo
+	-rm -f src/$(DEPDIR)/transaction.Plo
+	-rm -f src/$(DEPDIR)/transaction_base.Plo
+	-rm -f src/$(DEPDIR)/types.Plo
+	-rm -f src/$(DEPDIR)/util.Plo
+	-rm -f src/$(DEPDIR)/wait.Plo
+	-rm -f test/$(DEPDIR)/runner.Po
+	-rm -f test/$(DEPDIR)/test00.Po
+	-rm -f test/$(DEPDIR)/test01.Po
+	-rm -f test/$(DEPDIR)/test02.Po
+	-rm -f test/$(DEPDIR)/test07.Po
+	-rm -f test/$(DEPDIR)/test10.Po
+	-rm -f test/$(DEPDIR)/test11.Po
+	-rm -f test/$(DEPDIR)/test13.Po
+	-rm -f test/$(DEPDIR)/test18.Po
+	-rm -f test/$(DEPDIR)/test20.Po
+	-rm -f test/$(DEPDIR)/test21.Po
+	-rm -f test/$(DEPDIR)/test26.Po
+	-rm -f test/$(DEPDIR)/test29.Po
+	-rm -f test/$(DEPDIR)/test30.Po
+	-rm -f test/$(DEPDIR)/test32.Po
+	-rm -f test/$(DEPDIR)/test37.Po
+	-rm -f test/$(DEPDIR)/test39.Po
+	-rm -f test/$(DEPDIR)/test46.Po
+	-rm -f test/$(DEPDIR)/test56.Po
+	-rm -f test/$(DEPDIR)/test60.Po
+	-rm -f test/$(DEPDIR)/test61.Po
+	-rm -f test/$(DEPDIR)/test62.Po
+	-rm -f test/$(DEPDIR)/test70.Po
+	-rm -f test/$(DEPDIR)/test71.Po
+	-rm -f test/$(DEPDIR)/test72.Po
+	-rm -f test/$(DEPDIR)/test74.Po
+	-rm -f test/$(DEPDIR)/test75.Po
+	-rm -f test/$(DEPDIR)/test76.Po
+	-rm -f test/$(DEPDIR)/test77.Po
+	-rm -f test/$(DEPDIR)/test82.Po
+	-rm -f test/$(DEPDIR)/test84.Po
+	-rm -f test/$(DEPDIR)/test88.Po
+	-rm -f test/$(DEPDIR)/test89.Po
+	-rm -f test/$(DEPDIR)/test90.Po
+	-rm -f test/$(DEPDIR)/test_array.Po
+	-rm -f test/$(DEPDIR)/test_blob.Po
+	-rm -f test/$(DEPDIR)/test_cancel_query.Po
+	-rm -f test/$(DEPDIR)/test_column.Po
+	-rm -f test/$(DEPDIR)/test_composite.Po
+	-rm -f test/$(DEPDIR)/test_connection.Po
+	-rm -f test/$(DEPDIR)/test_connection_string.Po
+	-rm -f test/$(DEPDIR)/test_cursor.Po
+	-rm -f test/$(DEPDIR)/test_encodings.Po
+	-rm -f test/$(DEPDIR)/test_error_verbosity.Po
+	-rm -f test/$(DEPDIR)/test_errorhandler.Po
+	-rm -f test/$(DEPDIR)/test_escape.Po
+	-rm -f test/$(DEPDIR)/test_exceptions.Po
+	-rm -f test/$(DEPDIR)/test_field.Po
+	-rm -f test/$(DEPDIR)/test_float.Po
+	-rm -f test/$(DEPDIR)/test_helpers.Po
+	-rm -f test/$(DEPDIR)/test_largeobject.Po
+	-rm -f test/$(DEPDIR)/test_nonblocking_connect.Po
+	-rm -f test/$(DEPDIR)/test_notice_handler.Po
+	-rm -f test/$(DEPDIR)/test_notification.Po
+	-rm -f test/$(DEPDIR)/test_params.Po
+	-rm -f test/$(DEPDIR)/test_pipeline.Po
+	-rm -f test/$(DEPDIR)/test_prepared_statement.Po
+	-rm -f test/$(DEPDIR)/test_range.Po
+	-rm -f test/$(DEPDIR)/test_read_transaction.Po
+	-rm -f test/$(DEPDIR)/test_result_iteration.Po
+	-rm -f test/$(DEPDIR)/test_row.Po
+	-rm -f test/$(DEPDIR)/test_separated_list.Po
+	-rm -f test/$(DEPDIR)/test_simultaneous_transactions.Po
+	-rm -f test/$(DEPDIR)/test_sql_cursor.Po
+	-rm -f test/$(DEPDIR)/test_stateless_cursor.Po
+	-rm -f test/$(DEPDIR)/test_strconv.Po
+	-rm -f test/$(DEPDIR)/test_stream_from.Po
+	-rm -f test/$(DEPDIR)/test_stream_query.Po
+	-rm -f test/$(DEPDIR)/test_stream_to.Po
+	-rm -f test/$(DEPDIR)/test_string_conversion.Po
+	-rm -f test/$(DEPDIR)/test_subtransaction.Po
+	-rm -f test/$(DEPDIR)/test_thread_safety_model.Po
+	-rm -f test/$(DEPDIR)/test_time.Po
+	-rm -f test/$(DEPDIR)/test_transaction.Po
+	-rm -f test/$(DEPDIR)/test_transaction_base.Po
+	-rm -f test/$(DEPDIR)/test_transaction_focus.Po
+	-rm -f test/$(DEPDIR)/test_transactor.Po
+	-rm -f test/$(DEPDIR)/test_type_name.Po
+	-rm -f test/$(DEPDIR)/test_util.Po
+	-rm -f test/$(DEPDIR)/test_zview.Po
 	-rm -f Makefile
-maintainer-clean-am: distclean-am maintainer-clean-generic
+maintainer-clean-am: distclean-am maintainer-clean-generic \
+	maintainer-clean-local
 
 mostlyclean: mostlyclean-recursive
 
-mostlyclean-am: mostlyclean-generic mostlyclean-libtool
+mostlyclean-am: mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool
 
 pdf: pdf-recursive
 
@@ -1212,27 +2147,30 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-pkgconfigDATA
+uninstall-am: uninstall-libLTLIBRARIES uninstall-pkgconfigDATA
 
 .MAKE: $(am__recursive_targets) check-am install-am install-strip
 
-.PHONY: $(am__recursive_targets) CTAGS GTAGS TAGS all all-am \
-	am--refresh check check-TESTS check-am clean clean-cscope \
-	clean-generic clean-libtool cscope cscopelist-am ctags \
-	ctags-am dist dist-all dist-bzip2 dist-gzip dist-lzip \
-	dist-shar dist-tarZ dist-xz dist-zip dist-zstd distcheck \
-	distclean distclean-generic distclean-libtool distclean-tags \
-	distcleancheck distdir distuninstallcheck dvi dvi-am html \
-	html-am info info-am install install-am install-data \
-	install-data-am install-dvi install-dvi-am install-exec \
-	install-exec-am install-html install-html-am install-info \
-	install-info-am install-man install-pdf install-pdf-am \
-	install-pkgconfigDATA install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs installdirs-am \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	recheck tags tags-am uninstall uninstall-am \
-	uninstall-pkgconfigDATA
+.PHONY: $(am__recursive_targets) CTAGS GTAGS TAGS all all-am all-local \
+	am--depfiles am--refresh check check-TESTS check-am clean \
+	clean-checkPROGRAMS clean-cscope clean-generic \
+	clean-libLTLIBRARIES clean-libtool clean-noinstPROGRAMS cscope \
+	cscopelist-am ctags ctags-am dist dist-all dist-bzip2 \
+	dist-gzip dist-hook dist-lzip dist-shar dist-tarZ dist-xz \
+	dist-zip dist-zstd distcheck distclean distclean-compile \
+	distclean-generic distclean-hdr distclean-libtool \
+	distclean-tags distcleancheck distdir distuninstallcheck dvi \
+	dvi-am html html-am info info-am install install-am \
+	install-data install-data-am install-dvi install-dvi-am \
+	install-exec install-exec-am install-html install-html-am \
+	install-info install-info-am install-libLTLIBRARIES \
+	install-man install-pdf install-pdf-am install-pkgconfigDATA \
+	install-ps install-ps-am install-strip installcheck \
+	installcheck-am installdirs installdirs-am maintainer-clean \
+	maintainer-clean-generic maintainer-clean-local mostlyclean \
+	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
+	pdf pdf-am ps ps-am tags tags-am uninstall uninstall-am \
+	uninstall-libLTLIBRARIES uninstall-pkgconfigDATA
 
 .PRECIOUS: Makefile
 
@@ -1240,6 +2178,29 @@ uninstall-am: uninstall-pkgconfigDATA
 # We use README.md, but automake expects plain README.
 README: README.md
 	ln -s $< $@
+
+maintainer-clean-local:
+	$(RM) -rf doc/doxygen-html
+	$(MKDIR) doc/doxygen-html
+
+all-local: docs
+# Doxygen config needs the source files in its local tree.  That means the
+# build tree.  If that differs from the source tree, copy the files.
+@BUILD_DOCS_TRUE@docs:
+@BUILD_DOCS_TRUE@	if ! [ "$(top_srcdir)/src" -ef src ]; \
+@BUILD_DOCS_TRUE@	then \
+@BUILD_DOCS_TRUE@	    cp "$(top_srcdir)"/src/*.[ch]xx src/ ; \
+@BUILD_DOCS_TRUE@	    cp -r "$(top_srcdir)"/include/pqxx/* include/pqxx/ ; \
+@BUILD_DOCS_TRUE@	    cp -r "$(top_srcdir)"/test test/ ; \
+@BUILD_DOCS_TRUE@	fi
+@BUILD_DOCS_TRUE@	$(DOXYGEN) "$(top_srcdir)/doc/Doxyfile"
+@BUILD_DOCS_FALSE@docs:
+
+dist-hook:
+	if [ -d doc/doxygen-html ]; \
+	then \
+	    cp -pR doc/doxygen-html $(top_distdir)/doc/html ; \
+	fi
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
