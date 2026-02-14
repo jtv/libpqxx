@@ -82,13 +82,12 @@ def main() -> None:
     source = Path("confg-tests") / "minimal.cxx"
     src = source.name
     with FileType("r")(args.flags) as flags:
-        for flag in flags:
-            flag = flag.strip()
+        for line in flags:
+            flag = line.strip()
             if flag == "" or flag.startswith("#"):
                 continue
-            if compiler_accepts(
-                args.command, Path(src), flag, prev=" ".join(good_flags)
-            ):
+            prev = " ".join(good_flags)
+            if compiler_accepts(args.command, Path(src), flag, prev=prev):
                 good_flags.append(flag)
 
     sep = " " if args.single_line else "\n"
