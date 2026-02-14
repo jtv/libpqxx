@@ -323,6 +323,8 @@ jobs:
           command: "cd src && \
               ln -s include ../include && \
               gcov --prime-paths-source=uncovered -mr *.cxx | tee gcov.out"
+      - store_artifacts:  # XXX:
+          path: src  # XXX:
       - run:
           name: Rank
           command: "find -name '*.gcov' && \
