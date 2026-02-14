@@ -466,8 +466,9 @@ am__DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/compile_flags.in \
 	$(top_srcdir)/config/config.sub $(top_srcdir)/config/depcomp \
 	$(top_srcdir)/config/install-sh $(top_srcdir)/config/ltmain.sh \
 	$(top_srcdir)/config/missing \
-	$(top_srcdir)/config/mkinstalldirs AUTHORS COPYING ChangeLog \
-	INSTALL NEWS README README.md config/compile \
+	$(top_srcdir)/config/mkinstalldirs \
+	$(top_srcdir)/include/pqxx/config.h.in AUTHORS COPYING \
+	ChangeLog INSTALL NEWS README README.md config/compile \
 	config/config.guess config/config.sub config/depcomp \
 	config/install-sh config/ltmain.sh config/missing \
 	config/mkinstalldirs
@@ -690,11 +691,12 @@ EXTRA_DIST = autogen.sh configitems Makefile.am.template README.md VERSION \
   # (End of list)
 
 noinst_HEADERS = test/helpers.hxx
-CLEANFILES = test/pqxxlo.txt
+DISTCLEANFILES = include/pqxx/config-compiler.h
 MAINTAINERCLEANFILES = \
     Makefile.in aclocal.m4 config.h.in config.log configure stamp-h.in \
     config/config.guess config/config.sub config/install-sh config/ltmain.sh \
-    config/missing config/mkinstalldirs
+    config/missing config/mkinstalldirs \
+    include/pqxx/Makefile.in include/pqxx/stamp-h.in
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libpqxx.pc
@@ -885,6 +887,21 @@ $(top_srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 	$(am__cd) $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
 $(am__aclocal_m4_deps):
+
+include/pqxx/config.h: include/pqxx/stamp-h1
+	@test -f $@ || rm -f include/pqxx/stamp-h1
+	@test -f $@ || $(MAKE) $(AM_MAKEFLAGS) include/pqxx/stamp-h1
+
+include/pqxx/stamp-h1: $(top_srcdir)/include/pqxx/config.h.in $(top_builddir)/config.status
+	@rm -f include/pqxx/stamp-h1
+	cd $(top_builddir) && $(SHELL) ./config.status include/pqxx/config.h
+$(top_srcdir)/include/pqxx/config.h.in: @MAINTAINER_MODE_TRUE@ $(am__configure_deps) 
+	($(am__cd) $(top_srcdir) && $(AUTOHEADER))
+	rm -f include/pqxx/stamp-h1
+	touch $@
+
+distclean-hdr:
+	-rm -f include/pqxx/config.h include/pqxx/stamp-h1
 libpqxx.pc: $(top_builddir)/config.status $(srcdir)/libpqxx.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 compile_flags: $(top_builddir)/config.status $(srcdir)/compile_flags.in
@@ -1819,7 +1836,6 @@ install-strip:
 mostlyclean-generic:
 
 clean-generic:
-	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
 
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
@@ -1830,6 +1846,7 @@ distclean-generic:
 	-rm -f src/$(am__dirstamp)
 	-rm -f test/$(DEPDIR)/$(am__dirstamp)
 	-rm -f test/$(am__dirstamp)
+	-test -z "$(DISTCLEANFILES)" || rm -f $(DISTCLEANFILES)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -1957,7 +1974,7 @@ distclean: distclean-recursive
 	-rm -f test/$(DEPDIR)/test_zview.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
-	distclean-libtool distclean-tags
+	distclean-hdr distclean-libtool distclean-tags
 
 dvi: dvi-recursive
 
@@ -2143,19 +2160,19 @@ uninstall-am: uninstall-libLTLIBRARIES uninstall-pkgconfigDATA
 	cscopelist-am ctags ctags-am dist dist-all dist-bzip2 \
 	dist-gzip dist-hook dist-lzip dist-shar dist-tarZ dist-xz \
 	dist-zip dist-zstd distcheck distclean distclean-compile \
-	distclean-generic distclean-libtool distclean-tags \
-	distcleancheck distdir distuninstallcheck dvi dvi-am html \
-	html-am info info-am install install-am install-data \
-	install-data-am install-dvi install-dvi-am install-exec \
-	install-exec-am install-html install-html-am install-info \
-	install-info-am install-libLTLIBRARIES install-man install-pdf \
-	install-pdf-am install-pkgconfigDATA install-ps install-ps-am \
-	install-strip installcheck installcheck-am installdirs \
-	installdirs-am maintainer-clean maintainer-clean-generic \
-	maintainer-clean-local mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags tags-am uninstall uninstall-am uninstall-libLTLIBRARIES \
-	uninstall-pkgconfigDATA
+	distclean-generic distclean-hdr distclean-libtool \
+	distclean-tags distcleancheck distdir distuninstallcheck dvi \
+	dvi-am html html-am info info-am install install-am \
+	install-data install-data-am install-dvi install-dvi-am \
+	install-exec install-exec-am install-html install-html-am \
+	install-info install-info-am install-libLTLIBRARIES \
+	install-man install-pdf install-pdf-am install-pkgconfigDATA \
+	install-ps install-ps-am install-strip installcheck \
+	installcheck-am installdirs installdirs-am maintainer-clean \
+	maintainer-clean-generic maintainer-clean-local mostlyclean \
+	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
+	pdf pdf-am ps ps-am tags tags-am uninstall uninstall-am \
+	uninstall-libLTLIBRARIES uninstall-pkgconfigDATA
 
 .PRECIOUS: Makefile
 

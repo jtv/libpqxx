@@ -61,12 +61,13 @@ EXTRA_DIST = autogen.sh configitems Makefile.am.template README.md VERSION \
 
 noinst_HEADERS = test/helpers.hxx
 
-CLEANFILES = test/pqxxlo.txt
+DISTCLEANFILES = include/pqxx/config-compiler.h
 
 MAINTAINERCLEANFILES = \
     Makefile.in aclocal.m4 config.h.in config.log configure stamp-h.in \
     config/config.guess config/config.sub config/install-sh config/ltmain.sh \
-    config/missing config/mkinstalldirs
+    config/missing config/mkinstalldirs \
+    include/pqxx/Makefile.in include/pqxx/stamp-h.in
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libpqxx.pc

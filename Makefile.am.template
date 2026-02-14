@@ -13,10 +13,8 @@
 # we can't see them when running in a build slave.
 AUTOMAKE_OPTIONS = subdir-objects serial-tests
 
-# XXX: Stratify further, and eventually drop this variable.
-# We must get the local directory built first, because that causes the
-# library binary to be built.  Which is necessary before we can build any of
-# the other binaries.
+# We should probably get all the targets in this Makefile.am built (".") before
+# doing anything like installing the headers.  I'm not sure it matters.
 SUBDIRS = . include
 
 EXTRA_DIST = autogen.sh configitems Makefile.am.template README.md VERSION \
@@ -38,12 +36,13 @@ EXTRA_DIST = autogen.sh configitems Makefile.am.template README.md VERSION \
 
 noinst_HEADERS = test/helpers.hxx
 
-CLEANFILES = test/pqxxlo.txt
+DISTCLEANFILES = include/pqxx/config-compiler.h
 
 MAINTAINERCLEANFILES = \
     Makefile.in aclocal.m4 config.h.in config.log configure stamp-h.in \
     config/config.guess config/config.sub config/install-sh config/ltmain.sh \
-    config/missing config/mkinstalldirs
+    config/missing config/mkinstalldirs \
+    include/pqxx/Makefile.in include/pqxx/stamp-h.in
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libpqxx.pc

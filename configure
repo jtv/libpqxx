@@ -21222,7 +21222,7 @@ fi
 
 
 # XXX: Stratify further, then remove unneeded Makefiles.
-ac_config_files="$ac_config_files Makefile include/Makefile include/pqxx/Makefile libpqxx.pc"
+ac_config_files="$ac_config_files Makefile include/Makefile libpqxx.pc"
 
 
 
@@ -22358,7 +22358,6 @@ do
     "libtool") CONFIG_COMMANDS="$CONFIG_COMMANDS libtool" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "include/Makefile") CONFIG_FILES="$CONFIG_FILES include/Makefile" ;;
-    "include/pqxx/Makefile") CONFIG_FILES="$CONFIG_FILES include/pqxx/Makefile" ;;
     "libpqxx.pc") CONFIG_FILES="$CONFIG_FILES libpqxx.pc" ;;
     "configitems") CONFIG_COMMANDS="$CONFIG_COMMANDS configitems" ;;
     "compile_flags") CONFIG_FILES="$CONFIG_FILES compile_flags" ;;
