@@ -507,8 +507,10 @@ workflows:
               # I really don't want to test against every conceivable
               # optimisation level.  But -O0 revealed a problem that somehow
               # wasn't happening when optimising.  Can't skip -O2 because it's
-              # the default.  And -O3 restructures code which may reveal other
-              # problems.  So... only level we end up skipping is -O1.
+              # the default so it's what everybody is using.  And -O3
+              # restructures code which may reveal problems that don't become
+              # visible at lower levels.  So... only level we end up skipping
+              # is -O1.
               opt: [0, 2, 3]
 
       - test-linux:
