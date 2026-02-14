@@ -312,23 +312,23 @@ jobs:
       - run:
           name: Run
           command: ". /tmp/vars.sh && make check"
-      - run:
-          name: Report
-          # Looks like a bug in gcov: it interprets relative `#include` paths
-          # relative to current working directory, instead of relative to the
-          # source file that does the `#include`.
-          #
-          # To kludge around this... just pretend there's a `../include/`
-          # relative to the project root.  :-/
-          command: "cd src && \
-              ln -s include ../include && \
-              gcov --prime-paths-source=uncovered -mr *.cxx | tee gcov.out"
-      - store_artifacts:  # XXX:
-          path: src  # XXX:
-      - run:
-          name: Rank
-          command: "find -name '*.gcov' && \
-              ./tools/count-uncovered.sh src | sort -rn | tee src/rank.txt"
+      #- run:
+      #    name: Report
+      #    # Looks like a bug in gcov: it interprets relative `#include` paths
+      #    # relative to current working directory, instead of relative to the
+      #    # source file that does the `#include`.
+      #    #
+      #    # To kludge around this... just pretend there's a `../include/`
+      #    # relative to the project root.  :-/
+      #    command: "cd src && \
+      #        ln -s include ../include && \
+      #        gcov --prime-paths-source=uncovered -mr *.cxx | tee gcov.out"
+      #- store_artifacts:  # XXX:
+      #    path: src  # XXX:
+      #- run:
+      #    name: Rank
+      #    command: "find -name '*.gcov' && \
+      #        ./tools/count-uncovered.sh src | sort -rn | tee src/rank.txt"
       - run:
           name: Lcov
           command: "lcov \
