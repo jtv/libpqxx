@@ -24,15 +24,15 @@ EXTRA_DIST = autogen.sh configitems Makefile.am.template README.md VERSION \
 	src/pqxx-source.hxx \
 	test/helpers.hxx test/sample_types.hxx \
 ###MAKTEMPLATE:FOREACH tools/*.sh
-  tools/###BASENAME###.sh \
+	tools/###BASENAME###.sh \
 ###MAKTEMPLATE:ENDFOREACH
 ###MAKTEMPLATE:FOREACH tools/*.py
-  tools/###BASENAME###.py \
+	tools/###BASENAME###.py \
 ###MAKTEMPLATE:ENDFOREACH
 ###MAKTEMPLATE:FOREACH config/flags/*.txt
-  config/flags/###BASENAME###.txt \
+	config/flags/###BASENAME###.txt \
 ###MAKTEMPLATE:ENDFOREACH
-  # (End of list)
+	# (End of list)
 
 noinst_HEADERS = test/helpers.hxx
 
