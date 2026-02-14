@@ -394,7 +394,6 @@ AC_MSG_RESULT(yes)
 
 AC_PROG_MAKE_SET
 
-# XXX: Stratify further, then remove unneeded Makefiles.
 AC_CONFIG_FILES([Makefile include/Makefile libpqxx.pc])
 
 

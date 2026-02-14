@@ -79,7 +79,7 @@ def main() -> None:
     """Main entry point."""
     args = parse_args()
     good_flags: list[str] = []
-    source = Path("confg-tests") / "minimal.cxx"
+    source = Path("config-tests") / "minimal.cxx"
     src = source.name
     with FileType("r")(args.flags) as flags:
         for line in flags:
