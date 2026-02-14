@@ -667,8 +667,6 @@ EXTRA_DIST = autogen.sh configitems Makefile.am.template README.md VERSION \
 	.inferconfig .lcovrc .lgtm.yml .lift .mdlrc .mdl_style.rb .yamllint \
 	src/pqxx-source.hxx \
 	test/helpers.hxx test/sample_types.hxx \
-	tools/lint.sh \
-  tools/count-uncovered.sh \
   tools/deprecations.sh \
   tools/extract_version.sh \
   tools/format.sh \
