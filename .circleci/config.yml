@@ -325,7 +325,7 @@ jobs:
               gcov --prime-paths-source=uncovered -mr *.cxx | tee gcov.out"
       - run:
           name: Rank
-          command: "find -name \*.gcov && \
+          command: "find -name '*.gcov' && \
               ./tools/count-uncovered.sh src | sort -rn | tee src/rank.txt"
       - run:
           name: Lcov
