@@ -658,10 +658,8 @@ with_postgres_lib = @with_postgres_lib@
 # we can't see them when running in a build slave.
 AUTOMAKE_OPTIONS = subdir-objects serial-tests
 
-# XXX: Stratify further, and eventually drop this variable.
-# We must get the local directory built first, because that causes the
-# library binary to be built.  Which is necessary before we can build any of
-# the other binaries.
+# We should probably get all the targets in this Makefile.am built (".") before
+# doing anything like installing the headers.  I'm not sure it matters.
 SUBDIRS = . include
 EXTRA_DIST = autogen.sh configitems Makefile.am.template README.md VERSION \
 	requirements.json .clang-format .clang-tidy .cmake-format \
@@ -669,26 +667,26 @@ EXTRA_DIST = autogen.sh configitems Makefile.am.template README.md VERSION \
 	doc/Doxyfile \
 	src/pqxx-source.hxx \
 	test/helpers.hxx test/sample_types.hxx \
-  tools/deprecations.sh \
-  tools/extract_version.sh \
-  tools/format.sh \
-  tools/idock.sh \
-  tools/install-deps.sh \
-  tools/lint.sh \
-  tools/run-test-postgres.sh \
-  tools/todo.sh \
-  tools/update-copyright.sh \
-  tools/check_ascii.py \
-  tools/compiler_flags.py \
-  tools/extract_version.py \
-  tools/generate_check_config.py \
-  tools/generate_cxx_checks.py \
-  tools/m4esc.py \
-  tools/template2mak.py \
-  config/flags/audit-mode.txt \
-  config/flags/maintainer-mode.txt \
-  config/flags/suggest-mode.txt \
-  # (End of list)
+	tools/deprecations.sh \
+	tools/extract_version.sh \
+	tools/format.sh \
+	tools/idock.sh \
+	tools/install-deps.sh \
+	tools/lint.sh \
+	tools/run-test-postgres.sh \
+	tools/todo.sh \
+	tools/update-copyright.sh \
+	tools/check_ascii.py \
+	tools/compiler_flags.py \
+	tools/extract_version.py \
+	tools/generate_check_config.py \
+	tools/generate_cxx_checks.py \
+	tools/m4esc.py \
+	tools/template2mak.py \
+	config/flags/audit-mode.txt \
+	config/flags/maintainer-mode.txt \
+	config/flags/suggest-mode.txt \
+	# (End of list)
 
 noinst_HEADERS = test/helpers.hxx
 DISTCLEANFILES = include/pqxx/config-compiler.h
