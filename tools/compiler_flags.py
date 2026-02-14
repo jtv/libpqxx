@@ -38,7 +38,7 @@ def parse_args() -> Namespace:
         "-f",
         "--flags",
         default="-",
-        type=FileType("r"),
+        type=Path,
         help="File with compiler flags to check, one per line; '-' for stdin.",
     )
     parser.add_argument(
@@ -52,7 +52,7 @@ def parse_args() -> Namespace:
         "-o",
         "--output",
         default="-",
-        type=FileType("w"),
+        type=Path,
         help="Output file, or '-' for stdout (the default).",
     )
 
