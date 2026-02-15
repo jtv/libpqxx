@@ -17,7 +17,7 @@ PROJECT_BRIEF = "The C++ client library for PostgreSQL"
 
 # Path to where to generate Doxygen output.  Defaults to working directory
 # when doxygen was run.  Relative paths are relative to there.
-OUTPUT_DIRECTORY =
+OUTPUT_DIRECTORY = doc
 
 GENERATE_LATEX = NO
 
@@ -100,7 +100,7 @@ HIDE_IN_BODY_DOCS = YES
 
 SHOW_HEADERFILE = NO
 
-INPUT = ../src ../include
+INPUT = src include
 
 # The RECURSIVE tag can be used to specify whether or not subdirectories should
 # be searched for input files as well.
@@ -112,7 +112,7 @@ RECURSIVE = YES
 # that contain example code fragments that are included (see the \include
 # command).
 
-EXAMPLE_PATH = ../test
+EXAMPLE_PATH = examples test
 
 # If the value of the EXAMPLE_PATH tag contains directories, you can use the
 # EXAMPLE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp and
@@ -126,7 +126,7 @@ EXAMPLE_PATTERNS = *.cxx
 # (index.html). This can be useful if you have a project on for instance GitHub
 # and want to reuse the introduction page also for the doxygen output.
 
-USE_MDFILE_AS_MAINPAGE = ../include/pqxx/doc/mainpage.md
+USE_MDFILE_AS_MAINPAGE = include/pqxx/doc/mainpage.md
 
 #---------------------------------------------------------------------------
 # Configuration options related to the preprocessor
@@ -153,7 +153,7 @@ MACRO_EXPANSION = YES
 # RECURSIVE has no effect here.
 # This tag requires that the tag SEARCH_INCLUDES is set to YES.
 
-INCLUDE_PATH = ../include /usr/include/postgresql
+INCLUDE_PATH = include /usr/include/postgresql
 
 # You can use the INCLUDE_FILE_PATTERNS tag to specify one or more wildcard
 # patterns (like *.h and *.hpp) to filter out the header-files in the

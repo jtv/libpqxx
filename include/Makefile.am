@@ -1,5 +1,3 @@
-SUBDIRS = pqxx
-
 nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/array pqxx/array.hxx \
 	pqxx/blob pqxx/blob.hxx \
@@ -77,8 +75,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/internal/gates/transaction-transaction_focus.hxx
 
 
-nobase_nodist_include_HEADERS = \
-	pqxx/config-compiler.h
+nobase_nodist_include_HEADERS = pqxx/config.h pqxx/config-compiler.h
 
 EXTRA_DIST = \
 	pqxx/doc/*.md \

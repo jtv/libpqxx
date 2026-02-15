@@ -38,7 +38,7 @@ def parse_args() -> Namespace:
         "-f",
         "--flags",
         default="-",
-        type=FileType("r"),
+        type=Path,
         help="File with compiler flags to check, one per line; '-' for stdin.",
     )
     parser.add_argument(
@@ -52,7 +52,7 @@ def parse_args() -> Namespace:
         "-o",
         "--output",
         default="-",
-        type=FileType("w"),
+        type=Path,
         help="Output file, or '-' for stdout (the default).",
     )
 
@@ -64,7 +64,8 @@ def run_quietly(cmd: str) -> bool:
 
     **This will run `cmd` through shell interpretation.**
     """
-    return run(cmd, stdout=DEVNULL, stderr=DEVNULL, shell=True).returncode == 0
+    proc = run(cmd, stdout=DEVNULL, stderr=DEVNULL, shell=True, check=False)
+    return proc.returncode == 0
 
 
 def compiler_accepts(
@@ -77,20 +78,22 @@ def compiler_accepts(
 def main() -> None:
     """Main entry point."""
     args = parse_args()
-    good_flags = []
-    source = Path("confg-tests") / "minimal.cxx"
+    good_flags: list[str] = []
+    source = Path("config-tests") / "minimal.cxx"
     src = source.name
-    for flag in args.flags:
-        flag = flag.strip()
-        if flag == "" or flag.startswith("#"):
-            continue
-        if compiler_accepts(
-            args.command, Path(src), flag, prev=" ".join(good_flags)
-        ):
-            good_flags.append(flag)
+    with FileType("r")(args.flags) as flags:
+        for line in flags:
+            flag = line.strip()
+            if flag == "" or flag.startswith("#"):
+                continue
+            prev = " ".join(good_flags)
+            if compiler_accepts(args.command, Path(src), flag, prev=prev):
+                good_flags.append(flag)
 
     sep = " " if args.single_line else "\n"
-    print(sep.join(good_flags), file=args.output)
+
+    with FileType("w")(args.output) as output:
+        print(sep.join(good_flags), file=output)
 
 
 if __name__ == "__main__":

@@ -51,11 +51,8 @@ jobs:
                 CXXFLAGS=\"-O1 -std=<< parameters.cxx_ver >>\""
       - store_artifacts:
           path: config.log
-      - run:
-          name: Gather config headers
-          command: "tar -czf config-headers.tar.gz include/pqxx/config-*.h*"
       - store_artifacts:
-          path: config-headers.tar.gz
+          path: include/pqxx
       - run:
           name: Make
           command: make -j4
@@ -118,11 +115,8 @@ jobs:
                 LDFLAGS=\"-L/opt/homebrew/opt/libpq/lib\""
       - store_artifacts:
           path: config.log
-      - run:
-          name: Gather config headers
-          command: "tar -czf config-headers.tar.gz include/pqxx/config-*.h*"
       - store_artifacts:
-          path: config-headers.tar.gz
+          path: include/pqxx
       - run:
           name: Make
           command: make -j4
@@ -138,11 +132,8 @@ jobs:
           path: test-suite.log
       - store_artifacts:
           path: postgres.log
-      - run:
-          name: "Gather examples logs."
-          command: "tar -vczf examples-logs.tar.gz examples/*.log"
       - store_artifacts:
-          path: examples-logs.tar.gz
+          path: examples
 
 
   # Windows builds are very incomplete for now.  No MSVC, no gcc, no database.
@@ -177,14 +168,8 @@ jobs:
             CXXFLAGS='-O1 -std=<< parameters.cxx_ver >>' \
             cmake -G Ninja .\""
           shell: bash.exe
-      - run:
-          name: Gather config headers
-          # (Run the msys bash, not the one we get from CircleCI.)
-          command: ". vars.sh && \
-              bash -c 'tar -czf config-headers.tar.gz include/pqxx/config-*.h'"
-          shell: bash.exe
       - store_artifacts:
-          path: config-headers.tar.gz
+          path: include/pqxx
       - run:
           name: Make
           command: bash -c ". vars.sh && ninja"
@@ -325,23 +310,8 @@ jobs:
           name: Start database
           command: ". /tmp/vars.sh && ./tools/run-test-postgres.sh postgres"
       - run:
-          name: Test
+          name: Run
           command: ". /tmp/vars.sh && make check"
-      - run:
-          name: Report
-          # Looks like a bug in gcov: it interprets relative `#include` paths
-          # relative to current working directory, instead of relative to the
-          # source file that does the `#include`.
-          #
-          # To kludge around this... just pretend there's a `../include/`
-          # relative to the project root.  :-/
-          command: "cd src && \
-              ln -s include ../include && \
-              gcov --prime-paths-source=uncovered -mr *.cxx | tee gcov.out"
-      - run:
-          name: Rank
-          command: "./tools/count-uncovered.sh src \
-              | sort -rn | tee src/rank.txt"
       - run:
           name: Lcov
           command: "lcov \
@@ -353,15 +323,8 @@ jobs:
               genhtml \
                   --config-file=.lcovrc out.info \
                   --output-directory=coverage_html"
-      - run:
-          name: Gather reports
-          command: "tar -czf /tmp/coverage.tar.gz \
-              src/*.gcov src/gcov.out src/rank.txt ; \
-              tar -czf /tmp/coverage-html.tar.gz coverage_html"
       - store_artifacts:
-          path: "/tmp/coverage.tar.gz"
-      - store_artifacts:
-          path: "/tmp/coverage-html.tar.gz"
+          path: "coverage_html"
 
   infer:
     parameters:
@@ -544,8 +507,10 @@ workflows:
               # I really don't want to test against every conceivable
               # optimisation level.  But -O0 revealed a problem that somehow
               # wasn't happening when optimising.  Can't skip -O2 because it's
-              # the default.  And -O3 restructures code which may reveal other
-              # problems.  So... only level we end up skipping is -O1.
+              # the default so it's what everybody is using.  And -O3
+              # restructures code which may reveal problems that don't become
+              # visible at lower levels.  So... only level we end up skipping
+              # is -O1.
               opt: [0, 2, 3]
 
       - test-linux:
