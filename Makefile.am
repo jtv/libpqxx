@@ -36,26 +36,8 @@ EXTRA_DIST = autogen.sh configitems Makefile.am.template README.md VERSION \
 	doc/Doxyfile \
 	src/pqxx-source.hxx \
 	test/helpers.hxx test/sample_types.hxx \
-	tools/deprecations.sh \
-	tools/extract_version.sh \
-	tools/format.sh \
-	tools/idock.sh \
-	tools/install-deps.sh \
-	tools/lint.sh \
-	tools/run-test-postgres.sh \
-	tools/todo.sh \
-	tools/update-copyright.sh \
-	tools/check_ascii.py \
-	tools/compiler_flags.py \
-	tools/extract_version.py \
-	tools/generate_check_config.py \
-	tools/generate_cxx_checks.py \
-	tools/m4esc.py \
-	tools/template2mak.py \
-	config/flags/audit-mode.txt \
-	config/flags/maintainer-mode.txt \
-	config/flags/suggest-mode.txt \
-	# (End of list)
+	@PQXX_TOOLS@ \
+	@PQXX_FLAGS@
 
 noinst_HEADERS = test/helpers.hxx
 
@@ -85,33 +67,7 @@ AM_CPPFLAGS = \
 # unnecessary entries, and incorrectly mentions include/pqxx directly.
 DEFAULT_INCLUDES=
 lib_LTLIBRARIES = src/libpqxx.la
-src_libpqxx_la_SOURCES = \
-	src/array.cxx \
-	src/blob.cxx \
-	src/connection.cxx \
-	src/cursor.cxx \
-	src/encodings.cxx \
-	src/errorhandler.cxx \
-	src/except.cxx \
-	src/field.cxx \
-	src/largeobject.cxx \
-	src/notification.cxx \
-	src/params.cxx \
-	src/pipeline.cxx \
-	src/result.cxx \
-	src/robusttransaction.cxx \
-	src/sql_cursor.cxx \
-	src/strconv.cxx \
-	src/stream_from.cxx \
-	src/stream_to.cxx \
-	src/subtransaction.cxx \
-	src/time.cxx \
-	src/transaction.cxx \
-	src/transaction_base.cxx \
-	src/row.cxx \
-	src/types.cxx \
-	src/util.cxx \
-	src/wait.cxx
+src_libpqxx_la_SOURCES = @PQXX_LIB_SOURCES@
 
 libpqxx_version = -release $(PQXX_ABI)
 
@@ -119,117 +75,16 @@ src_libpqxx_la_LDFLAGS = $(libpqxx_version) \
 	-rpath $(libdir) \
 	${POSTGRES_LIB}
 
-test_runner_SOURCES = \
-  test/test00.cxx \
-  test/test01.cxx \
-  test/test02.cxx \
-  test/test07.cxx \
-  test/test10.cxx \
-  test/test11.cxx \
-  test/test13.cxx \
-  test/test18.cxx \
-  test/test20.cxx \
-  test/test21.cxx \
-  test/test26.cxx \
-  test/test29.cxx \
-  test/test30.cxx \
-  test/test32.cxx \
-  test/test37.cxx \
-  test/test39.cxx \
-  test/test46.cxx \
-  test/test56.cxx \
-  test/test60.cxx \
-  test/test61.cxx \
-  test/test62.cxx \
-  test/test70.cxx \
-  test/test71.cxx \
-  test/test72.cxx \
-  test/test74.cxx \
-  test/test75.cxx \
-  test/test76.cxx \
-  test/test77.cxx \
-  test/test82.cxx \
-  test/test84.cxx \
-  test/test88.cxx \
-  test/test89.cxx \
-  test/test90.cxx \
-  test/test_array.cxx \
-  test/test_blob.cxx \
-  test/test_cancel_query.cxx \
-  test/test_column.cxx \
-  test/test_composite.cxx \
-  test/test_connection.cxx \
-  test/test_connection_string.cxx \
-  test/test_cursor.cxx \
-  test/test_encodings.cxx \
-  test/test_error_verbosity.cxx \
-  test/test_errorhandler.cxx \
-  test/test_escape.cxx \
-  test/test_exceptions.cxx \
-  test/test_field.cxx \
-  test/test_float.cxx \
-  test/test_helpers.cxx \
-  test/test_largeobject.cxx \
-  test/test_nonblocking_connect.cxx \
-  test/test_notice_handler.cxx \
-  test/test_notification.cxx \
-  test/test_params.cxx \
-  test/test_pipeline.cxx \
-  test/test_prepared_statement.cxx \
-  test/test_range.cxx \
-  test/test_read_transaction.cxx \
-  test/test_result_iteration.cxx \
-  test/test_row.cxx \
-  test/test_separated_list.cxx \
-  test/test_simultaneous_transactions.cxx \
-  test/test_sql_cursor.cxx \
-  test/test_stateless_cursor.cxx \
-  test/test_strconv.cxx \
-  test/test_stream_from.cxx \
-  test/test_stream_query.cxx \
-  test/test_stream_to.cxx \
-  test/test_string_conversion.cxx \
-  test/test_subtransaction.cxx \
-  test/test_thread_safety_model.cxx \
-  test/test_time.cxx \
-  test/test_transaction.cxx \
-  test/test_transaction_base.cxx \
-  test/test_transaction_focus.cxx \
-  test/test_transactor.cxx \
-  test/test_type_name.cxx \
-  test/test_util.cxx \
-  test/test_zview.cxx \
-  test/runner.cxx
+test_runner_SOURCES = @PQXX_TEST_SOURCES@
 
 test_runner_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
 
 
-PQXX_EXAMPLES = \
-  examples/complete_example \
-  examples/faster_data \
-  examples/from_readme \
-  examples/getting_started_1 \
-  examples/getting_started_2 \
-  examples/quick_example \
-  examples/simple_queries \
-  # (End of list)
+noinst_PROGRAMS = @PQXX_EXAMPLES@
 
-noinst_PROGRAMS = $(PQXX_EXAMPLES)
+@PQXX_EXAMPLES_SOURCES_TARGETS@
 
-examples_complete_example_SOURCES = examples/complete_example.cxx
-examples_complete_example_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
-examples_faster_data_SOURCES = examples/faster_data.cxx
-examples_faster_data_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
-examples_from_readme_SOURCES = examples/from_readme.cxx
-examples_from_readme_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
-examples_getting_started_1_SOURCES = examples/getting_started_1.cxx
-examples_getting_started_1_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
-examples_getting_started_2_SOURCES = examples/getting_started_2.cxx
-examples_getting_started_2_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
-examples_quick_example_SOURCES = examples/quick_example.cxx
-examples_quick_example_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
-examples_simple_queries_SOURCES = examples/simple_queries.cxx
-examples_simple_queries_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
+@PQXX_EXAMPLES_LDADD_TARGETS@
 
 TESTS = $(PQXX_TEST_PROGS) tools/lint.sh $(PQXX_EXAMPLES)
 

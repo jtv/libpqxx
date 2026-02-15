@@ -23,16 +23,8 @@ EXTRA_DIST = autogen.sh configitems Makefile.am.template README.md VERSION \
 	doc/Doxyfile \
 	src/pqxx-source.hxx \
 	test/helpers.hxx test/sample_types.hxx \
-###MAKTEMPLATE:FOREACH tools/*.sh
-	tools/###BASENAME###.sh \
-###MAKTEMPLATE:ENDFOREACH
-###MAKTEMPLATE:FOREACH tools/*.py
-	tools/###BASENAME###.py \
-###MAKTEMPLATE:ENDFOREACH
-###MAKTEMPLATE:FOREACH config/flags/*.txt
-	config/flags/###BASENAME###.txt \
-###MAKTEMPLATE:ENDFOREACH
-	# (End of list)
+	@PQXX_TOOLS@ \
+	@PQXX_FLAGS@
 
 noinst_HEADERS = test/helpers.hxx
 
@@ -62,33 +54,7 @@ AM_CPPFLAGS = \
 # unnecessary entries, and incorrectly mentions include/pqxx directly.
 DEFAULT_INCLUDES=
 lib_LTLIBRARIES = src/libpqxx.la
-src_libpqxx_la_SOURCES = \
-	src/array.cxx \
-	src/blob.cxx \
-	src/connection.cxx \
-	src/cursor.cxx \
-	src/encodings.cxx \
-	src/errorhandler.cxx \
-	src/except.cxx \
-	src/field.cxx \
-	src/largeobject.cxx \
-	src/notification.cxx \
-	src/params.cxx \
-	src/pipeline.cxx \
-	src/result.cxx \
-	src/robusttransaction.cxx \
-	src/sql_cursor.cxx \
-	src/strconv.cxx \
-	src/stream_from.cxx \
-	src/stream_to.cxx \
-	src/subtransaction.cxx \
-	src/time.cxx \
-	src/transaction.cxx \
-	src/transaction_base.cxx \
-	src/row.cxx \
-	src/types.cxx \
-	src/util.cxx \
-	src/wait.cxx
+src_libpqxx_la_SOURCES = @PQXX_LIB_SOURCES@
 
 libpqxx_version = -release $(PQXX_ABI)
 
@@ -96,27 +62,16 @@ src_libpqxx_la_LDFLAGS = $(libpqxx_version) \
 	-rpath $(libdir) \
 	${POSTGRES_LIB}
 
-test_runner_SOURCES = \
-###MAKTEMPLATE:FOREACH test/test*.cxx
-  test/###BASENAME###.cxx \
-###MAKTEMPLATE:ENDFOREACH
-  test/runner.cxx
+test_runner_SOURCES = @PQXX_TEST_SOURCES@
 
 test_runner_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
 
 
-PQXX_EXAMPLES = \
-###MAKTEMPLATE:FOREACH examples/*.cxx
-  examples/###BASENAME### \
-###MAKTEMPLATE:ENDFOREACH
-  # (End of list)
+noinst_PROGRAMS = @PQXX_EXAMPLES@
 
-noinst_PROGRAMS = $(PQXX_EXAMPLES)
+@PQXX_EXAMPLES_SOURCES_TARGETS@
 
-###MAKTEMPLATE:FOREACH examples/*.cxx
-examples_###BASENAME###_SOURCES = examples/###BASENAME###.cxx
-examples_###BASENAME###_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
-###MAKTEMPLATE:ENDFOREACH
+@PQXX_EXAMPLES_LDADD_TARGETS@
 
 TESTS = $(PQXX_TEST_PROGS) tools/lint.sh $(PQXX_EXAMPLES)
 

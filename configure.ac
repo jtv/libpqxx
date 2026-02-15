@@ -43,6 +43,30 @@ LT_INIT
 AC_PROG_MAKE_SET
 AC_PATH_PROG([MKDIR], [mkdir])
 
+
+# Fill out various lists of files.  By design automake wants you to maintain
+# manual lists of everything, but I think in combination with revision control
+# that's become triple-redundant bookkeeping.
+PQXX_FLAGS=$(ls config/flags/*.txt | tr '\n' ' ')
+AC_SUBST([PQXX_FLAGS])
+PQXX_LIB_SOURCES=$(ls src/*.cxx | tr '\n' ' ')
+AC_SUBST([PQXX_LIB_SOURCES])
+PQXX_EXAMPLES_SOURCES=$(ls examples/*.cxx | tr '\n' ' ')
+PQXX_EXAMPLES=$(ls examples/*.cxx | sed -e 's/\.cxx\n/ /')
+PQXX_EXAMPLES_SOURCES_TARGETS=$(
+	ls examples/*.cxx |
+	sed -e 's|^examples/\(.*\)$|examples_\1_SOURCES = examples/\1.cxx|')
+PQXX_EXAMPLES_LDADD_TARGETS=$(
+	ls examples/*.cxx |
+	sed -e 's|^examples/\(.*\)$|examples_\1_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}|')
+AC_SUBST([PQXX_EXAMPLES_SOURCES])
+PQXX_TEST_SOURCES=$(ls test/*.cxx | tr '\n' ' ')
+AC_SUBST([PQXX_TEST_SOURCES])
+PQXX_TOOLS=$(ls tools/*.py tools/*.sh | tr '\n' ' ')
+AC_SUBST([PQXX_TOOLS])
+
+
+# Generate documentation?
 AC_ARG_ENABLE(
 	documentation,
 	[AS_HELP_STRING([--enable-documentation], [Generate documentation])],
