@@ -15,7 +15,6 @@
  - Simpler to use: `pqxx::from_string()`, `pqxx::to_buf()`, `pqxx::into_bu()`.
  - `to_buf()` and `into_buf()` functions will no longer zero-terminate.
  - **Beware lifetime** when "converting" a string to `std::string_view`!
- - Conversion from string to `char const *` is no longer allowed.
  - Binary data can be any `std::contiguous_range` of `std::byte`. (#925)
  - Generic `quote()` takes `always_null` into account.
  - You can now convert strings to `pqxx::array` types.
@@ -43,31 +42,27 @@
  - Assume compiler supports ISO-646 without needing `<ciso646>` header.
  - Feel free to use `pqxx::encoding_group`.  It's no longer "internal."
  - There's now an `unknown` encoding group.  It's the only fully safe default.
- - Dropping JOHAB encoding.  Doesn't work properly on the server either.
+ - Dropping JOHAB encoding.  Never fully worked on the server anyway.
  - Array parsing will refuse to work if the encoding group is `UNKNOWN`.
  - You can now combine connection string & option pairs on connections! (#1133)
  - Encodings support code got smaller, simpler, more efficient.
  - Tests are now in a single directory (#934)
  - Added an "examples" directory: tested, maintained sample code.
- - Removed cumbersome `test_all.py` script.
  - `check_cast()` supports infinities and NaNs.
  - Now supporting CMake "unity builds."
  - Stop trying to figure out link options for filesystem library.
- - You can now set `PQXX_LINT=skip` to skip lint checks.
- - Shell scripts now have "`.sh`" suffix.  Saves hand-coding names.
- - Deprecated `extract_version.sh`; use `extract_version.py`.
- - Rewrote header/binary version compatibility check.
+ - You can now set `PQXX_LINT=skip` to skip lint checks during test build.
+ - Header/binary version compatibility check now tolerates patch upgrades.
  - New helper functions to query a type's nullness properties.
  - More SQL statements can now be `std::string_view` instead of `pqxx::zview`.
- - Work around broken multidim operator[] support in MSVC 2022.
+ - Work around broken multidim `operator[]` support in MSVC 2022.
  - Build fix for MSVC 2026. (#1160)
  - Nicer replacement for `pqxx::connection::port()`: `port_number()`.
  - `pqxx::out_of_memory` is now `pqxx::server_out_of_memory` for clarity.
  - `pqxx::protocol_violation` is now an `sql_error`, not a `broken_connection`.
  - Use C++26 reflection, if available, for finding types' names.
- - Export `source_loc()`: render a `std::source_location` into text.
+ - Export `source_loc()` function: render a `std::source_location` into text.
  - Allow tests to run even on ASCII-only databases.
- - Stop trying to use/support `std::filesystem`.
  - `composite_into_buf()` now returns a `zview`.
  - Optionally pass `encoding_group` (or connection/transaction) into `params`.
  - `pqxx::zview` no longer accepts null pointer.
@@ -76,7 +71,9 @@
  - CMake build now filters `config-compiler.h`, like the autotools build does.
  - For `stream()`, a type must be convertible and move-constructible. (#1168)
  - Build defaults to C++20 minimum.
- - Retired tools: `rmlo`, `pqxxthreadsafety`, `count-uncovered.sh`.
+ - Deprecated `extract_version.sh`; use `extract_version.py`.
+ - Retired tools: `rmlo`, `pqxxthreadsafety`, `test_all.py`.
+ - Shell scripts now have "`.sh`" suffix.  Saves hand-coding names.
 7.10.5
  - Fix missing types in Doxygen docs (by downgrading Doxygen :-/ ).
  - Tweak `README.md`. (#1111)

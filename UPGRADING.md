@@ -357,13 +357,22 @@ For example, all SQL keywords themselves as well as all special characters such
 as quotes and commas and various field separators will all be in ASCII.
 
 There are cases where libpqxx needs to know what kind of encoding it's getting.
-It doesn't care about the exact encoding, but it needs to know where each
-character begins and ends, so it can detect special characters such as closing
-quotes, withing being confused by the same byte values occurring inside a
-multi-byte character.
+For example, when you create a `pqxx::params` to pass parameters to an SQL
+statement, in some cases it will need to be aware.  You can provide the
+information by passing your connection, transaction, or "enoding group" (see
+below) as the first constructor argument, before any actual parameters.
+
+The encodings machinery doesn't actually care about the _exact_ encoding of the
+test it's handling, but it needs to know where each character begins and ends,
+so that it can detect special characters (e.g. closing quotes) reliably.
+Without this, things can get a little dangerous when e.g. a multi-byte
+character inside a string happens to contain a byte that looks just like an
+ASCII quote character.  Knowing where character values begin and end tells
+libpqxx which kind it is.
 
 This information is now also available to string conversions, to help them
-parse SQL data that may contain text in the client encoding.
+parse SQL data that may contain text in the client encoding.  In some cases
+you may need to pass it yourself.
 
 
 Null pointers and `zview`
