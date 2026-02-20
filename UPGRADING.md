@@ -11,10 +11,10 @@ Let's go through the main things.
 C++20
 -----
 
-You will need at least C++20 to compile libpqxx.  Support does not need to be
-absolutely complete, but the basics must be there: concepts, various utility
-functions in the standard library, the language's new object lifetime rules,
-and so on.
+You will need at least C++20 to compile libpqxx.  Compiler support for C++20
+does not need to be absolutely complete, but the basics must be there:
+concepts, ranges, spans, various utility functions in the standard library, the
+new object lifetime rules, and so on.
 
 Thanks to `std::span`, there are now very few raw pointers in the API (or
 even internally).  This makes libpqxx not only safer, but also easier to
@@ -380,17 +380,25 @@ Null pointers and `zview`
 
 It is no longer valid to create a `pqxx::zview` from a `nullptr`.
 
-This eliminates a nasty wart in the class' API that made it very different from
-`std::string_view`.  If a `std::string_view` has a null pointer, so long as its
-length is zero, it can't cause any harm because there are no contents that you
-might attempt to access.  (It was always invalid to construct a `string_view`
-from _just_ a null pointer without a length, but that's another story.)  But a
-`zview` normally promises that you can access the byte at its `end()`, and get
-a zero byte!
+This eliminates a little wart in the class' API that made it very different
+from `std::string_view`.  If a `std::string_view` has a null pointer, so long
+as its length is zero, it can't cause any harm because there are no contents
+that you might attempt to access.  (It was always invalid to construct a
+`string_view` from _just_ a null pointer, without a length, but that's another
+story.)
 
-The fine print used to say that a `zview` guarateed a terminating zero byte
-_unless the pointer was null,_ but it introduces too much complication and risk
-of mistakes.  So... Just don't do that, okay?
+A `zview`, however, normally promises that you can access the byte at its
+`end()`, and get a zero byte.  Of course that wouldn't work with a null
+pointer!
+
+And so, the fine print for `view` _used_ to say that a `zview` guaranteed a
+terminating zero byte _unless the pointer was null._  But that introduces too
+much complication and risk of mistakes.  So from now on, unlike `string_view`,
+`zview` completely forbids null pointers.
+
+(You may be wondering what happens to the default constructor.  When you
+default-construct a `zview`, it will point to a zero-terminated empty string.
+Its pointer will not be null.)
 
 
 Build changes
