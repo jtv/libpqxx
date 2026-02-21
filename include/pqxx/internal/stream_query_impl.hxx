@@ -34,7 +34,7 @@ stream_query<TYPE...>::get_finder(transaction_base const &tx, sl loc)
 // TODO: Replace with generator?  Could be faster (local vars vs. members).
 /// Minimal iterator for stream_query.
 /** Just barely enough to support range-based "for" loops on @ref stream_query.
- * It's so minimal, it isn't even an `input_iterator.
+ * It's so minimal, it isn't even an `input_iterator`.
  *
  * Do not assume that anything beyond that works: post-increment, comparison to
  * anything other than `end()`, assignment between iterators on different

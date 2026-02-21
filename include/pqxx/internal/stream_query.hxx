@@ -17,19 +17,9 @@
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
 #endif
 
-#include <cassert>
-#include <functional>
-#include <variant>
-
-#include "pqxx/connection.hxx"
-#include "pqxx/encoding_group.hxx"
-#include "pqxx/except.hxx"
 #include "pqxx/internal/encodings.hxx"
 #include "pqxx/internal/gates/connection-stream_from.hxx"
-#include "pqxx/internal/stream_iterator.hxx"
-#include "pqxx/transaction_base.hxx"
 #include "pqxx/transaction_focus.hxx"
-#include "pqxx/util.hxx"
 
 
 namespace pqxx
