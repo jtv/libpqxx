@@ -32,14 +32,16 @@ stream_query<TYPE...>::get_finder(transaction_base const &tx, sl loc)
 
 
 // TODO: Replace with generator?  Could be faster (local vars vs. members).
-/// Input iterator for stream_query.
-/** Just barely enough to support range-based "for" loops on `stream_from`.
- * Don't assume that any of the usual behaviour works beyond that:
- * post-increment, comparison to anything other than `end()`, assignment to
- * anything other than its own successor, and probably more common and
- * sensible things to do with iterators are anathema here.
+/// Minimal iterator for stream_query.
+/** Just barely enough to support range-based "for" loops on @ref stream_query.
+ * It's so minimal, it isn't even an `input_iterator.
+ *
+ * Do not assume that anything beyond that works: post-increment, comparison to
+ * anything other than `end()`, assignment between iterators on different
+ * streams, and probably several more common and sensible things to do with
+ * iterators are all anathema here.
  */
-template<typename... TYPE> class stream_query_input_iterator final
+template<typename... TYPE> class stream_query_iterator final
 {
   using stream_t = stream_query<TYPE...>;
 
@@ -47,7 +49,7 @@ public:
   using value_type = std::tuple<TYPE...>;
   using difference_type = long;
 
-  explicit stream_query_input_iterator(stream_t &home, sl loc) :
+  explicit stream_query_iterator(stream_t &home, sl loc) :
           m_home(&home),
           m_line{typename stream_query<TYPE...>::line_handle(
             nullptr, pqxx::internal::pq::pqfreemem)},
@@ -55,11 +57,15 @@ public:
   {
     consume_line(loc);
   }
-  stream_query_input_iterator(stream_query_input_iterator const &) = default;
-  stream_query_input_iterator(stream_query_input_iterator &&) = default;
+  stream_query_iterator(stream_query_iterator const &) = default;
+  stream_query_iterator &operator=(stream_query_iterator const &) = default;
+  stream_query_iterator(stream_query_iterator &&) = default;
 
-  /// Pre-increment.  We assume this is what ranged-based `for` uses.
-  stream_query_input_iterator &operator++() &
+  /// Pre-increment.
+  /** We don't even support post-increment, because we only do what's needed
+   * for range-based `for` loops.
+   */
+  stream_query_iterator &operator++() &
   {
     assert(not done());
     consume_line(m_created_loc);
@@ -74,28 +80,27 @@ public:
 
   /// Are we at the end?
   bool operator==(stream_query_end_iterator) const noexcept { return done(); }
-  /// Comparison only works for comparing to end().
+
+  /// Do we have more iterations to go?
   bool operator!=(stream_query_end_iterator) const noexcept
   {
     return not done();
   }
 
-  stream_query_input_iterator &
-  operator=(stream_query_input_iterator &&rhs) noexcept
+  // XXX: Do we actually need this operator?
+  stream_query_iterator &operator=(stream_query_iterator &&rhs) noexcept
   {
-    if (&rhs != this)
+    if (&rhs != this) [[likely]]
     {
-      assert(m_home == rhs.m_home); // XXX: EXPERIMENTAL
       m_line = std::move(rhs.m_line);
-      // m_home = rhs.m_home;  XXX: EXPERIMENTAL
+      // (Not assigning m_home; assumed to be identical.)
       m_line_size = rhs.m_line_size;
     }
     return *this;
   }
 
 private:
-  explicit stream_query_input_iterator(sl loc = sl::current()) :
-          m_created_loc{loc}
+  explicit stream_query_iterator(sl loc = sl::current()) : m_created_loc{loc}
   {}
 
   /// Have we finished?
@@ -121,7 +126,7 @@ private:
     }
   }
 
-  stream_t *m_home;
+  stream_t *const m_home;
 
   /// Last COPY line we read, allocated by libpq.
   typename stream_t::line_handle m_line;
@@ -130,21 +135,21 @@ private:
   std::size_t m_line_size;
 
   /// A `std::source_location` for where this object was created.
-  sl m_created_loc;
+  sl const m_created_loc;
 };
 
 
 template<typename... TYPE>
-inline bool operator==(
-  stream_query_end_iterator, stream_query_input_iterator<TYPE...> const &i)
+inline bool
+operator==(stream_query_end_iterator, stream_query_iterator<TYPE...> const &i)
 {
   return i.done();
 }
 
 
 template<typename... TYPE>
-inline bool operator!=(
-  stream_query_end_iterator, stream_query_input_iterator<TYPE...> const &i)
+inline bool
+operator!=(stream_query_end_iterator, stream_query_iterator<TYPE...> const &i)
 {
   return not i.done();
 }
@@ -152,7 +157,7 @@ inline bool operator!=(
 
 template<typename... TYPE> inline auto stream_query<TYPE...>::begin() &
 {
-  return stream_query_input_iterator<TYPE...>{*this, m_ctx.loc};
+  return stream_query_iterator<TYPE...>{*this, m_ctx.loc};
 }
 
 

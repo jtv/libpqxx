@@ -83,7 +83,9 @@ public:
   inline stream_query(
     transaction_base &tx, std::string_view query, conversion_context c);
 
+  stream_query(stream_query const &) = delete;
   stream_query(stream_query &&) = delete;
+  stream_query &operator=(stream_query const &) = delete;
   stream_query &operator=(stream_query &&) = delete;
 
   ~stream_query() noexcept
@@ -103,6 +105,7 @@ public:
 
   /// Begin iterator.  Only for use by "range for."
   inline auto begin() &;
+
   /// End iterator.  Only for use by "range for."
   /** The end iterator is a different type than the regular iterator.  It
    * simplifies the comparisons: we know at compile time that we're comparing
@@ -149,7 +152,7 @@ private:
   /** This is the only encoding-dependent code in the class.  All we need to
    * store after that is this function pointer.
    */
-  PQXX_RETURNS_NONNULL static inline char_finder_func *
+  PQXX_PURE PQXX_RETURNS_NONNULL static inline char_finder_func *
   get_finder(transaction_base const &tx, sl);
 
   /// Scan and unescape a field into the row buffer.
@@ -299,7 +302,7 @@ private:
       else
         internal::throw_null_conversion(name_type<field_type>(), c.loc);
     }
-    else
+    else [[likely]]
     {
       // Don't ever try to convert a non-null value to nullptr_t!
       return from_string<field_type>(text, c);
