@@ -33,8 +33,11 @@ stream_query<TYPE...>::get_finder(transaction_base const &tx, sl loc)
 
 // TODO: Replace with generator?  Could be faster (local vars vs. members).
 /// Input iterator for stream_query.
-/** Just barely enough to support range-based "for" loops on stream_from.
- * Don't assume that any of the usual behaviour works beyond that.
+/** Just barely enough to support range-based "for" loops on `stream_from`.
+ * Don't assume that any of the usual behaviour works beyond that:
+ * post-increment, comparison to anything other than `end()`, assignment to
+ * anything other than its own successor, and probably more common and
+ * sensible things to do with iterators are anathema here.
  */
 template<typename... TYPE> class stream_query_input_iterator final
 {
