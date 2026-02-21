@@ -19,7 +19,6 @@ template<typename... TYPE> class stream_query;
 
 namespace pqxx::internal
 {
-// TODO: Replace with generator?
 /// Input iterator for stream_from.
 /** Just barely enough to support range-based "for" loops on stream_from.
  * Don't assume that any of the usual behaviour works beyond that.
