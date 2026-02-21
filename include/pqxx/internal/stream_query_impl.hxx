@@ -55,21 +55,12 @@ public:
   stream_query_input_iterator(stream_query_input_iterator const &) = default;
   stream_query_input_iterator(stream_query_input_iterator &&) = default;
 
-  /// Pre-increment.  This is what you'd normally want to use.
+  /// Pre-increment.  We assume this is what ranged-based `for` uses.
   stream_query_input_iterator &operator++() &
   {
     assert(not done());
     consume_line(m_created_loc);
     return *this;
-  }
-
-  /// Post-increment.  Only here to satisfy input_iterator concept.
-  /** The iterator that this returns is in an unusable state.
-   */
-  stream_query_input_iterator operator++(int)
-  {
-    ++*this;
-    return {};
   }
 
   /// Dereference.  There's no caching in here, so don't repeat calls.
@@ -91,8 +82,9 @@ public:
   {
     if (&rhs != this)
     {
+      assert(m_home == rhs.m_home); // XXX: EXPERIMENTAL
       m_line = std::move(rhs.m_line);
-      m_home = rhs.m_home;
+      // m_home = rhs.m_home;  XXX: EXPERIMENTAL
       m_line_size = rhs.m_line_size;
     }
     return *this;
