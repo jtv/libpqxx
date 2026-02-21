@@ -49,7 +49,7 @@ public:
   using value_type = std::tuple<TYPE...>;
   using difference_type = long;
 
-  explicit stream_query_iterator(stream_t &home, sl loc) :
+  stream_query_iterator(stream_t &home, sl loc) :
           m_home(&home),
           m_line{typename stream_query<TYPE...>::line_handle(
             nullptr, pqxx::internal::pq::pqfreemem)},
@@ -57,9 +57,11 @@ public:
   {
     consume_line(loc);
   }
-  stream_query_iterator(stream_query_iterator const &) = default;
-  stream_query_iterator &operator=(stream_query_iterator const &) = default;
-  stream_query_iterator(stream_query_iterator &&) = default;
+
+  stream_query_iterator(stream_query_iterator const &) = delete;
+  stream_query_iterator &operator=(stream_query_iterator const &) = delete;
+  stream_query_iterator(stream_query_iterator &&) = delete;
+  stream_query_iterator &operator=(stream_query_iterator &&) = delete;
 
   /// Pre-increment.
   /** We don't even support post-increment, because we only do what's needed
@@ -87,22 +89,7 @@ public:
     return not done();
   }
 
-  // XXX: Do we actually need this operator?
-  stream_query_iterator &operator=(stream_query_iterator &&rhs) noexcept
-  {
-    if (&rhs != this) [[likely]]
-    {
-      m_line = std::move(rhs.m_line);
-      // (Not assigning m_home; assumed to be identical.)
-      m_line_size = rhs.m_line_size;
-    }
-    return *this;
-  }
-
 private:
-  explicit stream_query_iterator(sl loc = sl::current()) : m_created_loc{loc}
-  {}
-
   /// Have we finished?
   bool done() const noexcept { return m_home->done(); }
 
@@ -126,7 +113,7 @@ private:
     }
   }
 
-  stream_t *const m_home;
+  stream_t *const m_home = nullptr;
 
   /// Last COPY line we read, allocated by libpq.
   typename stream_t::line_handle m_line;

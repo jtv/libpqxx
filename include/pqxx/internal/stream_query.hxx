@@ -321,7 +321,7 @@ private:
 
   /// Callback for finding next special character (or end of line).
   /** This pointer doubles as an indication that we're done.  We set it to
-   * nullptr when the iteration is finished, and that's how we can know that
+   * `nullptr` when the iteration is finished, and that's how we can know that
    * there are no more rows to be iterated.
    */
   char_finder_func *m_char_finder;
@@ -334,7 +334,7 @@ private:
   std::string m_row;
 
   /// Caller source location, encoding group, possibly more.
-  conversion_context m_ctx;
+  conversion_context const m_ctx;
 };
 } // namespace pqxx::internal
 #endif
