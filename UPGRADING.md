@@ -359,11 +359,11 @@ as quotes and commas and various field separators will all be in ASCII.
 There are cases where libpqxx needs to know what kind of encoding it's getting.
 For example, when you create a `pqxx::params` to pass parameters to an SQL
 statement, in some cases it will need to be aware.  You can provide the
-information by passing your connection, transaction, or "enoding group" (see
+information by passing your connection, transaction, or "ecnoding group" (see
 below) as the first constructor argument, before any actual parameters.
 
 The encodings machinery doesn't actually care about the _exact_ encoding of the
-test it's handling, but it needs to know where each character begins and ends,
+text it's handling, but it needs to know where each character begins and ends,
 so that it can detect special characters (e.g. closing quotes) reliably.
 Without this, things can get a little dangerous when e.g. a multi-byte
 character inside a string happens to contain a byte that looks just like an
@@ -391,7 +391,7 @@ A `zview`, however, normally promises that you can access the byte at its
 `end()`, and get a zero byte.  Of course that wouldn't work with a null
 pointer!
 
-And so, the fine print for `view` _used_ to say that a `zview` guaranteed a
+And so, the fine print for `zview` _used_ to say that a `zview` guaranteed a
 terminating zero byte _unless the pointer was null._  But that introduces too
 much complication and risk of mistakes.  So from now on, unlike `string_view`,
 `zview` completely forbids null pointers.
