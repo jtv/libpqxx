@@ -2,7 +2,7 @@
  *
  * Enables optimized batch reads from a database table.
  *
- * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/stream_query instead.
+ * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/transaction_base instead.
  *
  * Copyright (c) 2000-2026, Jeroen T. Vermeulen.
  *

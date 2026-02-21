@@ -127,7 +127,7 @@ private:
 
 
 template<typename... TYPE>
-inline bool
+PQXX_INLINE_ONLY inline bool
 operator==(stream_query_end_iterator, stream_query_iterator<TYPE...> const &i)
 {
   return i.done();
@@ -135,7 +135,7 @@ operator==(stream_query_end_iterator, stream_query_iterator<TYPE...> const &i)
 
 
 template<typename... TYPE>
-inline bool
+PQXX_INLINE_ONLY inline bool
 operator!=(stream_query_end_iterator, stream_query_iterator<TYPE...> const &i)
 {
   return not i.done();
@@ -158,9 +158,11 @@ stream_query<TYPE...>::read_line(sl loc) &
   try
   {
     auto line{gate.read_copy_line(loc)};
-    // Check for completion.
     if (not line.first) [[unlikely]]
+    {
+      // This is how we get told the iteration is finished.
       close();
+    }
     return line;
   }
   catch (std::exception const &)
