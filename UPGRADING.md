@@ -11,10 +11,10 @@ Let's go through the main things.
 C++20
 -----
 
-You will need at least C++20 to compile libpqxx.  Support does not need to be
-absolutely complete, but the basics must be there: concepts, various utility
-functions in the standard library, the language's new object lifetime rules,
-and so on.
+You will need at least C++20 to compile libpqxx.  Compiler support for C++20
+does not need to be absolutely complete, but the basics must be there:
+concepts, ranges, spans, various utility functions in the standard library, the
+new object lifetime rules, and so on.
 
 Thanks to `std::span`, there are now very few raw pointers in the API (or
 even internally).  This makes libpqxx not only safer, but also easier to
@@ -357,13 +357,22 @@ For example, all SQL keywords themselves as well as all special characters such
 as quotes and commas and various field separators will all be in ASCII.
 
 There are cases where libpqxx needs to know what kind of encoding it's getting.
-It doesn't care about the exact encoding, but it needs to know where each
-character begins and ends, so it can detect special characters such as closing
-quotes, withing being confused by the same byte values occurring inside a
-multi-byte character.
+For example, when you create a `pqxx::params` to pass parameters to an SQL
+statement, in some cases it will need to be aware.  You can provide the
+information by passing your connection, transaction, or "ecnoding group" (see
+below) as the first constructor argument, before any actual parameters.
+
+The encodings machinery doesn't actually care about the _exact_ encoding of the
+text it's handling, but it needs to know where each character begins and ends,
+so that it can detect special characters (e.g. closing quotes) reliably.
+Without this, things can get a little dangerous when e.g. a multi-byte
+character inside a string happens to contain a byte that looks just like an
+ASCII quote character.  Knowing where character values begin and end tells
+libpqxx which kind it is.
 
 This information is now also available to string conversions, to help them
-parse SQL data that may contain text in the client encoding.
+parse SQL data that may contain text in the client encoding.  In some cases
+you may need to pass it yourself.
 
 
 Null pointers and `zview`
@@ -371,17 +380,25 @@ Null pointers and `zview`
 
 It is no longer valid to create a `pqxx::zview` from a `nullptr`.
 
-This eliminates a nasty wart in the class' API that made it very different from
-`std::string_view`.  If a `std::string_view` has a null pointer, so long as its
-length is zero, it can't cause any harm because there are no contents that you
-might attempt to access.  (It was always invalid to construct a `string_view`
-from _just_ a null pointer without a length, but that's another story.)  But a
-`zview` normally promises that you can access the byte at its `end()`, and get
-a zero byte!
+This eliminates a little wart in the class' API that made it very different
+from `std::string_view`.  If a `std::string_view` has a null pointer, so long
+as its length is zero, it can't cause any harm because there are no contents
+that you might attempt to access.  (It was always invalid to construct a
+`string_view` from _just_ a null pointer, without a length, but that's another
+story.)
 
-The fine print used to say that a `zview` guarateed a terminating zero byte
-_unless the pointer was null,_ but it introduces too much complication and risk
-of mistakes.  So... Just don't do that, okay?
+A `zview`, however, normally promises that you can access the byte at its
+`end()`, and get a zero byte.  Of course that wouldn't work with a null
+pointer!
+
+And so, the fine print for `zview` _used_ to say that a `zview` guaranteed a
+terminating zero byte _unless the pointer was null._  But that introduces too
+much complication and risk of mistakes.  So from now on, unlike `string_view`,
+`zview` completely forbids null pointers.
+
+(You may be wondering what happens to the default constructor.  When you
+default-construct a `zview`, it will point to a zero-terminated empty string.
+Its pointer will not be null.)
 
 
 Build changes
