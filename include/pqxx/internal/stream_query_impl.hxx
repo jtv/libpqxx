@@ -89,6 +89,19 @@ public:
     return not done();
   }
 
+  friend bool
+  operator==(stream_query_end_iterator, stream_query_iterator const &i)
+  {
+    return i.done();
+  }
+
+  friend bool
+  operator!=(stream_query_end_iterator, stream_query_iterator const &i)
+  {
+    return not i.done();
+  }
+
+
 private:
   /// Have we finished?
   bool done() const noexcept { return m_home->done(); }
@@ -124,22 +137,6 @@ private:
   /// A `std::source_location` for where this object was created.
   sl const m_created_loc;
 };
-
-
-template<typename... TYPE>
-PQXX_INLINE_ONLY inline bool
-operator==(stream_query_end_iterator, stream_query_iterator<TYPE...> const &i)
-{
-  return i.done();
-}
-
-
-template<typename... TYPE>
-PQXX_INLINE_ONLY inline bool
-operator!=(stream_query_end_iterator, stream_query_iterator<TYPE...> const &i)
-{
-  return not i.done();
-}
 
 
 template<typename... TYPE> inline auto stream_query<TYPE...>::begin() &
