@@ -32,11 +32,16 @@ stream_query<TYPE...>::get_finder(transaction_base const &tx, sl loc)
 
 
 // TODO: Replace with generator?  Could be faster (local vars vs. members).
-/// Input iterator for stream_query.
-/** Just barely enough to support range-based "for" loops on stream_from.
- * Don't assume that any of the usual behaviour works beyond that.
+/// Minimal iterator for stream_query.
+/** Just barely enough to support range-based "for" loops on @ref stream_query.
+ * It's so minimal, it isn't even an `input_iterator`.
+ *
+ * Do not assume that anything beyond that works: post-increment, comparison to
+ * anything other than `end()`, assignment between iterators on different
+ * streams, and probably several more common and sensible things to do with
+ * iterators are all anathema here.
  */
-template<typename... TYPE> class stream_query_input_iterator final
+template<typename... TYPE> class stream_query_iterator final
 {
   using stream_t = stream_query<TYPE...>;
 
@@ -44,7 +49,7 @@ public:
   using value_type = std::tuple<TYPE...>;
   using difference_type = long;
 
-  explicit stream_query_input_iterator(stream_t &home, sl loc) :
+  stream_query_iterator(stream_t &home, sl loc) :
           m_home(&home),
           m_line{typename stream_query<TYPE...>::line_handle(
             nullptr, pqxx::internal::pq::pqfreemem)},
@@ -52,24 +57,21 @@ public:
   {
     consume_line(loc);
   }
-  stream_query_input_iterator(stream_query_input_iterator const &) = default;
-  stream_query_input_iterator(stream_query_input_iterator &&) = default;
 
-  /// Pre-increment.  This is what you'd normally want to use.
-  stream_query_input_iterator &operator++() &
+  stream_query_iterator(stream_query_iterator const &) = delete;
+  stream_query_iterator &operator=(stream_query_iterator const &) = delete;
+  stream_query_iterator(stream_query_iterator &&) = delete;
+  stream_query_iterator &operator=(stream_query_iterator &&) = delete;
+
+  /// Pre-increment.
+  /** We don't even support post-increment, because we only do what's needed
+   * for range-based `for` loops.
+   */
+  stream_query_iterator &operator++() &
   {
     assert(not done());
     consume_line(m_created_loc);
     return *this;
-  }
-
-  /// Post-increment.  Only here to satisfy input_iterator concept.
-  /** The iterator that this returns is in an unusable state.
-   */
-  stream_query_input_iterator operator++(int)
-  {
-    ++*this;
-    return {};
   }
 
   /// Dereference.  There's no caching in here, so don't repeat calls.
@@ -80,29 +82,27 @@ public:
 
   /// Are we at the end?
   bool operator==(stream_query_end_iterator) const noexcept { return done(); }
-  /// Comparison only works for comparing to end().
+
+  /// Do we have more iterations to go?
   bool operator!=(stream_query_end_iterator) const noexcept
   {
     return not done();
   }
 
-  stream_query_input_iterator &
-  operator=(stream_query_input_iterator &&rhs) noexcept
+  friend bool
+  operator==(stream_query_end_iterator, stream_query_iterator const &i)
   {
-    if (&rhs != this)
-    {
-      m_line = std::move(rhs.m_line);
-      m_home = rhs.m_home;
-      m_line_size = rhs.m_line_size;
-    }
-    return *this;
+    return i.done();
   }
 
-private:
-  explicit stream_query_input_iterator(sl loc = sl::current()) :
-          m_created_loc{loc}
-  {}
+  friend bool
+  operator!=(stream_query_end_iterator, stream_query_iterator const &i)
+  {
+    return not i.done();
+  }
 
+
+private:
   /// Have we finished?
   bool done() const noexcept { return m_home->done(); }
 
@@ -126,7 +126,7 @@ private:
     }
   }
 
-  stream_t *m_home;
+  stream_t *const m_home = nullptr;
 
   /// Last COPY line we read, allocated by libpq.
   typename stream_t::line_handle m_line;
@@ -135,29 +135,13 @@ private:
   std::size_t m_line_size;
 
   /// A `std::source_location` for where this object was created.
-  sl m_created_loc;
+  sl const m_created_loc;
 };
-
-
-template<typename... TYPE>
-inline bool operator==(
-  stream_query_end_iterator, stream_query_input_iterator<TYPE...> const &i)
-{
-  return i.done();
-}
-
-
-template<typename... TYPE>
-inline bool operator!=(
-  stream_query_end_iterator, stream_query_input_iterator<TYPE...> const &i)
-{
-  return not i.done();
-}
 
 
 template<typename... TYPE> inline auto stream_query<TYPE...>::begin() &
 {
-  return stream_query_input_iterator<TYPE...>{*this, m_ctx.loc};
+  return stream_query_iterator<TYPE...>{*this, m_ctx.loc};
 }
 
 
@@ -171,9 +155,11 @@ stream_query<TYPE...>::read_line(sl loc) &
   try
   {
     auto line{gate.read_copy_line(loc)};
-    // Check for completion.
     if (not line.first) [[unlikely]]
+    {
+      // This is how we get told the iteration is finished.
       close();
+    }
     return line;
   }
   catch (std::exception const &)

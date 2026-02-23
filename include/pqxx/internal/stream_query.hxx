@@ -2,7 +2,7 @@
  *
  * Enables optimized batch reads from a database table.
  *
- * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/stream_query instead.
+ * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/transaction_base instead.
  *
  * Copyright (c) 2000-2026, Jeroen T. Vermeulen.
  *
@@ -17,19 +17,9 @@
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
 #endif
 
-#include <cassert>
-#include <functional>
-#include <variant>
-
-#include "pqxx/connection.hxx"
-#include "pqxx/encoding_group.hxx"
-#include "pqxx/except.hxx"
 #include "pqxx/internal/encodings.hxx"
 #include "pqxx/internal/gates/connection-stream_from.hxx"
-#include "pqxx/internal/stream_iterator.hxx"
-#include "pqxx/transaction_base.hxx"
 #include "pqxx/transaction_focus.hxx"
-#include "pqxx/util.hxx"
 
 
 namespace pqxx
@@ -83,7 +73,9 @@ public:
   inline stream_query(
     transaction_base &tx, std::string_view query, conversion_context c);
 
+  stream_query(stream_query const &) = delete;
   stream_query(stream_query &&) = delete;
+  stream_query &operator=(stream_query const &) = delete;
   stream_query &operator=(stream_query &&) = delete;
 
   ~stream_query() noexcept
@@ -103,6 +95,7 @@ public:
 
   /// Begin iterator.  Only for use by "range for."
   inline auto begin() &;
+
   /// End iterator.  Only for use by "range for."
   /** The end iterator is a different type than the regular iterator.  It
    * simplifies the comparisons: we know at compile time that we're comparing
@@ -149,7 +142,7 @@ private:
   /** This is the only encoding-dependent code in the class.  All we need to
    * store after that is this function pointer.
    */
-  PQXX_RETURNS_NONNULL static inline char_finder_func *
+  PQXX_PURE PQXX_RETURNS_NONNULL static inline char_finder_func *
   get_finder(transaction_base const &tx, sl);
 
   /// Scan and unescape a field into the row buffer.
@@ -299,7 +292,7 @@ private:
       else
         internal::throw_null_conversion(name_type<field_type>(), c.loc);
     }
-    else
+    else [[likely]]
     {
       // Don't ever try to convert a non-null value to nullptr_t!
       return from_string<field_type>(text, c);
@@ -318,7 +311,7 @@ private:
 
   /// Callback for finding next special character (or end of line).
   /** This pointer doubles as an indication that we're done.  We set it to
-   * nullptr when the iteration is finished, and that's how we can know that
+   * `nullptr` when the iteration is finished, and that's how we can know that
    * there are no more rows to be iterated.
    */
   char_finder_func *m_char_finder;
@@ -331,7 +324,7 @@ private:
   std::string m_row;
 
   /// Caller source location, encoding group, possibly more.
-  conversion_context m_ctx;
+  conversion_context const m_ctx;
 };
 } // namespace pqxx::internal
 #endif
