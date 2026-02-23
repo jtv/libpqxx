@@ -1,7 +1,6 @@
 #include <string>
 
 #include <pqxx/internal/callgate.hxx>
-#include <pqxx/internal/libpq-forward.hxx>
 
 namespace pqxx
 {

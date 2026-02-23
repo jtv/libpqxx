@@ -42,8 +42,6 @@
 namespace pqxx
 {}
 
-#include <pqxx/internal/libpq-forward.hxx>
-
 
 // C++23: Retire wrapper.
 // PQXX_UNREACHABLE: equivalent to `std::unreachable()` if available.

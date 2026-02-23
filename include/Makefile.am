@@ -43,7 +43,6 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/internal/header-post.hxx \
 	pqxx/internal/ignore-deprecated-post.hxx \
 	pqxx/internal/ignore-deprecated-pre.hxx \
-	pqxx/internal/libpq-forward.hxx \
 	pqxx/internal/result_iter.hxx \
 	pqxx/internal/result_iterator.hxx \
 	pqxx/internal/sql_cursor.hxx \

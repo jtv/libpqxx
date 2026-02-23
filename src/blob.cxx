@@ -18,6 +18,25 @@
 namespace
 {
 constexpr int INV_WRITE{0x00020000}, INV_READ{0x00040000};
+
+/// Cast a @ref pqxx::internal::pq::PGconn pointer back to a `PGconn` pointer.
+/** There's really no such thing as a @ref pqxx::internal::pg::PGconn.  It's
+ * just a placeholder we use in our headers so we can talk about this type
+ * without actually importing its definition.
+ *
+ * It's not a _forward declaration_ though: before we can use these pointers,
+ * we have to cast them back to their exact original type.  That's what this
+ * function does.
+ *
+ * We can't define this centrally because we can't declare it in a header,
+ * because we can't mention its return type in a header without exposing the
+ * libpq type definition there, in the global namespace.
+ */
+PQXX_PURE PQXX_INLINE_ONLY inline ::PGconn *
+real_conn(pqxx::internal::pq::PGconn *ptr) noexcept
+{
+  return static_cast<::PGconn *>(ptr);
+}
 } // namespace
 
 
@@ -46,7 +65,7 @@ pqxx::blob
 pqxx::blob::open_internal(dbtransaction &tx, oid id, int mode, sl loc)
 {
   auto &cx{tx.conn()};
-  int const fd{lo_open(raw_conn(&cx), id, mode)};
+  int const fd{lo_open(real_conn(raw_conn(&cx)), id, mode)};
   if (fd == -1)
     throw pqxx::failure{
       std::format(
@@ -58,7 +77,7 @@ pqxx::blob::open_internal(dbtransaction &tx, oid id, int mode, sl loc)
 
 pqxx::oid pqxx::blob::create(dbtransaction &tx, oid id, sl loc)
 {
-  oid const actual_id{lo_create(raw_conn(tx), id)};
+  oid const actual_id{lo_create(real_conn(raw_conn(tx)), id)};
   if (actual_id == 0)
     throw failure{
       std::format(
@@ -73,7 +92,7 @@ void pqxx::blob::remove(dbtransaction &tx, oid id, sl loc)
   if (id == 0)
     throw usage_error{
       "Trying to delete binary large object without an ID.", loc};
-  if (lo_unlink(raw_conn(tx), id) == -1)
+  if (lo_unlink(real_conn(raw_conn(tx)), id) == -1)
     throw failure{
       std::format(
         "Could not delete large object {}: {}", id, errmsg(&tx.conn())),
@@ -108,7 +127,7 @@ pqxx::blob::blob(blob &&other) :
 pqxx::blob &pqxx::blob::operator=(blob &&other)
 {
   if (m_fd != -1)
-    lo_close(raw_conn(m_conn), m_fd);
+    lo_close(real_conn(raw_conn(m_conn)), m_fd);
   m_conn = std::exchange(other.m_conn, nullptr);
   m_fd = std::exchange(other.m_fd, -1);
   return *this;
@@ -137,7 +156,7 @@ void pqxx::blob::close()
 {
   if (m_fd != -1)
   {
-    lo_close(raw_conn(m_conn), m_fd);
+    lo_close(real_conn(raw_conn(m_conn)), m_fd);
     m_fd = -1;
     m_conn = nullptr;
   }
@@ -153,7 +172,7 @@ std::size_t pqxx::blob::raw_read(std::byte buf[], std::size_t size, sl loc)
     throw range_error{
       "Reads from a binary large object must be less than 2 GB at once.", loc};
   auto data{reinterpret_cast<char *>(buf)};
-  int const received{lo_read(raw_conn(m_conn), m_fd, data, size)};
+  int const received{lo_read(real_conn(raw_conn(m_conn)), m_fd, data, size)};
   if (received < 0)
     throw failure{
       std::format("Could not read from binary large object: {}", errmsg()),
@@ -180,7 +199,7 @@ void pqxx::blob::raw_write(bytes_view data, sl loc)
   if (sz > chunk_limit)
     throw range_error{"Write to binary large object exceeds 2GB limit.", loc};
   auto ptr{reinterpret_cast<char const *>(std::data(data))};
-  int const written{lo_write(raw_conn(m_conn), m_fd, ptr, sz)};
+  int const written{lo_write(real_conn(raw_conn(m_conn)), m_fd, ptr, sz)};
   if (written < 0)
     throw failure{
       std::format("Write to binary large object failed: {}", errmsg()), loc};
@@ -191,7 +210,7 @@ void pqxx::blob::resize(std::int64_t size, sl loc)
 {
   if (m_conn == nullptr)
     throw usage_error{"Attempt to resize a closed binary large object.", loc};
-  if (lo_truncate64(raw_conn(m_conn), m_fd, size) < 0)
+  if (lo_truncate64(real_conn(raw_conn(m_conn)), m_fd, size) < 0)
     throw failure{
       std::format("Binary large object truncation failed: {}", errmsg()), loc};
 }
@@ -201,7 +220,7 @@ std::int64_t pqxx::blob::tell(sl loc) const
 {
   if (m_conn == nullptr)
     throw usage_error{"Attempt to tell() a closed binary large object.", loc};
-  std::int64_t const offset{lo_tell64(raw_conn(m_conn), m_fd)};
+  std::int64_t const offset{lo_tell64(real_conn(raw_conn(m_conn)), m_fd)};
   if (offset < 0)
     throw failure{
       std::format("Error reading binary large object position: {}", errmsg()),
@@ -215,7 +234,7 @@ std::int64_t pqxx::blob::seek(std::int64_t offset, int whence, sl loc)
   if (m_conn == nullptr)
     throw usage_error{"Attempt to seek() a closed binary large object.", loc};
   std::int64_t const seek_result{
-    lo_lseek64(raw_conn(m_conn), m_fd, offset, whence)};
+    lo_lseek64(real_conn(raw_conn(m_conn)), m_fd, offset, whence)};
   if (seek_result < 0)
     throw failure{
       std::format("Error during seek on binary large object: {}", errmsg()),
@@ -307,7 +326,7 @@ std::size_t pqxx::blob::append_to_buf(
   {
     auto here{reinterpret_cast<char *>(std::data(buf) + org_size)};
     auto chunk{static_cast<std::size_t>(
-      lo_read(raw_conn(b.m_conn), b.m_fd, here, append_max))};
+      lo_read(real_conn(raw_conn(b.m_conn)), b.m_fd, here, append_max))};
     buf.resize(org_size + chunk);
     return chunk;
   }
@@ -321,7 +340,7 @@ std::size_t pqxx::blob::append_to_buf(
 
 pqxx::oid pqxx::blob::from_file(dbtransaction &tx, zview path, sl loc)
 {
-  auto id{lo_import(raw_conn(tx), path.c_str())};
+  auto id{lo_import(real_conn(raw_conn(tx)), path.c_str())};
   if (id == 0)
     throw failure{
       std::format(
@@ -334,7 +353,8 @@ pqxx::oid pqxx::blob::from_file(dbtransaction &tx, zview path, sl loc)
 
 pqxx::oid pqxx::blob::from_file(dbtransaction &tx, zview path, oid id, sl loc)
 {
-  auto actual_id{lo_import_with_oid(raw_conn(tx), path.c_str(), id)};
+  auto actual_id{
+    lo_import_with_oid(real_conn(raw_conn(tx)), path.c_str(), id)};
   if (actual_id == 0)
     throw failure{
       std::format(
@@ -347,7 +367,7 @@ pqxx::oid pqxx::blob::from_file(dbtransaction &tx, zview path, oid id, sl loc)
 
 void pqxx::blob::to_file(dbtransaction &tx, oid id, zview path, sl loc)
 {
-  if (lo_export(raw_conn(tx), id, path.c_str()) < 0)
+  if (lo_export(real_conn(raw_conn(tx)), id, path.c_str()) < 0)
     throw failure{
       std::format(
         "Could not export binary large object {} to file '{}': {}", id,

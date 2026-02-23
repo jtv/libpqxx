@@ -11,26 +11,4 @@
 #if !defined(PQXX_H_LIBPQ_FORWARD)
 #  define PQXX_H_LIBPQ_FORWARD
 
-extern "C"
-{
-  // TODO: Get these out of the global namespace.  We cast them anyway.
-  struct pg_conn;
-  struct pg_result;
-  struct pgNotify;
-}
-
-/// Forward declarations of libpq types as needed in libpqxx headers.
-namespace pqxx::internal::pq
-{
-using PGconn = pg_conn;
-using PGresult = pg_result;
-using PGnotify = pgNotify;
-using PQnoticeProcessor = void (*)(void *, char const *);
-} // namespace pqxx::internal::pq
-
-namespace pqxx
-{
-/// PostgreSQL database row identifier.
-using oid = unsigned int;
-} // namespace pqxx
 #endif

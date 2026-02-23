@@ -1240,7 +1240,8 @@ public:
    * use-cases.  The mechanism may change (or break) in unexpected ways in
    * future versions.
    *
-   * @param raw_conn a raw libpq `PQconn` pointer.
+   * @param raw_conn a raw libpq `::PQconn` pointer, cast to a
+   * @ref pqxx::internal::pq::PGconn pointer.
    */
   static connection
   seize_raw_connection(internal::pq::PGconn *raw_conn, sl loc = sl::current())
@@ -1253,6 +1254,9 @@ public:
    * The mechanism may change (or break) in unexpected ways in future versions.
    *
    * The `connection` object becomes unusable after this.
+   *
+   * In order to _use_ the resulting pointer, for most purposes you'll have to
+   * cast it to its original C type: `::PGconn *` as defined by libpq.
    */
   internal::pq::PGconn *release_raw_connection() &&
   {

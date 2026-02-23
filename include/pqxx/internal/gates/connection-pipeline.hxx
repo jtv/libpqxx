@@ -1,4 +1,3 @@
-#include "pqxx/internal/libpq-forward.hxx"
 #include <pqxx/internal/callgate.hxx>
 
 #include "pqxx/pipeline.hxx"
