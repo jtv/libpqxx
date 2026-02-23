@@ -33,6 +33,26 @@ extern "C"
 // LCOV_EXCL_START
 namespace
 {
+/// Cast a @ref pqxx::internal::pq::PGconn pointer back to a `PGconn` pointer.
+/** There's really no such thing as a @ref pqxx::internal::pq::PGconn.  It's
+ * just a placeholder we use in our headers so we can talk about this type
+ * without actually importing its definition.
+ *
+ * It's not a _forward declaration_ though: before we can use these pointers,
+ * we have to cast them back to their exact original type.  That's what this
+ * function does.
+ *
+ * We can't define this centrally because we can't declare it in a header,
+ * because we can't mention its return type in a header without exposing the
+ * libpq type definition there, in the global namespace.
+ */
+PQXX_PURE PQXX_INLINE_ONLY inline ::PGconn *
+real_conn(pqxx::internal::pq::PGconn *ptr) noexcept
+{
+  return static_cast<::PGconn *>(ptr);
+}
+
+
 PQXX_COLD constexpr inline int std_mode_to_pq_mode(std::ios::openmode mode)
 {
   /// Mode bits, copied from libpq-fs.h so that we no longer need that header.
@@ -69,7 +89,7 @@ PQXX_COLD constexpr int std_dir_to_pq_dir(std::ios::seekdir dir) noexcept
 
 
 PQXX_COLD pqxx::largeobject::largeobject(dbtransaction &t) :
-        m_id{lo_creat(raw_connection(t), 0)}
+        m_id{lo_creat(real_conn(raw_connection(t)), 0)}
 {
   // (Mode is ignored as of postgres 8.1.)
   if (m_id == oid_none)
@@ -85,7 +105,7 @@ PQXX_COLD pqxx::largeobject::largeobject(dbtransaction &t) :
 
 PQXX_COLD
 pqxx::largeobject::largeobject(dbtransaction &t, std::string_view file) :
-        m_id{lo_import(raw_connection(t), std::data(file))}
+        m_id{lo_import(real_conn(raw_connection(t)), std::data(file))}
 {
   if (m_id == oid_none)
   {
@@ -109,7 +129,7 @@ pqxx::largeobject::to_file(dbtransaction &t, std::string_view file) const
 {
   if (id() == oid_none)
     throw usage_error{"No object selected."};
-  if (lo_export(raw_connection(t), id(), std::data(file)) == -1)
+  if (lo_export(real_conn(raw_connection(t)), id(), std::data(file)) == -1)
   {
     int const err{errno};
     if (err == ENOMEM)
@@ -125,7 +145,7 @@ PQXX_COLD void pqxx::largeobject::remove(dbtransaction &t) const
 {
   if (id() == oid_none)
     throw usage_error{"No object selected."};
-  if (lo_unlink(raw_connection(t), id()) == -1)
+  if (lo_unlink(real_conn(raw_connection(t)), id()) == -1)
   {
     int const err{errno};
     if (err == ENOMEM)
@@ -208,28 +228,29 @@ pqxx::largeobjectaccess::seek(size_type dest, seekdir dir)
 PQXX_COLD pqxx::largeobjectaccess::pos_type
 pqxx::largeobjectaccess::cseek(off_type dest, seekdir dir) noexcept
 {
-  return lo_lseek64(raw_connection(), m_fd, dest, std_dir_to_pq_dir(dir));
+  return lo_lseek64(
+    real_conn(raw_connection()), m_fd, dest, std_dir_to_pq_dir(dir));
 }
 
 
 PQXX_COLD pqxx::largeobjectaccess::pos_type
 pqxx::largeobjectaccess::cwrite(char const buf[], std::size_t len) noexcept
 {
-  return std::max(lo_write(raw_connection(), m_fd, buf, len), -1);
+  return std::max(lo_write(real_conn(raw_connection()), m_fd, buf, len), -1);
 }
 
 
 PQXX_COLD pqxx::largeobjectaccess::pos_type
 pqxx::largeobjectaccess::cread(char buf[], std::size_t len) noexcept
 {
-  return std::max(lo_read(raw_connection(), m_fd, buf, len), -1);
+  return std::max(lo_read(real_conn(raw_connection()), m_fd, buf, len), -1);
 }
 
 
 PQXX_COLD pqxx::largeobjectaccess::pos_type
 pqxx::largeobjectaccess::ctell() const noexcept
 {
-  return lo_tell64(raw_connection(), m_fd);
+  return lo_tell64(real_conn(raw_connection()), m_fd);
 }
 
 
@@ -279,7 +300,7 @@ PQXX_COLD void pqxx::largeobjectaccess::open(openmode mode)
 {
   if (id() == oid_none)
     throw usage_error{"No object selected."};
-  m_fd = lo_open(raw_connection(), id(), std_mode_to_pq_mode(mode));
+  m_fd = lo_open(real_conn(raw_connection()), id(), std_mode_to_pq_mode(mode));
   if (m_fd < 0)
   {
     int const err{errno};
@@ -294,7 +315,7 @@ PQXX_COLD void pqxx::largeobjectaccess::open(openmode mode)
 PQXX_COLD void pqxx::largeobjectaccess::close() noexcept
 {
   if (m_fd >= 0)
-    lo_close(raw_connection(), m_fd);
+    lo_close(real_conn(raw_connection()), m_fd);
 }
 
 

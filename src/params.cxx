@@ -119,7 +119,7 @@ pqxx::internal::c_params pqxx::params::make_c_params(sl loc) const
             check_cast<int>(std::ssize(value), s_overflow, loc));
         }
 
-        p.formats.push_back(param_format(value));
+        p.formats.push_back(static_cast<int>(param_format(value)));
       },
       param);
 

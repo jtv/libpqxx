@@ -32,6 +32,44 @@ extern "C"
 namespace pqxx
 {
 PQXX_DECLARE_ENUM_CONVERSION(ExecStatusType);
+
+
+/// Cast a @ref pqxx::internal::pq::PGresult pointer back to its real type.
+/** There's really no such thing as a @ref pqxx::internal::pq::PGresult.  It's
+ * just a placeholder we use in our headers so we can talk about this type
+ * without actually importing its definition.
+ *
+ * It's not a _forward declaration_ though: before we can use these pointers,
+ * we have to cast them back to their original type.  This does that.
+ */
+PQXX_PURE PQXX_INLINE_ONLY inline ::PGresult *
+real_res(pqxx::internal::pq::PGresult *ptr) noexcept
+{
+  return static_cast<::PGresult *>(ptr);
+}
+
+
+/// Cast a @ref pqxx::internal::pq::PGresult pointer back to its real type.
+/** There's really no such thing as a @ref pqxx::internal::pq::PGresult.  It's
+ * just a placeholder we use in our headers so we can talk about this type
+ * without actually importing its definition.
+ *
+ * It's not a _forward declaration_ though: before we can use these pointers,
+ * we have to cast them back to their original type.  This does that.
+ */
+PQXX_PURE PQXX_INLINE_ONLY inline ::PGresult const *
+real_res(pqxx::internal::pq::PGresult const *ptr) noexcept
+{
+  return static_cast<::PGresult const *>(ptr);
+}
+
+
+/// Wrapper for `PQntuples()` that deals in our placeholder types.
+PQXX_INLINE_ONLY inline int
+pq_n_tuples(pqxx::internal::pq::PGresult const *ptr) noexcept
+{
+  return PQntuples(real_res(ptr));
+}
 } // namespace pqxx
 
 std::string const pqxx::result::s_empty_string;
@@ -44,7 +82,7 @@ void pqxx::internal::clear_result(pq::PGresult const *data) noexcept
   // can pass it into a smart pointer.  That's why I think it's kind of fair
   // to treat the PGresult as const.
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-  PQclear(const_cast<pq::PGresult *>(data));
+  PQclear(const_cast<::PGresult *>(real_res(data)));
 }
 
 
@@ -100,13 +138,13 @@ pqxx::result::size_type pqxx::result::size() const noexcept
 {
   return (m_data.get() == nullptr) ?
            0 :
-           static_cast<size_type>(PQntuples(m_data.get()));
+           static_cast<size_type>(pq_n_tuples(m_data.get()));
 }
 
 
 bool pqxx::result::empty() const noexcept
 {
-  return (m_data.get() == nullptr) or (PQntuples(m_data.get()) == 0);
+  return (m_data.get() == nullptr) or (pq_n_tuples(m_data.get()) == 0);
 }
 
 
@@ -177,7 +215,8 @@ PQXX_COLD void pqxx::result::throw_sql_error(
 {
   // Try to establish more precise error type, and throw corresponding
   // type of exception.
-  char const *const code{PQresultErrorField(m_data.get(), PG_DIAG_SQLSTATE)};
+  char const *const code{
+    PQresultErrorField(real_res(m_data.get()), PG_DIAG_SQLSTATE)};
   if (code == nullptr)
   {
     // No SQLSTATE at all.  Can this even happen?
@@ -306,7 +345,8 @@ std::string pqxx::result::status_error(sl loc) const
 
   std::string err;
 
-  switch (PQresultStatus(m_data.get()))
+  auto const status{PQresultStatus(real_res(m_data.get()))};
+  switch (status)
   {
   case PGRES_EMPTY_QUERY: // The string sent to the backend was empty.
   case PGRES_COMMAND_OK:  // Successful completion, no result data.
@@ -326,7 +366,7 @@ std::string pqxx::result::status_error(sl loc) const
   case PGRES_BAD_RESPONSE: // The server's response was not understood.
   case PGRES_NONFATAL_ERROR:
   case PGRES_FATAL_ERROR:
-    [[unlikely]] err = PQresultErrorMessage(m_data.get());
+    [[unlikely]] err = PQresultErrorMessage(real_res(m_data.get()));
     break;
 
   case PGRES_SINGLE_TUPLE:
@@ -336,8 +376,7 @@ std::string pqxx::result::status_error(sl loc) const
   default:
     throw internal_error{
       std::format(
-        "pqxx::result: Unrecognized result status code {}",
-        to_string(PQresultStatus(m_data.get()))),
+        "pqxx::result: Unrecognized result status code {}", to_string(status)),
       loc};
   }
   return err;
@@ -350,7 +389,7 @@ char const *pqxx::result::cmd_status() const noexcept
   // pointer into the PGresult's data, and that can't be changed without
   // breaking compatibility.
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-  return PQcmdStatus(const_cast<internal::pq::PGresult *>(m_data.get()));
+  return PQcmdStatus(const_cast<::PGresult *>(real_res(m_data.get())));
 }
 
 
@@ -365,7 +404,7 @@ pqxx::oid pqxx::result::inserted_oid(sl loc) const
   if (m_data.get() == nullptr)
     throw usage_error{
       "Attempt to read oid of inserted row without an INSERT result", loc};
-  return PQoidValue(m_data.get());
+  return PQoidValue(real_res(m_data.get()));
 }
 
 
@@ -378,7 +417,7 @@ pqxx::result::size_type pqxx::result::affected_rows() const
   // But as far as libpqxx is concerned, it's totally const.
   std::string_view const rows_str{
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-    PQcmdTuples(const_cast<internal::pq::PGresult *>(m_data.get()))};
+    PQcmdTuples(const_cast<::PGresult *>(real_res(m_data.get())))};
 
   // rows_str may be empty in case the query executed was a `SET <variable> =
   // ''`
@@ -389,27 +428,27 @@ pqxx::result::size_type pqxx::result::affected_rows() const
 char const *pqxx::result::get_value(
   pqxx::result::size_type row, pqxx::row::size_type col) const noexcept
 {
-  return PQgetvalue(m_data.get(), row, col);
+  return PQgetvalue(real_res(m_data.get()), row, col);
 }
 
 
 bool pqxx::result::get_is_null(
   pqxx::result::size_type row, pqxx::row::size_type col) const noexcept
 {
-  return PQgetisnull(m_data.get(), row, col) != 0;
+  return PQgetisnull(real_res(m_data.get()), row, col) != 0;
 }
 
 pqxx::field::size_type pqxx::result::get_length(
   pqxx::result::size_type row, pqxx::row::size_type col) const noexcept
 {
   return static_cast<pqxx::field::size_type>(
-    PQgetlength(m_data.get(), row, col));
+    PQgetlength(real_res(m_data.get()), row, col));
 }
 
 
 pqxx::oid pqxx::result::column_type(row::size_type col_num, sl loc) const
 {
-  oid const t{PQftype(m_data.get(), col_num)};
+  oid const t{PQftype(real_res(m_data.get()), col_num)};
   if (t == oid_none)
     throw argument_error{
       std::format(
@@ -422,7 +461,7 @@ pqxx::oid pqxx::result::column_type(row::size_type col_num, sl loc) const
 
 pqxx::row::size_type pqxx::result::column_number(zview col_name, sl loc) const
 {
-  auto const n{PQfnumber(m_data.get(), col_name.c_str())};
+  auto const n{PQfnumber(real_res(m_data.get()), col_name.c_str())};
   if (n == -1)
     throw argument_error{
       std::format("Unknown column name: '{}'.", to_string(col_name)), loc};
@@ -433,7 +472,7 @@ pqxx::row::size_type pqxx::result::column_number(zview col_name, sl loc) const
 
 pqxx::oid pqxx::result::column_table(row::size_type col_num, sl loc) const
 {
-  oid const t{PQftable(m_data.get(), col_num)};
+  oid const t{PQftable(real_res(m_data.get()), col_num)};
 
   /* If we get oid_none, it may be because the column is computed, or because
    * we got an invalid row number.
@@ -452,7 +491,7 @@ pqxx::oid pqxx::result::column_table(row::size_type col_num, sl loc) const
 pqxx::row::size_type
 pqxx::result::table_column(row::size_type col_num, sl loc) const
 {
-  auto const n{row::size_type(PQftablecol(m_data.get(), col_num))};
+  auto const n{row::size_type(PQftablecol(real_res(m_data.get()), col_num))};
   if (n != 0) [[likely]]
     return n - 1;
 
@@ -483,7 +522,8 @@ int pqxx::result::errorposition() const
   int pos{-1};
   if (m_data.get())
   {
-    auto const p{PQresultErrorField(m_data.get(), PG_DIAG_STATEMENT_POSITION)};
+    auto const p{
+      PQresultErrorField(real_res(m_data.get()), PG_DIAG_STATEMENT_POSITION)};
     if (p)
       pos = from_string<decltype(pos)>(p);
   }
@@ -494,7 +534,7 @@ int pqxx::result::errorposition() const
 char const *
 pqxx::result::column_name(pqxx::row::size_type number, sl loc) const &
 {
-  auto const n{PQfname(m_data.get(), number)};
+  auto const n{PQfname(real_res(m_data.get()), number)};
   if (n == nullptr) [[unlikely]]
   {
     if (m_data.get() == nullptr)
@@ -510,13 +550,13 @@ pqxx::result::column_name(pqxx::row::size_type number, sl loc) const &
 
 pqxx::row::size_type pqxx::result::columns() const noexcept
 {
-  return m_data ? row::size_type(PQnfields(m_data.get())) : 0;
+  return m_data ? row::size_type(PQnfields(real_res(m_data.get()))) : 0;
 }
 
 
 int pqxx::result::column_storage(pqxx::row::size_type number, sl loc) const
 {
-  int const out{PQfsize(m_data.get(), number)};
+  int const out{PQfsize(real_res(m_data.get()), number)};
   if (out == 0)
   {
     auto const sz{this->size()};
@@ -535,7 +575,7 @@ int pqxx::result::column_storage(pqxx::row::size_type number, sl loc) const
 int pqxx::result::column_type_modifier(
   pqxx::row::size_type number) const noexcept
 {
-  return PQfmod(m_data.get(), number);
+  return PQfmod(real_res(m_data.get()), number);
 }
 
 

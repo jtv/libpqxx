@@ -67,7 +67,7 @@ AC_MSG_RESULT(${enable_audit})
 # (The suggestions are often useful, but can also easily be wrong.)
 AC_MSG_CHECKING([suggest])
 AC_ARG_ENABLE(suggest)
-AC_MSG_RESULT(${enable_suggest})
+AC_MSG_RESULT(${enable_suggest:-no})
 
 
 AC_ARG_ENABLE(shared)
@@ -372,24 +372,6 @@ occurring in the file.
 
 # Remove redundant occurrances of -lpq
 LIBS=[$(echo "$LIBS" | sed -e 's/-lpq * -lpq\>/-lpq/g')]
-
-
-AC_MSG_CHECKING([that type of libpq's Oid is as expected])
-AC_COMPILE_IFELSE(
-	[AC_LANG_PROGRAM(
-		[
-			#include<libpq-fe.h>
-			#include"${srcdir}/include/pqxx/internal/libpq-forward.hxx"
-			extern void f(pqxx::oid&);
-		],
-		[Oid o;f(o)],
-	)],
-	[],
-	[AC_MSG_ERROR([
-The Oid typedef in libpq has changed.  Please notify the libpqxx authors of the
-change!
-])])
-AC_MSG_RESULT(yes)
 
 
 AC_PROG_MAKE_SET

@@ -3,10 +3,6 @@
 
 namespace pqxx::internal
 {
-/// Placeholder for libpq PQconninfoOption type.
-struct pg_conn_option;
-
-
 /// Parse a connection string into option keys and their values.
 /** This is a class and not a function for just one reason: the outputs contain
  * pointers to storage that needs to be held in memory.
@@ -37,7 +33,10 @@ public:
   std::array<std::vector<char const *>, 2u> parse() const;
 
 private:
-  std::unique_ptr<pg_conn_option[], void (*)(pg_conn_option *)> m_options;
+  using opts_pointer = std::unique_ptr<
+    pqxx::internal::pq::PQconninfoOption,
+    void (*)(pqxx::internal::pq::PQconninfoOption *)>;
+  opts_pointer m_options;
 };
 } // namespace pqxx::internal
 

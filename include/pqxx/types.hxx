@@ -55,6 +55,11 @@ struct stacktrace_placeholder final
 using st = stacktrace_placeholder;
 #endif
 
+
+/// PostgreSQL database row identifier.
+using oid = unsigned int;
+
+
 /// Number of rows in a result set.
 using result_size_type = int;
 
@@ -387,4 +392,26 @@ concept char_type = std::same_as<std::remove_cv_t<T>, char> or
 template<typename T>
 concept integer = std::integral<T> and not char_type<T>;
 } // namespace pqxx::internal
+
+
+/// Placeholders for libpq declarations.
+/** No actual libpq symbols are exposed in the application's compilation.  It's
+ * all abstracted away by libpqxx.
+ *
+ * Internally inside libpqxx, we cast these to their "real" types (the C ones)
+ * when using them.
+ */
+namespace pqxx::internal::pq
+{
+/// Placeholder for libpq's connection type.
+using PGconn = void;
+/// Placeholder for libpq's result type.
+using PGresult = void;
+/// Placeholder for libpq's notification type.
+using PGnotify = void;
+/// Placeholder for libpq's notice processor type.
+using PQnoticeProcessor = void (*)(void *, char const *);
+/// Placeholder for libpq's PQconninfoOption type.
+using PQconninfoOption = void;
+} // namespace pqxx::internal::pq
 #endif

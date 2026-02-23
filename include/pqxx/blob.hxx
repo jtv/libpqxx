@@ -257,9 +257,9 @@ public:
 private:
   PQXX_PRIVATE blob(connection &cx, int fd) noexcept : m_conn{&cx}, m_fd{fd} {}
   static blob open_internal(dbtransaction &, oid, int, sl);
-  PQXX_PRIVATE static pqxx::internal::pq::PGconn *
+  PQXX_PRIVATE PQXX_PURE static pqxx::internal::pq::PGconn *
   raw_conn(pqxx::connection *) noexcept;
-  PQXX_PRIVATE static pqxx::internal::pq::PGconn *
+  PQXX_PRIVATE PQXX_PURE static pqxx::internal::pq::PGconn *
   raw_conn(pqxx::dbtransaction const &) noexcept;
   PQXX_PRIVATE static std::string errmsg(connection const *);
   PQXX_PRIVATE static std::string errmsg(dbtransaction const &tx)

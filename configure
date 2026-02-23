@@ -19890,8 +19890,8 @@ then :
   enableval=$enable_suggest;
 fi
 
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: ${enable_suggest}" >&5
-printf "%s\n" "${enable_suggest}" >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: ${enable_suggest:-no}" >&5
+printf "%s\n" "${enable_suggest:-no}" >&6; }
 
 
 # Check whether --enable-shared was given.
@@ -21155,37 +21155,6 @@ fi
 
 # Remove redundant occurrances of -lpq
 LIBS=$(echo "$LIBS" | sed -e 's/-lpq * -lpq\>/-lpq/g')
-
-
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking that type of libpq's Oid is as expected" >&5
-printf %s "checking that type of libpq's Oid is as expected... " >&6; }
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-			#include<libpq-fe.h>
-			#include"${srcdir}/include/pqxx/internal/libpq-forward.hxx"
-			extern void f(pqxx::oid&);
-
-int
-main (void)
-{
-Oid o;f(o)
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"
-then :
-
-else $as_nop
-  as_fn_error $? "
-The Oid typedef in libpq has changed.  Please notify the libpqxx authors of the
-change!
-" "$LINENO" 5
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }
 
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether ${MAKE-make} sets \$(MAKE)" >&5
