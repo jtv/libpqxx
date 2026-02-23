@@ -55,7 +55,7 @@ struct PQXX_LIBEXPORT c_params final
   /// As used by libpq: lengths of non-null arguments, in bytes.
   std::vector<int> lengths;
   /// As used by libpq: effectively boolean "is this a binary parameter?"
-  std::vector<format> formats;
+  std::vector<int> formats;
 };
 } // namespace pqxx::internal
 #endif

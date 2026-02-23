@@ -34,7 +34,7 @@ extern "C"
 namespace
 {
 /// Cast a @ref pqxx::internal::pq::PGconn pointer back to a `PGconn` pointer.
-/** There's really no such thing as a @ref pqxx::internal::pg::PGconn.  It's
+/** There's really no such thing as a @ref pqxx::internal::pq::PGconn.  It's
  * just a placeholder we use in our headers so we can talk about this type
  * without actually importing its definition.
  *

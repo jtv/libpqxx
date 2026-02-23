@@ -56,7 +56,7 @@ using st = stacktrace_placeholder;
 #endif
 
 
-/// PostgtreSQL database row identifier.
+/// PostgreSQL database row identifier.
 using oid = unsigned int;
 
 

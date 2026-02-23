@@ -79,7 +79,7 @@ void process_notice_raw(
 
 
 /// Cast a @ref pqxx::internal::pq::PGconn pointer back to a `PGconn` pointer.
-/** There's really no such thing as a @ref pqxx::internal::pg::PGconn.  It's
+/** There's really no such thing as a @ref pqxx::internal::pq::PGconn.  It's
  * just a placeholder we use in our headers so we can talk about this type
  * without actually importing its definition.
  *
@@ -99,7 +99,7 @@ real_conn(pqxx::internal::pq::PGconn *ptr) noexcept
 
 
 /// Cast a @ref pqxx::internal::pq::PGconn pointer back to a `PGconn` pointer.
-/** There's really no such thing as a @ref pqxx::internal::pg::PGconn.  It's
+/** There's really no such thing as a @ref pqxx::internal::pq::PGconn.  It's
  * just a placeholder we use in our headers so we can talk about this type
  * without actually importing its definition.
  *
@@ -954,8 +954,7 @@ pqxx::result pqxx::connection::exec_prepared(
   auto const pq_result{PQexecPrepared(
     real_conn(m_conn), q->c_str(),
     check_cast<int>(std::size(args.values), "exec_prepared"sv, loc),
-    args.values.data(), args.lengths.data(),
-    reinterpret_cast<int const *>(args.formats.data()),
+    args.values.data(), args.lengths.data(), args.formats.data(),
     static_cast<int>(format::text))};
   auto r{make_result(pq_result, q, statement, loc)};
   get_notifs(loc);
@@ -1360,8 +1359,7 @@ pqxx::result pqxx::connection::exec_params(
   auto const pq_result{PQexecParams(
     real_conn(m_conn), q->c_str(),
     check_cast<int>(std::size(args.values), "exec_params"sv, loc), nullptr,
-    args.values.data(), args.lengths.data(),
-    reinterpret_cast<int const *>(args.formats.data()),
+    args.values.data(), args.lengths.data(), args.formats.data(),
     static_cast<int>(format::text))};
   auto r{make_result(pq_result, q, loc)};
   get_notifs(loc);
