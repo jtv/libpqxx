@@ -228,7 +228,7 @@ public:
         std::cout << std::get<20>(row) << ' ';
       if constexpr (columns > 21)
         std::cout << std::get<21>(row) << ' ';
-      if constexpr (columns > 20)
+      if constexpr (columns > 22)
         std::cout << std::get<22>(row) << ' ';
       if constexpr (columns > 23)
         std::cout << std::get<23>(row) << ' ';
