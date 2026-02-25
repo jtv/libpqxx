@@ -111,9 +111,9 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-noinst_PROGRAMS = $(am__EXEEXT_2)
+noinst_PROGRAMS = $(am__EXEEXT_2) tools/benchmark$(EXEEXT)
 TESTS = $(am__EXEEXT_1) tools/lint.sh $(am__EXEEXT_2)
-check_PROGRAMS = $(am__EXEEXT_1)
+check_PROGRAMS = $(am__EXEEXT_1) tools/benchmark$(EXEEXT)
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/config/m4/libtool.m4 \
@@ -273,6 +273,9 @@ am_test_runner_OBJECTS = test/test00.$(OBJEXT) test/test01.$(OBJEXT) \
 	test/runner.$(OBJEXT)
 test_runner_OBJECTS = $(am_test_runner_OBJECTS)
 test_runner_DEPENDENCIES = $(top_builddir)/src/libpqxx.la
+am_tools_benchmark_OBJECTS = tools/benchmark.$(OBJEXT)
+tools_benchmark_OBJECTS = $(am_tools_benchmark_OBJECTS)
+tools_benchmark_DEPENDENCIES = $(top_builddir)/src/libpqxx.la
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -361,7 +364,7 @@ am__depfiles_remade = examples/$(DEPDIR)/complete_example.Po \
 	test/$(DEPDIR)/test_transaction_focus.Po \
 	test/$(DEPDIR)/test_transactor.Po \
 	test/$(DEPDIR)/test_type_name.Po test/$(DEPDIR)/test_util.Po \
-	test/$(DEPDIR)/test_zview.Po
+	test/$(DEPDIR)/test_zview.Po tools/$(DEPDIR)/benchmark.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -388,7 +391,8 @@ SOURCES = $(src_libpqxx_la_SOURCES) \
 	$(examples_getting_started_1_SOURCES) \
 	$(examples_getting_started_2_SOURCES) \
 	$(examples_quick_example_SOURCES) \
-	$(examples_simple_queries_SOURCES) $(test_runner_SOURCES)
+	$(examples_simple_queries_SOURCES) $(test_runner_SOURCES) \
+	$(tools_benchmark_SOURCES)
 DIST_SOURCES = $(src_libpqxx_la_SOURCES) \
 	$(examples_complete_example_SOURCES) \
 	$(examples_faster_data_SOURCES) \
@@ -396,7 +400,8 @@ DIST_SOURCES = $(src_libpqxx_la_SOURCES) \
 	$(examples_getting_started_1_SOURCES) \
 	$(examples_getting_started_2_SOURCES) \
 	$(examples_quick_example_SOURCES) \
-	$(examples_simple_queries_SOURCES) $(test_runner_SOURCES)
+	$(examples_simple_queries_SOURCES) $(test_runner_SOURCES) \
+	$(tools_benchmark_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
 	install-data-recursive install-dvi-recursive \
@@ -667,6 +672,14 @@ EXTRA_DIST = autogen.sh configitems Makefile.am.template README.md VERSION \
 	doc/Doxyfile \
 	src/pqxx-source.hxx \
 	test/helpers.hxx test/sample_types.hxx \
+	tools/benchmark.cxx \
+	tools/check_ascii.py \
+	tools/compiler_flags.py \
+	tools/extract_version.py \
+	tools/generate_check_config.py \
+	tools/generate_cxx_checks.py \
+	tools/m4esc.py \
+	tools/template2mak.py \
 	tools/deprecations.sh \
 	tools/extract_version.sh \
 	tools/format.sh \
@@ -676,19 +689,14 @@ EXTRA_DIST = autogen.sh configitems Makefile.am.template README.md VERSION \
 	tools/run-test-postgres.sh \
 	tools/todo.sh \
 	tools/update-copyright.sh \
-	tools/check_ascii.py \
-	tools/compiler_flags.py \
-	tools/extract_version.py \
-	tools/generate_check_config.py \
-	tools/generate_cxx_checks.py \
-	tools/m4esc.py \
-	tools/template2mak.py \
 	config/flags/audit-mode.txt \
 	config/flags/maintainer-mode.txt \
 	config/flags/suggest-mode.txt \
 	# (End of list)
 
 noinst_HEADERS = test/helpers.hxx
+tools_benchmark_SOURCES = tools/benchmark.cxx
+tools_benchmark_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
 DISTCLEANFILES = include/pqxx/config-compiler.h
 MAINTAINERCLEANFILES = \
     Makefile.in aclocal.m4 config.h.in config.log configure stamp-h.in \
@@ -1213,6 +1221,18 @@ test/runner.$(OBJEXT): test/$(am__dirstamp) \
 test/runner$(EXEEXT): $(test_runner_OBJECTS) $(test_runner_DEPENDENCIES) $(EXTRA_test_runner_DEPENDENCIES) test/$(am__dirstamp)
 	@rm -f test/runner$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(test_runner_OBJECTS) $(test_runner_LDADD) $(LIBS)
+tools/$(am__dirstamp):
+	@$(MKDIR_P) tools
+	@: > tools/$(am__dirstamp)
+tools/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) tools/$(DEPDIR)
+	@: > tools/$(DEPDIR)/$(am__dirstamp)
+tools/benchmark.$(OBJEXT): tools/$(am__dirstamp) \
+	tools/$(DEPDIR)/$(am__dirstamp)
+
+tools/benchmark$(EXEEXT): $(tools_benchmark_OBJECTS) $(tools_benchmark_DEPENDENCIES) $(EXTRA_tools_benchmark_DEPENDENCIES) tools/$(am__dirstamp)
+	@rm -f tools/benchmark$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(tools_benchmark_OBJECTS) $(tools_benchmark_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -1220,6 +1240,7 @@ mostlyclean-compile:
 	-rm -f src/*.$(OBJEXT)
 	-rm -f src/*.lo
 	-rm -f test/*.$(OBJEXT)
+	-rm -f tools/*.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
@@ -1337,6 +1358,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_type_name.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_util.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_zview.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@tools/$(DEPDIR)/benchmark.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -1376,6 +1398,7 @@ clean-libtool:
 	-rm -rf examples/.libs examples/_libs
 	-rm -rf src/.libs src/_libs
 	-rm -rf test/.libs test/_libs
+	-rm -rf tools/.libs tools/_libs
 
 distclean-libtool:
 	-rm -f libtool config.lt
@@ -1844,6 +1867,8 @@ distclean-generic:
 	-rm -f src/$(am__dirstamp)
 	-rm -f test/$(DEPDIR)/$(am__dirstamp)
 	-rm -f test/$(am__dirstamp)
+	-rm -f tools/$(DEPDIR)/$(am__dirstamp)
+	-rm -f tools/$(am__dirstamp)
 	-test -z "$(DISTCLEANFILES)" || rm -f $(DISTCLEANFILES)
 
 maintainer-clean-generic:
@@ -1970,6 +1995,7 @@ distclean: distclean-recursive
 	-rm -f test/$(DEPDIR)/test_type_name.Po
 	-rm -f test/$(DEPDIR)/test_util.Po
 	-rm -f test/$(DEPDIR)/test_zview.Po
+	-rm -f tools/$(DEPDIR)/benchmark.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-hdr distclean-libtool distclean-tags
@@ -2130,6 +2156,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f test/$(DEPDIR)/test_type_name.Po
 	-rm -f test/$(DEPDIR)/test_util.Po
 	-rm -f test/$(DEPDIR)/test_zview.Po
+	-rm -f tools/$(DEPDIR)/benchmark.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic \
 	maintainer-clean-local
