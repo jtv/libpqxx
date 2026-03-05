@@ -286,6 +286,23 @@ private:
 };
 
 
+inline void time_bench(std::string_view name, std::function<void()> code)
+{
+  using timer = std::chrono::steady_clock;
+
+  std::cerr << name << ": ";
+
+  auto const start{timer::now()};
+  code();
+  auto const finish{timer::now()};
+  auto const seconds{
+    std::chrono::duration_cast<std::chrono::duration<double, std::ratio<1>>>(
+      finish - start)};
+
+  std::cerr << seconds << '\n';
+}
+
+
 template<typename benchmark> void measure(char const encoding[])
 {
   std::cout << "Starting benchmark " << benchmark::name << " (" << encoding
@@ -294,21 +311,18 @@ template<typename benchmark> void measure(char const encoding[])
 
   for (std::size_t rows = 1u; rows < 100'000'000; rows *= 10)
   {
-    // XXX: Start timer.
-    bench.template query_ints<1>(rows);
-    // XXX: Report time.
-
-    // XXX: Start timer.
-    bench.template query_ints<4>(rows);
-    // XXX: Report time.
-
-    // XXX: Start timer.
-    bench.template query_ints<16>(rows);
-    // XXX: Report time.
-
-    // XXX: Start timer.
-    bench.template query_ints<32>(rows);
-    // XXX: Report time.
+    time_bench(
+      std::format("{}-ints columns=1 rows={}", bench.name, rows),
+      [rows, &bench]() { bench.template query_ints<1>(rows); });
+    time_bench(
+      std::format("{}-ints columns=4 rows={}", bench.name, rows),
+      [rows, &bench]() { bench.template query_ints<4>(rows); });
+    time_bench(
+      std::format("{}-ints columns=16 rows={}", bench.name, rows),
+      [rows, &bench]() { bench.template query_ints<16>(rows); });
+    time_bench(
+      std::format("{}-ints columns=32 rows={}", bench.name, rows),
+      [rows, &bench]() { bench.template query_ints<32>(rows); });
   }
 }
 } // namespace
