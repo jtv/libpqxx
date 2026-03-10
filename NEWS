@@ -1,3 +1,4 @@
+7.10.6
 7.10.5
  - Fix missing types in Doxygen docs (by downgrading Doxygen :-/ ).
  - Tweak `README.md`. (#1111)
