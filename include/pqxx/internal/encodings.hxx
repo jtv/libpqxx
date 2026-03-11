@@ -17,12 +17,6 @@
 #include "pqxx/internal/encoding_group.hxx"
 
 
-namespace pqxx
-{
-PQXX_DECLARE_ENUM_CONVERSION(pqxx::internal::encoding_group);
-} // namespace pqxx
-
-
 namespace pqxx::internal
 {
 /// Return PostgreSQL's name for encoding enum value.
@@ -835,7 +829,10 @@ get_char_finder(encoding_group enc)
 
   default:
     throw pqxx::internal_error{concat(
-      "Unexpected encoding group: ", as_if, " (mapped from ", enc, ").")};
+      "Unexpected encoding group: ",
+      static_cast<std::underlying_type_t<encoding_group>>(as_if),
+      " (mapped from ",
+      static_cast<std::underlying_type_t<encoding_group>>(enc), ").")};
   }
 }
 
@@ -870,7 +867,10 @@ get_s_char_finder(encoding_group enc)
 
   default:
     throw pqxx::internal_error{concat(
-      "Unexpected encoding group: ", as_if, " (mapped from ", enc, ").")};
+      "Unexpected encoding group: ",
+      static_cast<std::underlying_type_t<encoding_group>>(as_if),
+      " (mapped from ",
+      static_cast<std::underlying_type_t<encoding_group>>(enc), ").")};
   }
 }
 } // namespace pqxx::internal
