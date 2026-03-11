@@ -209,8 +209,9 @@ PQXX_PURE glyph_scanner_func *get_glyph_scanner(encoding_group enc)
     PQXX_LIKELY CASE_GROUP(UTF8);
   }
   PQXX_UNLIKELY
-  throw usage_error{
-    internal::concat("Unsupported encoding group code ", enc, ".")};
+  throw usage_error{internal::concat(
+    "Unsupported encoding group code ",
+    static_cast<std::underlying_type_t<encoding_group>>(enc), ".")};
 
 #undef CASE_GROUP
 }

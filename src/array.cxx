@@ -181,8 +181,9 @@ array_parser::specialize_for_encoding(pqxx::internal::encoding_group enc)
     PQXX_ENCODING_CASE(UHC);
     PQXX_ENCODING_CASE(UTF8);
   }
-  PQXX_UNLIKELY throw pqxx::internal_error{
-    pqxx::internal::concat("Unsupported encoding code: ", enc, ".")};
+  PQXX_UNLIKELY throw pqxx::internal_error{pqxx::internal::concat(
+    "Unsupported encoding code: ",
+    static_cast<std::underlying_type_t<encoding_group>>(enc), ".")};
 
 #undef PQXX_ENCODING_CASE
 }
