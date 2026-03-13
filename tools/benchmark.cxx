@@ -288,6 +288,7 @@ time_bench(std::string_view name, std::function<void()> const &code)
     std::chrono::duration_cast<std::chrono::duration<double, std::ratio<1>>>(
       finish - start)};
 
+  std::cerr.setf(std::ios::fixed);
   std::cerr << seconds << '\n';
 }
 
