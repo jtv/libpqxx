@@ -4,7 +4,6 @@
 #include <format>
 #include <iostream>
 
-// XXX: Set client encoding!
 namespace
 {
 /// Fatal but well-handled error.
@@ -51,6 +50,12 @@ std::string compose_ints_query(std::size_t rows, std::size_t columns)
 }
 
 
+void clear_result(PGresult *r) noexcept
+{
+  PQclear(r);
+}
+
+
 /// Benchmarks for libpq, with result objects.
 /** This one's a lot of work.  That's actually one of the main reasons for
  * libpqxx to exist in the first place.  I'm not even attempting a streaming
@@ -66,8 +71,11 @@ public:
       throw std::bad_alloc{};
     check_conn();
     if (PQsetClientEncoding(m_cx, encoding) != 0)
+    {
+      PQfinish(m_cx);
       throw std::runtime_error{
         std::format("Setting client encoding {} failed.", encoding)};
+    }
   }
 
   ~pq_result() { PQfinish(m_cx); }
@@ -78,18 +86,20 @@ public:
   template<std::size_t columns> void query_ints(std::size_t rows)
   {
     auto const conn = compose_ints_query(rows, columns);
-    auto const res = PQexec(m_cx, conn.c_str());
-    check_result(res);
-    if (PQnfields(res) != columns)
+    std::unique_ptr<PGresult, decltype(&clear_result)> res{
+      PQexec(m_cx, conn.c_str()), &clear_result};
+    check_result(res.get());
+    if (PQnfields(res.get()) != columns)
       throw std::runtime_error{std::format(
-        "Expected {} column(s), got {}.", columns, PQnfields(res))};
-    std::size_t const actual_rows{static_cast<std::size_t>(PQntuples(res))};
+        "Expected {} column(s), got {}.", columns, PQnfields(res.get()))};
+    std::size_t const actual_rows{
+      static_cast<std::size_t>(PQntuples(res.get()))};
     for (std::size_t row{0u}; row < actual_rows; ++row)
     {
       for (std::size_t column{0u}; column < columns; ++column)
       {
-        auto const field =
-          PQgetvalue(res, static_cast<int>(row), static_cast<int>(column));
+        auto const field = PQgetvalue(
+          res.get(), static_cast<int>(row), static_cast<int>(column));
         if (field == nullptr)
           throw std::runtime_error{"No value in field!"};
         std::stringstream parser;
@@ -100,7 +110,6 @@ public:
       }
       std::cout << '\n';
     }
-    PQclear(res);
   }
 
 private:
@@ -148,7 +157,7 @@ public:
     res.expect_columns(columns);
     for (auto const row : res)
     {
-      for (auto const field : row) std::cout << field.as<int>() << '\n';
+      for (auto const field : row) std::cout << field.as<int>() << ' ';
       std::cout << '\n';
     }
   }
@@ -158,7 +167,7 @@ private:
 };
 
 
-/// Benchmarks for lipqxx, with streaming.
+/// Benchmarks for libpqxx, with streaming.
 class pqxx_stream final
 {
 public:
@@ -191,86 +200,46 @@ public:
       // in the real world, and so nothing is designed for it.  There are
       // probably nicer ways to do it, but it'll do for now.
       // C++26: Consider using "template for".
-      if constexpr (columns > 0)
-        std::cout << std::get<0>(row) << ' ';
-      if constexpr (columns > 1)
-        std::cout << std::get<1>(row) << ' ';
-      if constexpr (columns > 2)
-        std::cout << std::get<2>(row) << ' ';
-      if constexpr (columns > 3)
-        std::cout << std::get<3>(row) << ' ';
-      if constexpr (columns > 4)
-        std::cout << std::get<4>(row) << ' ';
-      if constexpr (columns > 5)
-        std::cout << std::get<5>(row) << ' ';
-      if constexpr (columns > 6)
-        std::cout << std::get<6>(row) << ' ';
-      if constexpr (columns > 7)
-        std::cout << std::get<7>(row) << ' ';
-      if constexpr (columns > 8)
-        std::cout << std::get<8>(row) << ' ';
-      if constexpr (columns > 9)
-        std::cout << std::get<9>(row) << ' ';
-      if constexpr (columns > 10)
-        std::cout << std::get<10>(row) << ' ';
-      if constexpr (columns > 11)
-        std::cout << std::get<11>(row) << ' ';
-      if constexpr (columns > 12)
-        std::cout << std::get<12>(row) << ' ';
-      if constexpr (columns > 13)
-        std::cout << std::get<13>(row) << ' ';
-      if constexpr (columns > 14)
-        std::cout << std::get<14>(row) << ' ';
-      if constexpr (columns > 15)
-        std::cout << std::get<15>(row) << ' ';
-      if constexpr (columns > 16)
-        std::cout << std::get<16>(row) << ' ';
-      if constexpr (columns > 17)
-        std::cout << std::get<17>(row) << ' ';
-      if constexpr (columns > 18)
-        std::cout << std::get<18>(row) << ' ';
-      if constexpr (columns > 19)
-        std::cout << std::get<19>(row) << ' ';
-      if constexpr (columns > 20)
-        std::cout << std::get<20>(row) << ' ';
-      if constexpr (columns > 21)
-        std::cout << std::get<21>(row) << ' ';
-      if constexpr (columns > 22)
-        std::cout << std::get<22>(row) << ' ';
-      if constexpr (columns > 23)
-        std::cout << std::get<23>(row) << ' ';
-      if constexpr (columns > 24)
-        std::cout << std::get<24>(row) << ' ';
-      if constexpr (columns > 25)
-        std::cout << std::get<25>(row) << ' ';
-      if constexpr (columns > 26)
-        std::cout << std::get<26>(row) << ' ';
-      if constexpr (columns > 27)
-        std::cout << std::get<27>(row) << ' ';
-      if constexpr (columns > 28)
-        std::cout << std::get<28>(row) << ' ';
-      if constexpr (columns > 29)
-        std::cout << std::get<29>(row) << ' ';
-      if constexpr (columns > 30)
-        std::cout << std::get<30>(row) << ' ';
-      if constexpr (columns > 31)
-        std::cout << std::get<31>(row) << ' ';
-      if constexpr (columns > 32)
-        std::cout << std::get<32>(row) << ' ';
-      if constexpr (columns > 33)
-        std::cout << std::get<33>(row) << ' ';
-      if constexpr (columns > 34)
-        std::cout << std::get<34>(row) << ' ';
-      if constexpr (columns > 35)
-        std::cout << std::get<35>(row) << ' ';
-      if constexpr (columns > 36)
-        std::cout << std::get<36>(row) << ' ';
-      if constexpr (columns > 37)
-        std::cout << std::get<37>(row) << ' ';
-      if constexpr (columns > 38)
-        std::cout << std::get<38>(row) << ' ';
-      if constexpr (columns > 39)
-        std::cout << std::get<39>(row) << ' ';
+      print_field<columns, 0>(row);
+      print_field<columns, 1>(row);
+      print_field<columns, 2>(row);
+      print_field<columns, 3>(row);
+      print_field<columns, 4>(row);
+      print_field<columns, 5>(row);
+      print_field<columns, 6>(row);
+      print_field<columns, 7>(row);
+      print_field<columns, 8>(row);
+      print_field<columns, 9>(row);
+      print_field<columns, 10>(row);
+      print_field<columns, 11>(row);
+      print_field<columns, 12>(row);
+      print_field<columns, 13>(row);
+      print_field<columns, 14>(row);
+      print_field<columns, 15>(row);
+      print_field<columns, 16>(row);
+      print_field<columns, 17>(row);
+      print_field<columns, 18>(row);
+      print_field<columns, 19>(row);
+      print_field<columns, 20>(row);
+      print_field<columns, 21>(row);
+      print_field<columns, 22>(row);
+      print_field<columns, 23>(row);
+      print_field<columns, 24>(row);
+      print_field<columns, 25>(row);
+      print_field<columns, 26>(row);
+      print_field<columns, 27>(row);
+      print_field<columns, 28>(row);
+      print_field<columns, 29>(row);
+      print_field<columns, 30>(row);
+      print_field<columns, 31>(row);
+      print_field<columns, 32>(row);
+      print_field<columns, 33>(row);
+      print_field<columns, 34>(row);
+      print_field<columns, 35>(row);
+      print_field<columns, 36>(row);
+      print_field<columns, 37>(row);
+      print_field<columns, 38>(row);
+      print_field<columns, 39>(row);
       static_assert(columns <= 40);
 
       std::cout << '\n';
@@ -289,11 +258,24 @@ private:
     template<std::size_t> using type = T;
   };
 
+  /// Print a field value, followed by a space.
+  template<std::size_t columns, std::size_t field>
+  static void print_field(auto const &row)
+  {
+    if constexpr (columns > field)
+    {
+      if constexpr (field > 0)
+        std::cout << ' ';
+      std::cout << std::get<field>(row);
+    }
+  }
+
   pqxx::connection m_cx;
 };
 
 
-inline void time_bench(std::string_view name, std::function<void()> code)
+inline void
+time_bench(std::string_view name, std::function<void()> const &code)
 {
   using timer = std::chrono::steady_clock;
 
@@ -310,10 +292,10 @@ inline void time_bench(std::string_view name, std::function<void()> code)
 }
 
 
-template<typename benchmark>
+template<typename Benchmark>
 void measure(char const encoding[], std::size_t rows)
 {
-  benchmark bench{"", encoding};
+  Benchmark bench{"", encoding};
 
   time_bench(
     std::format(
@@ -350,11 +332,14 @@ constexpr std::size_t ipow(std::size_t base, std::size_t exp)
 
 struct options
 {
-  /// Maximum number of rows to test, as an order of magnitude.
-  /** The benchmark will try querying 1 row, then 10 rows, then 100, and so on
-   * until it reaches 10^size.
+  /// Number of rows to test, as an order of magnitude.
+  /** The benchmark will try querying 1 row if this is zero, or 10 rows if it
+   * is set to 1, or 100 rows if it's 2, and so on.
    */
   std::size_t size = 8;
+
+  /// Encoding name.
+  std::string encoding = "utf8";
 };
 
 
@@ -363,23 +348,40 @@ options parse_opts(char *argv[])
   options opts;
 
   bool want_size{false};
+  bool want_encoding{false};
 
   for (std::size_t i{1}; argv[i]; ++i)
   {
     std::string_view const arg{argv[i]};
-    if ((arg == "--size") or (arg == "-s"))
+    assert((int(want_size) + int(want_encoding)) < 2);
+    if (want_size)
     {
-      if (want_size)
-        throw fail{"Expected size, got a redundant '--size'."};
+      opts.size = ipow(10, pqxx::from_string<std::size_t>(arg));
+      want_size = false;
+    }
+    else if (want_encoding)
+    {
+      opts.encoding = arg;
+      want_encoding = false;
+    }
+    else if ((arg == "--size") or (arg == "-s"))
+    {
       want_size = true;
+    }
+    else if ((arg == "--encoding") or (arg == "-e"))
+    {
+      want_encoding = true;
     }
     else
     {
-      if (not want_size)
-        throw fail{std::format("Unexpected argument: {}", arg)};
-      opts.size = ipow(10, pqxx::from_string<std::size_t>(arg));
+      throw fail{std::format("Unexpected argument: '{}'.", arg)};
     }
   }
+
+  if (want_size)
+    throw fail{"Missing argument to --size."};
+  if (want_encoding)
+    throw fail{"Missing argument to --encoding."};
   return opts;
 }
 } // namespace
@@ -391,13 +393,9 @@ int main(int, char *argv[])
   {
     options const opts{parse_opts(argv)};
 
-    std::vector<char const *> const encodings{"sqlascii", "utf8", "sjis"};
-    for (auto const encoding : encodings)
-    {
-      measure<pq_result>(encoding, opts.size);
-      measure<pqxx_result>(encoding, opts.size);
-      measure<pqxx_stream>(encoding, opts.size);
-    }
+    measure<pq_result>(opts.encoding.c_str(), opts.size);
+    measure<pqxx_result>(opts.encoding.c_str(), opts.size);
+    measure<pqxx_stream>(opts.encoding.c_str(), opts.size);
   }
   catch (fail const &err)
   {
