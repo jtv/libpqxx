@@ -7,8 +7,15 @@
 // XXX: Set client encoding!
 namespace
 {
+/// Fatal but well-handled error.
+struct fail final : std::runtime_error
+{
+  fail(std::string const &whatarg) : std::runtime_error{whatarg} {}
+};
+
+
 /// Hollow base class for comparable benchmarks.
-class benchmark
+class benchmark final
 {
 public:
   /// Derived-class constructors will connect to the database.
@@ -132,7 +139,7 @@ public:
   }
 
   /// This benchmark's name.
-  static constexpr std::string_view name = "pq_result";
+  static constexpr std::string_view name = "pqxx_result";
 
   template<std::size_t columns> void query_ints(std::size_t rows)
   {
@@ -162,7 +169,7 @@ public:
   }
 
   /// This benchmark's name.
-  static constexpr std::string_view name = "pq_result";
+  static constexpr std::string_view name = "pqxx_stream";
 
   template<std::size_t columns> void query_ints(std::size_t rows)
   {
@@ -303,38 +310,104 @@ inline void time_bench(std::string_view name, std::function<void()> code)
 }
 
 
-template<typename benchmark> void measure(char const encoding[])
+template<typename benchmark>
+void measure(char const encoding[], std::size_t rows)
 {
-  std::cout << "Starting benchmark " << benchmark::name << " (" << encoding
-            << ")\n";
   benchmark bench{"", encoding};
 
-  for (std::size_t rows = 1u; rows < 100'000'000; rows *= 10)
+  time_bench(
+    std::format(
+      "{}-ints columns=1 rows={} enc={}", bench.name, rows, encoding),
+    [rows, &bench]() { bench.template query_ints<1>(rows); });
+  time_bench(
+    std::format(
+      "{}-ints columns=4 rows={} enc={}", bench.name, rows, encoding),
+    [rows, &bench]() { bench.template query_ints<4>(rows); });
+  time_bench(
+    std::format(
+      "{}-ints columns=16 rows={} enc={}", bench.name, rows, encoding),
+    [rows, &bench]() { bench.template query_ints<16>(rows); });
+  time_bench(
+    std::format(
+      "{}-ints columns=32 rows={} enc={}", bench.name, rows, encoding),
+    [rows, &bench]() { bench.template query_ints<32>(rows); });
+}
+
+
+constexpr std::size_t ipow(std::size_t base, std::size_t exp)
+{
+  auto const limit{((std::numeric_limits<std::size_t>::max)() - 1) / base};
+  std::size_t result{1};
+  for (std::size_t i{0}; i < exp; ++i)
   {
-    time_bench(
-      std::format("{}-ints columns=1 rows={}", bench.name, rows),
-      [rows, &bench]() { bench.template query_ints<1>(rows); });
-    time_bench(
-      std::format("{}-ints columns=4 rows={}", bench.name, rows),
-      [rows, &bench]() { bench.template query_ints<4>(rows); });
-    time_bench(
-      std::format("{}-ints columns=16 rows={}", bench.name, rows),
-      [rows, &bench]() { bench.template query_ints<16>(rows); });
-    time_bench(
-      std::format("{}-ints columns=32 rows={}", bench.name, rows),
-      [rows, &bench]() { bench.template query_ints<32>(rows); });
+    if (result > limit)
+      throw fail{std::format("Number too large: {}**{}", base, exp)};
+    result *= base;
   }
+  return result;
+}
+
+
+struct options
+{
+  /// Maximum number of rows to test, as an order of magnitude.
+  /** The benchmark will try querying 1 row, then 10 rows, then 100, and so on
+   * until it reaches 10^size.
+   */
+  std::size_t size = 8;
+};
+
+
+options parse_opts(char *argv[])
+{
+  options opts;
+
+  bool want_size{false};
+
+  for (std::size_t i{1}; argv[i]; ++i)
+  {
+    std::string_view const arg{argv[i]};
+    if ((arg == "--size") or (arg == "-s"))
+    {
+      if (want_size)
+        throw fail{"Expected size, got a redundant '--size'."};
+      want_size = true;
+    }
+    else
+    {
+      if (not want_size)
+        throw fail{std::format("Unexpected argument: {}", arg)};
+      opts.size = ipow(10, pqxx::from_string<std::size_t>(arg));
+    }
+  }
+  return opts;
 }
 } // namespace
 
 
-int main()
+int main(int, char *argv[])
 {
-  std::vector<char const *> const encodings{"sqlascii", "utf8", "sjis"};
-  for (auto const encoding : encodings)
+  try
   {
-    measure<pq_result>(encoding);
-    measure<pqxx_result>(encoding);
-    measure<pqxx_stream>(encoding);
+    options const opts{parse_opts(argv)};
+
+    std::vector<char const *> const encodings{"sqlascii", "utf8", "sjis"};
+    for (auto const encoding : encodings)
+    {
+      measure<pq_result>(encoding, opts.size);
+      measure<pqxx_result>(encoding, opts.size);
+      measure<pqxx_stream>(encoding, opts.size);
+    }
   }
+  catch (fail const &err)
+  {
+    std::cerr << err.what() << '\n';
+    return 1;
+  }
+  catch (std::exception const &err)
+  {
+    std::cerr << err.what() << '\n';
+    return 2;
+  }
+  return 0;
 }
