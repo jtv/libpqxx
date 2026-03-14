@@ -102,11 +102,15 @@ public:
           res.get(), static_cast<int>(row), static_cast<int>(column));
         if (field == nullptr)
           throw std::runtime_error{"No value in field!"};
-        std::stringstream parser;
-        parser << field;
-        int integer;
-        parser >> integer;
-        std::cout << integer << ' ';
+
+        std::size_t value{}, len{std::strlen(field)};
+        auto const success{std::from_chars(field, field + len, value)};
+        if (success.ec != std::errc{}) throw fail{std::format("Could not convert number: {}", field)};
+        if (success.ptr != (field + len))
+          throw fail{std::format("Could not parse whole field: '{}'", field)};
+
+        if (column > 0u) std::cout << ' ';
+        std::cout << value;
       }
       std::cout << '\n';
     }
