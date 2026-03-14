@@ -174,9 +174,7 @@ pylint() {
     then
         pyrefly check .
     else
-        echo "Using pyrefly through uv." >&2
         uv -q run --with=pyrefly==0.50.1 pyrefly check --summary=none "$SRCDIR"
-        echo "Done with pyrefly." >&2
     fi
 }
 

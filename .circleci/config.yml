@@ -204,6 +204,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: XXX
+          command: "apt -yq update && apt install -yq lsb-release && lsb_release -a"
+      - run:
           name: Install
           command: "tools/install-deps.sh archlinux-lint clang++ >/tmp/vars.sh"
           max_auto_reruns: 3
