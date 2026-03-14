@@ -23,11 +23,14 @@ EXTRA_DIST = autogen.sh configitems Makefile.am.template README.md VERSION \
 	doc/Doxyfile \
 	src/pqxx-source.hxx \
 	test/helpers.hxx test/sample_types.hxx \
-###MAKTEMPLATE:FOREACH tools/*.sh
-	tools/###BASENAME###.sh \
+###MAKTEMPLATE:FOREACH tools/*.cxx
+	tools/###BASENAME###.cxx \
 ###MAKTEMPLATE:ENDFOREACH
 ###MAKTEMPLATE:FOREACH tools/*.py
 	tools/###BASENAME###.py \
+###MAKTEMPLATE:ENDFOREACH
+###MAKTEMPLATE:FOREACH tools/*.sh
+	tools/###BASENAME###.sh \
 ###MAKTEMPLATE:ENDFOREACH
 ###MAKTEMPLATE:FOREACH config/flags/*.txt
 	config/flags/###BASENAME###.txt \
@@ -35,6 +38,10 @@ EXTRA_DIST = autogen.sh configitems Makefile.am.template README.md VERSION \
 	# (End of list)
 
 noinst_HEADERS = test/helpers.hxx
+
+tools_benchmark_SOURCES = tools/benchmark.cxx
+tools_benchmark_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
+
 
 DISTCLEANFILES = include/pqxx/config-compiler.h
 
@@ -111,7 +118,7 @@ PQXX_EXAMPLES = \
 ###MAKTEMPLATE:ENDFOREACH
   # (End of list)
 
-noinst_PROGRAMS = $(PQXX_EXAMPLES)
+noinst_PROGRAMS = $(PQXX_EXAMPLES) tools/benchmark
 
 ###MAKTEMPLATE:FOREACH examples/*.cxx
 examples_###BASENAME###_SOURCES = examples/###BASENAME###.cxx
@@ -120,7 +127,7 @@ examples_###BASENAME###_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
 
 TESTS = $(PQXX_TEST_PROGS) tools/lint.sh $(PQXX_EXAMPLES)
 
-check_PROGRAMS = ${PQXX_TEST_PROGS}
+check_PROGRAMS = ${PQXX_TEST_PROGS} tools/benchmark
 
 
 maintainer-clean-local:

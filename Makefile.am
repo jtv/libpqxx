@@ -36,6 +36,14 @@ EXTRA_DIST = autogen.sh configitems Makefile.am.template README.md VERSION \
 	doc/Doxyfile \
 	src/pqxx-source.hxx \
 	test/helpers.hxx test/sample_types.hxx \
+	tools/benchmark.cxx \
+	tools/check_ascii.py \
+	tools/compiler_flags.py \
+	tools/extract_version.py \
+	tools/generate_check_config.py \
+	tools/generate_cxx_checks.py \
+	tools/m4esc.py \
+	tools/template2mak.py \
 	tools/deprecations.sh \
 	tools/extract_version.sh \
 	tools/format.sh \
@@ -45,19 +53,16 @@ EXTRA_DIST = autogen.sh configitems Makefile.am.template README.md VERSION \
 	tools/run-test-postgres.sh \
 	tools/todo.sh \
 	tools/update-copyright.sh \
-	tools/check_ascii.py \
-	tools/compiler_flags.py \
-	tools/extract_version.py \
-	tools/generate_check_config.py \
-	tools/generate_cxx_checks.py \
-	tools/m4esc.py \
-	tools/template2mak.py \
 	config/flags/audit-mode.txt \
 	config/flags/maintainer-mode.txt \
 	config/flags/suggest-mode.txt \
 	# (End of list)
 
 noinst_HEADERS = test/helpers.hxx
+
+tools_benchmark_SOURCES = tools/benchmark.cxx
+tools_benchmark_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
+
 
 DISTCLEANFILES = include/pqxx/config-compiler.h
 
@@ -214,7 +219,7 @@ PQXX_EXAMPLES = \
   examples/simple_queries \
   # (End of list)
 
-noinst_PROGRAMS = $(PQXX_EXAMPLES)
+noinst_PROGRAMS = $(PQXX_EXAMPLES) tools/benchmark
 
 examples_complete_example_SOURCES = examples/complete_example.cxx
 examples_complete_example_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
@@ -233,7 +238,7 @@ examples_simple_queries_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
 
 TESTS = $(PQXX_TEST_PROGS) tools/lint.sh $(PQXX_EXAMPLES)
 
-check_PROGRAMS = ${PQXX_TEST_PROGS}
+check_PROGRAMS = ${PQXX_TEST_PROGS} tools/benchmark
 
 
 maintainer-clean-local:
