@@ -205,7 +205,7 @@ jobs:
       - checkout
       - run:
           name: XXX
-          command: "apt -yq update && apt install -yq lsb-release && lsb_release -a"
+          command: "apt-get -q update && apt-get -q -y install lsb-release && lsb_release -a"
       - run:
           name: Install
           command: "tools/install-deps.sh archlinux-lint clang++ >/tmp/vars.sh"
