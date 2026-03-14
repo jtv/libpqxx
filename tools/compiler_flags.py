@@ -8,7 +8,6 @@ base command line and the previously accepted flags.
 
 from argparse import (
     ArgumentParser,
-    FileType,
     Namespace,
 )
 from pathlib import Path
@@ -16,6 +15,7 @@ from subprocess import (
     DEVNULL,
     run,
 )
+import sys
 
 
 EPILOG = """The flags file may contain comments, on lines starting with '#'
@@ -75,13 +75,35 @@ def compiler_accepts(
     return run_quietly(f"{command} {prev} {flag} -c {source}")
 
 
+def open_in(path: Path):
+    """Open file passed on command line for reading, unless it's '-'.
+
+    If it's a dash (`-`), open standard input instead.
+    """
+    if path.name == "-":
+        return sys.stdin
+    else:
+        return path.open()
+
+
+def open_out(path: Path):
+    """Open file passed on command line for writing, unless it's '-'.
+
+    If it's a dash (`-`), open standard output instead.
+    """
+    if path.name == "-":
+        return sys.stdout
+    else:
+        return path.open("w")
+
+
 def main() -> None:
     """Main entry point."""
     args = parse_args()
     good_flags: list[str] = []
     source = Path("config-tests") / "minimal.cxx"
     src = source.name
-    with FileType("r")(args.flags) as flags:
+    with open_in(args.flags) as flags:
         for line in flags:
             flag = line.strip()
             if flag == "" or flag.startswith("#"):
@@ -92,7 +114,7 @@ def main() -> None:
 
     sep = " " if args.single_line else "\n"
 
-    with FileType("w")(args.output) as output:
+    with open_out(args.output) as output:
         print(sep.join(good_flags), file=output)
 
 
