@@ -13,8 +13,14 @@ struct fail final : std::runtime_error
 };
 
 
+void clear_result(PGresult *r) noexcept
+{
+  PQclear(r);
+}
+
+
 /// Hollow base class for comparable benchmarks.
-class benchmark final
+class benchmark
 {
 public:
   /// Derived-class constructors will connect to the database.
@@ -24,7 +30,7 @@ public:
   benchmark() = default;
 
   /// Query and process `rows` rows of `columns` integers.
-  /** The processing consists of reading each field; parsing it to an `int`;
+  /** The processing consists of reading each field; parsing it to a `size_t`
    * and writing it to `cout`.
    *
    * Each row ends in a newline character.  Each field is followed by a space.
@@ -40,19 +46,19 @@ public:
 };
 
 
+template<typename BM>
+concept benchmark_type =
+  std::derived_from<BM, benchmark> and requires(BM b) { b.name; };
+
+
 /// Generate SQL to query `rows` rows of `columns` integers each.
 std::string compose_ints_query(std::size_t rows, std::size_t columns)
 {
   std::string tail;
-  for (std::size_t c{1u}; c < columns; ++c) tail += std::format(", n*{}", c);
+  for (std::size_t c{1u}; c < columns; ++c)
+    tail += std::format(", n*{}", c + 1);
   return std::format(
     "SELECT n{} FROM generate_series(1, {}) AS n", tail, rows);
-}
-
-
-void clear_result(PGresult *r) noexcept
-{
-  PQclear(r);
 }
 
 
@@ -61,7 +67,7 @@ void clear_result(PGresult *r) noexcept
  * libpqxx to exist in the first place.  I'm not even attempting a streaming
  * query, with all the encoding support, handling of quotes and escapes, etc.
  */
-class pq_result final
+class pq_result final : public benchmark
 {
 public:
   pq_result(char const *connstr = "", char const *encoding = "utf8") :
@@ -85,6 +91,9 @@ public:
 
   template<std::size_t columns> void query_ints(std::size_t rows)
   {
+    if (std::cmp_greater(rows, (std::numeric_limits<int>::max)()))
+      throw fail{std::format(
+        "Number of rows ({}) is greater than can be indexed.", rows)};
     auto const conn = compose_ints_query(rows, columns);
     std::unique_ptr<PGresult, decltype(&clear_result)> res{
       PQexec(m_cx, conn.c_str()), &clear_result};
@@ -105,11 +114,13 @@ public:
 
         std::size_t value{}, len{std::strlen(field)};
         auto const success{std::from_chars(field, field + len, value)};
-        if (success.ec != std::errc{}) throw fail{std::format("Could not convert number: {}", field)};
+        if (success.ec != std::errc{})
+          throw fail{std::format("Could not convert number: {}", field)};
         if (success.ptr != (field + len))
           throw fail{std::format("Could not parse whole field: '{}'", field)};
 
-        if (column > 0u) std::cout << ' ';
+        if (column > 0u)
+          std::cout << ' ';
         std::cout << value;
       }
       std::cout << '\n';
@@ -131,9 +142,10 @@ private:
   /// Throw exception if `res` indicates a failed query.
   void check_result(PGresult *res) const
   {
-    if (res == nullptr)
+    if (res == nullptr) [[unlikely]]
     {
       check_conn();
+      throw std::bad_alloc{};
     }
     if (PQresultStatus(res) != PGRES_TUPLES_OK)
       throw std::runtime_error{PQresultErrorMessage(res)};
@@ -142,7 +154,7 @@ private:
 
 
 /// Benchmarks for libpqxx, with result objects.
-class pqxx_result final
+class pqxx_result final : public benchmark
 {
 public:
   pqxx_result(char const *connstr = "", char const *encoding = "utf8") :
@@ -156,12 +168,24 @@ public:
 
   template<std::size_t columns> void query_ints(std::size_t rows)
   {
+    if (std::cmp_greater(rows, (std::numeric_limits<int>::max)()))
+      throw fail{std::format(
+        "Number of rows ({}) is greater than can be indexed.", rows)};
     pqxx::nontransaction tx{m_cx};
     auto const res = tx.exec(compose_ints_query(rows, columns));
     res.expect_columns(columns);
     for (auto const row : res)
     {
-      for (auto const field : row) std::cout << field.as<int>() << ' ';
+      bool first{true};
+      for (auto const field : row)
+      {
+        if (first)
+        {
+          std::cout << ' ';
+          first = false;
+        }
+        std::cout << field.as<std::size_t>();
+      }
       std::cout << '\n';
     }
   }
@@ -172,7 +196,7 @@ private:
 
 
 /// Benchmarks for libpqxx, with streaming.
-class pqxx_stream final
+class pqxx_stream final : public benchmark
 {
 public:
   pqxx_stream(char const *connstr = "", char const *encoding = "utf8") :
@@ -190,12 +214,14 @@ public:
     auto const query = compose_ints_query(rows, columns);
     std::size_t actual_rows = 0u;
 
-    // Call tx.stream<int, int, int...>(...).  In real-world code this is a
-    // strange and unusual pattern.
+    // Call tx.stream<size_t, size_t, size_t...>(...).  In real-world code this
+    // is a strange and unusual pattern.
     auto stream{[&]<std::size_t... Is>(std::index_sequence<Is...>) {
-      return tx.stream<typename repeat_n<int, columns>::template type<Is>...>(
-        query);
-      // or: obj.bar<typename repeat_n<int, columns>::template type<Is>...>();
+      return tx
+        .stream<typename repeat_n<std::size_t, columns>::template type<Is>...>(
+          query);
+      // or: obj.bar<typename repeat_n<std::size_t, columns>::template
+      // type<Is>...>();
     }(std::make_index_sequence<columns>{})};
 
     for (auto row : stream)
@@ -256,7 +282,7 @@ public:
   }
 
 private:
-  /// Helper for constructing a parameter pack of `n` `int`s.
+  /// Helper for constructing a parameter pack of `n` `T`s.
   template<typename T, std::size_t N> struct repeat_n
   {
     template<std::size_t> using type = T;
@@ -278,8 +304,12 @@ private:
 };
 
 
-inline void
-time_bench(std::string_view name, std::function<void()> const &code)
+template<typename FUNC>
+concept benchmark_func = std::invocable<FUNC>;
+
+
+template<benchmark_func FUNC>
+inline void time_bench(std::string_view name, FUNC const &code)
 {
   using timer = std::chrono::steady_clock;
 
@@ -297,7 +327,7 @@ time_bench(std::string_view name, std::function<void()> const &code)
 }
 
 
-template<typename Benchmark>
+template<benchmark_type Benchmark>
 void measure(char const encoding[], std::size_t rows)
 {
   Benchmark bench{"", encoding};
@@ -305,19 +335,19 @@ void measure(char const encoding[], std::size_t rows)
   time_bench(
     std::format(
       "{}-ints columns=1 rows={} enc={}", bench.name, rows, encoding),
-    [rows, &bench]() { bench.template query_ints<1>(rows); });
+    [&bench, rows] { bench.template query_ints<1>(rows); });
   time_bench(
     std::format(
       "{}-ints columns=4 rows={} enc={}", bench.name, rows, encoding),
-    [rows, &bench]() { bench.template query_ints<4>(rows); });
+    [&bench, rows] { bench.template query_ints<4>(rows); });
   time_bench(
     std::format(
       "{}-ints columns=16 rows={} enc={}", bench.name, rows, encoding),
-    [rows, &bench]() { bench.template query_ints<16>(rows); });
+    [&bench, rows] { bench.template query_ints<16>(rows); });
   time_bench(
     std::format(
       "{}-ints columns=32 rows={} enc={}", bench.name, rows, encoding),
-    [rows, &bench]() { bench.template query_ints<32>(rows); });
+    [&bench, rows] { bench.template query_ints<32>(rows); });
 }
 
 
@@ -341,7 +371,7 @@ struct options
   /** The benchmark will try querying 1 row if this is zero, or 10 rows if it
    * is set to 1, or 100 rows if it's 2, and so on.
    */
-  std::size_t size = 8;
+  std::size_t size = 7;
 
   /// Encoding name.
   std::string encoding = "utf8";
