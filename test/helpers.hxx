@@ -23,11 +23,19 @@ using randomizer = std::mt19937;
  */
 struct context
 {
+  // (Stupid lint warning because we initialise the randomiser _after_
+  // construction, and clang-tidy is in a panic because default-initialising it
+  // is a sin.)
+
+  // NOLINTBEGIN(cert-msc32-c,cert-msc51-cpp)
+
   /// Create a context for one thread to run tests.
   /** Seeds the randommiser with a highly predictable 0 initially.  Call the
    * @ref seed() function before consuming random values.
    */
   explicit context(std::size_t random_seed) : rnd_seed{random_seed} {}
+
+  // NOLINTEND(cert-msc32-c,cert-msc51-cpp)
 
   context() = delete;
   context(context const &) = delete;
