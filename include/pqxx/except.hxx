@@ -160,7 +160,10 @@ struct PQXX_LIBEXPORT failure : std::exception
    * @note This is a general indication based on the _type_ of exception.  It
    * can be wrong for some specific situations.
    */
-  virtual bool poisons_connection() const noexcept { return false; }
+  [[nodiscard]] virtual bool poisons_connection() const noexcept
+  {
+    return false;
+  }
 
   /// Does this type of error make an ongoing @ref dbtransaction unusable?
   /** When this is the case, before you try to do anything else, you'll want to
@@ -176,7 +179,10 @@ struct PQXX_LIBEXPORT failure : std::exception
    * @note This is a general indication based on the _type_ of exception.  It
    * can be wrong for some specific situations.
    */
-  virtual bool poisons_transaction() const noexcept { return false; }
+  [[nodiscard]] virtual bool poisons_transaction() const noexcept
+  {
+    return false;
+  }
 
   // C++26: Implement using reflection.
   /// The name of this exception type: "failure", "sql_error", etc.
@@ -323,10 +329,16 @@ struct PQXX_LIBEXPORT broken_connection : failure
   [[nodiscard]] std::string_view name() const noexcept override;
 
   /// By its nature, this type of error makes the connection unusable.
-  bool poisons_connection() const noexcept override { return true; }
+  [[nodiscard]] bool poisons_connection() const noexcept override
+  {
+    return true;
+  }
 
   /// When the connection breaks, so will an ongoing transaction.
-  bool poisons_transaction() const noexcept override { return true; }
+  [[nodiscard]] bool poisons_transaction() const noexcept override
+  {
+    return true;
+  }
 };
 
 
@@ -388,7 +400,10 @@ struct PQXX_LIBEXPORT sql_error : public failure
   [[nodiscard]] std::string_view name() const noexcept override;
 
   /// If a transaction was ongoing, an SQL error will break it.
-  bool poisons_transaction() const noexcept override { return true; }
+  [[nodiscard]] bool poisons_transaction() const noexcept override
+  {
+    return true;
+  }
 };
 
 
@@ -416,10 +431,16 @@ struct PQXX_LIBEXPORT protocol_violation : sql_error
   // NOLINTEND(performance-move-const-arg)
 
   /// When this happens, the connection is in a confused state.
-  bool poisons_connection() const noexcept override { return true; }
+  [[nodiscard]] bool poisons_connection() const noexcept override
+  {
+    return true;
+  }
 
   /// Since the connection is broken, so is a transaction.
-  bool poisons_transaction() const noexcept override { return true; }
+  [[nodiscard]] bool poisons_transaction() const noexcept override
+  {
+    return true;
+  }
 
   [[nodiscard]] std::string_view name() const noexcept override;
 };
@@ -443,10 +464,16 @@ struct PQXX_LIBEXPORT in_doubt_error : failure
   // NOLINTEND(performance-move-const-arg)
 
   /// This kind of error can only happen when the connection breaks.
-  bool poisons_connection() const noexcept override { return true; }
+  [[nodiscard]] bool poisons_connection() const noexcept override
+  {
+    return true;
+  }
 
   /// The transaction is already closed, and the connection is broken.
-  bool poisons_transaction() const noexcept override { return true; }
+  [[nodiscard]] bool poisons_transaction() const noexcept override
+  {
+    return true;
+  }
 
   [[nodiscard]] std::string_view name() const noexcept override;
 };
@@ -465,7 +492,10 @@ struct PQXX_LIBEXPORT transaction_rollback : sql_error
   // NOLINTEND(performance-move-const-arg)
 
   /// Some earlier failure broke the transaction.
-  bool poisons_transaction() const noexcept override { return true; }
+  [[nodiscard]] bool poisons_transaction() const noexcept override
+  {
+    return true;
+  }
 
   [[nodiscard]] std::string_view name() const noexcept override;
 };
@@ -492,7 +522,10 @@ struct PQXX_LIBEXPORT serialization_failure : transaction_rollback
   // NOLINTEND(performance-move-const-arg)
 
   /// To retry the transaction, you'll need to start a fresh one.
-  bool poisons_transaction() const noexcept override { return true; }
+  [[nodiscard]] bool poisons_transaction() const noexcept override
+  {
+    return true;
+  }
 
   [[nodiscard]] std::string_view name() const noexcept override;
 };
@@ -511,7 +544,10 @@ struct PQXX_LIBEXPORT statement_completion_unknown : transaction_rollback
   // NOLINTEND(performance-move-const-arg)
 
   /// It's not advisable to continue using the connection after this.
-  bool poisons_connection() const noexcept override { return true; }
+  [[nodiscard]] bool poisons_connection() const noexcept override
+  {
+    return true;
+  }
 
   [[nodiscard]] std::string_view name() const noexcept override;
 };
@@ -540,10 +576,16 @@ struct PQXX_LIBEXPORT internal_error : failure
     std::string const &, sl = sl::current(), st &&tr = st::current());
 
   /// When this happens, all bets are off.  It _may_ work, but don't risk it.
-  bool poisons_connection() const noexcept override { return true; }
+  [[nodiscard]] bool poisons_connection() const noexcept override
+  {
+    return true;
+  }
 
   /// When this happens, all bets are off.  It _may_ work, but don't risk it.
-  bool poisons_transaction() const noexcept override { return true; }
+  [[nodiscard]] bool poisons_transaction() const noexcept override
+  {
+    return true;
+  }
 
   [[nodiscard]] std::string_view name() const noexcept override;
 };
@@ -561,7 +603,10 @@ struct PQXX_LIBEXPORT usage_error : failure
   // NOLINTEND(performance-move-const-arg)
 
   /// Your transaction will probably still work, but something is badly wrong.
-  bool poisons_transaction() const noexcept override { return true; }
+  [[nodiscard]] bool poisons_transaction() const noexcept override
+  {
+    return true;
+  }
 
   [[nodiscard]] std::string_view name() const noexcept override;
 };
@@ -671,10 +716,16 @@ struct PQXX_LIBEXPORT feature_not_supported : sql_error
   [[nodiscard]] std::string_view name() const noexcept override;
 
   /// It all depends on the details, but this _can_ break your connection.
-  bool poisons_connection() const noexcept override { return true; }
+  [[nodiscard]] bool poisons_connection() const noexcept override
+  {
+    return true;
+  }
 
   /// If this poisons your connection, it also poisons your transaction.
-  bool poisons_transaction() const noexcept override { return true; }
+  [[nodiscard]] bool poisons_transaction() const noexcept override
+  {
+    return true;
+  }
 };
 
 
