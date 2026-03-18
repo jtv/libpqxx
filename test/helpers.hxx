@@ -1,5 +1,7 @@
+// NOLINTBEGIN(llvm-header-guard)
 #ifndef PQXX_TEST_HELPERS_HXX
 #define PQXX_TEST_HELPERS_HXX
+// NOLINTEND(llvm-header-guard)
 
 #include <mutex>
 #include <random>
@@ -27,7 +29,7 @@ struct context final
   /** Seeds the randommiser with a highly predictable 0 initially.  Call the
    * @ref seed() function before consuming random values.
    */
-  explicit context(std::size_t random_seed) : rnd{}, rnd_seed{random_seed} {}
+  explicit context(std::size_t random_seed) : rnd_seed{random_seed} {}
 
   // NOLINTEND(cert-msc32-c,cert-msc51-cpp)
 
@@ -97,14 +99,18 @@ class test_failure : public std::logic_error
 {
 public:
   explicit test_failure(std::string const &desc, sl loc = sl::current());
+  test_failure(test_failure const &) = default;
+  test_failure(test_failure &&) = default;
   ~test_failure() noexcept override;
+
+  test_failure &operator=(test_failure const &) = default;
+  test_failure &operator=(test_failure &&) = default;
 
   [[nodiscard]] sl const &location() const noexcept { return m_loc; }
 
   [[nodiscard]] std::string_view name() const noexcept { return "Failure"; }
 
-  test_failure &operator=(test_failure const &) = delete;
-
+  // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
   sl m_loc;
 };
 
@@ -207,7 +213,7 @@ void check(
 template<typename ACTUAL, typename EXPECTED>
 inline void check_equal(
   ACTUAL const &actual, char const *actual_text, EXPECTED const &expected,
-  char const expected_text[],
+  char const *expected_text,
   std::string const &desc = "Equality check failed.", sl loc = sl::current())
 {
   if (expected == actual)
@@ -316,9 +322,14 @@ inline void check_less_equal(
 {
   if (value1 <= value2)
     return;
-  std::string const fulldesc{std::format(
-    R"-({} ({} > {}: "lower"={}, "upper"={}))-", desc, text1, text2, value1,
+
+  // Visual Studio 2022 doesn't deal well with backslashes in raw strings, so
+  // we can't necessarily use those.
+  // NOLINTBEGIN(modernize-raw-string-literal)
+  std::string fulldesc{std::format(
+    "{} ({} > {}: \"lower\"={}, \"upper\"={})", desc, text1, text2, value1,
     value2)};
+  // NOLINTEND(modernize-raw-string-literal)
   throw test_failure{fulldesc, loc};
 }
 
