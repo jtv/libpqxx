@@ -776,7 +776,7 @@ public:
   result
   exec_params_n(std::size_t rows, std::string_view query, Args &&...args)
   {
-    sl loc{m_created_loc};
+    sl const loc{m_created_loc};
     return exec(query, params{*this, args...}, loc)
       .expect_rows(
         check_cast<result_size_type>(rows, "number of rows", loc), loc);
@@ -977,7 +977,7 @@ public:
   /// Execute a prepared statement taking no parameters.
   result exec(prepped statement, sl loc = sl::current())
   {
-    params pp;
+    params const pp;
     return internal_exec_prepared(statement, pp.make_c_params(loc), loc);
   }
 
@@ -1070,7 +1070,7 @@ public:
     "Use exec(string_view, params) and call one_row() on the result.")]]
   row exec_prepared1(zview statement, Args &&...args)
   {
-    sl loc{m_created_loc};
+    sl const loc{m_created_loc};
     return exec(prepped{statement}, params{*this, args...}).one_row(loc);
   }
 
@@ -1082,7 +1082,7 @@ public:
     "Use exec(prepped, params), and call no_rows() on the result.")]]
   result exec_prepared0(zview statement, Args &&...args)
   {
-    sl loc{m_created_loc};
+    sl const loc{m_created_loc};
     return exec(prepped{statement}, params{*this, args...}).no_rows(loc);
   }
 
@@ -1220,7 +1220,7 @@ private:
   /** Gets its @ref encoding_group from the @ref connection, but uses the
    * `std::source_location` that you pass.
    */
-  conversion_context make_context(sl) const;
+  [[nodiscard]] conversion_context make_context(sl) const;
 
   PQXX_PRIVATE void check_pending_error();
 

@@ -109,6 +109,7 @@ public:
   result() noexcept = default;
   result(result const &rhs) noexcept = default;
   result(result &&rhs) noexcept = default;
+  ~result() = default;
 
   /// Assign one result to another.
   /** Copying results is cheap: it copies only smart pointers, but the actual
@@ -505,7 +506,10 @@ public:
   field_ref one_field_ref(sl = sl::current()) const;
 
   /// Retrieve encoding group for this result's client encoding.
-  encoding_group get_encoding_group() const noexcept { return m_encoding; }
+  [[nodiscard]] encoding_group get_encoding_group() const noexcept
+  {
+    return m_encoding;
+  }
 
 private:
   using data_pointer = std::shared_ptr<internal::pq::PGresult const>;
@@ -530,7 +534,8 @@ private:
   data_pointer m_data;
 
   friend class pqxx::internal::gate::result_pipeline;
-  PQXX_PURE std::shared_ptr<std::string const> query_ptr() const noexcept
+  PQXX_PURE [[nodiscard]] std::shared_ptr<std::string const>
+  query_ptr() const noexcept
   {
     return m_query;
   }
@@ -551,11 +556,12 @@ private:
   static std::string const s_empty_string;
 
   friend class pqxx::internal::gate::result_field_ref;
-  PQXX_PURE PQXX_RETURNS_NONNULL char const *
+  PQXX_PURE PQXX_RETURNS_NONNULL [[nodiscard]] char const *
   get_value(size_type row, row_size_type col) const noexcept;
-  PQXX_PURE bool get_is_null(size_type row, row_size_type col) const noexcept;
-  PQXX_PURE
-  field_size_type get_length(size_type, row_size_type) const noexcept;
+  PQXX_PURE [[nodiscard]] bool
+  get_is_null(size_type row, row_size_type col) const noexcept;
+  PQXX_PURE [[nodiscard]] field_size_type
+    get_length(size_type, row_size_type) const noexcept;
 
   friend class pqxx::internal::gate::result_creation;
   result(
@@ -573,11 +579,11 @@ private:
 
   [[noreturn]] PQXX_COLD PQXX_PRIVATE void
   throw_sql_error(std::string const &Err, std::string const &Query, sl) const;
-  PQXX_PURE PQXX_PRIVATE int errorposition() const;
-  PQXX_PRIVATE std::string status_error(sl) const;
+  PQXX_PURE PQXX_PRIVATE [[nodiscard]] int errorposition() const;
+  PQXX_PRIVATE [[nodiscard]] std::string status_error(sl) const;
 
   friend class pqxx::internal::gate::result_sql_cursor;
-  PQXX_PURE char const *cmd_status() const noexcept;
+  PQXX_PURE [[nodiscard]] char const *cmd_status() const noexcept;
 };
 } // namespace pqxx
 #endif
