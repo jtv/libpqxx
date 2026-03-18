@@ -160,14 +160,7 @@ public:
 
   stream_to(stream_to const &) = delete;
 
-  // Some false positives from clang-tidy checks in this constructor.  The
-  // initial base-class move moves only the embedded base-class object, not the
-  // individual member variables that fall outside the base class.
-  // Also there's one deliberate invalidation step of the moved-from object,
-  // which is also being flagged as a potential use-after-move.
-
-  // NOLINTBEGIN(bugprone-use-after-move,hicpp-invalid-access-moved)
-  stream_to(stream_to &&other) :
+  explicit stream_to(stream_to &&other) :
           // (This first step only moves the transaction_focus base-class
           // object.)
           transaction_focus{std::move(other)},
@@ -179,7 +172,9 @@ public:
   {
     other.m_finished = true;
   }
-  // NOLINTEND(bugprone-use-after-move,hicpp-invalid-access-moved)
+
+  stream_to &operator=(stream_to &&other) = delete;
+  stream_to &operator=(stream_to const &) = delete;
 
   ~stream_to() noexcept;
 

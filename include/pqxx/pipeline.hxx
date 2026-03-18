@@ -234,7 +234,7 @@ private:
   /** We store this in the object to avoid the risk of exceptions at awkward
    * moments.
    */
-  encoding_group m_encoding{encoding_group::unknown};
+  encoding_group m_encoding = encoding_group::unknown;
 
   /// A `std::source_location` for where this pipeline was created.
   sl m_created_loc;
