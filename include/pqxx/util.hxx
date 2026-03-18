@@ -676,6 +676,7 @@ make_strerror_rs_result(char const *err_result, std::span<char>)
   [[maybe_unused]] int err_num, [[maybe_unused]] std::span<char> buffer)
 {
   // Not entirely clear whether strerror_s will be in std or global namespace.
+  // NOLINTNEXTLINE(google-build-using-namespace)
   using namespace std;
 
 #if defined(PQXX_HAVE_STERROR_S) || defined(PQXX_HAVE_STRERROR_R)

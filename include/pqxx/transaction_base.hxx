@@ -1096,7 +1096,7 @@ public:
   result
   exec_prepared_n(result::size_type rows, zview statement, Args &&...args)
   {
-    sl loc{m_created_loc};
+    sl const loc{m_created_loc};
     return exec(pqxx::prepped{statement}, params{*this, args...})
       .expect_rows(rows, loc);
   }

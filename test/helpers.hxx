@@ -25,11 +25,12 @@ struct context
   /** Seeds the randommiser with a highly predictable 0 initially.  Call the
    * @ref seed() function before consuming random values.
    */
-  context(std::size_t random_seed) : rnd{0}, rnd_seed{random_seed} {}
+  explicit context(std::size_t random_seed) : rnd{}, rnd_seed{random_seed} {}
 
   context() = delete;
   context(context const &) = delete;
   context(context &&) = delete;
+  ~context() = default;
   context &operator=(context const &) = delete;
   context &operator=(context &&) = delete;
 
@@ -91,17 +92,16 @@ private:
 class test_failure : public std::logic_error
 {
 public:
-  test_failure(std::string const &desc, sl loc = sl::current());
+  explicit test_failure(std::string const &desc, sl loc = sl::current());
   ~test_failure() noexcept override;
 
-  sl const &location() const noexcept { return m_loc; }
+  [[nodiscard]] sl const &location() const noexcept { return m_loc; }
 
-  std::string_view name() const noexcept { return "Failure"; }
+  [[nodiscard]] std::string_view name() const noexcept { return "Failure"; }
 
-private:
   test_failure &operator=(test_failure const &) = delete;
 
-  sl const m_loc;
+  sl m_loc;
 };
 
 
@@ -202,7 +202,7 @@ void check(
 
 template<typename ACTUAL, typename EXPECTED>
 inline void check_equal(
-  ACTUAL const &actual, char const actual_text[], EXPECTED const &expected,
+  ACTUAL const &actual, char const *actual_text, EXPECTED const &expected,
   char const expected_text[],
   std::string const &desc = "Equality check failed.", sl loc = sl::current())
 {
@@ -375,6 +375,7 @@ inline void check_throws(
   try
   {
     f();
+    // NOLINTNEXTLINE(hicpp-exception-baseclass)
     throw failure_to_fail{};
   }
   catch (failure_to_fail const &)
@@ -424,6 +425,7 @@ inline void check_throws_exception(
   try
   {
     f();
+    // NOLINTNEXTLINE(hicpp-exception-baseclass)
     throw failure_to_fail{};
   }
   catch (failure_to_fail const &)
