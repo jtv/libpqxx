@@ -309,9 +309,12 @@ class PQXX_LIBEXPORT field final
 public:
   using size_type = field_size_type;
 
+  // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
+  /// A @ref field_ref can implicitly promote to a `field`.
   field(field_ref const &f) :
           m_home{f.home()}, m_row{f.row_number()}, m_col{f.column_number()}
   {}
+  // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions)
 
   /**
    * @name Comparison
@@ -617,12 +620,12 @@ private:
   }
 
   result m_home;
-  result::size_type m_row;
+  result::size_type m_row{};
   /**
    * You'd expect this to be unsigned, but due to the way reverse iterators
    * are related to regular iterators, it must be allowed to underflow to -1.
    */
-  row_size_type m_col;
+  row_size_type m_col{};
 };
 
 

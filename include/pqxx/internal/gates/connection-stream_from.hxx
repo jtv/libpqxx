@@ -1,5 +1,5 @@
-#ifndef PQXX_CONNECTION_STREAM_FROM_HXX
-#define PQXX_CONNECTION_STREAM_FROM_HXX
+#ifndef PQXX_INTERNAL_GATES_CONNECTION_STREAM_FROM_HXX
+#define PQXX_INTERNAL_GATES_CONNECTION_STREAM_FROM_HXX
 
 #include <pqxx/internal/callgate.hxx>
 
@@ -18,7 +18,7 @@ class PQXX_PRIVATE connection_stream_from final : callgate<connection>
   friend class pqxx::stream_from;
   template<typename... TYPE> friend class pqxx::internal::stream_query;
 
-  constexpr connection_stream_from(reference x) noexcept : super{x} {}
+  explicit constexpr connection_stream_from(reference x) noexcept : super{x} {}
 
   auto read_copy_line(sl loc) { return home().read_copy_line(loc); }
 };

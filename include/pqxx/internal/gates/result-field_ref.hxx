@@ -1,3 +1,6 @@
+#ifndef PQXX_INTERNAL_GATES_RESULT_FIELD_REF
+#define PQXX_INTERNAL_GATES_RESULT_FIELD_REF
+
 #include <pqxx/internal/callgate.hxx>
 
 namespace pqxx::internal::gate
@@ -42,3 +45,4 @@ class PQXX_PRIVATE result_field_ref final : callgate<result const>
   }
 };
 } // namespace pqxx::internal::gate
+#endif

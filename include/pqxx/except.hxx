@@ -408,6 +408,10 @@ struct PQXX_LIBEXPORT sql_error : public failure
   // NOLINTEND(performance-move-const-arg)
   sql_error(sql_error const &other) = default;
   sql_error(sql_error &&other) = default;
+  ~sql_error() = default;
+
+  sql_error &operator=(sql_error const &) = default;
+  sql_error &operator=(sql_error &&) = default;
 
   [[nodiscard]] std::string_view name() const noexcept override;
 

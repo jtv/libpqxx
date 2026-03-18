@@ -71,6 +71,7 @@ public:
   row_ref(result const &res, result_size_type index) :
           m_result{&res}, m_index{index}
   {}
+  ~row_ref() = default;
 
   row_ref &operator=(row_ref const &) noexcept = default;
   row_ref &operator=(row_ref &&) noexcept = default;
@@ -156,6 +157,8 @@ public:
    */
   [[nodiscard]] PQXX_PURE reference operator[](zview col_name) const;
 
+  // NOLINTBEGIN(modernize-use-nodiscard)
+
   /// Address a field by number, but check that the number is in range.
   reference at(size_type i, sl loc = sl::current()) const
   {
@@ -185,6 +188,8 @@ public:
       throw usage_error{"Indexing uninitialised row.", loc};
     return operator[](column_number(col_name, loc));
   }
+
+  // NOLINTEND(modernize-use-nodiscard)
 
   [[nodiscard]] PQXX_PURE size_type size() const noexcept
   {
@@ -320,7 +325,10 @@ public:
   }
 
   /// The @ref result object to which this `row_ref` refers.
-  PQXX_PURE result const &home() const noexcept { return *m_result; }
+  PQXX_PURE [[nodiscard]] result const &home() const noexcept
+  {
+    return *m_result;
+  }
 
 private:
   friend class pqxx::internal::gate::row_ref_const_result_iterator;
@@ -422,11 +430,16 @@ public:
   row() noexcept = default;
   row(row &&) noexcept = default;
   row(row const &) noexcept = default;
+
+  // NOLINTBEGIN(google-explicit-constructors,hicpp-explicit-conversions)
+  /// A @ref row_ref can convert implicitly to a `row`.
   row(row_ref const &ref) :
           m_result{ref.home()},
           m_index{ref.row_number()},
           m_end{std::size(ref)}
   {}
+  // NOLINTEND(google-explicit-constructors,hicpp-explicit-conversions)
+
   row &operator=(row const &) noexcept = default;
   row &operator=(row &&) noexcept = default;
 
@@ -539,6 +552,8 @@ public:
     return as_row_ref()[col_name];
   }
 
+  // NOLINTBEGIN(modernize-use-nodiscard)
+
   /// Address a field by number, but check that the number is in range.
   field_ref at(size_type, sl = sl::current()) const;
 
@@ -546,6 +561,8 @@ public:
    * @warning This is much slower than indexing by number, or iterating.
    */
   field_ref at(zview col_name, sl = sl::current()) const;
+
+  // NOLINTEND(modernize-use-nodiscard)
 
   [[nodiscard]] PQXX_PURE constexpr size_type size() const noexcept
   {
@@ -685,7 +702,10 @@ private:
    * _inside this `row` object._  So if you change that, the @ref row_ref
    * becomes invalid.
    */
-  row_ref as_row_ref() const noexcept { return {m_result, row_number()}; }
+  [[nodiscard]] row_ref as_row_ref() const noexcept
+  {
+    return {m_result, row_number()};
+  }
 
   row(result r, result_size_type index, size_type cols) noexcept;
 
@@ -700,7 +720,7 @@ private:
   }
 
   /// The @ref pqxx::result of which this is a row.
-  result const &home() const { return m_result; }
+  [[nodiscard]] result const &home() const { return m_result; }
 
   /// Convert entire row to tuple fields, without checking row size.
   template<typename Tuple> void convert(Tuple &t, sl loc) const
@@ -904,11 +924,11 @@ public:
    */
   //@{
   const_reverse_row_iterator &
-  operator=(const_reverse_row_iterator const &r) noexcept
-  {
-    iterator_type::operator=(r);
-    return *this;
-  }
+  operator=(const_reverse_row_iterator const &r) noexcept = default;
+
+  const_reverse_row_iterator &
+  operator=(const_reverse_row_iterator &&r) noexcept = default;
+
   const_reverse_row_iterator operator++() noexcept
   {
     iterator_type::operator--();
