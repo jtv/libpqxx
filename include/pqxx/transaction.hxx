@@ -26,8 +26,8 @@ class PQXX_LIBEXPORT basic_transaction : public dbtransaction
 public:
   basic_transaction(basic_transaction const &) = delete;
   basic_transaction(basic_transaction &&) = delete;
-  basic_transaction operator=(basic_transaction const &) = delete;
-  basic_transaction operator=(basic_transaction &&) = delete;
+  basic_transaction &operator=(basic_transaction const &) = delete;
+  basic_transaction &operator=(basic_transaction &&) = delete;
 
 protected:
   basic_transaction(
