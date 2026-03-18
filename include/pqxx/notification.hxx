@@ -90,7 +90,7 @@ public:
   virtual void operator()(std::string const &payload, int backend_pid) = 0;
 
 protected:
-  connection &conn() const noexcept { return m_conn; }
+  [[nodiscard]] connection &conn() const noexcept { return m_conn; }
 
 private:
   connection &m_conn;

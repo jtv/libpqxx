@@ -367,13 +367,14 @@ private:
 
   /// Convert row's values as a new tuple.
   template<typename TUPLE, std::size_t... indexes>
-  auto get_tuple(std::index_sequence<indexes...>, sl) const
+  [[nodiscard]] auto get_tuple(std::index_sequence<indexes...>, sl) const
   {
     return std::make_tuple(get_field<TUPLE, indexes>()...);
   }
 
   /// Extract and convert a field.
-  template<typename TUPLE, std::size_t index> auto get_field() const
+  template<typename TUPLE, std::size_t index>
+  [[nodiscard]] auto get_field() const
   {
     return (*this)[index].as<std::tuple_element_t<index, TUPLE>>();
   }

@@ -158,6 +158,8 @@ public:
     return {tx, path, columns, loc};
   }
 
+  stream_to(stream_to const &) = delete;
+
   explicit stream_to(stream_to &&other) :
           // (This first step only moves the transaction_focus base-class
           // object.)
@@ -170,6 +172,10 @@ public:
   {
     other.m_finished = true;
   }
+
+  stream_to &operator=(stream_to &&other) = delete;
+  stream_to &operator=(stream_to const &) = delete;
+
   ~stream_to() noexcept;
 
   /// Does this stream still need to @ref complete()?
