@@ -7,15 +7,15 @@
  * mistake, or contact the author.
  */
 #ifndef PQXX_ENCODINGS_HXX
-#  define PQXX_ENCODINGS_HXX
+#define PQXX_ENCODINGS_HXX
 
-#  include <cassert>
-#  include <iomanip>
-#  include <string>
-#  include <string_view>
+#include <cassert>
+#include <iomanip>
+#include <string>
+#include <string_view>
 
-#  include "pqxx/encoding_group.hxx"
-#  include "pqxx/strconv.hxx"
+#include "pqxx/encoding_group.hxx"
+#include "pqxx/strconv.hxx"
 
 
 namespace pqxx

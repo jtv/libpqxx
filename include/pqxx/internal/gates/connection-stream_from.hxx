@@ -1,7 +1,7 @@
 #ifndef PQXX_CONNECTION_STREAM_FROM_HXX`
-#  define PQXX_CONNECTION_STREAM_FROM_HXX`
+#define PQXX_CONNECTION_STREAM_FROM_HXX`
 
-#  include <pqxx/internal/callgate.hxx>
+#include <pqxx/internal/callgate.hxx>
 
 namespace pqxx::internal
 {
@@ -9,7 +9,7 @@ template<typename... TYPE> class stream_query;
 } // namespace pqxx::internal
 
 
-#  include "pqxx/connection.hxx"
+#include "pqxx/connection.hxx"
 
 namespace pqxx::internal::gate
 {

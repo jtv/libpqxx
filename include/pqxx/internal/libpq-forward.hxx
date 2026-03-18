@@ -9,5 +9,5 @@
  * mistake, or contact the author.
  */
 #ifndef PQXX_LIBPQ_FORWARD_HXX
-#  define PQXX_LIBPQ_FORWARD_HXX
+#define PQXX_LIBPQ_FORWARD_HXX
 #endif

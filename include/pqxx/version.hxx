@@ -9,13 +9,13 @@
  * mistake, or contact the author.
  */
 #ifndef PQXX_VERSION_HXX
-#  define PQXX_VERSION_HXX
+#define PQXX_VERSION_HXX
 
-#  if !defined(PQXX_HEADER_PRE)
-#    error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
-#  endif
+#if !defined(PQXX_HEADER_PRE)
+#  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
+#endif
 
-#  include <string_view>
+#include <string_view>
 
 
 namespace pqxx
@@ -51,11 +51,11 @@ constexpr inline int const version_patch{0};
 
 
 /// Full libpqxx version string.  @deprecated Use @ref pqxx::version instead.
-#  define PQXX_VERSION "8.0.0"
+#define PQXX_VERSION "8.0.0"
 /// Library ABI version.  @deprecated Use @ref pqxx::abi_version instead.
-#  define PQXX_ABI "8.0"
+#define PQXX_ABI "8.0"
 /// Major version number.  @deprecated Use @ref pqxx::version_major instead.
-#  define PQXX_VERSION_MAJOR 8
+#define PQXX_VERSION_MAJOR 8
 /// Minor version number.  @deprecated Use @ref pqxx::version_minor instead.
-#  define PQXX_VERSION_MINOR 0
+#define PQXX_VERSION_MINOR 0
 #endif

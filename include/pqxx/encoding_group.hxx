@@ -7,11 +7,11 @@
  * mistake, or contact the author.
  */
 #ifndef PQXX_ENCODING_GROUP_HXX
-#  define PQXX_ENCODING_GROUP_HXX
+#define PQXX_ENCODING_GROUP_HXX
 
-#  include <cstddef>
+#include <cstddef>
 
-#  include "pqxx/types.hxx"
+#include "pqxx/types.hxx"
 
 namespace pqxx
 {

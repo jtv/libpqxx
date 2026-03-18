@@ -1,19 +1,19 @@
 #ifndef PQXX_CONVERSIONS_HXX`
-#  define PQXX_CONVERSIONS_HXX`
+#define PQXX_CONVERSIONS_HXX`
 
-#  include <array>
-#  include <concepts>
-#  include <cstring>
-#  include <map>
-#  include <memory>
-#  include <numeric>
-#  include <optional>
-#  include <span>
-#  include <type_traits>
-#  include <variant>
+#include <array>
+#include <concepts>
+#include <cstring>
+#include <map>
+#include <memory>
+#include <numeric>
+#include <optional>
+#include <span>
+#include <type_traits>
+#include <variant>
 
-#  include "pqxx/encoding_group.hxx"
-#  include "pqxx/strconv.hxx"
+#include "pqxx/encoding_group.hxx"
+#include "pqxx/strconv.hxx"
 
 
 /* Internal helpers for string conversion, and conversion implementations.
@@ -245,11 +245,11 @@ inline constexpr bool is_unquoted_safe<T>{true};
 template<std::floating_point T>
 inline constexpr bool is_unquoted_safe<T>{true};
 
-#  define PQXX_SPECIALIZE_INT_TRAIT(typ)                                      \
-    template<>                                                                \
-    struct string_traits<typ> final                                           \
-            : pqxx::internal::integer_string_traits<typ>                      \
-    {}
+#define PQXX_SPECIALIZE_INT_TRAIT(typ)                                        \
+  template<>                                                                  \
+  struct string_traits<typ> final                                             \
+          : pqxx::internal::integer_string_traits<typ>                        \
+  {}
 
 PQXX_SPECIALIZE_INT_TRAIT(short);
 PQXX_SPECIALIZE_INT_TRAIT(unsigned short);
@@ -260,7 +260,7 @@ PQXX_SPECIALIZE_INT_TRAIT(unsigned long);
 PQXX_SPECIALIZE_INT_TRAIT(long long);
 PQXX_SPECIALIZE_INT_TRAIT(unsigned long long);
 
-#  undef PQXX_SPECIALIZE_INT_TRAIT
+#undef PQXX_SPECIALIZE_INT_TRAIT
 
 template<>
 struct string_traits<float> final : pqxx::internal::float_string_traits<float>
