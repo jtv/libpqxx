@@ -121,6 +121,7 @@ public:
 
   zview(std::nullptr_t) = delete;
 
+  // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
   /// Construct a `zview` from a string literal.
   /** A C++ string literal ("foo") normally looks a lot like a pointer to
    * char const, but that's not really true.  It's actually an array of char,
@@ -134,6 +135,7 @@ public:
   PQXX_ZARGS constexpr zview(char const (&literal)[size]) :
           zview(literal, size - 1)
   {}
+  // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions)
 
   // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions)
 
