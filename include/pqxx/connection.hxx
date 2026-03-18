@@ -145,6 +145,7 @@ struct notification final
    * special transaction type in libpqxx which does not start a transaction on
    * the backend.)
    */
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
   connection &conn;
 
   /// Channel name.
@@ -169,7 +170,7 @@ struct notification final
    * To check for that, compare this process ID to the return value of the
    * connection's `backendpid()`.
    */
-  int backend_pid;
+  int backend_pid{};
 };
 
 
@@ -444,7 +445,8 @@ public:
   port() const noexcept;
 
   /// Server port number on which we are connected to the database, if any.
-  PQXX_PURE std::optional<int> port_number(sl loc = sl::current()) const;
+  PQXX_PURE [[nodiscard]] std::optional<int>
+  port_number(sl loc = sl::current()) const;
 
   /// Process ID for backend process, or 0 if inactive.
   [[nodiscard]] PQXX_PURE int backendpid() const & noexcept;
@@ -528,7 +530,7 @@ public:
   [[nodiscard]] int encoding_id(sl = sl::current()) const;
 
   /// Read the curent client encoding's @ref pqxx::encoding_group.
-  encoding_group get_encoding_group(sl loc = sl::current()) const
+  [[nodiscard]] encoding_group get_encoding_group(sl loc = sl::current()) const
   {
     return pqxx::internal::enc_group(this->encoding_id(loc), loc);
   }
@@ -1071,7 +1073,7 @@ public:
 
   /// Escape and quote a string of binary data.
   /** You can also just use @ref quote with binary data. */
-  std::string quote_raw(bytes_view) const;
+  [[nodiscard]] std::string quote_raw(bytes_view) const;
 
   /// Escape and quote a string of binary data.
   /** You can also just use @ref quote with binary data. */
@@ -1333,18 +1335,19 @@ private:
     return make_result(pgr, query, "", loc);
   }
 
-  PQXX_PRIVATE int status() const noexcept;
+  PQXX_PRIVATE [[nodiscard]] int status() const noexcept;
 
   /// Escape a string, into a buffer allocated by the caller.
   /** The buffer must have room for at least `2*std::size(text) + 1` bytes.
    *
-   * Returns the number of bytes written, including the trailing zero.
+   * Returns the number of bytes written, including a trailing zero.
    */
+  // NOLINTNEXTLINE(modernize-use-nodiscard)
   std::size_t
   esc_to_buf(std::string_view text, std::span<char> buf, sl loc) const;
 
   friend class internal::gate::const_connection_largeobject;
-  char const *err_msg() const noexcept;
+  [[nodiscard]] char const *err_msg() const noexcept;
 
   result exec_prepared(
     std::string_view statement, internal::c_params const &,
@@ -1387,7 +1390,7 @@ private:
   PQXX_PRIVATE void end_copy_write(sl);
 
   friend class internal::gate::connection_largeobject;
-  constexpr internal::pq::PGconn *raw_connection() const noexcept
+  [[nodiscard]] constexpr internal::pq::PGconn *raw_connection() const noexcept
   {
     return m_conn;
   }
@@ -1399,7 +1402,7 @@ private:
   friend class internal::gate::connection_pipeline;
   PQXX_PRIVATE PQXX_ZARGS void start_exec(char const query[]);
   PQXX_PRIVATE bool consume_input() noexcept;
-  PQXX_PRIVATE bool is_busy() const noexcept;
+  PQXX_PRIVATE [[nodiscard]] bool is_busy() const noexcept;
   internal::pq::PGresult *get_result();
 
   friend class internal::gate::connection_dbtransaction;
@@ -1497,10 +1500,11 @@ class PQXX_LIBEXPORT connecting final
 {
 public:
   /// Start connecting.
-  connecting(zview connection_string = ""_zv, sl = sl::current());
+  explicit connecting(zview connection_string = ""_zv, sl = sl::current());
 
   connecting(connecting const &) = delete;
   connecting(connecting &&) = default;
+  ~connecting = default;
   connecting &operator=(connecting const &) = delete;
   connecting &operator=(connecting &&) = default;
 
