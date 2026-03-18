@@ -61,7 +61,6 @@ public:
   stream_query_iterator(stream_query_iterator const &) = delete;
   stream_query_iterator(stream_query_iterator &&) = delete;
   ~stream_query_iterator() = default;
-
   stream_query_iterator &operator=(stream_query_iterator const &) = delete;
   stream_query_iterator &operator=(stream_query_iterator &&) = delete;
 
@@ -133,7 +132,7 @@ private:
   typename stream_t::line_handle m_line;
 
   /// Length of the last COPY line we read.
-  std::size_t m_line_size = 0u;
+  std::size_t m_line_size = 0;
 
   /// A `std::source_location` for where this object was created.
   sl const m_created_loc;
