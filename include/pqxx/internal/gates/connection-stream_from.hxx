@@ -1,5 +1,5 @@
-#ifndef PQXX_CONNECTION_STREAM_FROM_HXX`
-#define PQXX_CONNECTION_STREAM_FROM_HXX`
+#ifndef PQXX_CONNECTION_STREAM_FROM_HXX
+#define PQXX_CONNECTION_STREAM_FROM_HXX
 
 #include <pqxx/internal/callgate.hxx>
 
