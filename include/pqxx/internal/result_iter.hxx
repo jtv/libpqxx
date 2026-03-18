@@ -45,7 +45,7 @@ public:
     PQXX_ASSUME(m_home != nullptr);
     PQXX_ASSUME(m_index <= m_size);
     // TODO: Would be nice to get at least the result's creation location.
-    sl loc{sl::current()};
+    sl const loc{sl::current()};
     ++m_index;
     if (m_index >= m_size)
       m_home = nullptr;
@@ -87,14 +87,15 @@ public:
     m_home.expect_columns(sizeof...(TYPE));
   }
 
-  iterator begin() const
+  [[nodiscard]] iterator begin() const
   {
     if (std::size(m_home) == 0)
       return end();
     else
       return iterator{m_home};
   }
-  iterator end() const { return {}; }
+  // TODO: Might bemore efficient to have a separate end() type.
+  [[nodiscard]] iterator end() const { return {}; }
 
 private:
   pqxx::result const m_home;

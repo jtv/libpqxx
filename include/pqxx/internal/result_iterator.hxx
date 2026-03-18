@@ -185,6 +185,8 @@ public:
   /// Copy an iterator.
   const_reverse_result_iterator(
     const_reverse_result_iterator const &rhs) noexcept = default;
+  const_reverse_result_iterator(const_reverse_result_iterator &&rhs) noexcept =
+    default;
   /// Copy a reverse iterator from a regular iterator.
   PQXX_INLINE_ONLY explicit const_reverse_result_iterator(
     const_result_iterator const &rhs) :

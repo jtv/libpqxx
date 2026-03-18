@@ -14,7 +14,7 @@
 namespace pqxx
 {
 template<typename... TYPE> class stream_query;
-}
+} // namespace pqxx
 
 
 namespace pqxx::internal

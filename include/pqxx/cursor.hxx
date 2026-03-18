@@ -503,7 +503,7 @@ private:
   void refresh(sl) const;
 
   friend class internal::gate::icursor_iterator_icursorstream;
-  difference_type pos() const noexcept { return m_pos; }
+  [[nodiscard]] difference_type pos() const noexcept { return m_pos; }
   void fill(result const &);
 
   /// The `std::source_location` for where this iterator's stream was created.
