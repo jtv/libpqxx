@@ -40,7 +40,7 @@
 
 /// The home of all libpqxx classes, functions, templates, etc.
 namespace pqxx
-{}
+{} // namespace pqxx
 
 
 // C++23: Retire wrapper.

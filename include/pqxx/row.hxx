@@ -749,12 +749,16 @@ public:
   const_row_iterator(row_ref const &t, row_size_type c) noexcept :
           m_field{t.home(), t.row_number(), c}
   {}
+  // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
   const_row_iterator(field_ref const &f) noexcept : m_field{f} {}
   const_row_iterator(const_row_iterator const &) noexcept = default;
   const_row_iterator(const_row_iterator &&) noexcept = default;
 
   /// Current column number, if the iterator is pointing at a valid field.
-  PQXX_PURE size_type col() const noexcept { return m_field.column_number(); }
+  PQXX_PURE [[nodiscard]] size_type col() const noexcept
+  {
+    return m_field.column_number();
+  }
 
   /**
    * @name Dereferencing operators
@@ -877,6 +881,7 @@ public:
   const_reverse_row_iterator(const_reverse_row_iterator const &) noexcept =
     default;
   const_reverse_row_iterator(const_reverse_row_iterator &&) noexcept = default;
+  ~const_reverse_row_iterator() = default;
 
   explicit const_reverse_row_iterator(super const &rhs) noexcept :
           const_row_iterator{rhs}
