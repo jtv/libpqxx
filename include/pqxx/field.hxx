@@ -62,7 +62,7 @@ public:
     row_size_type col_num) noexcept :
           m_result(&res), m_row{row_num}, m_column{col_num}
   {}
-  ~field_ref() = default;
+  ~field_ref() noexcept = default;
 
   field_ref &operator=(field_ref const &) noexcept = default;
   field_ref &operator=(field_ref &&) noexcept = default;
@@ -772,8 +772,9 @@ public:
   using pos_type = typename traits_type::pos_type;
   using off_type = typename traits_type::off_type;
 
-  [[deprecated("Use field::as<...>() or field::c_str().")]]
-  explicit basic_fieldstream(field const &f) :
+  [[deprecated(
+    "Use field::as<...>() or field::c_str().")]] explicit basic_fieldstream(field const
+                                                                              &f) :
           super{nullptr}, m_buf{f}
   {
     super::init(&m_buf);

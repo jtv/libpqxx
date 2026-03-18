@@ -324,7 +324,6 @@ template<typename T> struct string_traits<std::optional<T>> final
     if (pqxx::is_null(value))
       return {};
     else
-      // (No need to check: if the optional were empty, it'd be null.)
       // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
       return pqxx::to_buf(buf, *value, c);
   }
@@ -339,7 +338,6 @@ template<typename T> struct string_traits<std::optional<T>> final
     if (pqxx::is_null(value))
       return 0;
     else
-      // (No need to check: if the optional were empty, it'd be null.)
       // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
       return pqxx::size_buffer(value.value());
   }
