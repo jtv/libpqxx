@@ -431,14 +431,14 @@ public:
   row(row &&) noexcept = default;
   row(row const &) noexcept = default;
 
-  // NOLINTBEGIN(google-explicit-constructors,hicpp-explicit-conversions)
+  // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
   /// A @ref row_ref can convert implicitly to a `row`.
   row(row_ref const &ref) :
           m_result{ref.home()},
           m_index{ref.row_number()},
           m_end{std::size(ref)}
   {}
-  // NOLINTEND(google-explicit-constructors,hicpp-explicit-conversions)
+  // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions)
 
   row &operator=(row const &) noexcept = default;
   row &operator=(row &&) noexcept = default;
