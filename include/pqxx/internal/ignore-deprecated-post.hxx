@@ -1,4 +1,3 @@
-// NOLINTBEGIN(llvm-header-guard)
 /// End a code block started by "ignore-deprecated-pre.hxx".
 
 #if !defined(PQXX_IGNORING_DEPRECATED)
@@ -14,4 +13,3 @@
 #endif
 
 #undef PQXX_IGNORING_DEPRECATED
-// NOLINTEND(llvm-header-guard)
