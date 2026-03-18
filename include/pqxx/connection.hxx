@@ -1524,7 +1524,7 @@ public:
 
   connecting(connecting const &) = delete;
   connecting(connecting &&) = default;
-  ~connecting = default;
+  ~connecting() = default;
   connecting &operator=(connecting const &) = delete;
   connecting &operator=(connecting &&) = default;
 
