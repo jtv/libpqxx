@@ -1,8 +1,8 @@
 /*
  * Custom types for testing & libpqxx support those types
  */
-#if !defined(PQXX_H_TEST_TYPES)
-#  define PQXX_H_TEST_TYPES
+#ifndef PQXX_TEST_TYPES_HXX
+#  define PQXX_TEST_TYPES_HXX
 
 #  include <pqxx/strconv>
 

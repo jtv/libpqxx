@@ -3,8 +3,8 @@
  * These definitions need to be in a separate file in order to iron out
  * circular dependencies between headers.
  */
-#if !defined(PQXX_H_STREAM_QUERY_IMPL)
-#  define PQXX_H_STREAM_QUERY_IMPL
+#ifndef PQXX_STREAM_QUERY_IMPL_HXX
+#  define PQXX_STREAM_QUERY_IMPL_HXX
 
 namespace pqxx::internal
 {

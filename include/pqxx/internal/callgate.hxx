@@ -1,5 +1,5 @@
-#ifndef PQXX_H_CALLGATE
-#define PQXX_H_CALLGATE
+#ifndef PQXX_CALLGATE_HXX
+#define PQXX_CALLGATE_HXX
 
 /*
 Here's what a typical gate class definition looks like:

@@ -10,8 +10,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_STREAM_QUERY
-#define PQXX_H_STREAM_QUERY
+#ifndef PQXX_STREAM_QUERY_HXX
+#define PQXX_STREAM_QUERY_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."

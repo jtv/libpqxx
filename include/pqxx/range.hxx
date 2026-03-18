@@ -1,5 +1,5 @@
-#ifndef PQXX_H_RANGE
-#define PQXX_H_RANGE
+#ifndef PQXX_RANGE_HXX
+#define PQXX_RANGE_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."

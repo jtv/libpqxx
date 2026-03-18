@@ -8,8 +8,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_PARAMS
-#define PQXX_H_PARAMS
+#ifndef PQXX_PARAMS_HXX
+#define PQXX_PARAMS_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."

@@ -6,8 +6,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#if !defined(PQXX_H_ENCODINGS)
-#  define PQXX_H_ENCODINGS
+#ifndef PQXX_ENCODINGS_HXX
+#  define PQXX_ENCODINGS_HXX
 
 #  include <cassert>
 #  include <iomanip>

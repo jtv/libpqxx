@@ -1,5 +1,5 @@
-#if !defined(PQXX_H_CONVERSIONS)
-#  define PQXX_H_CONVERSIONS
+#ifndef PQXX_CONVERSIONS_HXX`
+#  define PQXX_CONVERSIONS_HXX`
 
 #  include <array>
 #  include <concepts>

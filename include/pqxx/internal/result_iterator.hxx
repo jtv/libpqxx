@@ -10,8 +10,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_RESULT_ITERATOR
-#define PQXX_H_RESULT_ITERATOR
+#ifndef PQXX_RESULT_ITERATOR_HXX
+#define PQXX_RESULT_ITERATOR_HXX
 
 #include "pqxx/row.hxx"
 

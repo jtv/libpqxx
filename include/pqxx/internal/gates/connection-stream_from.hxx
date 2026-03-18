@@ -1,5 +1,5 @@
-#if !defined(PQXX_H_CONNECTION_STREAM_FROM)
-#  define PQXX_H_CONNECTION_STREAM_FROM
+#ifndef PQXX_CONNECTION_STREAM_FROM_HXX`
+#  define PQXX_CONNECTION_STREAM_FROM_HXX`
 
 #  include <pqxx/internal/callgate.hxx>
 

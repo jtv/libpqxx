@@ -1,5 +1,5 @@
-#if !defined(PQXX_H_TEST_HELPERS)
-#  define PQXX_H_TEST_HELPERS
+#ifndef PQXX_TEST_HELPERS_HXX
+#  define PQXX_TEST_HELPERS_HXX
 
 #  include <mutex>
 #  include <random>

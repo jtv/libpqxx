@@ -1,5 +1,5 @@
-#ifndef PQXX_H_COMPOSITE
-#define PQXX_H_COMPOSITE
+#ifndef PQXX_COMPOSITE_HXX
+#define PQXX_COMPOSITE_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
