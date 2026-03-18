@@ -102,6 +102,7 @@ public:
     else
       return iterator{m_home};
   }
+  // TODO: Might bemore efficient to have a separate end() type.
   [[nodiscard]] iterator end() const { return {}; }
 
 private:

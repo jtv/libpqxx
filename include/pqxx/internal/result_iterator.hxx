@@ -183,10 +183,9 @@ public:
   /// Create an iterator, but in an unusable state.
   const_reverse_result_iterator() noexcept = default;
   const_reverse_result_iterator(
-    const_reverse_result_iterator const &) noexcept = default;
-  const_reverse_result_iterator(const_reverse_result_iterator &&) noexcept =
+    const_reverse_result_iterator const &rhs) noexcept = default;
+  const_reverse_result_iterator(const_reverse_result_iterator &&rhs) noexcept =
     default;
-
   /// Copy a reverse iterator from a regular iterator.
   PQXX_INLINE_ONLY explicit const_reverse_result_iterator(
     const_result_iterator const &rhs) :
