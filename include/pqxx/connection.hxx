@@ -147,6 +147,7 @@ struct notification final
    * special transaction type in libpqxx which does not start a transaction on
    * the backend.)
    */
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
   connection &conn;
 
   // NOLINTEND(cppcoreguidelines-avoid-const-or-ref-data-members)
@@ -173,7 +174,7 @@ struct notification final
    * To check for that, compare this process ID to the return value of the
    * connection's `backendpid()`.
    */
-  int backend_pid = 0;
+  int backend_pid{};
 };
 
 
@@ -448,7 +449,7 @@ public:
   port() const noexcept;
 
   /// Server port number on which we are connected to the database, if any.
-  [[nodiscard]] PQXX_PURE std::optional<int>
+  PQXX_PURE [[nodiscard]] std::optional<int>
   port_number(sl loc = sl::current()) const;
 
   /// Process ID for backend process, or 0 if inactive.
@@ -1359,9 +1360,10 @@ private:
   /// Escape a string, into a buffer allocated by the caller.
   /** The buffer must have room for at least `2*std::size(text) + 1` bytes.
    *
-   * Returns the number of bytes written, including the trailing zero.
+   * Returns the number of bytes written, including a trailing zero.
    */
-  [[nodiscard]] std::size_t
+  // NOLINTNEXTLINE(modernize-use-nodiscard)
+  std::size_t
   esc_to_buf(std::string_view text, std::span<char> buf, sl loc) const;
 
   friend class internal::gate::const_connection_largeobject;
@@ -1522,7 +1524,7 @@ public:
 
   connecting(connecting const &) = delete;
   connecting(connecting &&) = default;
-  ~connecting() = default;
+  ~connecting = default;
   connecting &operator=(connecting const &) = delete;
   connecting &operator=(connecting &&) = default;
 
