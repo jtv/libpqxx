@@ -1,5 +1,5 @@
-#ifndef PQXX_INTERNAL_CONVERSIONS_HXX
-#define PQXX_INTERNAL_CONVERSIONS_HXX
+#ifndef PQXX_CONVERSIONS_HXX`
+#  define PQXX_CONVERSIONS_HXX`
 
 #include <array>
 #include <concepts>

@@ -6,8 +6,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_INTERNAL_RESULT_ITER_HXX
-#define PQXX_INTERNAL_RESULT_ITER_HXX
+#ifndef PQXX_RESULT_ITER_HXX
+#define PQXX_RESULT_ITER_HXX
 
 #include <memory>
 
