@@ -82,7 +82,7 @@ def open_in(path: Path):
     If it's a dash (`-`), open standard input instead.
     """
     if path.name == "-":
-        return sys.stdin
+        return nullcontext(sys.stdin)
     else:
         return path.open()
 
@@ -93,7 +93,7 @@ def open_out(path: Path):
     If it's a dash (`-`), open standard output instead.
     """
     if path.name == "-":
-        return sys.stdout
+        return nullcontext(sys.stdout)
     else:
         return path.open("w")
 
