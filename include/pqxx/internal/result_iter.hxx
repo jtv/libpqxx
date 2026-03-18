@@ -71,7 +71,7 @@ private:
 
   result const *m_home{nullptr};
   result::size_type m_index{0};
-  result::size_type m_size;
+  result::size_type m_size = 0;
   value_type m_value;
 };
 

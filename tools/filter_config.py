@@ -28,15 +28,15 @@ def main() -> int:
     """Main entry point."""
     infile = Path(sys.argv[1])
     outfile = Path(sys.argv[2])
-    with infile.open('r') as instream, outfile.open('w') as outstream:
+    with infile.open("r") as instream, outfile.open("w") as outstream:
         print(HEADER, file=outstream)
         for line in instream:
-            if 'PQXX' in line:
+            if "PQXX" in line:
                 print(line.strip(), file=outstream)
-        print(FOOTER, file=outstream, end='')
+        print(FOOTER, file=outstream, end="")
 
     return 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

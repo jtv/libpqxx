@@ -440,6 +440,8 @@ public:
   {}
   // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions)
 
+  ~row() noexcept = default;
+
   row &operator=(row const &) noexcept = default;
   row &operator=(row &&) noexcept = default;
 
@@ -773,6 +775,7 @@ public:
   const_row_iterator(field_ref const &f) noexcept : m_field{f} {}
   const_row_iterator(const_row_iterator const &) noexcept = default;
   const_row_iterator(const_row_iterator &&) noexcept = default;
+  ~const_row_iterator() noexcept = default;
 
   /// Current column number, if the iterator is pointing at a valid field.
   PQXX_PURE [[nodiscard]] size_type col() const noexcept

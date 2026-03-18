@@ -13,7 +13,7 @@ inline stream_query<TYPE...>::stream_query(
   transaction_base &tx, std::string_view query, conversion_context c) :
         transaction_focus{tx, "stream_query"},
         m_char_finder{get_finder(tx, c.loc)},
-        m_ctx{std::move(c)}
+        m_ctx{c}
 {
   auto const r{tx.exec(std::format("COPY ({}) TO STDOUT", query), m_ctx.loc)};
   r.expect_columns(sizeof...(TYPE), m_ctx.loc);
@@ -59,8 +59,9 @@ public:
   }
 
   stream_query_iterator(stream_query_iterator const &) = delete;
-  stream_query_iterator &operator=(stream_query_iterator const &) = delete;
   stream_query_iterator(stream_query_iterator &&) = delete;
+  ~stream_query_iterator() = default;
+  stream_query_iterator &operator=(stream_query_iterator const &) = delete;
   stream_query_iterator &operator=(stream_query_iterator &&) = delete;
 
   /// Pre-increment.
@@ -104,7 +105,7 @@ public:
 
 private:
   /// Have we finished?
-  bool done() const noexcept { return m_home->done(); }
+  [[nodiscard]] bool done() const noexcept { return m_home->done(); }
 
   /// Read a line from the stream, store it in the iterator.
   /** Replaces the newline at the end with a tab, as a sentinel to simplify
@@ -132,7 +133,7 @@ private:
   typename stream_t::line_handle m_line;
 
   /// Length of the last COPY line we read.
-  std::size_t m_line_size;
+  std::size_t m_line_size = 0;
 
   /// A `std::source_location` for where this object was created.
   sl const m_created_loc;
