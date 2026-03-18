@@ -4,7 +4,7 @@
  * circular dependencies between headers.
  */
 #ifndef PQXX_STREAM_QUERY_IMPL_HXX
-#  define PQXX_STREAM_QUERY_IMPL_HXX
+#define PQXX_STREAM_QUERY_IMPL_HXX
 
 namespace pqxx::internal
 {

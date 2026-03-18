@@ -7,7 +7,7 @@
  * mistake, or contact the author.
  */
 #ifndef PQXX_ENCODINGS_HXX
-#  define PQXX_ENCODINGS_HXX
+#define PQXX_ENCODINGS_HXX
 
 #include <cassert>
 #include <iomanip>

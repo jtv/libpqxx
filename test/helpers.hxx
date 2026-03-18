@@ -1,5 +1,5 @@
 #ifndef PQXX_TEST_HELPERS_HXX
-#  define PQXX_TEST_HELPERS_HXX
+#define PQXX_TEST_HELPERS_HXX
 
 #include <mutex>
 #include <random>
