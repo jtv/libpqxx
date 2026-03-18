@@ -265,6 +265,3 @@ Checks: >
     readability-uniqueptr-delete-release,
     readability-use-anyofallof,
     zircon-temporary-objects
-CheckOptions:
-  - key: misc-include-cleaner.IgnoreHeaders
-    value: '.*-(pre|post)\.hxx'
