@@ -66,6 +66,7 @@ class PQXX_LIBEXPORT params final
 public:
   params() = default;
 
+  // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
   /// Pre-populate a `params` with `args`.  Feel free to add more later.
   /** @note As a first parameter, we recommend passing an @ref encoding_group,
    * or a @ref connection, or a @ref transaction_base (or a more specific
@@ -101,6 +102,7 @@ public:
         loc, std::forward<First>(first), std::forward<Args>(args)...);
     }
   }
+  // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions)
 
   /// Pre-allocate room for at least `n` parameters.
   /** This is not needed, but it may improve efficiency.

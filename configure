@@ -23736,7 +23736,8 @@ compiler_lib_search_path=$lt_compiler_lib_search_path_CXX
 _LT_EOF
 
  ;;
-    "configitems":C) grep PQXX include/pqxx/config.h >include/pqxx/config-compiler.h ;;
+    "configitems":C) ${srcdir}/tools/filter-config.sh \
+	    include/pqxx/config.h include/pqxx/config-compiler.h ;;
 
   esac
 done # for ac_tag
