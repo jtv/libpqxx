@@ -207,7 +207,7 @@ struct PQXX_LIBEXPORT failure : std::exception
    * }
    * ```
    */
-  virtual std::string_view name() const noexcept;
+  [[nodiscard]] virtual std::string_view name() const noexcept;
 
 protected:
   /// For constructing derived exception types with the additional
@@ -314,7 +314,7 @@ struct PQXX_LIBEXPORT broken_connection : failure
           failure{whatarg, loc, std::move(tr)}
   {}
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 
   /// By its nature, this type of error makes the connection unusable.
   bool poisons_connection() const noexcept override { return true; }
@@ -333,7 +333,7 @@ struct PQXX_LIBEXPORT version_mismatch : broken_connection
           broken_connection{whatarg, loc, std::move(tr)}
   {}
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -346,7 +346,7 @@ struct PQXX_LIBEXPORT variable_set_to_null : failure
           failure{whatarg, loc, std::move(tr)}
   {}
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -373,7 +373,7 @@ struct PQXX_LIBEXPORT sql_error : public failure
   sql_error(sql_error const &other) = default;
   sql_error(sql_error &&other) = default;
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 
   /// If a transaction was ongoing, an SQL error will break it.
   bool poisons_transaction() const noexcept override { return true; }
@@ -407,7 +407,7 @@ struct PQXX_LIBEXPORT protocol_violation : sql_error
   /// Since the connection is broken, so is a transaction.
   bool poisons_transaction() const noexcept override { return true; }
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -432,7 +432,7 @@ struct PQXX_LIBEXPORT in_doubt_error : failure
   /// The transaction is already closed, and the connection is broken.
   bool poisons_transaction() const noexcept override { return true; }
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -449,7 +449,7 @@ struct PQXX_LIBEXPORT transaction_rollback : sql_error
   /// Some earlier failure broke the transaction.
   bool poisons_transaction() const noexcept override { return true; }
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -474,7 +474,7 @@ struct PQXX_LIBEXPORT serialization_failure : transaction_rollback
   /// To retry the transaction, you'll need to start a fresh one.
   bool poisons_transaction() const noexcept override { return true; }
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -491,7 +491,7 @@ struct PQXX_LIBEXPORT statement_completion_unknown : transaction_rollback
   /// It's not advisable to continue using the connection after this.
   bool poisons_connection() const noexcept override { return true; }
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -505,7 +505,7 @@ struct PQXX_LIBEXPORT deadlock_detected : transaction_rollback
           transaction_rollback{whatarg, q, sqlstate, loc, std::move(tr)}
   {}
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -521,7 +521,7 @@ struct PQXX_LIBEXPORT internal_error : failure
   /// When this happens, all bets are off.  It _may_ work, but don't risk it.
   bool poisons_transaction() const noexcept override { return true; }
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -537,7 +537,7 @@ struct PQXX_LIBEXPORT usage_error : failure
   /// Your transaction will probably still work, but something is badly wrong.
   bool poisons_transaction() const noexcept override { return true; }
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -550,7 +550,7 @@ struct PQXX_LIBEXPORT argument_error : failure
           failure{whatarg, loc, std::move(tr)}
   {}
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -563,7 +563,7 @@ struct PQXX_LIBEXPORT conversion_error : failure
           failure{whatarg, loc, std::move(tr)}
   {}
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -576,7 +576,7 @@ struct PQXX_LIBEXPORT unexpected_null : conversion_error
           conversion_error{whatarg, loc, std::move(tr)}
   {}
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -589,7 +589,7 @@ struct PQXX_LIBEXPORT conversion_overrun : conversion_error
           conversion_error{whatarg, loc, std::move(tr)}
   {}
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -602,7 +602,7 @@ struct PQXX_LIBEXPORT range_error : failure
           failure{whatarg, loc, std::move(tr)}
   {}
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -614,7 +614,7 @@ struct PQXX_LIBEXPORT unexpected_rows : range_error
           range_error{msg, loc, std::move(tr)}
   {}
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -628,7 +628,7 @@ struct PQXX_LIBEXPORT feature_not_supported : sql_error
           sql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 
   /// It all depends on the details, but this _can_ break your connection.
   bool poisons_connection() const noexcept override { return true; }
@@ -648,7 +648,7 @@ struct PQXX_LIBEXPORT data_exception : sql_error
           sql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -661,7 +661,7 @@ struct PQXX_LIBEXPORT integrity_constraint_violation : sql_error
           sql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -674,7 +674,7 @@ struct PQXX_LIBEXPORT restrict_violation : integrity_constraint_violation
           integrity_constraint_violation{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -687,7 +687,7 @@ struct PQXX_LIBEXPORT not_null_violation : integrity_constraint_violation
           integrity_constraint_violation{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -700,7 +700,7 @@ struct PQXX_LIBEXPORT foreign_key_violation : integrity_constraint_violation
           integrity_constraint_violation{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -713,7 +713,7 @@ struct PQXX_LIBEXPORT unique_violation : integrity_constraint_violation
           integrity_constraint_violation{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -726,7 +726,7 @@ struct PQXX_LIBEXPORT check_violation : integrity_constraint_violation
           integrity_constraint_violation{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -739,7 +739,7 @@ struct PQXX_LIBEXPORT invalid_cursor_state : sql_error
           sql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -752,7 +752,7 @@ struct PQXX_LIBEXPORT invalid_sql_statement_name : sql_error
           sql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -765,7 +765,7 @@ struct PQXX_LIBEXPORT invalid_cursor_name : sql_error
           sql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -781,7 +781,7 @@ struct PQXX_LIBEXPORT syntax_error : sql_error
           sql_error{err, Q, sqlstate, loc, std::move(tr)}, error_position{pos}
   {}
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -795,7 +795,7 @@ struct PQXX_LIBEXPORT undefined_column : syntax_error
           syntax_error{err, Q, sqlstate, -1, loc, std::move(tr)}
   {}
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -809,7 +809,7 @@ struct PQXX_LIBEXPORT undefined_function : syntax_error
           syntax_error{err, Q, sqlstate, -1, loc, std::move(tr)}
   {}
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -823,7 +823,7 @@ struct PQXX_LIBEXPORT undefined_table : syntax_error
           syntax_error{err, Q, sqlstate, -1, loc, std::move(tr)}
   {}
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -836,7 +836,7 @@ struct PQXX_LIBEXPORT insufficient_privilege : sql_error
           sql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -850,7 +850,7 @@ struct PQXX_LIBEXPORT insufficient_resources : sql_error
           sql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -863,7 +863,7 @@ struct PQXX_LIBEXPORT disk_full : insufficient_resources
           insufficient_resources{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -876,7 +876,7 @@ struct PQXX_LIBEXPORT server_out_of_memory : insufficient_resources
           insufficient_resources{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -887,7 +887,7 @@ struct PQXX_LIBEXPORT too_many_connections : broken_connection
           broken_connection{err, loc, std::move(tr)}
   {}
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -903,7 +903,7 @@ struct PQXX_LIBEXPORT plpgsql_error : sql_error
           sql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -917,7 +917,7 @@ struct PQXX_LIBEXPORT plpgsql_raise : plpgsql_error
           plpgsql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -930,7 +930,7 @@ struct PQXX_LIBEXPORT plpgsql_no_data_found : plpgsql_error
           plpgsql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -943,7 +943,7 @@ struct PQXX_LIBEXPORT plpgsql_too_many_rows : plpgsql_error
           plpgsql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 /**
