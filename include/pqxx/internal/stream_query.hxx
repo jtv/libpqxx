@@ -10,8 +10,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_STREAM_QUERY_HXX
-#define PQXX_STREAM_QUERY_HXX
+#ifndef PQXX_INTERNAL_STREAM_QUERY_HXX
+#define PQXX_INTERNAL_STREAM_QUERY_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
@@ -91,7 +91,10 @@ public:
   }
 
   /// Has this stream reached the end of its data?
-  bool done() const & noexcept { return m_char_finder == nullptr; }
+  [[nodiscard]] bool done() const & noexcept
+  {
+    return m_char_finder == nullptr;
+  }
 
   /// Begin iterator.  Only for use by "range for."
   inline auto begin() &;
