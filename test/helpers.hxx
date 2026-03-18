@@ -23,6 +23,10 @@ using randomizer = std::mt19937;
  */
 struct context final
 {
+  // (Stupid lint warning because we initialise the randomiser _after_
+  // construction, and clang-tidy is in a panic because default-initialising it
+  // is a sin.)
+
   // NOLINTBEGIN(cert-msc32-c,cert-msc51-cpp)
 
   /// Create a context for one thread to run tests.

@@ -14,10 +14,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-// NOLINTBEGIN(llvm-header-guard)
 #ifndef PQXX_SOURCE_HXX
 #define PQXX_SOURCE_HXX
-// NOLINTEND(llvm-header-guard)
 
 #ifdef _WIN32
 
@@ -29,4 +27,5 @@
 #  endif // PQXX_SHARED
 
 #endif // _WIN32
+
 #endif
