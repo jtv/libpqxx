@@ -669,7 +669,6 @@ EXTRA_DIST = autogen.sh configitems Makefile.am.template README.md VERSION \
 	test/helpers.hxx test/sample_types.hxx \
 	tools/deprecations.sh \
 	tools/extract_version.sh \
-	tools/filter-config.sh \
 	tools/format.sh \
 	tools/idock.sh \
 	tools/install-deps.sh \
@@ -680,6 +679,7 @@ EXTRA_DIST = autogen.sh configitems Makefile.am.template README.md VERSION \
 	tools/check_ascii.py \
 	tools/compiler_flags.py \
 	tools/extract_version.py \
+	tools/filter_config.py \
 	tools/generate_check_config.py \
 	tools/generate_cxx_checks.py \
 	tools/m4esc.py \
