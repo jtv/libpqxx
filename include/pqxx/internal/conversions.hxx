@@ -324,6 +324,7 @@ template<typename T> struct string_traits<std::optional<T>> final
     if (pqxx::is_null(value))
       return {};
     else
+      // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
       return pqxx::to_buf(buf, *value, c);
   }
 
@@ -337,6 +338,7 @@ template<typename T> struct string_traits<std::optional<T>> final
     if (pqxx::is_null(value))
       return 0;
     else
+      // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
       return pqxx::size_buffer(value.value());
   }
 };
@@ -524,7 +526,7 @@ template<> struct nullness<char *> final
 {
   static constexpr bool has_null = true;
   static constexpr bool always_null = false;
-  [[nodiscard]] PQXX_PURE static constexpr bool is_null(char *t) noexcept
+  [[nodiscard]] PQXX_PURE static constexpr bool is_null(char const *t) noexcept
   {
     return t == nullptr;
   }

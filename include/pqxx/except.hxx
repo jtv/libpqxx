@@ -234,6 +234,8 @@ private:
   /// All the data this exception or its descendants might need.
   struct block final
   {
+    // NOLINTBEGIN(misc-non-private-member-variables-in-classes)
+
     /// Message string.
     std::string message;
     /// SQL statement, if applicable (empty string otherwise).
@@ -245,16 +247,23 @@ private:
     /// Stack trace, or if not supported, an empty placeholder.
     std::shared_ptr<st const> trace;
 
+    // NOLINTEND(misc-non-private-member-variables-in-classes)
+
+    // NOLINTBEGIN(performance-move-const-arg)
     block(sl loc, st &&tr) :
             location{loc}, trace{make_trace_ptr(std::move(tr))}
     {}
+    // NOLINTEND(performance-move-const-arg)
 
+    // NOLINTBEGIN(performance-move-const-arg)
     block(std::string &&msg, sl loc, st &&tr) :
             message{std::move(msg)},
             location{loc},
             trace{make_trace_ptr(std::move(tr))}
     {}
+    // NOLINTEND(performance-move-const-arg)
 
+    // NOLINTBEGIN(performance-move-const-arg)
     block(
       std::string &&msg, std::string &&stat, std::string &&sqls, sl loc,
       st &&tr) :
@@ -264,6 +273,7 @@ private:
             location{loc},
             trace{make_trace_ptr(std::move(tr))}
     {}
+    // NOLINTEND(performance-move-const-arg)
 
     /// Move `tr` into a `shared_ptr<st const>`.
     /** If no `std::stacktrace` support is available, return an empty pointer.
@@ -314,9 +324,11 @@ private:
  */
 struct PQXX_LIBEXPORT broken_connection : failure
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   explicit broken_connection(sl loc = sl::current(), st &&tr = st::current()) :
           failure{"Connection to database failed.", loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
   // NOLINTBEGIN(performance-move-const-arg)
   explicit broken_connection(
@@ -882,8 +894,14 @@ struct PQXX_LIBEXPORT invalid_cursor_name : sql_error
 
 struct PQXX_LIBEXPORT syntax_error : sql_error
 {
+  // NOLINTBEGIN(
+  //    cppcoreguidelines-avoid-const-or-ref-data-members,
+  //    misc-non-private-member-variables-in-classes)
   /// Approximate position in string where error occurred, or -1 if unknown.
   int const error_position;
+  // NOLINTEND(
+  //    cppcoreguidelines-avoid-const-or-ref-data-members,
+  //    misc-non-private-member-variables-in-classes)
 
   // NOLINTBEGIN(performance-move-const-arg)
   PQXX_ZARGS explicit syntax_error(
@@ -900,6 +918,7 @@ struct PQXX_LIBEXPORT syntax_error : sql_error
 
 struct PQXX_LIBEXPORT undefined_column : syntax_error
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   PQXX_ZARGS explicit undefined_column(
     std::string const &err, std::string const &Q = {},
     std::string const &sqlstate = {}, sl loc = sl::current(),
@@ -907,6 +926,7 @@ struct PQXX_LIBEXPORT undefined_column : syntax_error
           // TODO: Can we get the column?
           syntax_error{err, Q, sqlstate, -1, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
   [[nodiscard]] std::string_view name() const noexcept override;
 };

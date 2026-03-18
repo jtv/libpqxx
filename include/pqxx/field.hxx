@@ -56,13 +56,16 @@ public:
 
   field_ref() noexcept = default;
   field_ref(field_ref const &) noexcept = default;
+  field_ref(field_ref &&) noexcept = default;
   field_ref(
     result const &res, result_size_type row_num,
     row_size_type col_num) noexcept :
           m_result(&res), m_row{row_num}, m_column{col_num}
   {}
+  ~field_ref() noexcept = default;
 
   field_ref &operator=(field_ref const &) noexcept = default;
+  field_ref &operator=(field_ref &&) noexcept = default;
 
   [[nodiscard]] PQXX_PURE result const &home() const noexcept
   {
@@ -268,7 +271,7 @@ private:
   void offset(row_difference_type n) { m_column += n; }
 
   /// Build a @ref conversion_context, using the result's encoding group.
-  conversion_context make_context(sl loc) const
+  [[nodiscard]] conversion_context make_context(sl loc) const
   {
     return conversion_context{home().get_encoding_group(), loc};
   }
@@ -371,7 +374,8 @@ public:
   }
 
   /// Return column number.  The first column is 0, the second is 1, etc.
-  [[deprecated("Use column_number().")]] row_size_type num() const noexcept
+  [[deprecated("Use column_number().")]] [[nodiscard]] row_size_type
+  num() const noexcept
   {
     return column_number();
   }
@@ -554,8 +558,9 @@ public:
    */
   [[deprecated(
     "Avoid pqxx::array_parser.  "
-    "Instead, use as_sql_array() to convert to pqxx::array.")]]
-  array_parser as_array() const & noexcept
+    "Instead, use as_sql_array() to convert to "
+    "pqxx::array.")]] [[nodiscard]] array_parser
+  as_array() const & noexcept
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
     return array_parser{c_str(), m_home.get_encoding_group()};
@@ -589,12 +594,15 @@ private:
    * object _inside this `field` object._  So if you change that, the
    * @ref field_ref becomes invalid.
    */
-  field_ref as_field_ref() const noexcept
+  [[nodiscard]] field_ref as_field_ref() const noexcept
   {
     return field_ref{home(), row_number(), column_number()};
   }
 
-  constexpr result const &home() const noexcept { return m_home; }
+  [[nodiscard]] constexpr result const &home() const noexcept
+  {
+    return m_home;
+  }
 
   field(
     result const &r, result_size_type row_num, row_size_type col_num) noexcept
@@ -603,7 +611,7 @@ private:
   {}
 
   /// Build a @ref conversion_context, using the result's encoding group.
-  conversion_context make_context(sl loc) const
+  [[nodiscard]] conversion_context make_context(sl loc) const
   {
     return conversion_context{home().get_encoding_group(), loc};
   }
@@ -724,10 +732,12 @@ protected:
   int_type underflow() override { return traits_type::eof(); }
 
 private:
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
   field const &m_field;
 
   int_type initialize()
   {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     auto g{static_cast<char_type *>(const_cast<char *>(m_field.c_str()))};
     this->setg(g, g, g + std::size(m_field));
     return int_type(std::size(m_field));
@@ -761,8 +771,9 @@ public:
   using pos_type = typename traits_type::pos_type;
   using off_type = typename traits_type::off_type;
 
-  [[deprecated("Use field::as<...>() or field::c_str().")]] basic_fieldstream(
-    field const &f) :
+  [[deprecated(
+    "Use field::as<...>() or field::c_str().")]] explicit basic_fieldstream(field const
+                                                                              &f) :
           super{nullptr}, m_buf{f}
   {
     super::init(&m_buf);

@@ -1,3 +1,6 @@
+#ifndef PQXX_INTERNAL_GATES_ROW_REF_RESULT_HXX
+#define PQXX_INTERNAL_GATES_ROW_REF_RESULT_HXX
+
 #include <pqxx/internal/callgate.hxx>
 
 namespace pqxx
@@ -12,7 +15,7 @@ class PQXX_PRIVATE row_ref_result final : callgate<row_ref const>
 {
   friend class pqxx::result;
 
-  constexpr row_ref_result(reference x) noexcept : super(x) {}
+  explicit constexpr row_ref_result(reference x) noexcept : super(x) {}
 
   template<typename TUPLE> [[nodiscard]] TUPLE as_tuple(sl loc) const
   {
@@ -20,3 +23,4 @@ class PQXX_PRIVATE row_ref_result final : callgate<row_ref const>
   }
 };
 } // namespace pqxx::internal::gate
+#endif

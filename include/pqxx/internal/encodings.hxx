@@ -6,8 +6,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_ENCODINGS_HXX
-#define PQXX_ENCODINGS_HXX
+#ifndef PQXX_INTERNAL_ENCODINGS_HXX
+#define PQXX_INTERNAL_ENCODINGS_HXX
 
 #include <cassert>
 #include <iomanip>

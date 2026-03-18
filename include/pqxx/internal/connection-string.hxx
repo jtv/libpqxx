@@ -1,5 +1,5 @@
-#ifndef PQXX_CONNECTION_STRING_HXX
-#define PQXX_CONNECTION_STRING_HXX
+#ifndef PQXX_INTERNAL_CONNECTION_STRING_HXX
+#define PQXX_INTERNAL_CONNECTION_STRING_HXX
 
 namespace pqxx::internal
 {
@@ -13,6 +13,11 @@ public:
   explicit connection_string_parser(
     char const connection_string[], sl = sl::current());
   connection_string_parser() = delete;
+  connection_string_parser(connection_string_parser const &) = delete;
+  connection_string_parser(connection_string_parser &&) = default;
+  connection_string_parser &
+  operator=(connection_string_parser const &) = delete;
+  connection_string_parser &operator=(connection_string_parser &&) = default;
 
   ~connection_string_parser() noexcept;
 
@@ -30,7 +35,7 @@ public:
    * enough room reserved to specify all possible options, plus a terminating
    * null that we may need to add.
    */
-  std::array<std::vector<char const *>, 2u> parse() const;
+  [[nodiscard]] std::array<std::vector<char const *>, 2u> parse() const;
 
 private:
   using opts_pointer = std::unique_ptr<
