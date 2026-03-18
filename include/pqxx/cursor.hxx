@@ -95,14 +95,9 @@ public:
   cursor_base() = delete;
   cursor_base(cursor_base const &) = delete;
   cursor_base(cursor_base &&) = delete;
-
-  // Really weird: gcc complains that this accesses deprecated m_name.
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-  ~cursor_base() = default;
-#include "pqxx/internal/ignore-deprecated-post.hxx"
-
   cursor_base &operator=(cursor_base const &) = delete;
   cursor_base &operator=(cursor_base &&) = delete;
+  ~cursor_base() = default;
 
   /**
    * @name Special movement distances.
@@ -167,14 +162,8 @@ protected:
 #include "pqxx/internal/ignore-deprecated-post.hxx"
   }
 
-  // NOLINTBEGIN(
-  //    cppcoreguidelines-non-private-member-variables-in-classes,
-  //    misc-non-private-member-variables-in-classes
-  // )
-
-  [[deprecated(
-    "This will become private.  Use name() instead.")]] std::string const
-    m_name;
+private:
+  std::string const m_name;
 
   /// The `std::source_location` for where this cursor was created.
   [[deprecated("This will become private.  Use created_loc() instead.")]] sl

@@ -84,7 +84,7 @@ public:
     case group::two_tier: parse<group::two_tier>(data, loc); break;
     case group::gb18030: parse<group::gb18030>(data, loc); break;
     case group::sjis: parse<group::sjis>(data, loc); break;
-    // clang-tidy rule bug:
+    // (Totally bogus clang-tidy warning.)
     // NOLINTNEXTLINE(bugprone-suspicious-semicolon)
     default: PQXX_UNREACHABLE; break;
     }
