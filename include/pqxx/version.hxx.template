@@ -9,7 +9,7 @@
  * mistake, or contact the author.
  */
 #ifndef PQXX_VERSION_HXX
-#  define PQXX_VERSION_HXX
+#define PQXX_VERSION_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
@@ -60,7 +60,4 @@ constexpr inline int const version_patch{@PQXX_PATCH@};
 #define PQXX_VERSION_MAJOR @PQXX_MAJOR@
 /// Minor version number.  @deprecated Use @ref pqxx::version_minor instead.
 #define PQXX_VERSION_MINOR @PQXX_MINOR@
-
-// NOLINTEND(modernize-macro-to-enum)
-
 #endif
