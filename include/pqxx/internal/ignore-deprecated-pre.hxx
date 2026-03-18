@@ -1,3 +1,4 @@
+// NOLINTBEGIN(llvm-header-guard)
 /** Start a block of deprecated code which may call other deprecated code.
  *
  * Most compilers will emit warnings when deprecated code is invoked from
@@ -26,3 +27,4 @@
 #  pragma warning(push)
 #  pragma warning(disable : 4996)
 #endif
+// NOLINTEND(llvm-header-guard)
