@@ -1,3 +1,4 @@
+// NOLINT
 /** Start a block of deprecated code which may call other deprecated code.
  *
  * Most compilers will emit warnings when deprecated code is invoked from
