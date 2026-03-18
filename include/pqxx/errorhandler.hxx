@@ -23,7 +23,7 @@
 namespace pqxx::internal::gate
 {
 class errorhandler_connection;
-}
+} // namespace pqxx::internal::gate
 
 
 namespace pqxx
@@ -59,7 +59,9 @@ public:
 
   errorhandler() = delete;
   errorhandler(errorhandler const &) = delete;
+  errorhandler(errorhandler &&) = delete;
   errorhandler &operator=(errorhandler const &) = delete;
+  errorhandler &operator=(errorhandler &&) = delete;
 
 private:
   connection *m_home;
@@ -76,7 +78,7 @@ public:
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   /// Suppress error notices.
   [[deprecated("Use notice handlers instead.")]]
-  quiet_errorhandler(connection &cx) :
+  explicit quiet_errorhandler(connection &cx) :
           errorhandler{cx}
   {}
 #include "pqxx/internal/ignore-deprecated-post.hxx"
@@ -84,7 +86,6 @@ public:
   /// Revert to previous handling of error notices.
   PQXX_ZARGS bool operator()(char const[]) noexcept override { return false; }
 
-private:
   quiet_errorhandler() = delete;
 };
 

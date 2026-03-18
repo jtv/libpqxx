@@ -52,6 +52,9 @@ namespace pqxx
  */
 class PQXX_LIBEXPORT PQXX_NOVTABLE dbtransaction : public transaction_base
 {
+public:
+  dbtransaction() = delete;
+
 protected:
   /// Begin transaction.
   explicit dbtransaction(connection &cx, sl loc = sl::current()) :
@@ -68,9 +71,6 @@ protected:
     std::shared_ptr<std::string> rollback_cmd, sl loc = sl::current()) :
           transaction_base{cx, tname, std::move(rollback_cmd), loc}
   {}
-
-private:
-  dbtransaction() = delete;
 };
 } // namespace pqxx
 #endif

@@ -84,6 +84,8 @@ public:
     case group::two_tier: parse<group::two_tier>(data, loc); break;
     case group::gb18030: parse<group::gb18030>(data, loc); break;
     case group::sjis: parse<group::sjis>(data, loc); break;
+    // (Totally bogus clang-tidy warning.)
+    // NOLINTNEXTLINE(bugprone-suspicious-semicolon)
     default: PQXX_UNREACHABLE; break;
     }
   }
@@ -185,7 +187,10 @@ public:
   /** This includes all elements, in all dimensions.  Therefore it is the
    * product of all values in `sizes()`.
    */
-  constexpr std::size_t size() const noexcept { return m_elts.size(); }
+  [[nodiscard]] constexpr std::size_t size() const noexcept
+  {
+    return m_elts.size();
+  }
 
   /// Number of elements in the array (as a signed number).
   /** This includes all elements, in all dimensions.  Therefore it is the
@@ -272,7 +277,7 @@ private:
   /** Check for a trailing separator, detect any syntax errors at this somewhat
    * complicated point, and return the offset where parsing should continue.
    */
-  std::size_t
+  [[nodiscard]] std::size_t
   parse_field_end(std::string_view data, std::size_t here, sl loc) const
   {
     auto const sz{std::size(data)};
@@ -310,7 +315,8 @@ private:
    * as it's fast; doesn't usually underestimate; and never overestimates by
    * orders of magnitude.
    */
-  constexpr std::size_t estimate_elements(std::string_view data) const noexcept
+  [[nodiscard]] constexpr std::size_t
+  estimate_elements(std::string_view data) const noexcept
   {
     // Dirty trick: just count the number of bytes that look as if they may be
     // separators.
@@ -417,7 +423,7 @@ private:
             loc};
         assert(dim != outer);
         ++extents.at(dim);
-        std::size_t end;
+        std::size_t end{};
         switch (data.at(here))
         {
         case '\0':
@@ -762,12 +768,16 @@ private:
   template<encoding_group>
   std::pair<juncture, std::string> parse_array_step(sl loc);
 
-  template<encoding_group> std::size_t scan_double_quoted_string(sl loc) const;
   template<encoding_group>
-  std::string parse_double_quoted_string(std::size_t end, sl loc) const;
-  template<encoding_group> std::size_t scan_unquoted_string(sl loc) const;
+  [[nodiscard]] std::size_t scan_double_quoted_string(sl loc) const;
   template<encoding_group>
-  std::string_view parse_unquoted_string(std::size_t end, sl loc) const;
+  [[nodiscard]] std::string
+  parse_double_quoted_string(std::size_t end, sl loc) const;
+  template<encoding_group>
+  [[nodiscard]] std::size_t scan_unquoted_string(sl loc) const;
+  template<encoding_group>
+  [[nodiscard]] std::string_view
+  parse_unquoted_string(std::size_t end, sl loc) const;
 };
 } // namespace pqxx
 #endif

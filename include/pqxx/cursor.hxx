@@ -94,7 +94,10 @@ public:
 
   cursor_base() = delete;
   cursor_base(cursor_base const &) = delete;
+  cursor_base(cursor_base &&) = delete;
   cursor_base &operator=(cursor_base const &) = delete;
+  cursor_base &operator=(cursor_base &&) = delete;
+  ~cursor_base() = default;
 
   /**
    * @name Special movement distances.
@@ -152,6 +155,7 @@ protected:
   /// The `std::source_location` for where this cursor was created.
   [[nodiscard]] sl created_loc() const { return m_created_loc; }
 
+private:
   std::string const m_name;
 
   /// The `std::source_location` for where this cursor was created.
