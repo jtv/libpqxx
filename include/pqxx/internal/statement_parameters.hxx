@@ -10,8 +10,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_STATEMENT_PARAMETERS_HXX
-#define PQXX_STATEMENT_PARAMETERS_HXX
+#ifndef PQXX_INTERNAL_STATEMENT_PARAMETERS_HXX
+#define PQXX_INTERNAL_STATEMENT_PARAMETERS_HXX
 
 #include <cstring>
 #include <iterator>
@@ -49,7 +49,7 @@ struct PQXX_LIBEXPORT c_params final
   ~c_params() = default;
 
   c_params &operator=(c_params const &) = delete;
-  c_params &operator=(c_params &&) = default;
+  c_params &operator=(c_params &&) = delete;
 
   /// Pre-allocate storage for `n` parameters.
   void reserve(std::size_t n) &;

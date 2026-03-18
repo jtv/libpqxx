@@ -10,8 +10,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_RESULT_ITERATOR_HXX
-#define PQXX_RESULT_ITERATOR_HXX
+#ifndef PQXX_INTERNAL_RESULT_ITERATOR_HXX
+#define PQXX_INTERNAL_RESULT_ITERATOR_HXX
 
 #include "pqxx/row.hxx"
 
@@ -194,6 +194,7 @@ public:
   {
     super::operator--();
   }
+  ~const_reverse_result_iterator() noexcept = default;
 
   ~const_reverse_result_iterator() = default;
 
@@ -222,10 +223,13 @@ public:
    */
   //@{
   const_reverse_result_iterator &
-  operator=(const_reverse_result_iterator const &) noexcept = default;
-  const_reverse_result_iterator &
-  operator=(const_reverse_result_iterator &&) noexcept = default;
+  operator=(const_reverse_result_iterator const &r) = default;
 
+  const_reverse_result_iterator &operator=(const_reverse_result_iterator &&r)
+  {
+    iterator_type::operator=(std::move(r));
+    return *this;
+  }
   const_reverse_result_iterator &operator++()
   {
     iterator_type::operator--();
