@@ -97,14 +97,15 @@ public:
   }
 
   // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
-
   /// @warning There's an implicit conversion from `std::string`.
   constexpr zview(std::string const &str) noexcept :
           std::string_view{str.c_str(), str.size()}
   {
     invariant();
   }
+  // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions)
 
+  // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
   /// Construct a `zview` from a C-style string.
   /** @warning This scans the string to discover its length.  So if you need to
    * do it many times, it's probably better to create the `zview` once and
@@ -116,6 +117,7 @@ public:
   {
     invariant();
   }
+  // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions)
 
   zview(std::nullptr_t) = delete;
 

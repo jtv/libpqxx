@@ -27,7 +27,7 @@ struct context final
   /** Seeds the randommiser with a highly predictable 0 initially.  Call the
    * @ref seed() function before consuming random values.
    */
-  explicit context(std::size_t random_seed) : rnd{0}, rnd_seed{random_seed} {}
+  explicit context(std::size_t random_seed) : rnd{}, rnd_seed{random_seed} {}
 
   // NOLINTEND(cert-msc32-c,cert-msc51-cpp)
 
@@ -35,7 +35,6 @@ struct context final
   context(context const &) = delete;
   context(context &&) = delete;
   ~context() = default;
-
   context &operator=(context const &) = delete;
   context &operator=(context &&) = delete;
 
@@ -98,8 +97,6 @@ class test_failure : public std::logic_error
 {
 public:
   explicit test_failure(std::string const &desc, sl loc = sl::current());
-  test_failure(test_failure const &) = default;
-  test_failure(test_failure &&) = default;
   ~test_failure() noexcept override;
 
   [[nodiscard]] sl const &location() const noexcept { return m_loc; }
@@ -107,9 +104,7 @@ public:
   [[nodiscard]] std::string_view name() const noexcept { return "Failure"; }
 
   test_failure &operator=(test_failure const &) = delete;
-  test_failure &operator=(test_failure &&) = delete;
 
-private:
   sl m_loc;
 };
 
@@ -212,7 +207,7 @@ void check(
 template<typename ACTUAL, typename EXPECTED>
 inline void check_equal(
   ACTUAL const &actual, char const *actual_text, EXPECTED const &expected,
-  char const *expected_text,
+  char const expected_text[],
   std::string const &desc = "Equality check failed.", sl loc = sl::current())
 {
   if (expected == actual)

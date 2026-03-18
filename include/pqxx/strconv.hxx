@@ -162,7 +162,6 @@ template<typename TYPE, TYPE null_value> struct all_null
 struct conversion_context final
 {
   // NOLINTBEGIN(misc-non-private-member-variables-in-classes)
-
   /// Encoding group describing the client text encoding.
   /** This will not tell you what the exact _encoding_ is.  All libpqxx cares
    * about is how to parse text in a given encoding, so that it can reliably
@@ -170,7 +169,9 @@ struct conversion_context final
    * "understand" the text beyond that.
    */
   encoding_group enc = encoding_group::unknown;
+  // NOLINTEND(misc-non-private-member-variables-in-classes)
 
+  // NOLINTBEGIN(misc-non-private-member-variables-in-classes)
   /// A `std::source_location` for the call.
   /** When libpqxx throws an error, it will generally try to include this
    * information to help you debug the problem.  However this is not always
@@ -181,7 +182,6 @@ struct conversion_context final
    * the location in the source code where you created this `ctx`.
    */
   sl loc = sl::current();
-
   // NOLINTEND(misc-non-private-member-variables-in-classes)
 
   // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
@@ -646,10 +646,7 @@ to_buf(char *begin, char const *end, TYPE... value)
 
   // We can't construct the span as {begin, end} because end points to const.
   // Works fine on gcc 13, but clang 18 vomits huge cryptic errors.
-
-  // clang-tidy rule bug:
-  // NOLINTNEXTLINE(misc-const-correctness)
-  std::span<char> buf{
+  std::span<char> const buf{
     begin, check_cast<std::size_t>(
              end - begin, "string_view too large.", sl::current())};
   std::size_t here{0u};

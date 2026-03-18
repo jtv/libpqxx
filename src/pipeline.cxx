@@ -36,7 +36,7 @@ constexpr std::string_view theSeparator{"; "sv}, theDummyValue{"1"sv},
 
 void pqxx::pipeline::init(sl loc)
 {
-  m_encoding = trans().conn().get_encoding_group(loc);
+  m_encoding = trans()->conn().get_encoding_group(loc);
   m_issuedrange = make_pair(std::end(m_queries), std::end(m_queries));
   attach();
 }
@@ -127,7 +127,7 @@ PQXX_COLD void pqxx::pipeline::cancel(sl loc)
 {
   while (have_pending())
   {
-    pqxx::internal::gate::connection_pipeline(trans().conn())
+    pqxx::internal::gate::connection_pipeline(trans()->conn())
       .cancel_query(loc);
     auto canceled_query{m_issuedrange.first};
     ++m_issuedrange.first;
@@ -215,7 +215,7 @@ void pqxx::pipeline::issue(sl loc)
   if (prepend_dummy)
     cum = std::format("{}{}", theDummyQuery, cum);
 
-  pqxx::internal::gate::connection_pipeline{trans().conn()}.start_exec(
+  pqxx::internal::gate::connection_pipeline{trans()->conn()}.start_exec(
     cum.c_str());
 
   // Since we managed to send out these queries, update state to reflect this.
@@ -235,7 +235,7 @@ PQXX_COLD void pqxx::pipeline::internal_error(std::string const &err, sl loc)
 
 bool pqxx::pipeline::obtain_result(bool expect_none, sl loc)
 {
-  pqxx::internal::gate::connection_pipeline gate{trans().conn()};
+  pqxx::internal::gate::connection_pipeline gate{trans()->conn()};
   std::shared_ptr<pqxx::internal::pq::PGresult> const r{
     gate.get_result(), pqxx::internal::clear_result};
   if (not r)
@@ -248,7 +248,7 @@ bool pqxx::pipeline::obtain_result(bool expect_none, sl loc)
     return false;
   }
 
-  pqxx::internal::gate::connection_pipeline const pgate{trans().conn()};
+  pqxx::internal::gate::connection_pipeline const pgate{trans()->conn()};
   auto handler{pgate.get_notice_waiters()};
   result const res{pqxx::internal::gate::result_creation::create(
     r, std::begin(m_queries)->second.query, handler, m_encoding)};
@@ -279,7 +279,7 @@ void pqxx::pipeline::obtain_dummy(sl loc)
   static auto const text{
     std::make_shared<std::string>("[DUMMY PIPELINE QUERY]")};
 
-  pqxx::internal::gate::connection_pipeline gate{trans().conn()};
+  pqxx::internal::gate::connection_pipeline gate{trans()->conn()};
   std::shared_ptr<pqxx::internal::pq::PGresult> const r{
     gate.get_result(), pqxx::internal::clear_result};
   m_dummy_pending = false;
@@ -288,7 +288,7 @@ void pqxx::pipeline::obtain_dummy(sl loc)
     internal_error(
       "Pipeline got no result from backend when it expected one.", loc);
 
-  pqxx::internal::gate::connection_pipeline const pgate{trans().conn()};
+  pqxx::internal::gate::connection_pipeline const pgate{trans()->conn()};
   auto handler{pgate.get_notice_waiters()};
   result const R{pqxx::internal::gate::result_creation::create(
     r, text, handler, m_encoding)};
@@ -348,7 +348,7 @@ void pqxx::pipeline::obtain_dummy(sl loc)
       m_num_waiting--;
       auto const query{*m_issuedrange.first->second.query};
       auto &holder{m_issuedrange.first->second};
-      holder.res = trans().exec(query, loc);
+      holder.res = trans()->exec(query, loc);
       pqxx::internal::gate::result_creation{holder.res}.check_status(loc);
       ++m_issuedrange.first;
     } while (m_issuedrange.first != stop);
@@ -420,7 +420,7 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q, sl loc)
 
 void pqxx::pipeline::get_further_available_results(sl loc)
 {
-  pqxx::internal::gate::connection_pipeline gate{trans().conn()};
+  pqxx::internal::gate::connection_pipeline gate{trans()->conn()};
   while (not gate.is_busy() and obtain_result(false, loc))
     if (not gate.consume_input())
       throw broken_connection{loc};
@@ -429,7 +429,7 @@ void pqxx::pipeline::get_further_available_results(sl loc)
 
 void pqxx::pipeline::receive_if_available(sl loc)
 {
-  pqxx::internal::gate::connection_pipeline gate{trans().conn()};
+  pqxx::internal::gate::connection_pipeline gate{trans()->conn()};
   if (not gate.consume_input())
     throw broken_connection{loc};
   if (gate.is_busy())

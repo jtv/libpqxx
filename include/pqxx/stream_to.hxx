@@ -345,6 +345,8 @@ private:
         auto const total{offset + budget + 1};
         m_buffer.resize(total);
         auto const data{m_buffer.data()};
+        conversion_context const c{
+          trans()->conn().get_encoding_group(loc), loc};
         std::size_t const end{
           offset + into_buf({data + offset, data + total}, f, c)};
         assert((end + 1) < std::size(m_buffer));
@@ -393,6 +395,8 @@ private:
       {
         // This field needs to be converted to a string, and after that,
         // escaped as well.
+        conversion_context const c{
+          trans()->conn().get_encoding_group(loc), loc};
         m_field_buf.resize(budget);
         escape_field_to_buffer(to_buf(m_field_buf, f, c), c.loc);
       }
