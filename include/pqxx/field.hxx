@@ -607,10 +607,8 @@ private:
     return m_home;
   }
 
-  field(
-    result const &r, result_size_type row_num, row_size_type col_num) noexcept
-          :
-          m_home{r}, m_row{row_num}, m_col{col_num}
+  field(result r, result_size_type row_num, row_size_type col_num) noexcept :
+          m_home{std::move(r)}, m_row{row_num}, m_col{col_num}
   {}
 
   /// Build a @ref conversion_context, using the result's encoding group.
