@@ -8,7 +8,7 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#if PQXX_VERSION_HXX
+#ifndef PQXX_VERSION_HXX
 #  define PQXX_VERSION_HXX
 
 #if !defined(PQXX_HEADER_PRE)
