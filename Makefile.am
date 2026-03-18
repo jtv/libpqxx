@@ -38,6 +38,7 @@ EXTRA_DIST = autogen.sh configitems Makefile.am.template README.md VERSION \
 	test/helpers.hxx test/sample_types.hxx \
 	tools/deprecations.sh \
 	tools/extract_version.sh \
+	tools/filter-config.sh \
 	tools/format.sh \
 	tools/idock.sh \
 	tools/install-deps.sh \

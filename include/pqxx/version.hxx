@@ -60,4 +60,7 @@ constexpr inline int const version_patch{1};
 #define PQXX_VERSION_MAJOR 8
 /// Minor version number.  @deprecated Use @ref pqxx::version_minor instead.
 #define PQXX_VERSION_MINOR 0
+
+// NOLINTEND(modernize-macro-to-enum)
+
 #endif
