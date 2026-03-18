@@ -105,6 +105,7 @@ public:
             cx, internal::begin_cmd<ISOLATION, READWRITE>, loc}
   {}
 
+  transaction() = delete;
   transaction(transaction const &) = delete;
   transaction(transaction &&) = delete;
   transaction &operator=(transaction const &) = delete;
