@@ -1,3 +1,6 @@
+#ifndef PQXX_INTERNAL_GATES_CONNECTION_NOTIFICATION_RECEIVER_HXX
+#define PQXX_INTERNAL_GATES_CONNECTION_NOTIFICATION_RECEIVER_HXX
+
 #include <pqxx/internal/callgate.hxx>
 
 #include "pqxx/connection.hxx"
@@ -6,7 +9,7 @@
 namespace pqxx
 {
 class notification_receiver;
-}
+} // namespace pqxx
 
 
 namespace pqxx::internal::gate
@@ -16,7 +19,7 @@ class PQXX_PRIVATE connection_notification_receiver final
 {
   friend class pqxx::notification_receiver;
 
-  constexpr connection_notification_receiver(reference x) noexcept : super(x)
+  explicit constexpr connection_notification_receiver(reference x) noexcept : super(x)
   {}
 
   void add_receiver(notification_receiver *receiver, sl loc)
@@ -29,3 +32,4 @@ class PQXX_PRIVATE connection_notification_receiver final
   }
 };
 } // namespace pqxx::internal::gate
+#endif
