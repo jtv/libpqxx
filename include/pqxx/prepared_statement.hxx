@@ -69,7 +69,9 @@ namespace pqxx
 class PQXX_LIBEXPORT prepped final : public std::string_view
 {
 public:
-  constexpr prepped(std::string_view name) noexcept : std::string_view{name} {}
+  explicit constexpr prepped(std::string_view name) noexcept :
+          std::string_view{name}
+  {}
 };
 } // namespace pqxx
 

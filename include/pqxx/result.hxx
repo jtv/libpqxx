@@ -65,6 +65,7 @@ struct notice_waiters final
   notice_waiters() = default;
   notice_waiters(notice_waiters const &) = delete;
   notice_waiters(notice_waiters &&) = delete;
+  ~notice_waiters() = default;
   notice_waiters &operator=(notice_waiters const &) = delete;
   notice_waiters &operator=(notice_waiters &&) = delete;
 };
