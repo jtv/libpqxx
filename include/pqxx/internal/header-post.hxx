@@ -1,4 +1,4 @@
-// NOLINTBEGIN(llvm-header-guard)
+// NOLINT(llvm-header-guard)
 /* Compiler deficiency workarounds for compiling libpqxx headers.
  *
  * To be included at the end of each libpqxx header, in order to restore the
@@ -21,4 +21,3 @@
 #endif
 
 #undef PQXX_HEADER_PRE
-// NOLINTEND(llvm-header-guard)
