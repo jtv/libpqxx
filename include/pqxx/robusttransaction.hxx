@@ -114,7 +114,12 @@ public:
             loc}
   {}
 
+  robusttransaction(robusttransaction const &) = delete;
+  robusttransaction(robusttransaction &&) = delete;
   ~robusttransaction() noexcept override { close(sl::current()); }
+
+  robusttransaction &operator=(robusttransaction const &) = delete;
+  robusttransaction &operator=(robusttransaction &&) = delete;
 };
 
 /**

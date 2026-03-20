@@ -178,11 +178,14 @@ public:
 
   ~stream_to() noexcept;
 
+  // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
   /// Does this stream still need to @ref complete()?
   [[nodiscard]] constexpr operator bool() const noexcept
   {
     return not m_finished;
   }
+  // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions)
+
   /// Has this stream been through its concluding @c complete()?
   [[nodiscard]] constexpr bool operator!() const noexcept
   {
