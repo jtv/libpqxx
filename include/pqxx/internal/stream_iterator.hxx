@@ -93,7 +93,7 @@ public:
   iterator end() const { return {}; }
 
 private:
-  // NOLINTNEXTLINE(cppcoerguidelines-avoid-const-or-ref-data-members)
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
   stream_t &m_home;
 };
 } // namespace pqxx::internal

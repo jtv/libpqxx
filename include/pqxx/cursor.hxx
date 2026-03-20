@@ -219,6 +219,7 @@ public:
   stateless_cursor &operator=(stateless_cursor &&) = default;
   stateless_cursor(stateless_cursor const &) = delete;
   stateless_cursor &operator=(stateless_cursor const &) = delete;
+  ~stateless_cursor() = default;
 
   /// Close this cursor.
   /** The destructor will do this for you automatically.
@@ -349,7 +350,7 @@ public:
     cursor_base::ownership_policy op = cursor_base::owned, sl = sl::current());
 
   /// Return `true` if this stream may still return more data.
-  constexpr operator bool() const & noexcept { return not m_done; }
+  explicit constexpr operator bool() const & noexcept { return not m_done; }
 
   /// Read new value into given result object; same as operator `>>`.
   /** The result set may continue any number of rows from zero to the chosen
@@ -463,7 +464,10 @@ public:
   icursor_iterator() noexcept;
   explicit icursor_iterator(istream_type &) noexcept;
   icursor_iterator(icursor_iterator const &) noexcept;
+  icursor_iterator(icursor_iterator &&) = delete;
   ~icursor_iterator() noexcept;
+
+  icursor_iterator &operator=(icursor_iterator &&) = delete;
 
   result const &operator*() const noexcept
   {
