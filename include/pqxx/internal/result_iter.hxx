@@ -94,7 +94,7 @@ public:
 
   [[nodiscard]] iterator begin() const
   {
-    if (std::size(m_home) == 0)
+    if (std::empty(m_home))
       return end();
     else
       return iterator{m_home};
