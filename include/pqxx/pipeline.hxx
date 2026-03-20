@@ -162,8 +162,10 @@ private:
             query{std::make_shared<std::string>(q)}
     {}
 
+    // NOLINTBEGIN(misc-non-private-member-variables-in-classes)
     std::shared_ptr<std::string> query;
     result res;
+    // NOLINTEND(misc-non-private-member-variables-in-classes)
   };
 
   using QueryMap = std::map<query_id, Query>;
@@ -183,9 +185,9 @@ private:
   }
 
   /// Create new query_id.
-  PQXX_PRIVATE query_id generate_id();
+  PQXX_PRIVATE [[nodiscard]] query_id generate_id();
 
-  bool have_pending() const noexcept
+  [[nodiscard]] bool have_pending() const noexcept
   {
     return m_issuedrange.second != m_issuedrange.first;
   }

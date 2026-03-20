@@ -19,7 +19,8 @@ class PQXX_PRIVATE connection_notification_receiver final
 {
   friend class pqxx::notification_receiver;
 
-  explicit constexpr connection_notification_receiver(reference x) noexcept : super(x)
+  explicit constexpr connection_notification_receiver(reference x) noexcept :
+          super(x)
   {}
 
   void add_receiver(notification_receiver *receiver, sl loc)

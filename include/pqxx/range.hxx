@@ -173,6 +173,8 @@ public:
 
   constexpr range_bound(range_bound &&) = default;
 
+  ~range_bound() = default;
+
   constexpr bool operator==(range_bound const &rhs) const
   {
     if (this->is_limited())
@@ -296,6 +298,8 @@ public:
           m_lower{exclusive_bound<TYPE>{TYPE{}}},
           m_upper{exclusive_bound<TYPE>{TYPE{}}}
   {}
+
+  ~range() = default;
 
   constexpr bool operator==(range const &rhs) const noexcept(
     noexcept(this->lower_bound() == rhs.lower_bound()) and

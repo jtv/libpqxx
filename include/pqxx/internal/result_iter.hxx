@@ -38,7 +38,12 @@ public:
     if (not std::empty(home))
       read(loc);
   }
-  result_iter(result_iter const &) = default;
+  result_iter(result_iter const &) = delete;
+  result_iter(result_iter &&) = default;
+  ~result_iter() = default;
+
+  result_iter &operator=(result_iter const &) = delete;
+  result_iter &operator=(result_iter &&) = default;
 
   result_iter &operator++()
   {
@@ -82,7 +87,7 @@ template<typename... TYPE> class result_iteration final
 public:
   using iterator = result_iter<TYPE...>;
 
-  explicit result_iteration(result const &home) : m_home{home}
+  explicit result_iteration(result home) : m_home{std::move(home)}
   {
     m_home.expect_columns(sizeof...(TYPE));
   }

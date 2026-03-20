@@ -70,9 +70,11 @@ public:
   /// Register the receiver with a connection.
   [[deprecated("Use pqxx::connection::listen() instead.")]]
   notification_receiver(notification_receiver const &) = delete;
-  /// Register the receiver with a connection.
   [[deprecated("Use pqxx::connection::listen() instead.")]]
+  notification_receiver(notification_receiver &&) = delete;
+  /// Register the receiver with a connection.
   notification_receiver &operator=(notification_receiver const &) = delete;
+  notification_receiver &operator=(notification_receiver &&) = delete;
   /// Deregister the receiver.
   virtual ~notification_receiver();
 
