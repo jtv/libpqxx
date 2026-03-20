@@ -178,9 +178,6 @@ public:
 
   ~stream_to() noexcept;
 
-  stream_to &operator=(stream_to const &) = delete;
-  stream_to &operator=(stream_to &&) = delete;
-
   // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
   /// Does this stream still need to @ref complete()?
   [[nodiscard]] constexpr operator bool() const noexcept

@@ -116,7 +116,6 @@ public:
 
   robusttransaction(robusttransaction const &) = delete;
   robusttransaction(robusttransaction &&) = delete;
-
   ~robusttransaction() noexcept override { close(sl::current()); }
 
   robusttransaction &operator=(robusttransaction const &) = delete;

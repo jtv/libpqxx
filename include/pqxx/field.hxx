@@ -247,6 +247,7 @@ public:
     return as<O<T>>();
   }
 
+  // NOLINTBEGIN(modernize-use-nodiscard)
   /// Read SQL array contents as a @ref pqxx::array.
   template<typename ELEMENT, auto... ARGS>
   [[deprecated("Use as<pqxx::array<ELEMENT, ...>>().")]] [[nodiscard]] array<
@@ -263,6 +264,7 @@ public:
         this->view(),
         pqxx::internal::gate::result_field_ref{home()}.encoding(), loc};
   }
+  // NOLINTEND(modernize-use-nodiscard)
   //@}
 
 private:
