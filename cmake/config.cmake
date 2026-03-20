@@ -41,7 +41,14 @@ configure_file("${CM_CONFIG_H_IN}" "${CONFIG_H}" @ONLY)
 # Then grab the PQXX macros from config.h and write them to config-compiler.h.
 execute_process(
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    RESULT_VARIABLE filter_result
+    ERROR_VARIABLE filter_stderr
     COMMAND ${PROJECT_SOURCE_DIR}/tools/filter_config.py "${CONFIG_H}"
             "${CONFIG_H_COM}"
 )
+# Staggering: execute_process() will fail *silently* on error...
+if(NOT filter_result EQUAL 0)
+    message(FATAL_ERROR "Filtering config failed: ${filter_error}")
+endif()
+
 message(STATUS "Generating configuration headers - done")
