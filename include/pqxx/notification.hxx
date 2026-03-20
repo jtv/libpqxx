@@ -69,8 +69,11 @@ public:
     connection &cx, std::string_view channel, sl loc = sl::current());
 
   notification_receiver(notification_receiver const &) = delete;
+  [[deprecated("Use pqxx::connection::listen() instead.")]]
   notification_receiver(notification_receiver &&) = delete;
-
+  /// Register the receiver with a connection.
+  notification_receiver &operator=(notification_receiver const &) = delete;
+  notification_receiver &operator=(notification_receiver &&) = delete;
   /// Deregister the receiver.
   virtual ~notification_receiver();
 

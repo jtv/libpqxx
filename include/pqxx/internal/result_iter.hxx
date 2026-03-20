@@ -47,6 +47,12 @@ public:
     if (not std::empty(home))
       read(loc);
   }
+  result_iter(result_iter const &) = delete;
+  result_iter(result_iter &&) = default;
+  ~result_iter() = default;
+
+  result_iter &operator=(result_iter const &) = delete;
+  result_iter &operator=(result_iter &&) = default;
 
   result_iter &operator++()
   {

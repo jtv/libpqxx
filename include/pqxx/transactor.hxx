@@ -183,6 +183,7 @@ perform(TRANSACTION_CALLBACK &&callback, int attempts, sl loc = sl::current())
 template<typename TRANSACTION_CALLBACK>
 inline std::invoke_result_t<TRANSACTION_CALLBACK>
 perform(TRANSACTION_CALLBACK &&callback, sl loc = sl::current())
+
 {
   return perform(callback, 3, loc);
 }
