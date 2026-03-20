@@ -316,7 +316,7 @@ public:
    * the number of fields in `TUPLE`.
    */
   template<typename TUPLE>
-  TUPLE as_tuple(sl loc = sl::current()) const
+  [[nodiscard]] TUPLE as_tuple(sl loc = sl::current()) const
     requires(requires(TUPLE t) { std::get<0>(t); })
   {
     check_size(std::tuple_size_v<TUPLE>, loc);

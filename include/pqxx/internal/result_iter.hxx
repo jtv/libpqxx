@@ -103,6 +103,7 @@ public:
   [[nodiscard]] iterator end() const { return {}; }
 
 private:
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
   pqxx::result const m_home;
 };
 } // namespace pqxx::internal
