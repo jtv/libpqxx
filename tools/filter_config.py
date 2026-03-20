@@ -35,7 +35,6 @@ def main() -> int:
                 print(line.strip(), file=outstream)
         print(FOOTER, file=outstream, end="")
 
-    print(f"Configuration written to '{outfile}'.", file=sys.stderr)  # XXX:
     return 0
 
 
