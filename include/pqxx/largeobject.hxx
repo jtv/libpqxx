@@ -357,6 +357,12 @@ public:
   using largeobject::operator>;
   using largeobject::operator>=;
 
+  largeobjectaccess() = delete;
+  largeobjectaccess(largeobjectaccess const &) = delete;
+  largeobjectaccess(largeobjectaccess &&) = delete;
+  largeobjectaccess &operator=(largeobjectaccess const &) = delete;
+  largeobjectaccess &operator=(largeobjectaccess &&) = delete;
+
 private:
   PQXX_PRIVATE [[nodiscard]] std::string reason(int err) const;
   [[nodiscard]] internal::pq::PGconn *raw_connection() const
@@ -422,8 +428,12 @@ public:
     initialize(mode);
   }
 
-  largeobject_streambuf(largeobject_streambuf const &) = delete;
-  largeobject_streambuf(largeobject_streambuf &&) = delete;
+  [[deprecated("Use blob instead.")]] largeobject_streambuf(
+    largeobject_streambuf const &) = default;
+  [[deprecated("Use blob instead.")]] largeobject_streambuf(
+    largeobject_streambuf &&) = default;
+  largeobject_streambuf &operator=(largeobject_streambuf const &) = default;
+  largeobject_streambuf &operator=(largeobject_streambuf &&) = default;
 
   ~largeobject_streambuf() noexcept override
   {
@@ -532,23 +542,28 @@ private:
 
   void initialize(openmode mode)
   {
+    assert(m_g == nullptr);
+    assert(m_p == nullptr);
     if ((mode & std::ios::in) != 0)
     {
+      // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
       m_g = new char_type[unsigned(m_bufsize)];
       this->setg(m_g, m_g, m_g);
     }
     if ((mode & std::ios::out) != 0)
     {
+      // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
       m_p = new char_type[unsigned(m_bufsize)];
       this->setp(m_p, m_p + m_bufsize);
     }
   }
 
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
   size_type const m_bufsize;
   largeobjectaccess m_obj;
 
   /// Get & put buffers.
-  char_type *m_g, *m_p;
+  char_type *m_g = nullptr, *m_p = nullptr;
 };
 
 // NOLINTEND(cppcoreguidelines-owning-memory)
@@ -647,6 +662,13 @@ public:
   {
     super::init(&m_buf);
   }
+
+  [[deprecated("Use blob instead.")]] basic_olostream(
+    basic_olostream const &) = default;
+  [[deprecated("Use blob instead.")]] basic_olostream(basic_olostream &&) =
+    default;
+  basic_olostream &operator=(basic_olostream const &) = default;
+  basic_olostream &operator=(basic_olostream &&) = default;
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 
   /// Create a basic_olostream.
@@ -741,9 +763,12 @@ public:
     super::init(&m_buf);
   }
 
-  basic_lostream() = delete;
-  basic_lostream(basic_lostream const &) = delete;
-  basic_lostream(basic_lostream &&) = delete;
+  [[deprecated("Use blob instead.")]] basic_lostream(basic_lostream const &) =
+    default;
+  [[deprecated("Use blob instead.")]] basic_lostream(basic_lostream &&) =
+    default;
+  basic_lostream &operator=(basic_lostream const &) = default;
+  basic_lostream &operator=(basic_lostream &&) = default;
 
   ~basic_lostream() override
   {
