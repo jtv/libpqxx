@@ -23,12 +23,12 @@ namespace pqxx
 struct no_bound final
 {
   template<typename TYPE>
-  constexpr bool extends_down_to(TYPE const &) const noexcept
+  [[nodiscard]] constexpr bool extends_down_to(TYPE const &) const noexcept
   {
     return true;
   }
   template<typename TYPE>
-  constexpr bool extends_up_to(TYPE const &) const noexcept
+  [[nodiscard]] constexpr bool extends_up_to(TYPE const &) const noexcept
   {
     return true;
   }
@@ -331,7 +331,7 @@ public:
    * contrast, will notice that it is empty.  Similar things can happen for
    * floating-point types, but with more subtleties and edge cases.
    */
-  constexpr bool empty() const noexcept(
+  [[nodiscard]] constexpr bool empty() const noexcept(
     noexcept(m_lower.is_exclusive()) and noexcept(m_lower.is_limited()) and
     noexcept(*m_lower.value() < *m_upper.value()))
   {
@@ -341,7 +341,7 @@ public:
   }
 
   /// Does this range encompass `value`?
-  constexpr bool contains(TYPE value) const noexcept(
+  [[nodiscard]] constexpr bool contains(TYPE value) const noexcept(
     noexcept(m_lower.extends_down_to(value)) and
     noexcept(m_upper.extends_up_to(value)))
   {
@@ -352,7 +352,7 @@ public:
   /** This function is not particularly smart.  It does not know, for example,
    * that integer ranges `[0,9]` and `[0,10)` contain the same values.
    */
-  constexpr bool contains(range<TYPE> const &other) const
+  [[nodiscard]] constexpr bool contains(range<TYPE> const &other) const
     noexcept(noexcept((*this & other) == other))
   {
     return (*this & other) == other;
@@ -501,11 +501,22 @@ template<typename TYPE> struct string_traits<range<TYPE>> final
 
     // The field parser uses this to track which field it's parsing, and
     // when not to expect a field separator.
+    //
+    // We get a totally spurious clang-tidy warning here: it thinks this
+    // variable could be const.  In reality we pass it as a non-const reference
+    // exactly so that field_parser() can update it.
+
+    // NOLINTNEXTLINE(misc-const-correctness)
     std::size_t index{0};
+
     // The last field we expect to see.
     static constexpr std::size_t last{1};
+
     // Current parsing position.  We skip the opening parenthesis or bracket.
+
+    // NOLINTNEXTLINE(misc-const-correctness)
     std::size_t pos{1};
+
     // The string may leave out either bound to indicate that it's unlimited.
     std::optional<TYPE> lower, upper;
     // We reuse the same field parser we use for composite values and arrays.

@@ -102,7 +102,7 @@ template<> struct string_traits<ipv4> final
     for (int i{0}; i < 4; ++i)
     {
       auto idx{static_cast<std::size_t>(i)};
-      std::string_view digits{&text[start], ends.at(idx) - start};
+      std::string_view const digits{&text[start], ends.at(idx) - start};
       auto value{pqxx::from_string<uint32_t>(digits)};
       ts.set_byte(i, value);
       start = ends.at(idx) + 1;

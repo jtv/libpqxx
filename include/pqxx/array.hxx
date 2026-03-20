@@ -164,23 +164,44 @@ public:
    */
   //@{
   /// Begin iteration of individual elements.
-  PQXX_PURE constexpr auto cbegin() const noexcept { return m_elts.cbegin(); }
+  PQXX_PURE [[nodiscard]] constexpr auto cbegin() const noexcept
+  {
+    return m_elts.cbegin();
+  }
   /// Return end point of iteration.
-  PQXX_PURE constexpr auto cend() const noexcept { return m_elts.cend(); }
+  PQXX_PURE [[nodiscard]] constexpr auto cend() const noexcept
+  {
+    return m_elts.cend();
+  }
   /// Begin iteration of individual elements.
-  PQXX_PURE constexpr auto begin() const noexcept { return cbegin(); }
+  PQXX_PURE [[nodiscard]] constexpr auto begin() const noexcept
+  {
+    return cbegin();
+  }
   /// Return endpoint of iteration.
-  PQXX_PURE constexpr auto end() const noexcept { return cend(); }
+  PQXX_PURE [[nodiscard]] constexpr auto end() const noexcept
+  {
+    return cend();
+  }
   /// Begin reverse iteration.
-  PQXX_PURE constexpr auto crbegin() const noexcept
+  PQXX_PURE [[nodiscard]] constexpr auto crbegin() const noexcept
   {
     return m_elts.crbegin();
   }
   /// Return end point of reverse iteration.
-  PQXX_PURE constexpr auto crend() const noexcept { return m_elts.crend(); }
-  PQXX_PURE constexpr auto rbegin() const noexcept { return crbegin(); }
+  PQXX_PURE [[nodiscard]] constexpr auto crend() const noexcept
+  {
+    return m_elts.crend();
+  }
+  PQXX_PURE [[nodiscard]] constexpr auto rbegin() const noexcept
+  {
+    return crbegin();
+  }
   /// Return end point of reverse iteration.
-  PQXX_PURE constexpr auto rend() const noexcept { return crend(); }
+  PQXX_PURE [[nodiscard]] constexpr auto rend() const noexcept
+  {
+    return crend();
+  }
   //@}
 
   /// Number of elements in the array.
