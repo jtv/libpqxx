@@ -38,6 +38,12 @@ public:
     advance(loc);
   }
   stream_from_input_iterator(stream_from_input_iterator const &) = default;
+  stream_from_input_iterator(stream_from_input_iterator &&) = default;
+  stream_from_input_iterator &
+  operator=(stream_from_input_iterator const &) = default;
+  stream_from_input_iterator &
+  operator=(stream_from_input_iterator &&) = default;
+  ~stream_from_input_iterator() = default;
 
   stream_from_input_iterator &operator++()
   {
@@ -87,6 +93,7 @@ public:
   iterator end() const { return {}; }
 
 private:
+  // NOLINTNEXTLINE(cppcoerguidelines-avoid-const-or-ref-data-members)
   stream_t &m_home;
 };
 } // namespace pqxx::internal

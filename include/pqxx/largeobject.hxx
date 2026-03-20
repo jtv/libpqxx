@@ -64,6 +64,7 @@ public:
   [[deprecated("Use blob instead.")]] largeobject(
     dbtransaction &t, std::string_view file);
 
+  // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
   /// Take identity of an opened large object.
   /** Copy identity of already opened large object.  Note that this may be done
    * as an implicit conversion.
@@ -71,6 +72,7 @@ public:
    */
   [[deprecated("Use blob instead.")]] largeobject(
     largeobjectaccess const &o) noexcept;
+  // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions)
 
   /// Object identifier.
   /** The number returned by this function identifies the large object in the
@@ -344,11 +346,13 @@ public:
 
   largeobjectaccess() = delete;
   largeobjectaccess(largeobjectaccess const &) = delete;
+  largeobjectaccess(largeobjectaccess &&) = delete;
   largeobjectaccess &operator=(largeobjectaccess const &) = delete;
+  largeobjectaccess &operator=(largeobjectaccess &&) = delete;
 
 private:
-  PQXX_PRIVATE std::string reason(int err) const;
-  internal::pq::PGconn *raw_connection() const
+  PQXX_PRIVATE [[nodiscard]] std::string reason(int err) const;
+  [[nodiscard]] internal::pq::PGconn *raw_connection() const
   {
     return largeobject::raw_connection(m_trans);
   }
@@ -408,6 +412,13 @@ public:
   {
     initialize(mode);
   }
+
+  [[deprecated("Use blob instead.")]] largeobject_streambuf(
+    largeobject_streambuf const &) = default;
+  [[deprecated("Use blob instead.")]] largeobject_streambuf(
+    largeobject_streambuf &&) = default;
+  largeobject_streambuf &operator=(largeobject_streambuf const &) = default;
+  largeobject_streambuf &operator=(largeobject_streambuf &&) = default;
 
   ~largeobject_streambuf() noexcept override
   {
@@ -513,23 +524,28 @@ private:
 
   void initialize(openmode mode)
   {
+    assert(m_g == nullptr);
+    assert(m_p == nullptr);
     if ((mode & std::ios::in) != 0)
     {
+      // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
       m_g = new char_type[unsigned(m_bufsize)];
       this->setg(m_g, m_g, m_g);
     }
     if ((mode & std::ios::out) != 0)
     {
+      // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
       m_p = new char_type[unsigned(m_bufsize)];
       this->setp(m_p, m_p + m_bufsize);
     }
   }
 
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
   size_type const m_bufsize;
   largeobjectaccess m_obj;
 
   /// Get & put buffers.
-  char_type *m_g, *m_p;
+  char_type *m_g = nullptr, *m_p = nullptr;
 };
 
 
@@ -627,6 +643,13 @@ public:
   {
     super::init(&m_buf);
   }
+
+  [[deprecated("Use blob instead.")]] basic_olostream(
+    basic_olostream const &) = default;
+  [[deprecated("Use blob instead.")]] basic_olostream(basic_olostream &&) =
+    default;
+  basic_olostream &operator=(basic_olostream const &) = default;
+  basic_olostream &operator=(basic_olostream &&) = default;
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 
   /// Create a basic_olostream.
@@ -714,6 +737,13 @@ public:
   {
     super::init(&m_buf);
   }
+
+  [[deprecated("Use blob instead.")]] basic_lostream(basic_lostream const &) =
+    default;
+  [[deprecated("Use blob instead.")]] basic_lostream(basic_lostream &&) =
+    default;
+  basic_lostream &operator=(basic_lostream const &) = default;
+  basic_lostream &operator=(basic_lostream &&) = default;
 
   ~basic_lostream() override
   {

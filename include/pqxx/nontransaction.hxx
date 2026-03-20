@@ -73,6 +73,11 @@ public:
     register_transaction();
   }
 
+  nontransaction(nontransaction const &) = delete;
+  nontransaction(nontransaction &&) = delete;
+  nontransaction &operator=(nontransaction const &) = delete;
+  nontransaction &operator=(nontransaction &&) = delete;
+
   ~nontransaction() override { close(sl::current()); }
 
 private:

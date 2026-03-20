@@ -40,6 +40,11 @@ public:
     transaction_base &t, std::string_view cname,
     cursor_base::ownership_policy op, sl = sl::current());
 
+  sql_cursor(sql_cursor const &) = delete;
+  sql_cursor(sql_cursor &&) = delete;
+  sql_cursor &operator=(sql_cursor const &) = delete;
+  sql_cursor &operator=(sql_cursor &&) = delete;
+
   ~sql_cursor() noexcept;
 
   result fetch(difference_type rows, difference_type &displacement, sl);
