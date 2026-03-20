@@ -259,6 +259,7 @@ pacman -S \
     $arch-toolchain \
     cmake \
     ninja \
+    python3 \
     $cxxpkg \
     --noconfirm
 " | tee -a install.log >&2
