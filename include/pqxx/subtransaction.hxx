@@ -94,9 +94,7 @@ public:
   subtransaction(
     subtransaction &t, std::string_view name = ""sv, sl loc = sl::current());
 
-  subtransaction(subtransaction const &) = delete;
   subtransaction(subtransaction &&) = delete;
-
   ~subtransaction() noexcept override;
 
   subtransaction &operator=(subtransaction const &) = delete;

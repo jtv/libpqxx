@@ -330,7 +330,7 @@ inline void check_less_equal(
   // Visual Studio 2022 doesn't deal well with backslashes in raw strings, so
   // we can't necessarily use those.
   // NOLINTBEGIN(modernize-raw-string-literal)
-  std::string fulldesc{std::format(
+  std::string const fulldesc{std::format(
     "{} ({} > {}: \"lower\"={}, \"upper\"={})", desc, text1, text2, value1,
     value2)};
   // NOLINTEND(modernize-raw-string-literal)

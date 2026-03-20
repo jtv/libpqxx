@@ -413,7 +413,7 @@ public:
   // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
 
   /// Convert to another base type.
-  template<typename DEST> operator range<DEST>() const
+  template<typename DEST> explicit operator range<DEST>() const
   {
     range_bound<DEST> lower{no_bound{}}, upper{no_bound{}};
     if (lower_bound().is_inclusive())
