@@ -505,14 +505,19 @@ template<typename TYPE> struct string_traits<range<TYPE>> final
 
     // The field parser uses this to track which field it's parsing, and
     // when not to expect a field separator.
-    // clang-tidy rule bug:
+    //
+    // We get a totally spurious clang-tidy warning here: it thinks this
+    // variable could be const.  In reality we pass it as a non-const reference
+    // exactly so that field_parser() can update it.
+
     // NOLINTNEXTLINE(misc-const-correctness)
     std::size_t index{0};
+
     // The last field we expect to see.
     static constexpr std::size_t last{1};
 
     // Current parsing position.  We skip the opening parenthesis or bracket.
-    // clang-tidy rule bug:
+
     // NOLINTNEXTLINE(misc-const-correctness)
     std::size_t pos{1};
 
