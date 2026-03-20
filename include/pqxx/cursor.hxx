@@ -234,6 +234,7 @@ public:
 
   stateless_cursor &operator=(stateless_cursor &&) = default;
   stateless_cursor &operator=(stateless_cursor const &) = delete;
+  ~stateless_cursor() = default;
 
   /// Close this cursor.
   /** The destructor will do this for you automatically.
@@ -366,7 +367,7 @@ public:
   // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
 
   /// Return `true` if this stream may still return more data.
-  constexpr operator bool() const & noexcept { return not m_done; }
+  explicit constexpr operator bool() const & noexcept { return not m_done; }
 
   // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions)
 

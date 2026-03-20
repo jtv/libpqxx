@@ -81,6 +81,11 @@ public:
   using raw_line =
     std::pair<std::unique_ptr<char[], void (*)(void const *)>, std::size_t>;
 
+  stream_from(stream_from const &) = delete;
+  stream_from(stream_from &&) = delete;
+  stream_from &operator=(stream_from const &) = delete;
+  stream_from &operator=(stream_from &&) = delete;
+
   /// Factory: Execute query, and stream the results.
   /** The query can be a SELECT query or a VALUES query; or it can be an
    * UPDATE, INSERT, or DELETE with a RETURNING clause.
@@ -199,11 +204,13 @@ public:
 
   // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
   // LCOV_EXCL_START
+  // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
   /// May this stream still produce more data?
   [[nodiscard]] constexpr operator bool() const noexcept
   {
     return not m_finished;
   }
+  // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions)
   // LCOV_EXCL_STOP
   // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions)
 
