@@ -715,7 +715,7 @@ private:
   largeobject_streambuf<CHAR, TRAITS> m_buf;
 };
 
-// NOLINTBEGIN(fuchsia-multiple-inheritance)
+// NOLINTEND(fuchsia-multiple-inheritance)
 
 using olostream = basic_olostream<char>;
 

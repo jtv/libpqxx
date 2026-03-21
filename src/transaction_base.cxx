@@ -477,7 +477,7 @@ pqxx::result pqxx::transaction_base::direct_exec(
 // TODO: Pass cmd as a const reference.
 // NOLINTBEGIN(performance-unnecessary-value-param)
 pqxx::result pqxx::transaction_base::direct_exec(
-  std::shared_ptr<std::string> cmd, std::string_view desc, sl loc)
+  std::shared_ptr<std::string> const &cmd, std::string_view desc, sl loc)
 {
   check_pending_error();
   return pqxx::internal::gate::connection_transaction{conn()}.exec(
