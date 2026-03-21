@@ -513,6 +513,8 @@ template<typename TYPE>
 // clang-tidy rule bug:
 // NOLINTBEGIN(misc-unused-parameters)
 
+// NOLINTBEGIN(misc-unused-parameters)
+
 /// "Convert" a std::string_view to a std::string_view.
 /** Just returns its input.
  *

@@ -362,13 +362,12 @@ private:
         std::is_same_v<Field, std::optional<std::string_view>> or
         std::is_same_v<Field, std::optional<zview>>)
       {
+        assert(f);
         // Optional string.  It's not null (we checked for that above), so...
         // Treat like a string.
         m_field_buf.resize(budget);
-        // No need to check whether f has a value; if it didn't, the is_null(f)
-        // check at the top would have evaluated as true.
         // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
-        escape_field_to_buffer(f.value(), c.loc);
+        escape_field_to_buffer(f.value(), loc);
       }
       // TODO: Support deleter template argument on unique_ptr.
       else if constexpr (
