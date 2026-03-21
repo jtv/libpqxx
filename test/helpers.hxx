@@ -220,6 +220,22 @@ inline void check_equal(
   char const *expected_text,
   std::string const &desc = "Equality check failed.", sl loc = sl::current())
 {
+  // Getting a clang-tidy complaint here about letting an array decay to a
+  // pointer.  I don't think that ever actually happens in libpqxx any more,
+  // but there's a special thing that looks like it: the "array notation" for
+  // pointer parameters.  Which I think is a perfectly valid and helpful
+  // feature, because it tells the reader the difference in intention between a
+  // pointer to a single item and a pointer to an array of items.  Various
+  // tools seem to confuse the two.
+  //
+  // So am I using that feature here?  Nope.  Changed it to satisfy clang-tidy.
+  // But it didn't work, which makes me think the array notation is in a caller
+  // somewhere.  But clang-tidy does not print any call site information, so
+  // it's going to be a pain to find.
+
+  // NOLINTNEXTLINE(
+  //    cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay
+  // )
   if (expected == actual)
     return;
   std::string const fulldesc = desc + " (" + actual_text + " <> " +
@@ -564,7 +580,7 @@ template<> inline std::string to_string(row const &value, ctx)
 }
 
 
-// clang-tidy rule bug:
+// Really weird bug in clang-tidy: it sees an unused parameter "c" here.
 // NOLINTNEXTLINE(misc-unused-parameters)
 template<> inline std::string to_string(result const &value, ctx)
 {

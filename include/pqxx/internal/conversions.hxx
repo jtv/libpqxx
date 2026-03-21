@@ -1010,7 +1010,7 @@ template<> inline std::string to_string(long double const &value, ctx c)
   return pqxx::internal::to_string_float(value, c);
 }
 
-// clang-tidy rule bug:
+// Really strange bug: clang-tidy thinks there's a parameter "c" here.
 // NOLINTNEXTLINE(misc-unused-parameters)
 template<> inline std::string to_string(std::stringstream const &value, ctx)
 {
