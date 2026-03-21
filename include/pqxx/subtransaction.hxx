@@ -24,6 +24,9 @@ namespace pqxx
 /**
  * @ingroup transactions
  */
+
+// NOLINTBEGIN(fuchsia-multiple-inheritance)
+
 /// "Transaction" nested within another transaction
 /** A subtransaction can be executed inside a backend transaction, or inside
  * another subtransaction.  This can be useful when, for example, statements in
@@ -105,5 +108,6 @@ private:
   }
   void do_commit(sl) override;
 };
+// NOLINTEND(fuchsia-multiple-inheritance)
 } // namespace pqxx
 #endif

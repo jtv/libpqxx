@@ -28,6 +28,7 @@ public:
   basic_transaction(basic_transaction &&) = delete;
   basic_transaction &operator=(basic_transaction const &) = delete;
   basic_transaction &operator=(basic_transaction &&) = delete;
+  ~basic_transaction() noexcept override = 0;
 
 protected:
   basic_transaction(
@@ -37,8 +38,6 @@ protected:
     connection &cx, zview begin_command, std::string &&tname,
     sl = sl::current());
   basic_transaction(connection &cx, zview begin_command, sl = sl::current());
-
-  ~basic_transaction() noexcept override = 0;
 
 private:
   void do_commit(sl) override;
