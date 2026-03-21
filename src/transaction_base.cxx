@@ -475,11 +475,11 @@ pqxx::result pqxx::transaction_base::direct_exec(
 
 
 pqxx::result pqxx::transaction_base::direct_exec(
-  std::shared_ptr<std::string> cmd, std::string_view desc, sl loc)
+  std::shared_ptr<std::string> const &cmd, std::string_view desc, sl loc)
 {
   check_pending_error();
   return pqxx::internal::gate::connection_transaction{conn()}.exec(
-    std::move(cmd), desc, loc);
+    cmd, desc, loc);
 }
 
 

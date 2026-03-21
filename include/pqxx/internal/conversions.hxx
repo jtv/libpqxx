@@ -849,7 +849,7 @@ template<binary DATA> struct string_traits<DATA> final
   static DATA from_string(std::string_view text, ctx c = {})
   {
     auto const size{pqxx::internal::size_unesc_bin(std::size(text))};
-    DATA buf;
+    DATA buf{};
     if constexpr (requires { buf.resize(std::size_t{}); })
     {
       // Make `buf` allocate the number of bytes we need to store.
