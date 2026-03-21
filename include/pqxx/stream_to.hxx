@@ -160,7 +160,7 @@ public:
 
   stream_to(stream_to const &) = delete;
 
-  explicit stream_to(stream_to &&other) :
+  stream_to(stream_to &&other) :
           // (This first step only moves the transaction_focus base-class
           // object.)
           transaction_focus{std::move(other)},
