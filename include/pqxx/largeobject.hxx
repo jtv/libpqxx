@@ -570,6 +570,11 @@ private:
 
 // NOLINTEND(cppcoreguidelines-owning-memory)
 
+// No idea why clang-tidy complains about multiple inheritance in two of these
+// classes.  In both cases I see only a single parent class.
+//
+// NOLINTBEGIN(fuchsia-multiple-inheritance)
+
 /// Input stream that gets its data from a large object.
 /** @deprecated Access large objects directly using the @ref blob class.
  *
@@ -709,6 +714,8 @@ public:
 private:
   largeobject_streambuf<CHAR, TRAITS> m_buf;
 };
+
+// NOLINTBEGIN(fuchsia-multiple-inheritance)
 
 using olostream = basic_olostream<char>;
 

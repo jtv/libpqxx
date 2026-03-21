@@ -749,6 +749,7 @@ private:
 };
 
 
+// No idea why this rule thinks it sees multiple inheritance here.
 // NOLINTBEGIN(fuchsia-multiple-inheritance)
 
 /// Input stream that gets its data from a result field
