@@ -10,8 +10,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_NOTIFICATION
-#define PQXX_H_NOTIFICATION
+#ifndef PQXX_NOTIFICATION_HXX
+#define PQXX_NOTIFICATION_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
@@ -70,9 +70,11 @@ public:
   /// Register the receiver with a connection.
   [[deprecated("Use pqxx::connection::listen() instead.")]]
   notification_receiver(notification_receiver const &) = delete;
-  /// Register the receiver with a connection.
   [[deprecated("Use pqxx::connection::listen() instead.")]]
+  notification_receiver(notification_receiver &&) = delete;
+  /// Register the receiver with a connection.
   notification_receiver &operator=(notification_receiver const &) = delete;
+  notification_receiver &operator=(notification_receiver &&) = delete;
   /// Deregister the receiver.
   virtual ~notification_receiver();
 
@@ -90,7 +92,7 @@ public:
   virtual void operator()(std::string const &payload, int backend_pid) = 0;
 
 protected:
-  connection &conn() const noexcept { return m_conn; }
+  [[nodiscard]] connection &conn() const noexcept { return m_conn; }
 
 private:
   connection &m_conn;

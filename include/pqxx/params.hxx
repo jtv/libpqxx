@@ -8,8 +8,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_PARAMS
-#define PQXX_H_PARAMS
+#ifndef PQXX_PARAMS_HXX
+#define PQXX_PARAMS_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
@@ -66,6 +66,7 @@ class PQXX_LIBEXPORT params final
 public:
   params() = default;
 
+  // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
   /// Pre-populate a `params` with `args`.  Feel free to add more later.
   /** @note As a first parameter, we recommend passing an @ref encoding_group,
    * or a @ref connection, or a @ref transaction_base (or a more specific
@@ -101,6 +102,7 @@ public:
         loc, std::forward<First>(first), std::forward<Args>(args)...);
     }
   }
+  // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions)
 
   /// Pre-allocate room for at least `n` parameters.
   /** This is not needed, but it may improve efficiency.
@@ -208,7 +210,7 @@ public:
    * As soon as we climb back out of that call tree, we're done with that
    * data.
    */
-  pqxx::internal::c_params make_c_params(sl loc) const;
+  [[nodiscard]] pqxx::internal::c_params make_c_params(sl loc) const;
 
 private:
   /// Append a pack of params.
@@ -265,7 +267,7 @@ public:
   /** @warning Changing the current placeholder number will overwrite this.
    * Use the view immediately, or lose it.
    */
-  constexpr zview view() const & noexcept
+  [[nodiscard]] constexpr zview view() const & noexcept
   {
     return zview{std::data(m_buf), m_len};
   }
@@ -276,7 +278,10 @@ public:
    * parameters, the string will benefit from the Short String Optimization, or
    * SSO.
    */
-  std::string get() const { return std::string(std::data(m_buf), m_len); }
+  [[nodiscard]] std::string get() const
+  {
+    return std::string(std::data(m_buf), m_len);
+  }
 
   /// Move on to the next parameter.
   void next(sl loc = sl::current()) &
@@ -298,7 +303,7 @@ public:
 
       auto const written{pqxx::into_buf<COUNTER>(
         {data + 1, data + std::size(m_buf) - 1}, m_current, c)};
-      std::size_t end{1 + written};
+      std::size_t const end{1 + written};
       assert(end < std::size(m_buf));
       data[end] = '\0';
       m_len = check_cast<COUNTER>(end, "placeholders counter", loc);
@@ -306,12 +311,12 @@ public:
     else [[likely]]
     {
       // Shortcut for the common case: just increment that last digit.
-      ++m_buf[m_len - 1];
+      ++m_buf.at(m_len - 1);
     }
   }
 
   /// Return the current placeholder number.  The initial placeholder is 1.
-  COUNTER count() const noexcept { return m_current; }
+  [[nodiscard]] COUNTER count() const noexcept { return m_current; }
 
 private:
   /// Current placeholder number.  Starts at 1.

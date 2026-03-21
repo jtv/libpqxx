@@ -10,8 +10,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_FIELD
-#define PQXX_H_FIELD
+#ifndef PQXX_FIELD_HXX
+#define PQXX_FIELD_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
@@ -56,13 +56,16 @@ public:
 
   field_ref() noexcept = default;
   field_ref(field_ref const &) noexcept = default;
+  field_ref(field_ref &&) noexcept = default;
   field_ref(
     result const &res, result_size_type row_num,
     row_size_type col_num) noexcept :
           m_result(&res), m_row{row_num}, m_column{col_num}
   {}
+  ~field_ref() noexcept = default;
 
   field_ref &operator=(field_ref const &) noexcept = default;
+  field_ref &operator=(field_ref &&) noexcept = default;
 
   [[nodiscard]] PQXX_PURE result const &home() const noexcept
   {
@@ -244,6 +247,7 @@ public:
     return as<O<T>>();
   }
 
+  // NOLINTBEGIN(modernize-use-nodiscard)
   /// Read SQL array contents as a @ref pqxx::array.
   template<typename ELEMENT, auto... ARGS>
   [[deprecated("Use as<pqxx::array<ELEMENT, ...>>().")]]
@@ -259,6 +263,7 @@ public:
         this->view(),
         pqxx::internal::gate::result_field_ref{home()}.encoding(), loc};
   }
+  // NOLINTEND(modernize-use-nodiscard)
   //@}
 
 private:
@@ -268,7 +273,7 @@ private:
   void offset(row_difference_type n) { m_column += n; }
 
   /// Build a @ref conversion_context, using the result's encoding group.
-  conversion_context make_context(sl loc) const
+  [[nodiscard]] conversion_context make_context(sl loc) const
   {
     return conversion_context{home().get_encoding_group(), loc};
   }
@@ -306,9 +311,12 @@ class PQXX_LIBEXPORT field final
 public:
   using size_type = field_size_type;
 
+  // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
+  /// A @ref field_ref can implicitly promote to a `field`.
   field(field_ref const &f) :
           m_home{f.home()}, m_row{f.row_number()}, m_col{f.column_number()}
   {}
+  // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions)
 
   /**
    * @name Comparison
@@ -371,7 +379,8 @@ public:
   }
 
   /// Return column number.  The first column is 0, the second is 1, etc.
-  [[deprecated("Use column_number().")]] row_size_type num() const noexcept
+  [[deprecated("Use column_number().")]] [[nodiscard]] row_size_type
+  num() const noexcept
   {
     return column_number();
   }
@@ -554,8 +563,9 @@ public:
    */
   [[deprecated(
     "Avoid pqxx::array_parser.  "
-    "Instead, use as_sql_array() to convert to pqxx::array.")]]
-  array_parser as_array() const & noexcept
+    "Instead, use as_sql_array() to convert to "
+    "pqxx::array.")]] [[nodiscard]] array_parser
+  as_array() const & noexcept
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
     return array_parser{c_str(), m_home.get_encoding_group()};
@@ -589,32 +599,33 @@ private:
    * object _inside this `field` object._  So if you change that, the
    * @ref field_ref becomes invalid.
    */
-  field_ref as_field_ref() const noexcept
+  [[nodiscard]] field_ref as_field_ref() const noexcept
   {
     return field_ref{home(), row_number(), column_number()};
   }
 
-  constexpr result const &home() const noexcept { return m_home; }
+  [[nodiscard]] constexpr result const &home() const noexcept
+  {
+    return m_home;
+  }
 
-  field(
-    result const &r, result_size_type row_num, row_size_type col_num) noexcept
-          :
-          m_home{r}, m_row{row_num}, m_col{col_num}
+  field(result r, result_size_type row_num, row_size_type col_num) noexcept :
+          m_home{std::move(r)}, m_row{row_num}, m_col{col_num}
   {}
 
   /// Build a @ref conversion_context, using the result's encoding group.
-  conversion_context make_context(sl loc) const
+  [[nodiscard]] conversion_context make_context(sl loc) const
   {
     return conversion_context{home().get_encoding_group(), loc};
   }
 
   result m_home;
-  result::size_type m_row;
+  result::size_type m_row{};
   /**
    * You'd expect this to be unsigned, but due to the way reverse iterators
    * are related to regular iterators, it must be allowed to underflow to -1.
    */
-  row_size_type m_col;
+  row_size_type m_col{};
 };
 
 
@@ -724,16 +735,21 @@ protected:
   int_type underflow() override { return traits_type::eof(); }
 
 private:
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
   field const &m_field;
 
   int_type initialize()
   {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     auto g{static_cast<char_type *>(const_cast<char *>(m_field.c_str()))};
     this->setg(g, g, g + std::size(m_field));
     return int_type(std::size(m_field));
   }
 };
 
+
+// No idea why this rule thinks it sees multiple inheritance here.
+// NOLINTBEGIN(fuchsia-multiple-inheritance)
 
 /// Input stream that gets its data from a result field
 /** @deprecated To convert a field's value string to some other type, e.g. to
@@ -761,8 +777,9 @@ public:
   using pos_type = typename traits_type::pos_type;
   using off_type = typename traits_type::off_type;
 
-  [[deprecated("Use field::as<...>() or field::c_str().")]] basic_fieldstream(
-    field const &f) :
+  [[deprecated(
+    "Use field::as<...>() or field::c_str().")]] explicit basic_fieldstream(field const
+                                                                              &f) :
           super{nullptr}, m_buf{f}
   {
     super::init(&m_buf);
@@ -771,6 +788,8 @@ public:
 private:
   field_streambuf<CHAR, TRAITS> m_buf;
 };
+
+// NOLINTEND(fuchsia-multiple-inheritance)
 
 
 /// @deprecated Read a field using `field::as<...>()` or `field::c_str()`.
@@ -850,12 +869,23 @@ inline std::nullptr_t from_string<std::nullptr_t>(field const &value, ctx c)
 }
 
 
+// NOLINTBEGIN(
+//    cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+//    hicpp-no-array-decay
+// )
+
 /// Convert a field_ref to a string.
 template<>
 PQXX_LIBEXPORT inline std::string to_string(field_ref const &value, ctx)
 {
   return std::string{value.view()};
 }
+
+// NOLINTEND(
+//    cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+//    hicpp-no-array-decay
+// )
+
 /// Convert a field to a string.
 template<> PQXX_LIBEXPORT inline std::string to_string(field const &value, ctx)
 {

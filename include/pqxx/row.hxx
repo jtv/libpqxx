@@ -10,8 +10,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_ROW
-#define PQXX_H_ROW
+#ifndef PQXX_ROW_HXX
+#define PQXX_ROW_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
@@ -71,6 +71,7 @@ public:
   row_ref(result const &res, result_size_type index) :
           m_result{&res}, m_index{index}
   {}
+  ~row_ref() = default;
 
   row_ref &operator=(row_ref const &) noexcept = default;
   row_ref &operator=(row_ref &&) noexcept = default;
@@ -156,6 +157,8 @@ public:
    */
   [[nodiscard]] PQXX_PURE reference operator[](zview col_name) const;
 
+  // NOLINTBEGIN(modernize-use-nodiscard)
+
   /// Address a field by number, but check that the number is in range.
   reference at(size_type i, sl loc = sl::current()) const
   {
@@ -185,6 +188,8 @@ public:
       throw usage_error{"Indexing uninitialised row.", loc};
     return operator[](column_number(col_name, loc));
   }
+
+  // NOLINTEND(modernize-use-nodiscard)
 
   [[nodiscard]] PQXX_PURE size_type size() const noexcept
   {
@@ -295,7 +300,7 @@ public:
    * the number of fields in `t`.
    */
   template<typename... TYPE>
-  std::tuple<TYPE...> as(sl loc = sl::current()) const
+  [[nodiscard]] std::tuple<TYPE...> as(sl loc = sl::current()) const
   {
     return as_tuple<std::tuple<TYPE...>>(loc);
   }
@@ -311,7 +316,7 @@ public:
    * the number of fields in `TUPLE`.
    */
   template<typename TUPLE>
-  TUPLE as_tuple(sl loc = sl::current()) const
+  [[nodiscard]] TUPLE as_tuple(sl loc = sl::current()) const
     requires(requires(TUPLE t) { std::get<0>(t); })
   {
     check_size(std::tuple_size_v<TUPLE>, loc);
@@ -320,7 +325,10 @@ public:
   }
 
   /// The @ref result object to which this `row_ref` refers.
-  PQXX_PURE result const &home() const noexcept { return *m_result; }
+  PQXX_PURE [[nodiscard]] result const &home() const noexcept
+  {
+    return *m_result;
+  }
 
 private:
   friend class pqxx::internal::gate::row_ref_const_result_iterator;
@@ -359,13 +367,14 @@ private:
 
   /// Convert row's values as a new tuple.
   template<typename TUPLE, std::size_t... indexes>
-  auto get_tuple(std::index_sequence<indexes...>, sl) const
+  [[nodiscard]] auto get_tuple(std::index_sequence<indexes...>, sl) const
   {
     return std::make_tuple(get_field<TUPLE, indexes>()...);
   }
 
   /// Extract and convert a field.
-  template<typename TUPLE, std::size_t index> auto get_field() const
+  template<typename TUPLE, std::size_t index>
+  [[nodiscard]] auto get_field() const
   {
     return (*this)[index].as<std::tuple_element_t<index, TUPLE>>();
   }
@@ -422,11 +431,18 @@ public:
   row() noexcept = default;
   row(row &&) noexcept = default;
   row(row const &) noexcept = default;
+
+  // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
+  /// A @ref row_ref can convert implicitly to a `row`.
   row(row_ref const &ref) :
           m_result{ref.home()},
           m_index{ref.row_number()},
           m_end{std::size(ref)}
   {}
+  // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions)
+
+  ~row() noexcept = default;
+
   row &operator=(row const &) noexcept = default;
   row &operator=(row &&) noexcept = default;
 
@@ -539,6 +555,8 @@ public:
     return as_row_ref()[col_name];
   }
 
+  // NOLINTBEGIN(modernize-use-nodiscard)
+
   /// Address a field by number, but check that the number is in range.
   field_ref at(size_type, sl = sl::current()) const;
 
@@ -546,6 +564,8 @@ public:
    * @warning This is much slower than indexing by number, or iterating.
    */
   field_ref at(zview col_name, sl = sl::current()) const;
+
+  // NOLINTEND(modernize-use-nodiscard)
 
   [[nodiscard]] PQXX_PURE constexpr size_type size() const noexcept
   {
@@ -655,7 +675,7 @@ public:
    * the number of fields in `t`.
    */
   template<typename... TYPE>
-  std::tuple<TYPE...> as(sl loc = sl::current()) const
+  [[nodiscard]] std::tuple<TYPE...> as(sl loc = sl::current()) const
   {
     return as_row_ref().as<TYPE...>(loc);
   }
@@ -671,7 +691,7 @@ public:
    * the number of fields in `TUPLE`.
    */
   template<typename TUPLE>
-  TUPLE as_tuple(sl loc = sl::current()) const
+  [[nodiscard]] TUPLE as_tuple(sl loc = sl::current()) const
     requires(requires(TUPLE t) { std::get<0>(t); })
   {
     return as_row_ref().as_tuple<TUPLE>(loc);
@@ -685,7 +705,10 @@ private:
    * _inside this `row` object._  So if you change that, the @ref row_ref
    * becomes invalid.
    */
-  row_ref as_row_ref() const noexcept { return {m_result, row_number()}; }
+  [[nodiscard]] row_ref as_row_ref() const noexcept
+  {
+    return {m_result, row_number()};
+  }
 
   row(result r, result_size_type index, size_type cols) noexcept;
 
@@ -700,7 +723,7 @@ private:
   }
 
   /// The @ref pqxx::result of which this is a row.
-  result const &home() const { return m_result; }
+  [[nodiscard]] result const &home() const { return m_result; }
 
   /// Convert entire row to tuple fields, without checking row size.
   template<typename Tuple> void convert(Tuple &t, sl loc) const
@@ -749,12 +772,17 @@ public:
   const_row_iterator(row_ref const &t, row_size_type c) noexcept :
           m_field{t.home(), t.row_number(), c}
   {}
+  // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
   const_row_iterator(field_ref const &f) noexcept : m_field{f} {}
   const_row_iterator(const_row_iterator const &) noexcept = default;
   const_row_iterator(const_row_iterator &&) noexcept = default;
+  ~const_row_iterator() noexcept = default;
 
   /// Current column number, if the iterator is pointing at a valid field.
-  PQXX_PURE size_type col() const noexcept { return m_field.column_number(); }
+  PQXX_PURE [[nodiscard]] size_type col() const noexcept
+  {
+    return m_field.column_number();
+  }
 
   /**
    * @name Dereferencing operators
@@ -877,6 +905,7 @@ public:
   const_reverse_row_iterator(const_reverse_row_iterator const &) noexcept =
     default;
   const_reverse_row_iterator(const_reverse_row_iterator &&) noexcept = default;
+  ~const_reverse_row_iterator() = default;
 
   explicit const_reverse_row_iterator(super const &rhs) noexcept :
           const_row_iterator{rhs}
@@ -899,11 +928,11 @@ public:
    */
   //@{
   const_reverse_row_iterator &
-  operator=(const_reverse_row_iterator const &r) noexcept
-  {
-    iterator_type::operator=(r);
-    return *this;
-  }
+  operator=(const_reverse_row_iterator const &r) noexcept = default;
+
+  const_reverse_row_iterator &
+  operator=(const_reverse_row_iterator &&r) noexcept = default;
+
   const_reverse_row_iterator operator++() noexcept
   {
     iterator_type::operator--();

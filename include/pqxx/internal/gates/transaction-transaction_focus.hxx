@@ -1,3 +1,6 @@
+#ifndef PQXX_INTERNAL_GATES_TRANSACTION_TRANSACTION_FOCUS_HXX
+#define PQXX_INTERNAL_GATES_TRANSACTION_TRANSACTION_FOCUS_HXX
+
 #include <pqxx/internal/callgate.hxx>
 
 #include "pqxx/transaction_base.hxx"
@@ -9,7 +12,9 @@ class PQXX_PRIVATE transaction_transaction_focus final
 {
   friend class pqxx::transaction_focus;
 
-  constexpr transaction_transaction_focus(reference x) noexcept : super(x) {}
+  explicit constexpr transaction_transaction_focus(reference x) noexcept :
+          super(x)
+  {}
 
   void register_focus(transaction_focus *focus)
   {
@@ -29,3 +34,4 @@ class PQXX_PRIVATE transaction_transaction_focus final
   }
 };
 } // namespace pqxx::internal::gate
+#endif

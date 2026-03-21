@@ -10,8 +10,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_CURSOR
-#define PQXX_H_CURSOR
+#ifndef PQXX_CURSOR_HXX
+#define PQXX_CURSOR_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
@@ -94,7 +94,10 @@ public:
 
   cursor_base() = delete;
   cursor_base(cursor_base const &) = delete;
+  cursor_base(cursor_base &&) = delete;
   cursor_base &operator=(cursor_base const &) = delete;
+  cursor_base &operator=(cursor_base &&) = delete;
+  ~cursor_base() = default;
 
   /**
    * @name Special movement distances.
@@ -152,6 +155,7 @@ protected:
   /// The `std::source_location` for where this cursor was created.
   [[nodiscard]] sl created_loc() const { return m_created_loc; }
 
+private:
   std::string const m_name;
 
   /// The `std::source_location` for where this cursor was created.
@@ -215,6 +219,7 @@ public:
   stateless_cursor &operator=(stateless_cursor &&) = default;
   stateless_cursor(stateless_cursor const &) = delete;
   stateless_cursor &operator=(stateless_cursor const &) = delete;
+  ~stateless_cursor() = default;
 
   /// Close this cursor.
   /** The destructor will do this for you automatically.
@@ -345,7 +350,7 @@ public:
     cursor_base::ownership_policy op = cursor_base::owned, sl = sl::current());
 
   /// Return `true` if this stream may still return more data.
-  constexpr operator bool() const & noexcept { return not m_done; }
+  explicit constexpr operator bool() const & noexcept { return not m_done; }
 
   /// Read new value into given result object; same as operator `>>`.
   /** The result set may continue any number of rows from zero to the chosen
@@ -459,7 +464,10 @@ public:
   icursor_iterator() noexcept;
   explicit icursor_iterator(istream_type &) noexcept;
   icursor_iterator(icursor_iterator const &) noexcept;
+  icursor_iterator(icursor_iterator &&) = delete;
   ~icursor_iterator() noexcept;
+
+  icursor_iterator &operator=(icursor_iterator &&) = delete;
 
   result const &operator*() const noexcept
   {
@@ -499,7 +507,7 @@ private:
   void refresh(sl) const;
 
   friend class internal::gate::icursor_iterator_icursorstream;
-  difference_type pos() const noexcept { return m_pos; }
+  [[nodiscard]] difference_type pos() const noexcept { return m_pos; }
   void fill(result const &);
 
   /// The `std::source_location` for where this iterator's stream was created.

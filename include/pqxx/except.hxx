@@ -10,8 +10,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_EXCEPT
-#define PQXX_H_EXCEPT
+#ifndef PQXX_EXCEPT_HXX
+#define PQXX_EXCEPT_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
@@ -76,6 +76,7 @@ struct PQXX_LIBEXPORT failure : std::exception
 {
   failure(failure const &) = default;
   failure(failure &&) = default;
+  // NOLINTBEGIN(performance-move-const-arg)
   explicit failure(sl loc = sl::current(), st tr = st::current()) :
           m_block{std::make_shared<block>(loc, std::move(tr))}
   {}
@@ -84,6 +85,7 @@ struct PQXX_LIBEXPORT failure : std::exception
           m_block{
             std::make_shared<block>(std::move(whatarg), loc, std::move(tr))}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
   ~failure() noexcept override;
 
@@ -158,7 +160,10 @@ struct PQXX_LIBEXPORT failure : std::exception
    * @note This is a general indication based on the _type_ of exception.  It
    * can be wrong for some specific situations.
    */
-  virtual bool poisons_connection() const noexcept { return false; }
+  [[nodiscard]] virtual bool poisons_connection() const noexcept
+  {
+    return false;
+  }
 
   /// Does this type of error make an ongoing @ref dbtransaction unusable?
   /** When this is the case, before you try to do anything else, you'll want to
@@ -174,7 +179,10 @@ struct PQXX_LIBEXPORT failure : std::exception
    * @note This is a general indication based on the _type_ of exception.  It
    * can be wrong for some specific situations.
    */
-  virtual bool poisons_transaction() const noexcept { return false; }
+  [[nodiscard]] virtual bool poisons_transaction() const noexcept
+  {
+    return false;
+  }
 
   // C++26: Implement using reflection.
   /// The name of this exception type: "failure", "sql_error", etc.
@@ -207,11 +215,12 @@ struct PQXX_LIBEXPORT failure : std::exception
    * }
    * ```
    */
-  virtual std::string_view name() const noexcept;
+  [[nodiscard]] virtual std::string_view name() const noexcept;
 
 protected:
   /// For constructing derived exception types with the additional
   /// fields.
+  // NOLINTBEGIN(performance-move-const-arg)
   failure(
     std::string whatarg, std::string stat, std::string sqls,
     sl loc = sl::current(), st tr = st::current()) :
@@ -219,11 +228,14 @@ protected:
             std::move(whatarg), std::move(stat), std::move(sqls), loc,
             std::move(tr))}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
 private:
   /// All the data this exception or its descendants might need.
   struct block final
   {
+    // NOLINTBEGIN(misc-non-private-member-variables-in-classes)
+
     /// Message string.
     std::string message;
     /// SQL statement, if applicable (empty string otherwise).
@@ -235,16 +247,23 @@ private:
     /// Stack trace, or if not supported, an empty placeholder.
     std::shared_ptr<st const> trace;
 
+    // NOLINTEND(misc-non-private-member-variables-in-classes)
+
+    // NOLINTBEGIN(performance-move-const-arg)
     block(sl loc, st &&tr) :
             location{loc}, trace{make_trace_ptr(std::move(tr))}
     {}
+    // NOLINTEND(performance-move-const-arg)
 
+    // NOLINTBEGIN(performance-move-const-arg)
     block(std::string &&msg, sl loc, st &&tr) :
             message{std::move(msg)},
             location{loc},
             trace{make_trace_ptr(std::move(tr))}
     {}
+    // NOLINTEND(performance-move-const-arg)
 
+    // NOLINTBEGIN(performance-move-const-arg)
     block(
       std::string &&msg, std::string &&stat, std::string &&sqls, sl loc,
       st &&tr) :
@@ -254,6 +273,7 @@ private:
             location{loc},
             trace{make_trace_ptr(std::move(tr))}
     {}
+    // NOLINTEND(performance-move-const-arg)
 
     /// Move `tr` into a `shared_ptr<st const>`.
     /** If no `std::stacktrace` support is available, return an empty pointer.
@@ -304,49 +324,63 @@ private:
  */
 struct PQXX_LIBEXPORT broken_connection : failure
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   explicit broken_connection(sl loc = sl::current(), st &&tr = st::current()) :
           failure{"Connection to database failed.", loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
+  // NOLINTBEGIN(performance-move-const-arg)
   explicit broken_connection(
     std::string const &whatarg, sl loc = sl::current(),
     st &&tr = st::current()) :
           failure{whatarg, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 
   /// By its nature, this type of error makes the connection unusable.
-  bool poisons_connection() const noexcept override { return true; }
+  [[nodiscard]] bool poisons_connection() const noexcept override
+  {
+    return true;
+  }
 
   /// When the connection breaks, so will an ongoing transaction.
-  bool poisons_transaction() const noexcept override { return true; }
+  [[nodiscard]] bool poisons_transaction() const noexcept override
+  {
+    return true;
+  }
 };
 
 
 /// Could not establish connection due to version mismatch.
 struct PQXX_LIBEXPORT version_mismatch : broken_connection
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   explicit version_mismatch(
     std::string const &whatarg, sl loc = sl::current(),
     st &&tr = st::current()) :
           broken_connection{whatarg, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
 /// The caller attempted to set a variable to null, which is not allowed.
 struct PQXX_LIBEXPORT variable_set_to_null : failure
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   explicit variable_set_to_null(
     std::string const &whatarg, sl loc = sl::current(),
     st &&tr = st::current()) :
           failure{whatarg, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -364,19 +398,28 @@ struct PQXX_LIBEXPORT variable_set_to_null : failure
  */
 struct PQXX_LIBEXPORT sql_error : public failure
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   PQXX_ZARGS explicit sql_error(
     std::string const &whatarg = {}, std::string const &stmt = {},
     std::string const &sqls = {}, sl loc = sl::current(),
     st &&tr = st::current()) :
           failure{whatarg, stmt, sqls, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
   sql_error(sql_error const &other) = default;
   sql_error(sql_error &&other) = default;
+  ~sql_error() override = default;
 
-  std::string_view name() const noexcept override;
+  sql_error &operator=(sql_error const &) = default;
+  sql_error &operator=(sql_error &&) = default;
+
+  [[nodiscard]] std::string_view name() const noexcept override;
 
   /// If a transaction was ongoing, an SQL error will break it.
-  bool poisons_transaction() const noexcept override { return true; }
+  [[nodiscard]] bool poisons_transaction() const noexcept override
+  {
+    return true;
+  }
 };
 
 
@@ -394,20 +437,28 @@ struct PQXX_LIBEXPORT sql_error : public failure
  */
 struct PQXX_LIBEXPORT protocol_violation : sql_error
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   explicit protocol_violation(
     std::string const &whatarg, std::string const &stmt = {},
     std::string const &sqls = {}, sl loc = sl::current(),
     st &&tr = st::current()) :
           sql_error{whatarg, stmt, sqls, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
   /// When this happens, the connection is in a confused state.
-  bool poisons_connection() const noexcept override { return true; }
+  [[nodiscard]] bool poisons_connection() const noexcept override
+  {
+    return true;
+  }
 
   /// Since the connection is broken, so is a transaction.
-  bool poisons_transaction() const noexcept override { return true; }
+  [[nodiscard]] bool poisons_transaction() const noexcept override
+  {
+    return true;
+  }
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -420,36 +471,49 @@ struct PQXX_LIBEXPORT protocol_violation : sql_error
  */
 struct PQXX_LIBEXPORT in_doubt_error : failure
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   explicit in_doubt_error(
     std::string const &whatarg, sl loc = sl::current(),
     st &&tr = st::current()) :
           failure{whatarg, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
   /// This kind of error can only happen when the connection breaks.
-  bool poisons_connection() const noexcept override { return true; }
+  [[nodiscard]] bool poisons_connection() const noexcept override
+  {
+    return true;
+  }
 
   /// The transaction is already closed, and the connection is broken.
-  bool poisons_transaction() const noexcept override { return true; }
+  [[nodiscard]] bool poisons_transaction() const noexcept override
+  {
+    return true;
+  }
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
 /// The backend saw itself forced to roll back the ongoing transaction.
 struct PQXX_LIBEXPORT transaction_rollback : sql_error
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   PQXX_ZARGS explicit transaction_rollback(
     std::string const &whatarg, std::string const &q = {},
     std::string const &sqlstate = {}, sl loc = sl::current(),
     st &&tr = st::current()) :
           sql_error{whatarg, q, sqlstate, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
   /// Some earlier failure broke the transaction.
-  bool poisons_transaction() const noexcept override { return true; }
+  [[nodiscard]] bool poisons_transaction() const noexcept override
+  {
+    return true;
+  }
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -464,48 +528,60 @@ struct PQXX_LIBEXPORT transaction_rollback : sql_error
  */
 struct PQXX_LIBEXPORT serialization_failure : transaction_rollback
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   PQXX_ZARGS explicit serialization_failure(
     std::string const &whatarg, std::string const &q,
     std::string const &sqlstate = {}, sl loc = sl::current(),
     st &&tr = st::current()) :
           transaction_rollback{whatarg, q, sqlstate, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
   /// To retry the transaction, you'll need to start a fresh one.
-  bool poisons_transaction() const noexcept override { return true; }
+  [[nodiscard]] bool poisons_transaction() const noexcept override
+  {
+    return true;
+  }
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
 /// We can't tell whether our last statement succeeded.
 struct PQXX_LIBEXPORT statement_completion_unknown : transaction_rollback
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   PQXX_ZARGS explicit statement_completion_unknown(
     std::string const &whatarg, std::string const &q,
     std::string const &sqlstate = {}, sl loc = sl::current(),
     st &&tr = st::current()) :
           transaction_rollback{whatarg, q, sqlstate, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
   /// It's not advisable to continue using the connection after this.
-  bool poisons_connection() const noexcept override { return true; }
+  [[nodiscard]] bool poisons_connection() const noexcept override
+  {
+    return true;
+  }
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
 /// The ongoing transaction has deadlocked.  Retrying it may help.
 struct PQXX_LIBEXPORT deadlock_detected : transaction_rollback
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   PQXX_ZARGS explicit deadlock_detected(
     std::string const &whatarg, std::string const &q,
     std::string const &sqlstate = {}, sl loc = sl::current(),
     st &&tr = st::current()) :
           transaction_rollback{whatarg, q, sqlstate, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -516,277 +592,337 @@ struct PQXX_LIBEXPORT internal_error : failure
     std::string const &, sl = sl::current(), st &&tr = st::current());
 
   /// When this happens, all bets are off.  It _may_ work, but don't risk it.
-  bool poisons_connection() const noexcept override { return true; }
+  [[nodiscard]] bool poisons_connection() const noexcept override
+  {
+    return true;
+  }
 
   /// When this happens, all bets are off.  It _may_ work, but don't risk it.
-  bool poisons_transaction() const noexcept override { return true; }
+  [[nodiscard]] bool poisons_transaction() const noexcept override
+  {
+    return true;
+  }
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
 /// Error in usage of libpqxx library, similar to std::logic_error
 struct PQXX_LIBEXPORT usage_error : failure
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   explicit usage_error(
     std::string const &whatarg, sl loc = sl::current(),
     st &&tr = st::current()) :
           failure{whatarg, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
   /// Your transaction will probably still work, but something is badly wrong.
-  bool poisons_transaction() const noexcept override { return true; }
+  [[nodiscard]] bool poisons_transaction() const noexcept override
+  {
+    return true;
+  }
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
 /// Invalid argument passed to libpqxx, similar to std::invalid_argument
 struct PQXX_LIBEXPORT argument_error : failure
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   explicit argument_error(
     std::string const &whatarg, sl loc = sl::current(),
     st &&tr = st::current()) :
           failure{whatarg, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
 /// Value conversion failed, e.g. when converting "Hello" to int.
 struct PQXX_LIBEXPORT conversion_error : failure
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   explicit conversion_error(
     std::string const &whatarg, sl loc = sl::current(),
     st &&tr = st::current()) :
           failure{whatarg, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
 /// Could not convert null value: target type does not support null.
 struct PQXX_LIBEXPORT unexpected_null : conversion_error
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   explicit unexpected_null(
     std::string const &whatarg, sl loc = sl::current(),
     st &&tr = st::current()) :
           conversion_error{whatarg, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
 /// Could not convert value to string: not enough buffer space.
 struct PQXX_LIBEXPORT conversion_overrun : conversion_error
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   explicit conversion_overrun(
     std::string const &whatarg, sl loc = sl::current(),
     st &&tr = st::current()) :
           conversion_error{whatarg, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
 /// Something is out of range, similar to std::out_of_range
 struct PQXX_LIBEXPORT range_error : failure
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   explicit range_error(
     std::string const &whatarg, sl loc = sl::current(),
     st &&tr = st::current()) :
           failure{whatarg, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
 /// Query returned an unexpected number of rows.
 struct PQXX_LIBEXPORT unexpected_rows : range_error
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   explicit unexpected_rows(
     std::string const &msg, sl loc = sl::current(), st &&tr = st::current()) :
           range_error{msg, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
 /// Database feature not supported in current setup.
 struct PQXX_LIBEXPORT feature_not_supported : sql_error
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   PQXX_ZARGS explicit feature_not_supported(
     std::string const &err, std::string const &Q = {},
     std::string const &sqlstate = {}, sl loc = sl::current(),
     st &&tr = st::current()) :
           sql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 
   /// It all depends on the details, but this _can_ break your connection.
-  bool poisons_connection() const noexcept override { return true; }
+  [[nodiscard]] bool poisons_connection() const noexcept override
+  {
+    return true;
+  }
 
   /// If this poisons your connection, it also poisons your transaction.
-  bool poisons_transaction() const noexcept override { return true; }
+  [[nodiscard]] bool poisons_transaction() const noexcept override
+  {
+    return true;
+  }
 };
 
 
 /// Error in data provided to SQL statement.
 struct PQXX_LIBEXPORT data_exception : sql_error
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   PQXX_ZARGS explicit data_exception(
     std::string const &err, std::string const &Q = {},
     std::string const &sqlstate = {}, sl loc = sl::current(),
     st &&tr = st::current()) :
           sql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
 struct PQXX_LIBEXPORT integrity_constraint_violation : sql_error
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   PQXX_ZARGS explicit integrity_constraint_violation(
     std::string const &err, std::string const &Q = {},
     std::string const &sqlstate = {}, sl loc = sl::current(),
     st &&tr = st::current()) :
           sql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
 struct PQXX_LIBEXPORT restrict_violation : integrity_constraint_violation
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   PQXX_ZARGS explicit restrict_violation(
     std::string const &err, std::string const &Q = {},
     std::string const &sqlstate = {}, sl loc = sl::current(),
     st &&tr = st::current()) :
           integrity_constraint_violation{err, Q, sqlstate, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
 struct PQXX_LIBEXPORT not_null_violation : integrity_constraint_violation
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   PQXX_ZARGS explicit not_null_violation(
     std::string const &err, std::string const &Q = {},
     std::string const &sqlstate = {}, sl loc = sl::current(),
     st &&tr = st::current()) :
           integrity_constraint_violation{err, Q, sqlstate, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
 struct PQXX_LIBEXPORT foreign_key_violation : integrity_constraint_violation
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   PQXX_ZARGS explicit foreign_key_violation(
     std::string const &err, std::string const &Q = {},
     std::string const &sqlstate = {}, sl loc = sl::current(),
     st &&tr = st::current()) :
           integrity_constraint_violation{err, Q, sqlstate, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
 struct PQXX_LIBEXPORT unique_violation : integrity_constraint_violation
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   PQXX_ZARGS explicit unique_violation(
     std::string const &err, std::string const &Q = {},
     std::string const &sqlstate = {}, sl loc = sl::current(),
     st &&tr = st::current()) :
           integrity_constraint_violation{err, Q, sqlstate, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
 struct PQXX_LIBEXPORT check_violation : integrity_constraint_violation
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   PQXX_ZARGS explicit check_violation(
     std::string const &err, std::string const &Q = {},
     std::string const &sqlstate = {}, sl loc = sl::current(),
     st &&tr = st::current()) :
           integrity_constraint_violation{err, Q, sqlstate, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
 struct PQXX_LIBEXPORT invalid_cursor_state : sql_error
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   PQXX_ZARGS explicit invalid_cursor_state(
     std::string const &err, std::string const &Q = {},
     std::string const &sqlstate = {}, sl loc = sl::current(),
     st &&tr = st::current()) :
           sql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
 struct PQXX_LIBEXPORT invalid_sql_statement_name : sql_error
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   PQXX_ZARGS explicit invalid_sql_statement_name(
     std::string const &err, std::string const &Q = {},
     std::string const &sqlstate = {}, sl loc = sl::current(),
     st &&tr = st::current()) :
           sql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
 struct PQXX_LIBEXPORT invalid_cursor_name : sql_error
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   PQXX_ZARGS explicit invalid_cursor_name(
     std::string const &err, std::string const &Q = {},
     std::string const &sqlstate = {}, sl loc = sl::current(),
     st &&tr = st::current()) :
           sql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
 struct PQXX_LIBEXPORT syntax_error : sql_error
 {
+  // NOLINTBEGIN(
+  //    cppcoreguidelines-avoid-const-or-ref-data-members,
+  //    misc-non-private-member-variables-in-classes)
   /// Approximate position in string where error occurred, or -1 if unknown.
   int const error_position;
+  // NOLINTEND(
+  //    cppcoreguidelines-avoid-const-or-ref-data-members,
+  //    misc-non-private-member-variables-in-classes)
 
+  // NOLINTBEGIN(performance-move-const-arg)
   PQXX_ZARGS explicit syntax_error(
     std::string const &err, std::string const &Q = {},
     std::string const &sqlstate = {}, int pos = -1, sl loc = sl::current(),
     st &&tr = st::current()) :
           sql_error{err, Q, sqlstate, loc, std::move(tr)}, error_position{pos}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
 struct PQXX_LIBEXPORT undefined_column : syntax_error
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   PQXX_ZARGS explicit undefined_column(
     std::string const &err, std::string const &Q = {},
     std::string const &sqlstate = {}, sl loc = sl::current(),
@@ -794,13 +930,15 @@ struct PQXX_LIBEXPORT undefined_column : syntax_error
           // TODO: Can we get the column?
           syntax_error{err, Q, sqlstate, -1, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
 struct PQXX_LIBEXPORT undefined_function : syntax_error
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   PQXX_ZARGS explicit undefined_function(
     std::string const &err, std::string const &Q = {},
     std::string const &sqlstate = {}, sl loc = sl::current(),
@@ -808,13 +946,15 @@ struct PQXX_LIBEXPORT undefined_function : syntax_error
           // TODO: Can we get the column?
           syntax_error{err, Q, sqlstate, -1, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
 struct PQXX_LIBEXPORT undefined_table : syntax_error
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   PQXX_ZARGS explicit undefined_table(
     std::string const &err, std::string const &Q = {},
     std::string const &sqlstate = {}, sl loc = sl::current(),
@@ -822,72 +962,83 @@ struct PQXX_LIBEXPORT undefined_table : syntax_error
           // TODO: Can we get the column?
           syntax_error{err, Q, sqlstate, -1, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
 struct PQXX_LIBEXPORT insufficient_privilege : sql_error
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   PQXX_ZARGS explicit insufficient_privilege(
     std::string const &err, std::string const &Q = {},
     std::string const &sqlstate = {}, sl loc = sl::current(),
     st &&tr = st::current()) :
           sql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
 /// Resource shortage on the server.
 struct PQXX_LIBEXPORT insufficient_resources : sql_error
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   PQXX_ZARGS explicit insufficient_resources(
     std::string const &err, std::string const &Q = {},
     std::string const &sqlstate = {}, sl loc = sl::current(),
     st &&tr = st::current()) :
           sql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
 struct PQXX_LIBEXPORT disk_full : insufficient_resources
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   PQXX_ZARGS explicit disk_full(
     std::string const &err, std::string const &Q = {},
     std::string const &sqlstate = {}, sl loc = sl::current(),
     st &&tr = st::current()) :
           insufficient_resources{err, Q, sqlstate, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
 struct PQXX_LIBEXPORT server_out_of_memory : insufficient_resources
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   PQXX_ZARGS explicit server_out_of_memory(
     std::string const &err, std::string const &Q = {},
     std::string const &sqlstate = {}, sl loc = sl::current(),
     st &&tr = st::current()) :
           insufficient_resources{err, Q, sqlstate, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
 struct PQXX_LIBEXPORT too_many_connections : broken_connection
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   explicit too_many_connections(
     std::string const &err, sl loc = sl::current(), st &&tr = st::current()) :
           broken_connection{err, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
@@ -896,54 +1047,62 @@ struct PQXX_LIBEXPORT too_many_connections : broken_connection
  */
 struct PQXX_LIBEXPORT plpgsql_error : sql_error
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   PQXX_ZARGS explicit plpgsql_error(
     std::string const &err, std::string const &Q = {},
     std::string const &sqlstate = {}, sl loc = sl::current(),
     st &&tr = st::current()) :
           sql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
 /// Exception raised in PL/pgSQL procedure
 struct PQXX_LIBEXPORT plpgsql_raise : plpgsql_error
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   PQXX_ZARGS explicit plpgsql_raise(
     std::string const &err, std::string const &Q = {},
     std::string const &sqlstate = {}, sl loc = sl::current(),
     st &&tr = st::current()) :
           plpgsql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
 struct PQXX_LIBEXPORT plpgsql_no_data_found : plpgsql_error
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   PQXX_ZARGS explicit plpgsql_no_data_found(
     std::string const &err, std::string const &Q = {},
     std::string const &sqlstate = {}, sl loc = sl::current(),
     st &&tr = st::current()) :
           plpgsql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 
 struct PQXX_LIBEXPORT plpgsql_too_many_rows : plpgsql_error
 {
+  // NOLINTBEGIN(performance-move-const-arg)
   PQXX_ZARGS explicit plpgsql_too_many_rows(
     std::string const &err, std::string const &Q = {},
     std::string const &sqlstate = {}, sl loc = sl::current(),
     st &&tr = st::current()) :
           plpgsql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
+  // NOLINTEND(performance-move-const-arg)
 
-  std::string_view name() const noexcept override;
+  [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 /**

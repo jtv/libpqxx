@@ -15,6 +15,9 @@ PostgreSQL that allows `libpqxx` to communicate with the database backend
 server. Methods for installing the `libpq` library will vary depending
 on your operating system and individual setup.
 
+The build also needs Python 3 installed.  This comes pre-installed on many
+systems.
+
 
 Quick start
 -----------

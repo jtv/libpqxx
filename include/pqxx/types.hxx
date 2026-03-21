@@ -6,8 +6,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_TYPES
-#define PQXX_H_TYPES
+#ifndef PQXX_TYPES_HXX
+#define PQXX_TYPES_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
@@ -234,6 +234,7 @@ std::string const type_name{display_string_of(^^TYPE)};
 
 #else
 
+// NOLINTBEGIN(cert-err58-cpp)
 /// A human-readable name for a type, used in error messages and such.
 /** Actually this may not always be very user-friendly.  It uses
  * @c std::type_info::name().  On gcc-like compilers we try to demangle its
@@ -247,6 +248,7 @@ template<typename TYPE>
 [[deprecated("Use name_type() instead.")]]
 std::string const type_name{
   pqxx::internal::demangle_type_name(typeid(TYPE).name())};
+// NOLINTEND(cert-err58-cpp)
 
 #endif
 #include "pqxx/internal/ignore-deprecated-post.hxx"

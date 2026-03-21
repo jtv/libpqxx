@@ -10,8 +10,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_SUBTRANSACTION
-#define PQXX_H_SUBTRANSACTION
+#ifndef PQXX_SUBTRANSACTION_HXX
+#define PQXX_SUBTRANSACTION_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
@@ -24,6 +24,9 @@ namespace pqxx
 /**
  * @ingroup transactions
  */
+
+// NOLINTBEGIN(fuchsia-multiple-inheritance)
+
 /// "Transaction" nested within another transaction
 /** A subtransaction can be executed inside a backend transaction, or inside
  * another subtransaction.  This can be useful when, for example, statements in
@@ -89,17 +92,22 @@ public:
   {}
 
   /// Nest a subtransaction in another subtransaction.
-  explicit subtransaction(
+  subtransaction(
     subtransaction &t, std::string_view name = ""sv, sl loc = sl::current());
 
+  subtransaction(subtransaction &&) = delete;
   ~subtransaction() noexcept override;
 
+  subtransaction &operator=(subtransaction const &) = delete;
+  subtransaction &operator=(subtransaction &&) = delete;
+
 private:
-  std::string quoted_name() const
+  [[nodiscard]] std::string quoted_name() const
   {
     return quote_name(transaction_focus::name());
   }
   void do_commit(sl) override;
 };
+// NOLINTEND(fuchsia-multiple-inheritance)
 } // namespace pqxx
 #endif

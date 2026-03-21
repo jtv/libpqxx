@@ -8,8 +8,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_ZVIEW
-#define PQXX_H_ZVIEW
+#ifndef PQXX_ZVIEW_HXX
+#define PQXX_ZVIEW_HXX
 
 #include <cassert>
 #include <string>
@@ -86,6 +86,10 @@ public:
     invariant();
   }
 
+  // NOLINTBEGIN(
+  //    cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  //    hicpp-no-array-decay
+  // )
   /// Construct from any initialiser you might use for `std::string_view`.
   /** @warning Only do this if you are sure that the string is zero-terminated.
    */
@@ -95,14 +99,21 @@ public:
   {
     invariant();
   }
+  // NOLINTEND(
+  //    cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  //    hicpp-no-array-decay
+  // )
 
+  // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
   /// @warning There's an implicit conversion from `std::string`.
   constexpr zview(std::string const &str) noexcept :
           std::string_view{str.c_str(), str.size()}
   {
     invariant();
   }
+  // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions)
 
+  // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
   /// Construct a `zview` from a C-style string.
   /** @warning This scans the string to discover its length.  So if you need to
    * do it many times, it's probably better to create the `zview` once and
@@ -114,9 +125,11 @@ public:
   {
     invariant();
   }
+  // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions)
 
   zview(std::nullptr_t) = delete;
 
+  // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
   /// Construct a `zview` from a string literal.
   /** A C++ string literal ("foo") normally looks a lot like a pointer to
    * char const, but that's not really true.  It's actually an array of char,
@@ -130,6 +143,7 @@ public:
   PQXX_ZARGS constexpr zview(char const (&literal)[size]) :
           zview(literal, size - 1)
   {}
+  // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions)
 
   /// Return as C string.
   [[nodiscard]] constexpr char const *c_str() const & noexcept
@@ -137,8 +151,10 @@ public:
     return data();
   }
 
+  // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
   /// Return as C string.
   constexpr operator char const *() const noexcept { return data(); }
+  // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions)
 
   /// Disambiguating comparison operator: leave it to `std::string_view`.
   constexpr bool operator==(zview const &rhs) const noexcept

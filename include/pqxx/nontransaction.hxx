@@ -10,8 +10,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_NONTRANSACTION
-#define PQXX_H_NONTRANSACTION
+#ifndef PQXX_NONTRANSACTION_HXX
+#define PQXX_NONTRANSACTION_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
@@ -66,12 +66,17 @@ public:
    * @param tname Optional tname for the transaction, beginning with a letter
    * and containing only letters and digits.
    */
-  nontransaction(
+  explicit nontransaction(
     connection &cx, std::string_view tname = ""sv, sl loc = sl::current()) :
           transaction_base{cx, tname, std::shared_ptr<std::string>{}, loc}
   {
     register_transaction();
   }
+
+  nontransaction(nontransaction const &) = delete;
+  nontransaction(nontransaction &&) = delete;
+  nontransaction &operator=(nontransaction const &) = delete;
+  nontransaction &operator=(nontransaction &&) = delete;
 
   ~nontransaction() override { close(sl::current()); }
 

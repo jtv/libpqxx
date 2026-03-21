@@ -1,5 +1,5 @@
-#ifndef PQXX_H_RANGE
-#define PQXX_H_RANGE
+#ifndef PQXX_RANGE_HXX
+#define PQXX_RANGE_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
@@ -23,12 +23,12 @@ namespace pqxx
 struct no_bound final
 {
   template<typename TYPE>
-  constexpr bool extends_down_to(TYPE const &) const noexcept
+  [[nodiscard]] constexpr bool extends_down_to(TYPE const &) const noexcept
   {
     return true;
   }
   template<typename TYPE>
-  constexpr bool extends_up_to(TYPE const &) const noexcept
+  [[nodiscard]] constexpr bool extends_up_to(TYPE const &) const noexcept
   {
     return true;
   }
@@ -149,13 +149,17 @@ private:
 
 public:
   range_bound() = delete;
+
+  // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
   constexpr range_bound(no_bound) noexcept : m_bound{} {}
 
+  // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
   constexpr range_bound(inclusive_bound<TYPE> const &bound) noexcept(
     noexcept(inclusive_bound<TYPE>{bound})) :
           m_bound{bound}
   {}
 
+  // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
   constexpr range_bound(exclusive_bound<TYPE> const &bound) noexcept(
     noexcept(exclusive_bound{bound})) :
           m_bound{bound}
@@ -168,6 +172,8 @@ public:
       std::declval<exclusive_bound<TYPE> const &>()})) = default;
 
   constexpr range_bound(range_bound &&) = default;
+
+  ~range_bound() = default;
 
   constexpr bool operator==(range_bound const &rhs) const
   {
@@ -188,25 +194,25 @@ public:
   range_bound &operator=(range_bound &&) = default;
 
   /// Is this a finite bound?
-  constexpr bool is_limited() const noexcept
+  [[nodiscard]] constexpr bool is_limited() const noexcept
   {
     return not std::holds_alternative<no_bound>(m_bound);
   }
 
   /// Is this boundary an inclusive one?
-  constexpr bool is_inclusive() const noexcept
+  [[nodiscard]] constexpr bool is_inclusive() const noexcept
   {
     return std::holds_alternative<inclusive_bound<TYPE>>(m_bound);
   }
 
   /// Is this boundary an exclusive one?
-  constexpr bool is_exclusive() const noexcept
+  [[nodiscard]] constexpr bool is_exclusive() const noexcept
   {
     return std::holds_alternative<exclusive_bound<TYPE>>(m_bound);
   }
 
   /// Would this bound, as a lower bound, include `value`?
-  constexpr bool extends_down_to(TYPE const &value) const
+  [[nodiscard]] constexpr bool extends_down_to(TYPE const &value) const
   {
     return std::visit(
       [&value](auto const &bound) noexcept(noexcept(bound.extends_down_to(
@@ -215,7 +221,7 @@ public:
   }
 
   /// Would this bound, as an upper bound, include `value`?
-  constexpr bool extends_up_to(TYPE const &value) const
+  [[nodiscard]] constexpr bool extends_up_to(TYPE const &value) const
   {
     return std::visit(
       [&value](auto const &bound) noexcept(noexcept(
@@ -293,6 +299,8 @@ public:
           m_upper{exclusive_bound<TYPE>{TYPE{}}}
   {}
 
+  ~range() = default;
+
   constexpr bool operator==(range const &rhs) const noexcept(
     noexcept(this->lower_bound() == rhs.lower_bound()) and
     noexcept(this->upper_bound() == rhs.upper_bound()) and
@@ -323,7 +331,7 @@ public:
    * contrast, will notice that it is empty.  Similar things can happen for
    * floating-point types, but with more subtleties and edge cases.
    */
-  constexpr bool empty() const noexcept(
+  [[nodiscard]] constexpr bool empty() const noexcept(
     noexcept(m_lower.is_exclusive()) and noexcept(m_lower.is_limited()) and
     noexcept(*m_lower.value() < *m_upper.value()))
   {
@@ -333,7 +341,7 @@ public:
   }
 
   /// Does this range encompass `value`?
-  constexpr bool contains(TYPE value) const noexcept(
+  [[nodiscard]] constexpr bool contains(TYPE value) const noexcept(
     noexcept(m_lower.extends_down_to(value)) and
     noexcept(m_upper.extends_up_to(value)))
   {
@@ -344,7 +352,7 @@ public:
   /** This function is not particularly smart.  It does not know, for example,
    * that integer ranges `[0,9]` and `[0,10)` contain the same values.
    */
-  constexpr bool contains(range<TYPE> const &other) const
+  [[nodiscard]] constexpr bool contains(range<TYPE> const &other) const
     noexcept(noexcept((*this & other) == other))
   {
     return (*this & other) == other;
@@ -403,7 +411,7 @@ public:
   }
 
   /// Convert to another base type.
-  template<typename DEST> operator range<DEST>() const
+  template<typename DEST> explicit operator range<DEST>() const
   {
     range_bound<DEST> lower{no_bound{}}, upper{no_bound{}};
     if (lower_bound().is_inclusive())
@@ -493,11 +501,22 @@ template<typename TYPE> struct string_traits<range<TYPE>> final
 
     // The field parser uses this to track which field it's parsing, and
     // when not to expect a field separator.
+    //
+    // We get a totally spurious clang-tidy warning here: it thinks this
+    // variable could be const.  In reality we pass it as a non-const reference
+    // exactly so that field_parser() can update it.
+
+    // NOLINTNEXTLINE(misc-const-correctness)
     std::size_t index{0};
+
     // The last field we expect to see.
     static constexpr std::size_t last{1};
+
     // Current parsing position.  We skip the opening parenthesis or bracket.
+
+    // NOLINTNEXTLINE(misc-const-correctness)
     std::size_t pos{1};
+
     // The string may leave out either bound to indicate that it's unlimited.
     std::optional<TYPE> lower, upper;
     // We reuse the same field parser we use for composite values and arrays.

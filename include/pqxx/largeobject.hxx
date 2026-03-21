@@ -8,8 +8,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_LARGEOBJECT
-#define PQXX_H_LARGEOBJECT
+#ifndef PQXX_LARGEOBJECT_HXX
+#define PQXX_LARGEOBJECT_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
@@ -64,6 +64,7 @@ public:
   [[deprecated("Use blob instead.")]] largeobject(
     dbtransaction &t, std::string_view file);
 
+  // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
   /// Take identity of an opened large object.
   /** Copy identity of already opened large object.  Note that this may be done
    * as an implicit conversion.
@@ -71,6 +72,7 @@ public:
    */
   [[deprecated("Use blob instead.")]] largeobject(
     largeobjectaccess const &o) noexcept;
+  // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions)
 
   /// Object identifier.
   /** The number returned by this function identifies the large object in the
@@ -143,7 +145,8 @@ protected:
   PQXX_PURE static internal::pq::PGconn *
   raw_connection(dbtransaction const &T);
 
-  PQXX_PRIVATE std::string reason(connection const &, int err) const;
+  PQXX_PRIVATE [[nodiscard]] std::string
+  reason(connection const &, int err) const;
 
 private:
   oid m_id = oid_none;
@@ -343,11 +346,13 @@ public:
 
   largeobjectaccess() = delete;
   largeobjectaccess(largeobjectaccess const &) = delete;
+  largeobjectaccess(largeobjectaccess &&) = delete;
   largeobjectaccess &operator=(largeobjectaccess const &) = delete;
+  largeobjectaccess &operator=(largeobjectaccess &&) = delete;
 
 private:
-  PQXX_PRIVATE std::string reason(int err) const;
-  internal::pq::PGconn *raw_connection() const
+  PQXX_PRIVATE [[nodiscard]] std::string reason(int err) const;
+  [[nodiscard]] internal::pq::PGconn *raw_connection() const
   {
     return largeobject::raw_connection(m_trans);
   }
@@ -394,7 +399,7 @@ public:
   [[deprecated("Use blob instead.")]] largeobject_streambuf(
     dbtransaction &t, largeobject o, openmode mode = default_mode,
     size_type buf_size = 512) :
-          m_bufsize{buf_size}, m_obj{t, o, mode}, m_g{nullptr}, m_p{nullptr}
+          m_bufsize{buf_size}, m_obj{t, o, mode}
   {
     initialize(mode);
   }
@@ -403,10 +408,17 @@ public:
   [[deprecated("Use blob instead.")]] largeobject_streambuf(
     dbtransaction &t, oid o, openmode mode = default_mode,
     size_type buf_size = 512) :
-          m_bufsize{buf_size}, m_obj{t, o, mode}, m_g{nullptr}, m_p{nullptr}
+          m_bufsize{buf_size}, m_obj{t, o, mode}
   {
     initialize(mode);
   }
+
+  [[deprecated("Use blob instead.")]] largeobject_streambuf(
+    largeobject_streambuf const &) = default;
+  [[deprecated("Use blob instead.")]] largeobject_streambuf(
+    largeobject_streambuf &&) = default;
+  largeobject_streambuf &operator=(largeobject_streambuf const &) = default;
+  largeobject_streambuf &operator=(largeobject_streambuf &&) = default;
 
   ~largeobject_streambuf() noexcept override
   {
@@ -437,7 +449,7 @@ protected:
     return adjust_eof(newpos);
   }
 
-  int_type overflow(int_type ch = eof()) override
+  int_type overflow(int_type ch) override
   {
     auto *const pp{this->pptr()};
     if (pp == nullptr)
@@ -479,6 +491,8 @@ protected:
     return res;
   }
 
+  int_type overflow() { return overflow(eof()); }
+
   int_type underflow() override
   {
     if (this->gptr() == nullptr)
@@ -512,25 +526,35 @@ private:
 
   void initialize(openmode mode)
   {
+    assert(m_g == nullptr);
+    assert(m_p == nullptr);
     if ((mode & std::ios::in) != 0)
     {
+      // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
       m_g = new char_type[unsigned(m_bufsize)];
       this->setg(m_g, m_g, m_g);
     }
     if ((mode & std::ios::out) != 0)
     {
+      // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
       m_p = new char_type[unsigned(m_bufsize)];
       this->setp(m_p, m_p + m_bufsize);
     }
   }
 
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
   size_type const m_bufsize;
   largeobjectaccess m_obj;
 
   /// Get & put buffers.
-  char_type *m_g, *m_p;
+  char_type *m_g = nullptr, *m_p = nullptr;
 };
 
+
+// No idea why clang-tidy complains about multiple inheritance in two of these
+// classes.  In both cases I see only a single parent class.
+//
+// NOLINTBEGIN(fuchsia-multiple-inheritance)
 
 /// Input stream that gets its data from a large object.
 /** @deprecated Access large objects directly using the @ref blob class.
@@ -626,6 +650,13 @@ public:
   {
     super::init(&m_buf);
   }
+
+  [[deprecated("Use blob instead.")]] basic_olostream(
+    basic_olostream const &) = default;
+  [[deprecated("Use blob instead.")]] basic_olostream(basic_olostream &&) =
+    default;
+  basic_olostream &operator=(basic_olostream const &) = default;
+  basic_olostream &operator=(basic_olostream &&) = default;
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 
   /// Create a basic_olostream.
@@ -658,6 +689,8 @@ public:
 private:
   largeobject_streambuf<CHAR, TRAITS> m_buf;
 };
+
+// NOLINTEND(fuchsia-multiple-inheritance)
 
 using olostream = basic_olostream<char>;
 
@@ -713,6 +746,13 @@ public:
   {
     super::init(&m_buf);
   }
+
+  [[deprecated("Use blob instead.")]] basic_lostream(basic_lostream const &) =
+    default;
+  [[deprecated("Use blob instead.")]] basic_lostream(basic_lostream &&) =
+    default;
+  basic_lostream &operator=(basic_lostream const &) = default;
+  basic_lostream &operator=(basic_lostream &&) = default;
 
   ~basic_lostream() override
   {

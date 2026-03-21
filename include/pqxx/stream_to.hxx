@@ -10,8 +10,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_STREAM_TO
-#define PQXX_H_STREAM_TO
+#ifndef PQXX_STREAM_TO_HXX
+#define PQXX_STREAM_TO_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
@@ -158,25 +158,36 @@ public:
     return {tx, path, columns, loc};
   }
 
-  explicit stream_to(stream_to &&other) :
+  stream_to(stream_to const &) = delete;
+
+  // NOLINTBEGIN(bugprone-use-after-move,hicpp-invalid-access-moved)
+  stream_to(stream_to &&other) :
           // (This first step only moves the transaction_focus base-class
           // object.)
           transaction_focus{std::move(other)},
           m_buffer{std::move(other.m_buffer)},
           m_field_buf{std::move(other.m_field_buf)},
           m_finder{other.m_finder},
-          m_created_loc{std::move(other.m_created_loc)},
+          m_created_loc{other.m_created_loc},
           m_finished{other.m_finished}
   {
     other.m_finished = true;
   }
+  // NOLINTEND(bugprone-use-after-move,hicpp-invalid-access-moved)
+
+  stream_to &operator=(stream_to &&other) = delete;
+  stream_to &operator=(stream_to const &) = delete;
+
   ~stream_to() noexcept;
 
+  // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
   /// Does this stream still need to @ref complete()?
   [[nodiscard]] constexpr operator bool() const noexcept
   {
     return not m_finished;
   }
+  // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions)
+
   /// Has this stream been through its concluding @c complete()?
   [[nodiscard]] constexpr bool operator!() const noexcept
   {
@@ -330,7 +341,7 @@ private:
         m_buffer.resize(total);
         auto const data{m_buffer.data()};
         conversion_context const c{
-          m_trans->conn().get_encoding_group(loc), loc};
+          trans()->conn().get_encoding_group(loc), loc};
         std::size_t const end{
           offset + into_buf({data + offset, data + total}, f, c)};
         assert((end + 1) < std::size(m_buffer));
@@ -352,9 +363,11 @@ private:
         std::is_same_v<Field, std::optional<std::string_view>> or
         std::is_same_v<Field, std::optional<zview>>)
       {
+        assert(f);
         // Optional string.  It's not null (we checked for that above), so...
         // Treat like a string.
         m_field_buf.resize(budget);
+        // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
         escape_field_to_buffer(f.value(), loc);
       }
       // TODO: Support deleter template argument on unique_ptr.
@@ -377,7 +390,7 @@ private:
         // This field needs to be converted to a string, and after that,
         // escaped as well.
         conversion_context const c{
-          m_trans->conn().get_encoding_group(loc), loc};
+          trans()->conn().get_encoding_group(loc), loc};
         m_field_buf.resize(budget);
         escape_field_to_buffer(to_buf(m_field_buf, f, c), loc);
       }

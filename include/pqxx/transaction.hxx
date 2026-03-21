@@ -9,8 +9,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_TRANSACTION
-#define PQXX_H_TRANSACTION
+#ifndef PQXX_TRANSACTION_HXX
+#define PQXX_TRANSACTION_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
@@ -23,6 +23,13 @@ namespace pqxx::internal
 /// Helper base class for the @ref pqxx::transaction class template.
 class PQXX_LIBEXPORT basic_transaction : public dbtransaction
 {
+public:
+  basic_transaction(basic_transaction const &) = delete;
+  basic_transaction(basic_transaction &&) = delete;
+  basic_transaction &operator=(basic_transaction const &) = delete;
+  basic_transaction &operator=(basic_transaction &&) = delete;
+  ~basic_transaction() noexcept override = 0;
+
 protected:
   basic_transaction(
     connection &cx, zview begin_command, std::string_view tname,
@@ -31,8 +38,6 @@ protected:
     connection &cx, zview begin_command, std::string &&tname,
     sl = sl::current());
   basic_transaction(connection &cx, zview begin_command, sl = sl::current());
-
-  ~basic_transaction() noexcept override = 0;
 
 private:
   void do_commit(sl) override;
@@ -95,6 +100,12 @@ public:
           internal::basic_transaction{
             cx, internal::begin_cmd<ISOLATION, READWRITE>, loc}
   {}
+
+  transaction() = delete;
+  transaction(transaction const &) = delete;
+  transaction(transaction &&) = delete;
+  transaction &operator=(transaction const &) = delete;
+  transaction &operator=(transaction &&) = delete;
 
   ~transaction() noexcept override { close(sl::current()); }
 };

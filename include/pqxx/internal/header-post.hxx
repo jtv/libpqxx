@@ -1,3 +1,4 @@
+// NOLINT(llvm-header-guard)
 /* Compiler deficiency workarounds for compiling libpqxx headers.
  *
  * To be included at the end of each libpqxx header, in order to restore the
@@ -9,7 +10,7 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-// NO GUARDS HERE! This code should be executed every time!
+// NO GUARDS HERE! This code should be included every time!
 
 #if defined(_MSC_VER)
 #  pragma warning(pop) // Restore compiler's warning state

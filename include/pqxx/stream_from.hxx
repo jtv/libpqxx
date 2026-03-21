@@ -10,8 +10,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_STREAM_FROM
-#define PQXX_H_STREAM_FROM
+#ifndef PQXX_STREAM_FROM_HXX
+#define PQXX_STREAM_FROM_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
@@ -81,7 +81,9 @@ public:
   using raw_line =
     std::pair<std::unique_ptr<char[], void (*)(void const *)>, std::size_t>;
 
+  stream_from(stream_from const &) = delete;
   stream_from(stream_from &&) = delete;
+  stream_from &operator=(stream_from const &) = delete;
   stream_from &operator=(stream_from &&) = delete;
 
   /// Factory: Execute query, and stream the results.
@@ -196,11 +198,13 @@ public:
   ~stream_from() noexcept;
 
   // LCOV_EXCL_START
+  // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
   /// May this stream still produce more data?
   [[nodiscard]] constexpr operator bool() const noexcept
   {
     return not m_finished;
   }
+  // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions)
   // LCOV_EXCL_STOP
 
   /// Has this stream produced all the data it is going to produce?
@@ -321,7 +325,7 @@ inline stream_from::stream_from(
 
 template<typename Tuple> inline stream_from &stream_from::operator>>(Tuple &t)
 {
-  sl loc{sl::current()};
+  sl const loc{sl::current()};
   if (m_finished) [[unlikely]]
     return *this;
   static constexpr auto tup_size{std::tuple_size_v<Tuple>};

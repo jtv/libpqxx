@@ -10,8 +10,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_PIPELINE
-#define PQXX_H_PIPELINE
+#ifndef PQXX_PIPELINE_HXX
+#define PQXX_PIPELINE_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
@@ -162,8 +162,10 @@ private:
             query{std::make_shared<std::string>(q)}
     {}
 
+    // NOLINTBEGIN(misc-non-private-member-variables-in-classes)
     std::shared_ptr<std::string> query;
     result res;
+    // NOLINTEND(misc-non-private-member-variables-in-classes)
   };
 
   using QueryMap = std::map<query_id, Query>;
@@ -183,9 +185,9 @@ private:
   }
 
   /// Create new query_id.
-  PQXX_PRIVATE query_id generate_id();
+  PQXX_PRIVATE [[nodiscard]] query_id generate_id();
 
-  bool have_pending() const noexcept
+  [[nodiscard]] bool have_pending() const noexcept
   {
     return m_issuedrange.second != m_issuedrange.first;
   }
@@ -232,7 +234,7 @@ private:
   /** We store this in the object to avoid the risk of exceptions at awkward
    * moments.
    */
-  encoding_group m_encoding;
+  encoding_group m_encoding = encoding_group::unknown;
 
   /// A `std::source_location` for where this pipeline was created.
   sl m_created_loc;

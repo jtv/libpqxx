@@ -10,8 +10,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_ERRORHANDLER
-#define PQXX_H_ERRORHANDLER
+#ifndef PQXX_ERRORHANDLER_HXX
+#define PQXX_ERRORHANDLER_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
@@ -23,7 +23,7 @@
 namespace pqxx::internal::gate
 {
 class errorhandler_connection;
-}
+} // namespace pqxx::internal::gate
 
 
 namespace pqxx
@@ -59,7 +59,9 @@ public:
 
   errorhandler() = delete;
   errorhandler(errorhandler const &) = delete;
+  errorhandler(errorhandler &&) = delete;
   errorhandler &operator=(errorhandler const &) = delete;
+  errorhandler &operator=(errorhandler &&) = delete;
 
 private:
   connection *m_home;
@@ -76,7 +78,7 @@ public:
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   /// Suppress error notices.
   [[deprecated("Use notice handlers instead.")]]
-  quiet_errorhandler(connection &cx) :
+  explicit quiet_errorhandler(connection &cx) :
           errorhandler{cx}
   {}
 #include "pqxx/internal/ignore-deprecated-post.hxx"
@@ -84,7 +86,6 @@ public:
   /// Revert to previous handling of error notices.
   PQXX_ZARGS bool operator()(char const[]) noexcept override { return false; }
 
-private:
   quiet_errorhandler() = delete;
 };
 

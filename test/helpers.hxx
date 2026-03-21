@@ -1,13 +1,15 @@
-#if !defined(PQXX_H_TEST_HELPERS)
-#  define PQXX_H_TEST_HELPERS
+// NOLINTBEGIN(llvm-header-guard)
+#ifndef PQXX_TEST_HELPERS_HXX
+#define PQXX_TEST_HELPERS_HXX
+// NOLINTEND(llvm-header-guard)
 
-#  include <mutex>
-#  include <random>
-#  include <stdexcept>
-#  include <string>
+#include <mutex>
+#include <random>
+#include <stdexcept>
+#include <string>
 
-#  include <pqxx/result>
-#  include <pqxx/row>
+#include <pqxx/result>
+#include <pqxx/row>
 
 namespace pqxx::test
 {
@@ -21,15 +23,23 @@ using randomizer = std::mt19937;
  */
 struct context
 {
+  // (Stupid lint warning because we initialise the randomiser _after_
+  // construction, and clang-tidy is in a panic because default-initialising it
+  // is a sin.)
+
+  // NOLINTBEGIN(cert-msc32-c,cert-msc51-cpp)
+
   /// Create a context for one thread to run tests.
-  /** Seeds the randommiser with a highly predictable 0 initially.  Call the
-   * @ref seed() function before consuming random values.
+  /** Call the @ref seed() function before consuming random values.
    */
-  context(std::size_t random_seed) : rnd{0}, rnd_seed{random_seed} {}
+  explicit context(std::size_t random_seed) : rnd_seed{random_seed} {}
+
+  // NOLINTEND(cert-msc32-c,cert-msc51-cpp)
 
   context() = delete;
   context(context const &) = delete;
   context(context &&) = delete;
+  ~context() = default;
   context &operator=(context const &) = delete;
   context &operator=(context &&) = delete;
 
@@ -91,17 +101,20 @@ private:
 class test_failure : public std::logic_error
 {
 public:
-  test_failure(std::string const &desc, sl loc = sl::current());
+  explicit test_failure(std::string const &desc, sl loc = sl::current());
+  test_failure(test_failure const &) = default;
+  test_failure(test_failure &&) = default;
   ~test_failure() noexcept override;
 
-  sl const &location() const noexcept { return m_loc; }
+  test_failure &operator=(test_failure const &) = default;
+  test_failure &operator=(test_failure &&) = default;
 
-  std::string_view name() const noexcept { return "Failure"; }
+  [[nodiscard]] sl const &location() const noexcept { return m_loc; }
 
-private:
-  test_failure &operator=(test_failure const &) = delete;
+  [[nodiscard]] std::string_view name() const noexcept { return "Failure"; }
 
-  sl const m_loc;
+  // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
+  sl m_loc;
 };
 
 
@@ -149,11 +162,11 @@ private:
 
 
 // Register a test function, so the runner will run it.
-#  define PQXX_REGISTER_TEST(func)                                            \
-    [[maybe_unused]] pqxx::test::registrar const tst_##func                   \
-    {                                                                         \
-      #func, func                                                             \
-    }
+#define PQXX_REGISTER_TEST(func)                                              \
+  [[maybe_unused]] pqxx::test::registrar const tst_##func                     \
+  {                                                                           \
+    #func, func                                                               \
+  }
 
 
 /// Register a test while not inside a function.
@@ -174,14 +187,14 @@ struct registrar final
 
 // Verify that a condition is met, similar to assert().
 // Takes an optional failure description as a second argument.
-#  if defined(_MSVC_TRADITIONAL) && _MSVC_TRADITIONAL
+#if defined(_MSVC_TRADITIONAL) && _MSVC_TRADITIONAL
 // Work around Visual Studio lacking support for __VA_OPT__.
-#    define PQXX_CHECK(condition, ...)                                        \
-      pqxx::test::check((condition), #condition, ##__VA_ARGS__)
-#  else
-#    define PQXX_CHECK(condition, ...)                                        \
-      pqxx::test::check((condition), #condition __VA_OPT__(, ) __VA_ARGS__)
-#  endif
+#  define PQXX_CHECK(condition, ...)                                          \
+    pqxx::test::check((condition), #condition, ##__VA_ARGS__)
+#else
+#  define PQXX_CHECK(condition, ...)                                          \
+    pqxx::test::check((condition), #condition __VA_OPT__(, ) __VA_ARGS__)
+#endif
 
 void check(
   bool condition, char const text[],
@@ -189,25 +202,47 @@ void check(
 
 // Verify that variable has the expected value.
 // Takes an optional failure description as a third argument.
-#  if defined(_MSVC_TRADITIONAL) && _MSVC_TRADITIONAL
+#if defined(_MSVC_TRADITIONAL) && _MSVC_TRADITIONAL
 // Work around Visual Studio lacking support for __VA_OPT__.
-#    define PQXX_CHECK_EQUAL(actual, expected, ...)                           \
-      pqxx::test::check_equal(                                                \
-        (actual), #actual, (expected), #expected, ##__VA_ARGS__)
-#  else
-#    define PQXX_CHECK_EQUAL(actual, expected, ...)                           \
-      pqxx::test::check_equal(                                                \
-        (actual), #actual, (expected), #expected __VA_OPT__(, ) __VA_ARGS__)
-#  endif
+#  define PQXX_CHECK_EQUAL(actual, expected, ...)                             \
+    pqxx::test::check_equal(                                                  \
+      (actual), #actual, (expected), #expected, ##__VA_ARGS__)
+#else
+#  define PQXX_CHECK_EQUAL(actual, expected, ...)                             \
+    pqxx::test::check_equal(                                                  \
+      (actual), #actual, (expected), #expected __VA_OPT__(, ) __VA_ARGS__)
+#endif
 
 template<typename ACTUAL, typename EXPECTED>
 inline void check_equal(
-  ACTUAL const &actual, char const actual_text[], EXPECTED const &expected,
-  char const expected_text[],
+  ACTUAL const &actual, char const *actual_text, EXPECTED const &expected,
+  char const *expected_text,
   std::string const &desc = "Equality check failed.", sl loc = sl::current())
 {
+  // Getting a clang-tidy complaint here about letting an array decay to a
+  // pointer.  I don't think that ever actually happens in libpqxx any more,
+  // but there's a special thing that looks like it: the "array notation" for
+  // pointer parameters.  Which I think is a perfectly valid and helpful
+  // feature, because it tells the reader the difference in intention between a
+  // pointer to a single item and a pointer to an array of items.  Various
+  // tools seem to confuse the two.
+  //
+  // So am I using that feature here?  Nope.  Changed it to satisfy clang-tidy.
+  // But it didn't work, which makes me think the array notation is in a caller
+  // somewhere.  But clang-tidy does not print any call site information, so
+  // it's going to be a pain to find.
+
+  // NOLINTBEGIN(
+  //    ppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  //    hicpp-no-array-decay
+  // )
   if (expected == actual)
     return;
+  // NOLINTEND(
+  //    ppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  //    hicpp-no-array-decay
+  // )
+
   std::string const fulldesc = desc + " (" + actual_text + " <> " +
                                expected_text +
                                ": "
@@ -225,24 +260,33 @@ inline void check_equal(
 
 // Verify that two values are not equal.
 // Takes an optional failure description as a third argument.
-#  if defined(_MSVC_TRADITIONAL) && _MSVC_TRADITIONAL
+#if defined(_MSVC_TRADITIONAL) && _MSVC_TRADITIONAL
 // Work around Visual Studio lacking support for __VA_OPT__.
-#    define PQXX_CHECK_NOT_EQUAL(value1, value2, ...)                         \
-      pqxx::test::check_not_equal(                                            \
-        (value1), #value1, (value2), #value2, ##__VA_ARGS__)
-#  else
-#    define PQXX_CHECK_NOT_EQUAL(value1, value2, ...)                         \
-      pqxx::test::check_not_equal(                                            \
-        (value1), #value1, (value2), #value2 __VA_OPT__(, ) __VA_ARGS__)
-#  endif
+#  define PQXX_CHECK_NOT_EQUAL(value1, value2, ...)                           \
+    pqxx::test::check_not_equal(                                              \
+      (value1), #value1, (value2), #value2, ##__VA_ARGS__)
+#else
+#  define PQXX_CHECK_NOT_EQUAL(value1, value2, ...)                           \
+    pqxx::test::check_not_equal(                                              \
+      (value1), #value1, (value2), #value2 __VA_OPT__(, ) __VA_ARGS__)
+#endif
 template<typename VALUE1, typename VALUE2>
 inline void check_not_equal(
-  VALUE1 const &value1, char const text1[], VALUE2 const &value2,
-  char const text2[], std::string const &desc = "Inequality check failed.",
+  VALUE1 const &value1, char const *text1, VALUE2 const &value2,
+  char const *text2, std::string const &desc = "Inequality check failed.",
   sl loc = sl::current())
 {
+  // NOLINTBEGIN(
+  //    cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  //    hicpp-no-array-decay
+  // )
   if (value1 != value2)
     return;
+  // NOLINTEND(
+  //    cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  //    hicpp-no-array-decay
+  // )
+
   std::string const fulldesc = desc + " (" + text1 + " == " + text2 +
                                ": "
                                "both are " +
@@ -253,22 +297,20 @@ inline void check_not_equal(
 
 // Verify that value1 is less/greater than value2.
 // Takes an optional failure description as a third argument.
-#  if defined(_MSVC_TRADITIONAL) && _MSVC_TRADITIONAL
+#if defined(_MSVC_TRADITIONAL) && _MSVC_TRADITIONAL
 // Work around Visual Studio lacking support for __VA_OPT__.
-#    define PQXX_CHECK_LESS(value1, value2, ...)                              \
-      pqxx::test::check_less(                                                 \
-        (value1), #value1, (value2), #value2, ##__VA_ARGS__)
-#    define PQXX_CHECK_GREATER(value2, value1, ...)                           \
-      pqxx::test::check_less(                                                 \
-        (value1), #value1, (value2), #value2, ##__VA_ARGS__)
-#  else
-#    define PQXX_CHECK_LESS(value1, value2, ...)                              \
-      pqxx::test::check_less(                                                 \
-        (value1), #value1, (value2), #value2 __VA_OPT__(, ) __VA_ARGS__)
-#    define PQXX_CHECK_GREATER(value2, value1, ...)                           \
-      pqxx::test::check_less(                                                 \
-        (value1), #value1, (value2), #value2 __VA_OPT__(, ) __VA_ARGS__)
-#  endif
+#  define PQXX_CHECK_LESS(value1, value2, ...)                                \
+    pqxx::test::check_less((value1), #value1, (value2), #value2, ##__VA_ARGS__)
+#  define PQXX_CHECK_GREATER(value2, value1, ...)                             \
+    pqxx::test::check_less((value1), #value1, (value2), #value2, ##__VA_ARGS__)
+#else
+#  define PQXX_CHECK_LESS(value1, value2, ...)                                \
+    pqxx::test::check_less(                                                   \
+      (value1), #value1, (value2), #value2 __VA_OPT__(, ) __VA_ARGS__)
+#  define PQXX_CHECK_GREATER(value2, value1, ...)                             \
+    pqxx::test::check_less(                                                   \
+      (value1), #value1, (value2), #value2 __VA_OPT__(, ) __VA_ARGS__)
+#endif
 template<typename VALUE1, typename VALUE2>
 inline void check_less(
   VALUE1 const &value1, char const text1[], VALUE2 const &value2,
@@ -290,22 +332,22 @@ inline void check_less(
 
 // Verify that value1 is less/greater than or equal to value2.
 // Takes an optional failure description as a third argument.
-#  if defined(_MSVC_TRADITIONAL) && _MSVC_TRADITIONAL
+#if defined(_MSVC_TRADITIONAL) && _MSVC_TRADITIONAL
 // Work around Visual Studio lacking support for __VA_OPT__.
-#    define PQXX_CHECK_LESS_EQUAL(value1, value2, ...)                        \
-      pqxx::test::check_less_equal(                                           \
-        (value1), #value1, (value2), #value2, ##__VA_ARGS__)
-#    define PQXX_CHECK_GREATER_EQUAL(value2, value1, ...)                     \
-      pqxx::test::check_less_equal(                                           \
-        (value1), #value1, (value2), #value2, ##__VA_ARGS__)
-#  else
-#    define PQXX_CHECK_LESS_EQUAL(value1, value2, ...)                        \
-      pqxx::test::check_less_equal(                                           \
-        (value1), #value1, (value2), #value2 __VA_OPT__(, ) __VA_ARGS__)
-#    define PQXX_CHECK_GREATER_EQUAL(value2, value1, ...)                     \
-      pqxx::test::check_less_equal(                                           \
-        (value1), #value1, (value2), #value2 __VA_OPT__(, ) __VA_ARGS__)
-#  endif
+#  define PQXX_CHECK_LESS_EQUAL(value1, value2, ...)                          \
+    pqxx::test::check_less_equal(                                             \
+      (value1), #value1, (value2), #value2, ##__VA_ARGS__)
+#  define PQXX_CHECK_GREATER_EQUAL(value2, value1, ...)                       \
+    pqxx::test::check_less_equal(                                             \
+      (value1), #value1, (value2), #value2, ##__VA_ARGS__)
+#else
+#  define PQXX_CHECK_LESS_EQUAL(value1, value2, ...)                          \
+    pqxx::test::check_less_equal(                                             \
+      (value1), #value1, (value2), #value2 __VA_OPT__(, ) __VA_ARGS__)
+#  define PQXX_CHECK_GREATER_EQUAL(value2, value1, ...)                       \
+    pqxx::test::check_less_equal(                                             \
+      (value1), #value1, (value2), #value2 __VA_OPT__(, ) __VA_ARGS__)
+#endif
 template<typename VALUE1, typename VALUE2>
 inline void check_less_equal(
   VALUE1 const &value1, char const text1[], VALUE2 const &value2,
@@ -314,9 +356,14 @@ inline void check_less_equal(
 {
   if (value1 <= value2)
     return;
-  std::string fulldesc{std::format(
+
+  // Visual Studio 2022 doesn't deal well with backslashes in raw strings, so
+  // we can't necessarily use those.
+  // NOLINTBEGIN(modernize-raw-string-literal)
+  std::string const fulldesc{std::format(
     "{} ({} > {}: \"lower\"={}, \"upper\"={})", desc, text1, text2, value1,
     value2)};
+  // NOLINTEND(modernize-raw-string-literal)
   throw test_failure{fulldesc, loc};
 }
 
@@ -335,15 +382,15 @@ inline void end_of_statement() {}
 
 // Verify that "action" does not throw an exception.
 // Takes an optional failure description as a second argument.
-#  if defined(_MSVC_TRADITIONAL) && _MSVC_TRADITIONAL
+#if defined(_MSVC_TRADITIONAL) && _MSVC_TRADITIONAL
 // Work around Visual Studio lacking support for __VA_OPT__.
-#    define PQXX_CHECK_SUCCEEDS(action, ...)                                  \
-      pqxx::test::check_succeeds(([&]() { action; }), #action, ##__VA_ARGS__)
-#  else
-#    define PQXX_CHECK_SUCCEEDS(action, ...)                                  \
-      pqxx::test::check_succeeds(                                             \
-        ([&]() { action; }), #action __VA_OPT__(, ) __VA_ARGS__)
-#  endif
+#  define PQXX_CHECK_SUCCEEDS(action, ...)                                    \
+    pqxx::test::check_succeeds(([&]() { action; }), #action, ##__VA_ARGS__)
+#else
+#  define PQXX_CHECK_SUCCEEDS(action, ...)                                    \
+    pqxx::test::check_succeeds(                                               \
+      ([&]() { action; }), #action __VA_OPT__(, ) __VA_ARGS__)
+#endif
 
 template<std::invocable F>
 inline void check_succeeds(
@@ -377,6 +424,7 @@ inline void check_throws(
   try
   {
     f();
+    // NOLINTNEXTLINE(hicpp-exception-baseclass)
     throw failure_to_fail{};
   }
   catch (failure_to_fail const &)
@@ -426,6 +474,7 @@ inline void check_throws_exception(
   try
   {
     f();
+    // NOLINTNEXTLINE(hicpp-exception-baseclass)
     throw failure_to_fail{};
   }
   catch (failure_to_fail const &)
@@ -443,52 +492,52 @@ inline void check_throws_exception(
 }
 
 
-#  if defined(_MSVC_TRADITIONAL) && _MSVC_TRADITIONAL
+#if defined(_MSVC_TRADITIONAL) && _MSVC_TRADITIONAL
 // Work around Visual Studio lacking support for __VA_OPT__.
 
 // Verify that "action" throws an exception, of any std::exception-based type.
 // Takes an optional failure description as an 2nd argument.
-#    define PQXX_CHECK_THROWS_EXCEPTION(action, ...)                          \
-      pqxx::test::check_throws_exception(                                     \
-        ([&]() { return action, 0; }), #action, ##__VA_ARGS__)
+#  define PQXX_CHECK_THROWS_EXCEPTION(action, ...)                            \
+    pqxx::test::check_throws_exception(                                       \
+      ([&]() { return action, 0; }), #action, ##__VA_ARGS__)
 
 // Verify that "action" throws "exception_type" (which is not std::exception).
 // Takes an optional failure description as an 2nd argument.
-#    define PQXX_CHECK_THROWS(action, exception_type, ...)                    \
-      pqxx::test::check_throws<exception_type>(                               \
-        ([&] { return action, 0; }), #action, ##__VA_ARGS__)
+#  define PQXX_CHECK_THROWS(action, exception_type, ...)                      \
+    pqxx::test::check_throws<exception_type>(                                 \
+      ([&] { return action, 0; }), #action, ##__VA_ARGS__)
 
 
 // Verify that "value" is between "lower" (inclusive) and "upper" (exclusive).
 // Takes an optional failure description as a 4th argument.
-#    define PQXX_CHECK_BOUNDS(value, lower, upper, ...)                       \
-      pqxx::test::check_bounds(                                               \
-        (value), #value, (lower), #lower, (upper), #upper, ##__VA_ARGS__)
+#  define PQXX_CHECK_BOUNDS(value, lower, upper, ...)                         \
+    pqxx::test::check_bounds(                                                 \
+      (value), #value, (lower), #lower, (upper), #upper, ##__VA_ARGS__)
 
-#  else
+#else
 
 // Verify that "action" throws an exception, of any std::exception-based type.
 // Takes an optional failure description as an 2nd argument.
-#    define PQXX_CHECK_THROWS_EXCEPTION(action, ...)                          \
-      pqxx::test::check_throws_exception(                                     \
-        ([&]() { return action, 0; }), #action __VA_OPT__(, ) __VA_ARGS__)
+#  define PQXX_CHECK_THROWS_EXCEPTION(action, ...)                            \
+    pqxx::test::check_throws_exception(                                       \
+      ([&]() { return action, 0; }), #action __VA_OPT__(, ) __VA_ARGS__)
 
 // Verify that "action" throws "exception_type" (which is not std::exception).
 // Takes an optional failure description as an 2nd argument.
-#    define PQXX_CHECK_THROWS(action, exception_type, ...)                    \
-      pqxx::test::check_throws<exception_type>(                               \
-        ([&] { return action, 0; }), #action __VA_OPT__(, ) __VA_ARGS__)
+#  define PQXX_CHECK_THROWS(action, exception_type, ...)                      \
+    pqxx::test::check_throws<exception_type>(                                 \
+      ([&] { return action, 0; }), #action __VA_OPT__(, ) __VA_ARGS__)
 
 
 // Verify that "value" is between "lower" (inclusive) and "upper" (exclusive).
 // Takes an optional failure description as a 4th argument.
-#    define PQXX_CHECK_BOUNDS(value, lower, upper, ...)                       \
-      pqxx::test::check_bounds(                                               \
-        (value), #value, (lower), #lower, (upper),                            \
-        #upper __VA_OPT__(, ) __VA_ARGS__)
+#  define PQXX_CHECK_BOUNDS(value, lower, upper, ...)                         \
+    pqxx::test::check_bounds(                                                 \
+      (value), #value, (lower), #lower, (upper),                              \
+      #upper __VA_OPT__(, ) __VA_ARGS__)
 
 
-#  endif
+#endif
 template<typename VALUE, typename LOWER, typename UPPER>
 inline void check_bounds(
   VALUE const &value, char const text[], LOWER const &lower,
@@ -545,17 +594,21 @@ template<> inline std::string to_string(row const &value, ctx)
 }
 
 
+// Really weird bug in clang-tidy: it sees an unused parameter "c" here.
+// NOLINTNEXTLINE(misc-unused-parameters)
 template<> inline std::string to_string(result const &value, ctx)
 {
   return pqxx::test::list_result(value);
 }
 
 
+// NOLINTBEGIN(misc-unused-parameters)
 template<>
 inline std::string to_string(result::const_iterator const &value, ctx)
 {
   return pqxx::test::list_result_iterator(value);
 }
+// NOLINTEND(misc-unused-parameters)
 } // namespace pqxx
 
 #endif

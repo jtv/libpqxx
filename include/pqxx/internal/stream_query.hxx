@@ -10,8 +10,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_STREAM_QUERY
-#define PQXX_H_STREAM_QUERY
+#ifndef PQXX_INTERNAL_STREAM_QUERY_HXX
+#define PQXX_INTERNAL_STREAM_QUERY_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
@@ -91,7 +91,10 @@ public:
   }
 
   /// Has this stream reached the end of its data?
-  bool done() const & noexcept { return m_char_finder == nullptr; }
+  [[nodiscard]] bool done() const & noexcept
+  {
+    return m_char_finder == nullptr;
+  }
 
   /// Begin iterator.  Only for use by "range for."
   inline auto begin() &;
@@ -101,7 +104,7 @@ public:
    * simplifies the comparisons: we know at compile time that we're comparing
    * to the end pointer.
    */
-  auto end() const & { return stream_query_end_iterator{}; }
+  [[nodiscard]] auto end() const & { return stream_query_end_iterator{}; }
 
   /// Parse and convert the latest line of data we received.
   std::tuple<TYPE...> parse_line(std::string_view line) &

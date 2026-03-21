@@ -8,8 +8,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_ARRAY
-#define PQXX_H_ARRAY
+#ifndef PQXX_ARRAY_HXX
+#define PQXX_ARRAY_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
@@ -84,6 +84,8 @@ public:
     case group::two_tier: parse<group::two_tier>(data, loc); break;
     case group::gb18030: parse<group::gb18030>(data, loc); break;
     case group::sjis: parse<group::sjis>(data, loc); break;
+    // (Totally bogus clang-tidy warning.)
+    // NOLINTNEXTLINE(bugprone-suspicious-semicolon)
     default: PQXX_UNREACHABLE; break;
     }
   }
@@ -118,12 +120,14 @@ public:
     return m_extents;
   }
 
+  // NOLINTBEGIN(modernize-use-nodiscard)
   template<std::integral... INDEX> ELEMENT const &at(INDEX... index) const
   {
     static_assert(sizeof...(index) == DIMENSIONS);
     check_bounds(index...);
     return m_elts.at(locate(index...));
   }
+  // NOLINTEND(modernize-use-nodiscard)
 
   /// Access element (without bounds check).
   /** Return element at given index.  Blindly assumes that the index lies
@@ -162,30 +166,54 @@ public:
    */
   //@{
   /// Begin iteration of individual elements.
-  PQXX_PURE constexpr auto cbegin() const noexcept { return m_elts.cbegin(); }
+  PQXX_PURE [[nodiscard]] constexpr auto cbegin() const noexcept
+  {
+    return m_elts.cbegin();
+  }
   /// Return end point of iteration.
-  PQXX_PURE constexpr auto cend() const noexcept { return m_elts.cend(); }
+  PQXX_PURE [[nodiscard]] constexpr auto cend() const noexcept
+  {
+    return m_elts.cend();
+  }
   /// Begin iteration of individual elements.
-  PQXX_PURE constexpr auto begin() const noexcept { return cbegin(); }
+  PQXX_PURE [[nodiscard]] constexpr auto begin() const noexcept
+  {
+    return cbegin();
+  }
   /// Return endpoint of iteration.
-  PQXX_PURE constexpr auto end() const noexcept { return cend(); }
+  PQXX_PURE [[nodiscard]] constexpr auto end() const noexcept
+  {
+    return cend();
+  }
   /// Begin reverse iteration.
-  PQXX_PURE constexpr auto crbegin() const noexcept
+  PQXX_PURE [[nodiscard]] constexpr auto crbegin() const noexcept
   {
     return m_elts.crbegin();
   }
   /// Return end point of reverse iteration.
-  PQXX_PURE constexpr auto crend() const noexcept { return m_elts.crend(); }
-  PQXX_PURE constexpr auto rbegin() const noexcept { return crbegin(); }
+  PQXX_PURE [[nodiscard]] constexpr auto crend() const noexcept
+  {
+    return m_elts.crend();
+  }
+  PQXX_PURE [[nodiscard]] constexpr auto rbegin() const noexcept
+  {
+    return crbegin();
+  }
   /// Return end point of reverse iteration.
-  PQXX_PURE constexpr auto rend() const noexcept { return crend(); }
+  PQXX_PURE [[nodiscard]] constexpr auto rend() const noexcept
+  {
+    return crend();
+  }
   //@}
 
   /// Number of elements in the array.
   /** This includes all elements, in all dimensions.  Therefore it is the
    * product of all values in `sizes()`.
    */
-  constexpr std::size_t size() const noexcept { return m_elts.size(); }
+  [[nodiscard]] constexpr std::size_t size() const noexcept
+  {
+    return m_elts.size();
+  }
 
   /// Number of elements in the array (as a signed number).
   /** This includes all elements, in all dimensions.  Therefore it is the
@@ -203,7 +231,7 @@ public:
    * enough address space to create the array, even if your system allowed you
    * to use your full address space.
    */
-  constexpr auto ssize() const noexcept
+  [[nodiscard]] constexpr auto ssize() const noexcept
   {
     return static_cast<std::ptrdiff_t>(size());
   }
@@ -211,12 +239,18 @@ public:
   /// Refer to the first element, if any.
   /** If the array is empty, dereferencing this results in undefined behaviour.
    */
-  constexpr auto const &front() const noexcept { return m_elts.front(); }
+  [[nodiscard]] constexpr auto const &front() const noexcept
+  {
+    return m_elts.front();
+  }
 
   /// Refer to the last element, if any.
   /** If the array is empty, dereferencing this results in undefined behaviour.
    */
-  constexpr auto const &back() const noexcept { return m_elts.back(); }
+  [[nodiscard]] constexpr auto const &back() const noexcept
+  {
+    return m_elts.back();
+  }
 
 private:
   /// Throw an error if `data` is not a `DIMENSIONS`-dimensional SQL array.
@@ -272,7 +306,7 @@ private:
   /** Check for a trailing separator, detect any syntax errors at this somewhat
    * complicated point, and return the offset where parsing should continue.
    */
-  std::size_t
+  [[nodiscard]] std::size_t
   parse_field_end(std::string_view data, std::size_t here, sl loc) const
   {
     auto const sz{std::size(data)};
@@ -310,7 +344,8 @@ private:
    * as it's fast; doesn't usually underestimate; and never overestimates by
    * orders of magnitude.
    */
-  constexpr std::size_t estimate_elements(std::string_view data) const noexcept
+  [[nodiscard]] constexpr std::size_t
+  estimate_elements(std::string_view data) const noexcept
   {
     // Dirty trick: just count the number of bytes that look as if they may be
     // separators.
@@ -417,7 +452,7 @@ private:
             loc};
         assert(dim != outer);
         ++extents.at(dim);
-        std::size_t end;
+        std::size_t end{};
         switch (data.at(here))
         {
         case '\0':
@@ -492,7 +527,8 @@ private:
   }
 
   /// Map a multidimensional index to an entry in our linear storage.
-  template<typename... INDEX> std::size_t locate(INDEX... index) const noexcept
+  template<typename... INDEX>
+  [[nodiscard]] std::size_t locate(INDEX... index) const noexcept
   {
     static_assert(
       sizeof...(index) == DIMENSIONS,
@@ -500,8 +536,10 @@ private:
     return add_index(index...);
   }
 
+  /// Helper for @ref locate(): linearise one dimension of an index.
   template<typename OUTER, typename... INDEX>
-  constexpr std::size_t add_index(OUTER outer, INDEX... indexes) const noexcept
+  [[nodiscard]] constexpr std::size_t
+  add_index(OUTER outer, INDEX... indexes) const noexcept
   {
     std::size_t const first{
       check_cast<std::size_t>(outer, "array index"sv, m_ctx.loc)};
@@ -762,12 +800,16 @@ private:
   template<encoding_group>
   std::pair<juncture, std::string> parse_array_step(sl loc);
 
-  template<encoding_group> std::size_t scan_double_quoted_string(sl loc) const;
   template<encoding_group>
-  std::string parse_double_quoted_string(std::size_t end, sl loc) const;
-  template<encoding_group> std::size_t scan_unquoted_string(sl loc) const;
+  [[nodiscard]] std::size_t scan_double_quoted_string(sl loc) const;
   template<encoding_group>
-  std::string_view parse_unquoted_string(std::size_t end, sl loc) const;
+  [[nodiscard]] std::string
+  parse_double_quoted_string(std::size_t end, sl loc) const;
+  template<encoding_group>
+  [[nodiscard]] std::size_t scan_unquoted_string(sl loc) const;
+  template<encoding_group>
+  [[nodiscard]] std::string_view
+  parse_unquoted_string(std::size_t end, sl loc) const;
 };
 } // namespace pqxx
 #endif

@@ -6,16 +6,16 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#if !defined(PQXX_H_ENCODINGS)
-#  define PQXX_H_ENCODINGS
+#ifndef PQXX_INTERNAL_ENCODINGS_HXX
+#define PQXX_INTERNAL_ENCODINGS_HXX
 
-#  include <cassert>
-#  include <iomanip>
-#  include <string>
-#  include <string_view>
+#include <cassert>
+#include <iomanip>
+#include <string>
+#include <string_view>
 
-#  include "pqxx/encoding_group.hxx"
-#  include "pqxx/strconv.hxx"
+#include "pqxx/encoding_group.hxx"
+#include "pqxx/strconv.hxx"
 
 
 namespace pqxx
