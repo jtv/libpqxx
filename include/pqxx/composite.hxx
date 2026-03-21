@@ -46,9 +46,9 @@ inline void parse_composite(ctx c, std::string_view text, T &...fields)
     throw conversion_error{
       std::format("Invalid composite value string: '{}'.", text), c.loc};
 
-  // clang-tidy rule bug:
-  // NOLINTBEGIN(misc-const-correctness)
+  // NOLINTNEXTLINE(misc-const-correctness)
   std::size_t here{1};
+  // NOLINTNEXTLINE(misc-const-correctness)
   std::size_t index{0};
   // NOLINTEND(misc-const-correctness)
   (pqxx::internal::specialize_parse_composite_field<T>(c)(
