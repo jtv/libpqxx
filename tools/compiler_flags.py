@@ -76,26 +76,26 @@ def compiler_accepts(
     return run_quietly(f"{command} {prev} {flag} -c {source}")
 
 
-def open_in(path: Path):
+def open_in(path: str):
     """Open file passed on command line for reading, unless it's '-'.
 
     If it's a dash (`-`), open standard input instead.
     """
-    if path.name == "-":
+    if path == "-":
         return nullcontext(sys.stdin)
     else:
-        return path.open()
+        return Path(path).open()
 
 
-def open_out(path: Path):
+def open_out(path: str):
     """Open file passed on command line for writing, unless it's '-'.
 
     If it's a dash (`-`), open standard output instead.
     """
-    if path.name == "-":
+    if path == "-":
         return nullcontext(sys.stdout)
     else:
-        return path.open("w")
+        return Path(path).open("w")
 
 
 def main() -> None:
