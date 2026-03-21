@@ -864,12 +864,23 @@ inline std::nullptr_t from_string<std::nullptr_t>(field const &value, ctx c)
 }
 
 
+// NOLINTBEGIN(
+//    cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+//    hicpp-no-array-decay
+// )
+
 /// Convert a field_ref to a string.
 template<>
 PQXX_LIBEXPORT inline std::string to_string(field_ref const &value, ctx)
 {
   return std::string{value.view()};
 }
+
+// NOLINTEND(
+//    cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+//    hicpp-no-array-decay
+// )
+
 /// Convert a field to a string.
 template<> PQXX_LIBEXPORT inline std::string to_string(field const &value, ctx)
 {

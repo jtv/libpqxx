@@ -325,7 +325,7 @@ inline stream_from::stream_from(
 
 template<typename Tuple> inline stream_from &stream_from::operator>>(Tuple &t)
 {
-  sl loc{sl::current()};
+  sl const loc{sl::current()};
   if (m_finished) [[unlikely]]
     return *this;
   static constexpr auto tup_size{std::tuple_size_v<Tuple>};

@@ -86,11 +86,11 @@ public:
   using stream_t = stream_from;
   using iterator = stream_from_input_iterator<TYPE...>;
   explicit stream_input_iteration(stream_t &home) : m_home{home} {}
-  iterator begin(sl loc = sl::current()) const
+  [[nodiscard]] iterator begin(sl loc = sl::current()) const
   {
     return iterator{m_home, loc};
   }
-  iterator end() const { return {}; }
+  [[nodiscard]] iterator end() const { return {}; }
 
 private:
   // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
