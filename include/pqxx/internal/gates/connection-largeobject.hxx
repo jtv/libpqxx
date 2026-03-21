@@ -1,3 +1,6 @@
+#ifndef PQXX_INTERNAL_GATES_CONNECTION_LARGEOBJECT_HXX
+#define PQXX_INTERNAL_GATES_CONNECTION_LARGEOBJECT_HXX
+
 #include <string>
 
 #include <pqxx/internal/callgate.hxx>
@@ -16,7 +19,7 @@ class PQXX_PRIVATE connection_largeobject final : callgate<connection>
   friend class pqxx::blob;
   friend class pqxx::largeobject;
 
-  constexpr connection_largeobject(reference x) noexcept : super(x) {}
+  explicit constexpr connection_largeobject(reference x) noexcept : super(x) {}
 
   PQXX_PURE [[nodiscard]] pq::PGconn *raw_connection() const noexcept
   {
@@ -31,8 +34,11 @@ class PQXX_PRIVATE const_connection_largeobject final
   friend class pqxx::blob;
   friend class pqxx::largeobject;
 
-  constexpr const_connection_largeobject(reference x) noexcept : super(x) {}
+  explicit constexpr const_connection_largeobject(reference x) noexcept :
+          super(x)
+  {}
 
-  std::string error_message() const { return home().err_msg(); }
+  [[nodiscard]] std::string error_message() const { return home().err_msg(); }
 };
 } // namespace pqxx::internal::gate
+#endif

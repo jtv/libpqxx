@@ -316,7 +316,7 @@ public:
   }
 
   /// Return the current placeholder number.  The initial placeholder is 1.
-  COUNTER count() const noexcept { return m_current; }
+  [[nodiscard]] COUNTER count() const noexcept { return m_current; }
 
 private:
   /// Current placeholder number.  Starts at 1.

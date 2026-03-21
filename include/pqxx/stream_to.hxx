@@ -167,7 +167,7 @@ public:
           m_buffer{std::move(other.m_buffer)},
           m_field_buf{std::move(other.m_field_buf)},
           m_finder{other.m_finder},
-          m_created_loc{std::move(other.m_created_loc)},
+          m_created_loc{other.m_created_loc},
           m_finished{other.m_finished}
   {
     other.m_finished = true;
