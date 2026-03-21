@@ -28,6 +28,7 @@ public:
   basic_transaction(basic_transaction &&) = delete;
   basic_transaction &operator=(basic_transaction const &) = delete;
   basic_transaction &operator=(basic_transaction &&) = delete;
+  ~basic_transaction() noexcept override = 0;
 
 protected:
   basic_transaction(

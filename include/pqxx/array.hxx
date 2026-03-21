@@ -120,13 +120,14 @@ public:
     return m_extents;
   }
 
-  template<std::integral... INDEX>
-  [[nodiscard]] ELEMENT const &at(INDEX... index) const
+  // NOLINTBEGIN(modernize-use-nodiscard)
+  template<std::integral... INDEX> ELEMENT const &at(INDEX... index) const
   {
     static_assert(sizeof...(index) == DIMENSIONS);
     check_bounds(index...);
     return m_elts.at(locate(index...));
   }
+  // NOLINTEND(modernize-use-nodiscard)
 
   /// Access element (without bounds check).
   /** Return element at given index.  Blindly assumes that the index lies
@@ -535,6 +536,7 @@ private:
     return add_index(index...);
   }
 
+  /// Helper for @ref locate(): linearise one dimension of an index.
   template<typename OUTER, typename... INDEX>
   [[nodiscard]] constexpr std::size_t
   add_index(OUTER outer, INDEX... indexes) const noexcept
