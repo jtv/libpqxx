@@ -277,8 +277,17 @@ inline void check_not_equal(
   char const *text2, std::string const &desc = "Inequality check failed.",
   sl loc = sl::current())
 {
+  // NOLINTBEGIN(
+  //    cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  //    hicpp-no-array-decay
+  // )
   if (value1 != value2)
     return;
+  // NOLINTBEGIN(
+  //    cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  //    hicpp-no-array-decay
+  // )
+
   std::string const fulldesc = desc + " (" + text1 + " == " + text2 +
                                ": "
                                "both are " +
@@ -594,11 +603,13 @@ template<> inline std::string to_string(result const &value, ctx)
 }
 
 
+// NOLINTBEGIN(misc-unused-parameters)
 template<>
 inline std::string to_string(result::const_iterator const &value, ctx)
 {
   return pqxx::test::list_result_iterator(value);
 }
+// NOLINTEN(misc-unused-parameters)
 } // namespace pqxx
 
 #endif
