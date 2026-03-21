@@ -748,6 +748,9 @@ private:
 };
 
 
+// No idea why this rule thinks it sees multiple inheritance here.
+// NOLINTBEGIN(fuchsia-multiple-inheritance)
+
 /// Input stream that gets its data from a result field
 /** @deprecated To convert a field's value string to some other type, e.g. to
  * an `int`, use the field's `as<...>()` member function.  To read a field
@@ -785,6 +788,8 @@ public:
 private:
   field_streambuf<CHAR, TRAITS> m_buf;
 };
+
+// NOLINTEND(fuchsia-multiple-inheritance)
 
 
 /// @deprecated Read a field using `field::as<...>()` or `field::c_str()`.
