@@ -160,6 +160,7 @@ public:
 
   stream_to(stream_to const &) = delete;
 
+  // NOLINTBEGIN(bugprone-use-after-move,hicpp-invalid-access-moved)
   stream_to(stream_to &&other) :
           // (This first step only moves the transaction_focus base-class
           // object.)
@@ -172,6 +173,7 @@ public:
   {
     other.m_finished = true;
   }
+  // NOLINTEND(bugprone-use-after-move,hicpp-invalid-access-moved)
 
   stream_to &operator=(stream_to &&other) = delete;
   stream_to &operator=(stream_to const &) = delete;
