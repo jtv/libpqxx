@@ -51,7 +51,7 @@ execute_process(
 )
 # Staggering: execute_process() will fail *silently* on error...
 if(NOT filter_result EQUAL 0)
-    message(FATAL_ERROR "Filtering config failed: ${filter_error}")
+    message(FATAL_ERROR "Filtering config failed: ${filter_stderr}")
 endif()
 
 message(STATUS "Generating configuration headers - done")
