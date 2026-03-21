@@ -1028,7 +1028,7 @@ public:
           space),
         loc};
 
-    bytes_view view{std::data(data), std::size(data)};
+    bytes_view const view{std::data(data), std::size(data)};
     // Actually, in the modern format, we know beforehand exactly how many
     // bytes we're going to fill.  Just leave out the trailing zero.
     internal::esc_bin(view, buffer);
