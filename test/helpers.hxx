@@ -233,11 +233,17 @@ inline void check_equal(
   // somewhere.  But clang-tidy does not print any call site information, so
   // it's going to be a pain to find.
 
-  // NOLINTNEXTLINE(
-  //    cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay
+  // NOLINTBEGIN(
+  //    ppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  //    hicpp-no-array-decay
   // )
   if (expected == actual)
     return;
+  // NOLINTEND(
+  //    ppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  //    hicpp-no-array-decay
+  // )
+
   std::string const fulldesc = desc + " (" + actual_text + " <> " +
                                expected_text +
                                ": "
@@ -267,8 +273,8 @@ inline void check_equal(
 #endif
 template<typename VALUE1, typename VALUE2>
 inline void check_not_equal(
-  VALUE1 const &value1, char const text1[], VALUE2 const &value2,
-  char const text2[], std::string const &desc = "Inequality check failed.",
+  VALUE1 const &value1, char const *text1, VALUE2 const &value2,
+  char const *text2, std::string const &desc = "Inequality check failed.",
   sl loc = sl::current())
 {
   if (value1 != value2)

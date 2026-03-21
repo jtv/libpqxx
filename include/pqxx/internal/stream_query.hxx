@@ -104,7 +104,7 @@ public:
    * simplifies the comparisons: we know at compile time that we're comparing
    * to the end pointer.
    */
-  auto end() const & { return stream_query_end_iterator{}; }
+  [[nodiscard]] auto end() const & { return stream_query_end_iterator{}; }
 
   /// Parse and convert the latest line of data we received.
   std::tuple<TYPE...> parse_line(std::string_view line) &

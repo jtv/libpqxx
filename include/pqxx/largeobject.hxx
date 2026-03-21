@@ -449,7 +449,7 @@ protected:
     return adjust_eof(newpos);
   }
 
-  int_type overflow(int_type ch = eof()) override
+  int_type overflow(int_type ch) override
   {
     auto *const pp{this->pptr()};
     if (pp == nullptr)
@@ -490,6 +490,8 @@ protected:
     }
     return res;
   }
+
+  int_type overflow() { return overflow(eof()); }
 
   int_type underflow() override
   {
