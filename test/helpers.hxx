@@ -283,7 +283,7 @@ inline void check_not_equal(
   // )
   if (value1 != value2)
     return;
-  // NOLINTBEGIN(
+  // NOLINTEND(
   //    cppcoreguidelines-pro-bounds-array-to-pointer-decay,
   //    hicpp-no-array-decay
   // )
