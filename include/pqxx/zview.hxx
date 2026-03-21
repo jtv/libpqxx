@@ -86,6 +86,10 @@ public:
     invariant();
   }
 
+  // NOLINTBEGIN(
+  //    cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  //    hicpp-no-array-decay
+  // )
   /// Construct from any initialiser you might use for `std::string_view`.
   /** @warning Only do this if you are sure that the string is zero-terminated.
    */
@@ -95,6 +99,10 @@ public:
   {
     invariant();
   }
+  // NOLINTEND(
+  //    cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  //    hicpp-no-array-decay
+  // )
 
   // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
   /// @warning There's an implicit conversion from `std::string`.
