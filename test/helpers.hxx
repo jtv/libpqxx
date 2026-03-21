@@ -609,7 +609,7 @@ inline std::string to_string(result::const_iterator const &value, ctx)
 {
   return pqxx::test::list_result_iterator(value);
 }
-// NOLINTEN(misc-unused-parameters)
+// NOLINTEND(misc-unused-parameters)
 } // namespace pqxx
 
 #endif
