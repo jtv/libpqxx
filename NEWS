@@ -1,4 +1,6 @@
 8.0.1
+ - Update GNU attributes to use standard `[[attribute]]` syntax. (#1199)
+ - Fix mistake in check for GNU "pure" attribute.
 8.0.0
  - C++20 is now the oldest C++ version that libpqxx supports.
  - Requires PostgreSQL 11 or better.

@@ -1,5 +1,5 @@
 // Test for gcc-style "pure" attribute.
-int __attribute__((pure)) f()
+[[gnu::pure]] int f()
 {
   return 0;
 }
