@@ -1252,13 +1252,7 @@ std::string pqxx::connection::esc_like(
 
 int pqxx::connection::await_notification(sl loc)
 {
-  int notifs = get_notifs(loc);
-  if (notifs == 0)
-  {
-    [[likely]] internal::wait_fd(socket_of(m_conn), true, false, 10, 0);
-    notifs = get_notifs(loc);
-  }
-  return notifs;
+  return await_notification(10, 0, loc);
 }
 
 

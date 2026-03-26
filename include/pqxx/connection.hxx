@@ -707,18 +707,28 @@ public:
    */
   int get_notifs(sl = sl::current());
 
-  /// Wait for a notification to come in.
+  // TODO: Unify with the other overload.
+  /// Wait briefly for a notification to come in.
   /** There are other events that will also cancel the wait, such as the
-   * backend failing.  Also, _the function will wake up by itself from time to
-   * time._  Your code must be ready to handle this; don't assume after waking
-   * up that there will always be a pending notifiation.
+   * backend failing, or some kinds of signal coming in.  After a while the
+   * function just returns anyway.
    *
-   * If a notification comes in, the call to this function will process it,
-   * along with any other notifications that may have been pending.
+   * This means that the function can return early, before any notification
+   * comes in _or_ the timeout expires.  Your code MUST be ready to handle
+   * such early returns.
    *
-   * To wait for notifications into your own event loop instead, wait until
+   * If a notification does come in, this function will immediately process it,
+   * along with any other notifications that may have been pending, calling any
+   * handlers you may have set for them.  It will then return.
+   *
+   * To wait for notifications from your own event loop instead, wait until
    * there is incoming data on the connection's socket to be read, then call
-   * @ref get_notifs() repeatedly until it returns zero.
+   * @ref get_notifs repeatedly until it returns zero.  This allows you to
+   * handle other events besides notifications with a single wait point.
+   *
+   * If your notifcation handler throws an exception, this function will just
+   * propagate it on up to you.  (This is different from the old
+   * `notification_receiver` mechanism, which would merely log them.)
    *
    * @return Number of notifications processed.
    */
@@ -726,23 +736,29 @@ public:
 
   /// Wait for a notification to come in, or for given timeout to pass.
   /** There are other events that will also cancel the wait, such as the
-   * backend failing, some kinds of signal coming in, or timeout expiring.
+   * backend failing, or some kinds of signal coming in.
    *
-   * If a notification comes in, the call will process it, along with any other
-   * notifications that may have been pending.
+   * This means that the function can return early, before any notification
+   * comes in _or_ the timeout expires.  Your code MUST be ready to handle
+   * such early returns.
    *
-   * To wait for notifications into your own event loop instead, wait until
+   * If a notification does come in, this function will immediately process it,
+   * along with any other notifications that may have been pending, calling any
+   * handlers you may have set for them.  It will then return.
+   *
+   * To wait for notifications from your own event loop instead, wait until
    * there is incoming data on the connection's socket to be read, then call
-   * @ref get_notifs repeatedly until it returns zero.
+   * @ref get_notifs repeatedly until it returns zero.  This allows you to
+   * handle other events besides notifications with a single wait point.
    *
-   * If your notifcation handler throws an exception, `get_notifs()` will just
-   * propagate it back to you.  (This is different from the old
+   * If your notifcation handler throws an exception, this function will just
+   * propagate it on up to you.  (This is different from the old
    * `notification_receiver` mechanism, which would merely log them.)
    *
    * @return Number of notifications processed.
    */
   int await_notification(
-    std::time_t seconds, long microseconds = 0, sl = sl::current());
+    std::time_t seconds = 10, long microseconds = 0, sl = sl::current());
 
   /// A handler callback for incoming notifications on a given channel.
   /** Your callback must accept a @ref notification object.  This object can
