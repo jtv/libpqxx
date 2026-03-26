@@ -1,5 +1,10 @@
 // Test for gcc-style "pure" attribute.
-int __attribute__((pure)) f()
+
+#if !__has_cpp_attribute(gnu::pure)
+#  error "Compiler does not support gnu::pure attribute."
+#endif
+
+[[gnu::pure]] int f()
 {
   return 0;
 }

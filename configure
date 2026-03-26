@@ -20163,7 +20163,17 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 // Test for gcc-style "pure" attribute.
 
-int __attribute__((pure)) f()
+
+
+#if !__has_cpp_attribute(gnu::pure)
+
+#  error "Compiler does not support gnu::pure attribute."
+
+#endif
+
+
+
+[[gnu::pure]] int f()
 
 {
 
@@ -20201,7 +20211,17 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 // Test for gcc-style "visibility" attribute.
 
-struct __attribute__((visibility("hidden"))) D
+
+
+#if !__has_cpp_attribute(gnu::visibility)
+
+#  error "Compiler does not support gnu::visibility attribute."
+
+#endif
+
+
+
+struct [[gnu::visibility("hidden")]] D
 
 {
 
