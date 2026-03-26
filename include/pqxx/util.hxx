@@ -387,7 +387,7 @@ using namespace std::literals;
  * passing the version numbers as they applied when the application was
  * compiled.  That's why they're called "the app's" version components.
  */
-PQXX_LIBEXPORT PQXX_NOINLINE int check_libpqxx_version(
+PQXX_NOINLINE PQXX_LIBEXPORT int check_libpqxx_version(
   int apps_major, int apps_minor, int apps_patch,
   std::string_view apps_version);
 
