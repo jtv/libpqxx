@@ -20163,6 +20163,16 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 // Test for gcc-style "pure" attribute.
 
+
+
+#if !__has_cpp_attribute(gnu::pure)
+
+#  error "Compiler does not support gnu::pure attribute."
+
+#endif
+
+
+
 [[gnu::pure]] int f()
 
 {
@@ -20200,6 +20210,16 @@ PQXX_HAVE_GCC_VISIBILITY=yes
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 // Test for gcc-style "visibility" attribute.
+
+
+
+#if !__has_cpp_attribute(gnu::visibility)
+
+#  error "Compiler does not support gnu::visibility attribute."
+
+#endif
+
+
 
 struct [[gnu::visibility("hidden")]] D
 

@@ -1,4 +1,9 @@
 // Test for gcc-style "visibility" attribute.
+
+#if !__has_cpp_attribute(gnu::visibility)
+#  error "Compiler does not support gnu::visibility attribute."
+#endif
+
 struct [[gnu::visibility("hidden")]] D
 {
   D() {}
