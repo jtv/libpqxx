@@ -716,10 +716,10 @@ void test_stream_to_bool(pqxx::test::context &tctx)
   pqxx::work tx{cx};
   auto const table{tctx.make_name("pqxx_test_bool")};
   tx.exec(std::format(
-    "CREATE TABLE IF NOT EXISTS {} (time TEXT, value BOOLEAN)", table));
+    "CREATE TEMP TABLE {} (time TEXT, value BOOLEAN)", tx.quote_name(table)));
   auto stream{pqxx::stream_to::table(tx, {table}, {"time", "value"})};
 
-  // This triggers the assertion
+  // In #1203, this triggered an assertion failure.
   stream.write_values("2026", true);
   stream.complete();
 }
