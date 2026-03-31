@@ -710,6 +710,21 @@ void test_stream_to_handles_embedded_special_values(pqxx::test::context &)
 }
 
 
+void test_stream_to_bool(pqxx::test::context &tctx)
+{
+  pqxx::connection cx;
+  pqxx::work tx{cx};
+  auto const table{tctx.make_name("pqxx_test_bool")};
+  tx.exec(std::format(
+    "CREATE TABLE IF NOT EXISTS {} (time TEXT, value BOOLEAN)", table));
+  auto stream{pqxx::stream_to::table(tx, {table}, {"time", "value"})};
+
+  // This triggers the assertion
+  stream.write_values("2026", true);
+  stream.complete();
+}
+
+
 PQXX_REGISTER_TEST(test_stream_to);
 PQXX_REGISTER_TEST(test_container_stream_to);
 PQXX_REGISTER_TEST(test_stream_to_does_nonnull_optional);
@@ -722,4 +737,5 @@ PQXX_REGISTER_TEST(test_stream_to_moves_into_optional);
 PQXX_REGISTER_TEST(test_stream_to_empty_strings);
 PQXX_REGISTER_TEST(test_stream_to_transcodes);
 PQXX_REGISTER_TEST(test_stream_to_handles_embedded_special_values);
+PQXX_REGISTER_TEST(test_stream_to_bool);
 } // namespace

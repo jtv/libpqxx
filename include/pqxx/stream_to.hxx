@@ -322,13 +322,12 @@ private:
         // Specially optimised for "safe" types, which never need any
         // escaping.  Convert straight into m_buffer.
 
-        // The budget we get from size_buffer() includes room for the trailing
-        // zero, which we must remove.  But we're also inserting tabs between
-        // fields, so we re-purpose the extra byte for that.
         auto const offset{std::size(m_buffer)};
-        auto const total{offset + budget};
+        // Also include room to append the tab.
+        auto const total{offset + budget + 1};
         m_buffer.resize(total);
         auto const data{m_buffer.data()};
+        // XXX: Re-use a single conversion_context.
         conversion_context const c{
           m_trans->conn().get_encoding_group(loc), loc};
         std::size_t const end{
@@ -376,6 +375,7 @@ private:
       {
         // This field needs to be converted to a string, and after that,
         // escaped as well.
+        // XXX: Re-use a single conversion_context.
         conversion_context const c{
           m_trans->conn().get_encoding_group(loc), loc};
         m_field_buf.resize(budget);
