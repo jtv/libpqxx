@@ -224,7 +224,8 @@ public:
    */
   template<typename Row> void write_row(Row const &row, sl loc = sl::current())
   {
-    fill_buffer(row, loc);
+    fill_buffer(
+      row, conversion_context{m_trans->conn().get_encoding_group(), loc});
     write_buffer(loc);
   }
 
@@ -299,7 +300,7 @@ private:
    * at the end of the buffer.
    */
   template<typename Field>
-  void append_to_buffer(Field const &f, sl loc)
+  void append_to_buffer(Field const &f, ctx c)
     requires(not pqxx::always_null<Field>())
   {
     // We append each field, terminated by a tab.  That will leave us with
@@ -327,9 +328,6 @@ private:
         auto const total{offset + budget + 1};
         m_buffer.resize(total);
         auto const data{m_buffer.data()};
-        // XXX: Re-use a single conversion_context.
-        conversion_context const c{
-          m_trans->conn().get_encoding_group(loc), loc};
         std::size_t const end{
           offset + into_buf({data + offset, data + total}, f, c)};
         assert((end + 1) < std::size(m_buffer));
@@ -344,7 +342,7 @@ private:
       {
         // This string may need escaping.
         m_field_buf.resize(budget);
-        escape_field_to_buffer(f, loc);
+        escape_field_to_buffer(f, c.loc);
       }
       else if constexpr (
         std::is_same_v<Field, std::optional<std::string>> or
@@ -354,7 +352,7 @@ private:
         // Optional string.  It's not null (we checked for that above), so...
         // Treat like a string.
         m_field_buf.resize(budget);
-        escape_field_to_buffer(f.value(), loc);
+        escape_field_to_buffer(f.value(), c.loc);
       }
       // TODO: Support deleter template argument on unique_ptr.
       else if constexpr (
@@ -369,17 +367,14 @@ private:
         // Effectively also an optional string.  It's not null (we checked
         // for that above).
         m_field_buf.resize(budget);
-        escape_field_to_buffer(*f, loc);
+        escape_field_to_buffer(*f, c.loc);
       }
       else
       {
         // This field needs to be converted to a string, and after that,
         // escaped as well.
-        // XXX: Re-use a single conversion_context.
-        conversion_context const c{
-          m_trans->conn().get_encoding_group(loc), loc};
         m_field_buf.resize(budget);
-        escape_field_to_buffer(to_buf(m_field_buf, f, c), loc);
+        escape_field_to_buffer(to_buf(m_field_buf, f, c), c.loc);
       }
     }
   }
@@ -392,7 +387,7 @@ private:
    * at the end of the buffer.
    */
   template<typename Field>
-  void append_to_buffer(Field const &, sl)
+  void append_to_buffer(Field const &, ctx)
     requires(pqxx::always_null<Field>())
   {
     m_buffer.append(null_field);
@@ -400,7 +395,7 @@ private:
 
   /// Write raw COPY line into @c m_buffer, based on a container of fields.
   template<typename Container>
-  void fill_buffer(Container const &c, sl loc)
+  void fill_buffer(Container const &cont, ctx c)
     requires(not std::is_same_v<
              std::remove_cv_t<typename Container::value_type>, char>)
   {
@@ -408,9 +403,9 @@ private:
     // twice: once to determine how much buffer space we may need, and once to
     // actually write it into the buffer.
     std::size_t budget{0};
-    for (auto const &f : c) budget += estimate_buffer(f);
+    for (auto const &f : cont) budget += estimate_buffer(f);
     m_buffer.reserve(budget);
-    for (auto const &f : c) append_to_buffer(f, loc);
+    for (auto const &f : cont) append_to_buffer(f, c);
   }
 
   /// Estimate how many buffer bytes we need to write tuple.
@@ -423,25 +418,27 @@ private:
 
   /// Write tuple of fields to @c m_buffer.
   template<typename Tuple, std::size_t... indexes>
-  void append_tuple(Tuple const &t, std::index_sequence<indexes...>, sl loc)
+  void append_tuple(Tuple const &t, std::index_sequence<indexes...>, ctx c)
   {
-    (append_to_buffer(std::get<indexes>(t), loc), ...);
+    (append_to_buffer(std::get<indexes>(t), c), ...);
   }
 
   /// Write raw COPY line into @c m_buffer, based on a tuple of fields.
   template<typename... Elts>
-  void fill_buffer(std::tuple<Elts...> const &t, sl loc)
+  void fill_buffer(std::tuple<Elts...> const &t, ctx c)
   {
     using indexes = std::make_index_sequence<sizeof...(Elts)>;
 
     m_buffer.reserve(budget_tuple(t, indexes{}));
-    append_tuple(t, indexes{}, loc);
+    append_tuple(t, indexes{}, c);
   }
 
   /// Write raw COPY line into @c m_buffer, based on varargs fields.
   template<typename... Ts> void fill_buffer(const Ts &...fields)
   {
-    (..., append_to_buffer(fields, m_created_loc));
+    conversion_context const c{
+      m_trans->conn().get_encoding_group(), m_created_loc};
+    (..., append_to_buffer(fields, c));
   }
 
   static constexpr std::string_view s_classname{"stream_to"};
