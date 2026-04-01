@@ -1,3 +1,6 @@
+#ifndef PQXX_INTERNAL_GATES_CONNECTION_STREAM_TO_HXX
+#define PQXX_INTERNAL_GATES_CONNECTION_STREAM_TO_HXX
+
 #include <pqxx/internal/callgate.hxx>
 
 #include "pqxx/stream_to.hxx"
@@ -9,7 +12,7 @@ class PQXX_PRIVATE connection_stream_to final : callgate<connection>
 {
   friend class pqxx::stream_to;
 
-  constexpr connection_stream_to(reference x) noexcept : super(x) {}
+  explicit constexpr connection_stream_to(reference x) noexcept : super(x) {}
 
   void write_copy_line(std::string_view line, sl loc)
   {
@@ -18,3 +21,4 @@ class PQXX_PRIVATE connection_stream_to final : callgate<connection>
   void end_copy_write(sl loc) { home().end_copy_write(loc); }
 };
 } // namespace pqxx::internal::gate
+#endif

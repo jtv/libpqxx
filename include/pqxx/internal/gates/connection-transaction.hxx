@@ -1,9 +1,12 @@
+#ifndef PQXX_INTERNAL_GATES_CONNECTION_TRANSACTION_HXX
+#define PQXX_INTERNAL_GATES_CONNECTION_TRANSACTION_HXX
+
 #include <pqxx/internal/callgate.hxx>
 
 namespace pqxx
 {
 class connection;
-}
+} // namespace pqxx
 
 namespace pqxx::internal::gate
 {
@@ -11,10 +14,10 @@ class PQXX_PRIVATE connection_transaction final : callgate<connection>
 {
   friend class pqxx::transaction_base;
 
-  constexpr connection_transaction(reference x) noexcept : super(x) {}
+  explicit constexpr connection_transaction(reference x) noexcept : super(x) {}
 
   template<typename STRING>
-  result exec(STRING query, std::string_view desc, sl loc)
+  result exec(STRING const &query, std::string_view desc, sl loc)
   {
     return home().exec(query, desc, loc);
   }
@@ -53,3 +56,4 @@ class PQXX_PRIVATE connection_transaction final : callgate<connection>
   }
 };
 } // namespace pqxx::internal::gate
+#endif
