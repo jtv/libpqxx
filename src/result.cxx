@@ -596,7 +596,7 @@ pqxx::row_ref pqxx::result::one_row_ref(sl loc) const
 pqxx::field pqxx::result::one_field(sl loc) const
 {
   expect_columns(1, loc);
-  return one_row(loc)[0];
+  return field{one_row(loc)[0]};
 }
 
 

@@ -76,7 +76,7 @@ public:
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   /// Suppress error notices.
   [[deprecated("Use notice handlers instead.")]]
-  quiet_errorhandler(connection &cx) :
+  explicit quiet_errorhandler(connection &cx) :
           errorhandler{cx}
   {}
 #include "pqxx/internal/ignore-deprecated-post.hxx"

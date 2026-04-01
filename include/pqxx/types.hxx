@@ -6,8 +6,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_TYPES
-#define PQXX_H_TYPES
+#ifndef PQXX_TYPES_HXX
+#define PQXX_TYPES_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
@@ -50,6 +50,7 @@ struct stacktrace_placeholder final
 
   /// Defined just so static checkers don't complain about trivial moves.
   constexpr stacktrace_placeholder(stacktrace_placeholder &&) noexcept {}
+  ~stacktrace_placeholder() noexcept = default;
 
   stacktrace_placeholder &
   operator=(stacktrace_placeholder const &) noexcept = default;
