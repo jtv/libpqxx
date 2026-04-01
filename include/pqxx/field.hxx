@@ -768,11 +768,6 @@ public:
   using pos_type = typename traits_type::pos_type;
   using off_type = typename traits_type::off_type;
 
-  [[deprecated("Use field_ref::as<...>() or field_ref::c_str().")]]
-  explicit basic_fieldstream(field_ref const &f) :
-          basic_fieldstream{field{f}}
-  {}
-
   [[deprecated("Use field::as<...>() or field::c_str().")]]
   explicit basic_fieldstream(field const &f) :
           super{nullptr}, m_buf{f}
