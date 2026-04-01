@@ -8,14 +8,15 @@ base command line and the previously accepted flags.
 
 from argparse import (
     ArgumentParser,
-    FileType,
     Namespace,
 )
+from contextlib import nullcontext
 from pathlib import Path
 from subprocess import (
     DEVNULL,
     run,
 )
+import sys
 
 
 EPILOG = """The flags file may contain comments, on lines starting with '#'
@@ -38,7 +39,7 @@ def parse_args() -> Namespace:
         "-f",
         "--flags",
         default="-",
-        type=Path,
+        type=str,
         help="File with compiler flags to check, one per line; '-' for stdin.",
     )
     parser.add_argument(
@@ -52,7 +53,7 @@ def parse_args() -> Namespace:
         "-o",
         "--output",
         default="-",
-        type=Path,
+        type=str,
         help="Output file, or '-' for stdout (the default).",
     )
 
@@ -75,13 +76,35 @@ def compiler_accepts(
     return run_quietly(f"{command} {prev} {flag} -c {source}")
 
 
+def open_in(path: str):
+    """Open file passed on command line for reading, unless it's '-'.
+
+    If it's a dash (`-`), open standard input instead.
+    """
+    if path == "-":
+        return nullcontext(sys.stdin)
+    else:
+        return Path(path).open()
+
+
+def open_out(path: str):
+    """Open file passed on command line for writing, unless it's '-'.
+
+    If it's a dash (`-`), open standard output insetad.
+    """
+    if path == "-":
+        return nullcontext(sys.stdout)
+    else:
+        return Path(path).open("w")
+
+
 def main() -> None:
     """Main entry point."""
     args = parse_args()
     good_flags: list[str] = []
     source = Path("config-tests") / "minimal.cxx"
     src = source.name
-    with FileType("r")(args.flags) as flags:
+    with open_in(args.flags) as flags:
         for line in flags:
             flag = line.strip()
             if flag == "" or flag.startswith("#"):
@@ -92,7 +115,7 @@ def main() -> None:
 
     sep = " " if args.single_line else "\n"
 
-    with FileType("w")(args.output) as output:
+    with open_out(args.output) as output:
         print(sep.join(good_flags), file=output)
 
 
