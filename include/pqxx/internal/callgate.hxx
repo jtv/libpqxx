@@ -13,7 +13,7 @@ class PQXX_PRIVATE @gateclass@ final : callgate<@host@>
 {
   friend class @client@;
 
-  constexpr @gateclass@(reference x) noexcept : super(x) {}
+  explicit constexpr @gateclass@(reference x) noexcept : super(x) {}
 
   // Methods here.  Use home() to access the host-class object.
 };
