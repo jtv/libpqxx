@@ -17,6 +17,8 @@ auto make_focus(pqxx::dbtransaction &tx)
 void test_cannot_run_statement_during_focus(pqxx::test::context &)
 {
   pqxx::connection cx;
+  // clang-tidy rule bug:
+  // NOLINTNEXTLINE(misc-const-correctness)
   pqxx::transaction tx{cx};
   tx.exec("SELECT 1");
   auto focus{make_focus(tx)};
@@ -30,6 +32,8 @@ void test_cannot_run_prepared_statement_during_focus(pqxx::test::context &)
 {
   pqxx::connection cx;
   cx.prepare("foo", "SELECT 1");
+  // clang-tidy rule bug:
+  // NOLINTNEXTLINE(misc-const-correctness)
   pqxx::transaction tx{cx};
   tx.exec(pqxx::prepped{"foo"});
   auto focus{make_focus(tx)};
@@ -41,6 +45,8 @@ void test_cannot_run_prepared_statement_during_focus(pqxx::test::context &)
 void test_cannot_run_params_statement_during_focus(pqxx::test::context &)
 {
   pqxx::connection cx;
+  // clang-tidy rule bug:
+  // NOLINTNEXTLINE(misc-const-correctness)
   pqxx::transaction tx{cx};
   tx.exec("select $1", pqxx::params{tx, 10});
   auto focus{make_focus(tx)};
@@ -53,6 +59,8 @@ void test_cannot_run_params_statement_during_focus(pqxx::test::context &)
 void test_should_not_end_transaction_before_focus(pqxx::test::context &)
 {
   pqxx::connection cx;
+  // clang-tidy rule bug:
+  // NOLINTNEXTLINE(misc-const-correctness)
   pqxx::transaction tx{cx};
   tx.exec("CREATE TEMP TABLE foo(a integer)");
   auto stream{pqxx::stream_to::table(tx, {"foo"}, {"a"})};

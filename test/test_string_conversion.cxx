@@ -77,6 +77,8 @@ void test_string_conversion(pqxx::test::context &tctx)
   // Bug #263 describes a case where this kind of overflow went undetected.
   if constexpr (sizeof(unsigned int) == 4)
   {
+    // clang-tidy rule bug:
+    // NOLINTNEXTLINE(misc-const-correctness)
     std::uint32_t u{};
     PQXX_CHECK_THROWS(
       pqxx::from_string("4772185884", u), pqxx::conversion_error,
@@ -154,6 +156,8 @@ void test_string_view_conversion(pqxx::test::context &)
 
   std::array<char, 200> buf{};
 
+  // clang-tidy rule bug:
+  // NOLINTNEXTLINE(cppcoreguidelines-init-variables)
   std::size_t const stop{pqxx::into_buf(buf, "more view"sv)};
   PQXX_CHECK_LESS(stop, std::size(buf));
   assert(stop > 0);
@@ -230,6 +234,8 @@ template<> struct nullness<legacy_item> final : no_null<legacy_item>
 
 template<> struct string_traits<legacy_item> final
 {
+  // The clang-tidy rule is just wrong here.
+  // NOLINTBEGIN(readability-non-const-parameter)
   static inline zview
   to_buf(char *begin, char const *end, legacy_item const &value)
   {
@@ -246,6 +252,7 @@ template<> struct string_traits<legacy_item> final
     begin[outsz] = '\0';
     return zview{begin, outsz};
   }
+  // NOLINTEND(readability-non-const-parameter)
 
   static inline legacy_item from_string(std::string_view text)
   {

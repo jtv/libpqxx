@@ -8,7 +8,7 @@ namespace
 void test_make_num(pqxx::test::context &tctx)
 {
   bool same{true};
-  int last{tctx.make_num()};
+  int const last{tctx.make_num()};
   for (int i{0}; same and (i < 10); ++i)
     if (tctx.make_num() != last)
       same = false;
