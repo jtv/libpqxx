@@ -10,8 +10,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_ERRORHANDLER
-#define PQXX_H_ERRORHANDLER
+#ifndef PQXX_ERRORHANDLER_HXX
+#define PQXX_ERRORHANDLER_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
@@ -23,7 +23,7 @@
 namespace pqxx::internal::gate
 {
 class errorhandler_connection;
-}
+} // namespace pqxx::internal::gate
 
 
 namespace pqxx
