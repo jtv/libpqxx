@@ -124,7 +124,7 @@ cpplint() {
         # At -j8 it actually seems to run faster than at -j16, and still with
         # "only" five times the original CPU time used.
         run-clang-tidy -q -j8 -warnings-as-errors=* \
-	    -config-file="$SRCDIR/.clang-tidy"
+            -config-file="$SRCDIR/.clang-tidy"
     elif [ -e compile_flags ]
     then
         # The configure-based build writes its compiler options into this

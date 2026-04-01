@@ -90,7 +90,7 @@ def open_in(path: str):
 def open_out(path: str):
     """Open file passed on command line for writing, unless it's '-'.
 
-    If it's a dash (`-`), open standard output insetad.
+    If it's a dash (`-`), open standard output instead.
     """
     if path == "-":
         return nullcontext(sys.stdout)
