@@ -44,6 +44,18 @@ using st = std::stacktrace;
 /// There is no `std::stacktrace` on this system.  Use a placeholder.
 struct stacktrace_placeholder final
 {
+  constexpr stacktrace_placeholder() noexcept = default;
+  constexpr stacktrace_placeholder(stacktrace_placeholder const &) noexcept =
+    default;
+
+  /// Defined just so static checkers don't complain about trivial moves.
+  constexpr stacktrace_placeholder(stacktrace_placeholder &&) noexcept {}
+
+  stacktrace_placeholder &
+  operator=(stacktrace_placeholder const &) noexcept = default;
+  stacktrace_placeholder &
+  operator=(stacktrace_placeholder &&) noexcept = default;
+
   /// Placeholder for `std::stacktrace::current()`.
   [[nodiscard]] PQXX_PURE static constexpr stacktrace_placeholder
   current() noexcept
