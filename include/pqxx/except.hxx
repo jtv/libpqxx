@@ -833,12 +833,16 @@ struct PQXX_LIBEXPORT syntax_error : sql_error
   // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
   [[deprecated("Call error_pos() instead.")]] int error_position;
 
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
+
   PQXX_ZARGS explicit syntax_error(
     std::string const &err, std::string const &Q = {},
     std::string const &sqlstate = {}, int pos = -1, sl loc = sl::current(),
     st &&tr = st::current()) :
           sql_error{err, Q, sqlstate, loc, std::move(tr)}, error_position{pos}
   {}
+
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 
   [[nodiscard]] std::string_view name() const noexcept override;
 
