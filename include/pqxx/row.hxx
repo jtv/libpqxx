@@ -754,7 +754,10 @@ public:
   const_row_iterator(const_row_iterator &&) noexcept = default;
 
   /// Current column number, if the iterator is pointing at a valid field.
-  PQXX_PURE size_type col() const noexcept { return m_field.column_number(); }
+  PQXX_PURE [[nodiscard]] size_type col() const noexcept
+  {
+    return m_field.column_number();
+  }
 
   /**
    * @name Dereferencing operators
