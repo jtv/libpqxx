@@ -158,18 +158,29 @@ public:
     return {tx, path, columns, loc};
   }
 
-  explicit stream_to(stream_to &&other) :
+  // Some false positives from clang-tidy checks in this constructor.  The
+  // initial base-class move moves only the embedded base-class object, not the
+  // individual member variables that fall outside the base class.
+  // Also there's one deliberate invalidation step of the moved-from object,
+  // which is also being flagged as a potential use-after-move.
+
+  // NOLINTBEGIN(bugprone-use-after-move,hicpp-nivalid-access-moved)
+
+  stream_to(stream_to &&other) :
           // (This first step only moves the transaction_focus base-class
           // object.)
           transaction_focus{std::move(other)},
           m_buffer{std::move(other.m_buffer)},
           m_field_buf{std::move(other.m_field_buf)},
           m_finder{other.m_finder},
-          m_created_loc{std::move(other.m_created_loc)},
+          m_created_loc{other.m_created_loc},
           m_finished{other.m_finished}
   {
     other.m_finished = true;
   }
+
+  // NOLINTEND(bugprone-use-after-move,hicpp-nivalid-access-moved)
+
   ~stream_to() noexcept;
 
   /// Does this stream still need to @ref complete()?

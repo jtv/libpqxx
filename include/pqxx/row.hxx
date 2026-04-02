@@ -158,7 +158,7 @@ public:
   [[nodiscard]] PQXX_PURE reference operator[](zview col_name) const;
 
   /// Address a field by number, but check that the number is in range.
-  reference at(size_type i, sl loc = sl::current()) const
+  [[nodiscard]] reference at(size_type i, sl loc = sl::current()) const
   {
     if (m_result == nullptr)
       throw usage_error{"Indexing uninitialised row.", loc};
@@ -545,12 +545,12 @@ public:
   }
 
   /// Address a field by number, but check that the number is in range.
-  field_ref at(size_type, sl = sl::current()) const;
+  [[nodiscard]] field_ref at(size_type, sl = sl::current()) const;
 
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
-  field_ref at(zview col_name, sl = sl::current()) const;
+  [[nodiscard]] field_ref at(zview col_name, sl = sl::current()) const;
 
   [[nodiscard]] PQXX_PURE constexpr size_type size() const noexcept
   {
@@ -690,7 +690,10 @@ private:
    * _inside this `row` object._  So if you change that, the @ref row_ref
    * becomes invalid.
    */
-  row_ref as_row_ref() const noexcept { return {m_result, row_number()}; }
+  [[nodiscard]] row_ref as_row_ref() const noexcept
+  {
+    return {m_result, row_number()};
+  }
 
   row(result r, result_size_type index, size_type cols) noexcept;
 
@@ -705,7 +708,7 @@ private:
   }
 
   /// The @ref pqxx::result of which this is a row.
-  result const &home() const { return m_result; }
+  [[nodiscard]] result const &home() const { return m_result; }
 
   /// Convert entire row to tuple fields, without checking row size.
   template<typename Tuple> void convert(Tuple &t, sl loc) const
@@ -754,7 +757,7 @@ public:
   const_row_iterator(row_ref const &t, row_size_type c) noexcept :
           m_field{t.home(), t.row_number(), c}
   {}
-  const_row_iterator(field_ref const &f) noexcept : m_field{f} {}
+  explicit const_row_iterator(field_ref const &f) noexcept : m_field{f} {}
   const_row_iterator(const_row_iterator const &) noexcept = default;
   const_row_iterator(const_row_iterator &&) noexcept = default;
   ~const_row_iterator() = default;
@@ -892,6 +895,7 @@ public:
   {
     super::operator--();
   }
+  ~const_reverse_row_iterator() = default;
 
   [[nodiscard]] PQXX_PURE iterator_type base() const noexcept;
 
@@ -909,6 +913,8 @@ public:
   //@{
   const_reverse_row_iterator &
   operator=(const_reverse_row_iterator const &r) noexcept = default;
+  const_reverse_row_iterator &
+  operator=(const_reverse_row_iterator &&r) noexcept = default;
   const_reverse_row_iterator operator++() noexcept
   {
     iterator_type::operator--();

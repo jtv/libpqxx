@@ -388,7 +388,7 @@ struct PQXX_LIBEXPORT sql_error : public failure
   {}
   sql_error(sql_error const &other) = default;
   sql_error(sql_error &&other) = default;
-  ~sql_error() = default;
+  ~sql_error() override = default;
 
   sql_error &operator=(sql_error const &other) = default;
   sql_error &operator=(sql_error &&other) = default;

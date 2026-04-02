@@ -79,7 +79,7 @@ private:
 
   result const *m_home{nullptr};
   result::size_type m_index{0};
-  result::size_type m_size;
+  result::size_type m_size{0};
   value_type m_value;
 };
 
@@ -90,7 +90,7 @@ template<typename... TYPE> class result_iteration final
 public:
   using iterator = result_iter<TYPE...>;
 
-  explicit result_iteration(result const &home) : m_home{home}
+  explicit result_iteration(result home) : m_home{std::move(home)}
   {
     m_home.expect_columns(sizeof...(TYPE));
   }
@@ -105,6 +105,7 @@ public:
   iterator end() const { return {}; }
 
 private:
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
   pqxx::result const m_home;
 };
 } // namespace pqxx::internal

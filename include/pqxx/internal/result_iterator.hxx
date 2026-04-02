@@ -58,6 +58,8 @@ public:
           m_row{r.home(), r.row_number()}
   {}
 
+  ~const_result_iterator() = default;
+
   reference operator[](difference_type d) const { return *(*this + d); }
 
   /**
@@ -192,6 +194,8 @@ public:
   {
     super::operator--();
   }
+
+  ~const_reverse_result_iterator() = default;
 
   /// Return the underlying "regular" iterator (as per standard library).
   [[nodiscard]] const_result_iterator base() const noexcept;

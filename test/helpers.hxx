@@ -1,3 +1,4 @@
+// NOLINT(llvm-header-guard)
 #ifndef PQXX_TEST_HELPERS_HXX
 #define PQXX_TEST_HELPERS_HXX
 
@@ -21,15 +22,21 @@ using randomizer = std::mt19937;
  */
 struct context final
 {
+  // NOLINTBEGIN(cert-msc32-c,cert-msc51-cpp)
+
   /// Create a context for one thread to run tests.
   /** Seeds the randommiser with a highly predictable 0 initially.  Call the
    * @ref seed() function before consuming random values.
    */
   explicit context(std::size_t random_seed) : rnd{0}, rnd_seed{random_seed} {}
 
+  // NOLINTEND(cert-msc32-c,cert-msc51-cpp)
+
   context() = delete;
   context(context const &) = delete;
   context(context &&) = delete;
+  ~context() = default;
+
   context &operator=(context const &) = delete;
   context &operator=(context &&) = delete;
 
@@ -316,7 +323,7 @@ inline void check_less_equal(
   if (value1 <= value2)
     return;
   std::string fulldesc{std::format(
-    "{} ({} > {}: \"lower\"={}, \"upper\"={})", desc, text1, text2, value1,
+    R"-({} ({} > {}: "lower"={}, "upper"={}))-", desc, text1, text2, value1,
     value2)};
   throw test_failure{fulldesc, loc};
 }
@@ -378,6 +385,7 @@ inline void check_throws(
   try
   {
     f();
+    // NOLINTNEXTLINE(hicpp-exception-baseclass)
     throw failure_to_fail{};
   }
   catch (failure_to_fail const &)
@@ -427,6 +435,7 @@ inline void check_throws_exception(
   try
   {
     f();
+    // NOLINTNEXTLINE(hicpp-exception-baseclass)
     throw failure_to_fail{};
   }
   catch (failure_to_fail const &)
