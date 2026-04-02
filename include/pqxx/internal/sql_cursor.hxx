@@ -8,8 +8,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_SQL_CURSOR
-#define PQXX_H_SQL_CURSOR
+#ifndef PQXX_SQL_CURSOR_HXX
+#define PQXX_SQL_CURSOR_HXX
 
 namespace pqxx::internal
 {

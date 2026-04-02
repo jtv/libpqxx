@@ -2,8 +2,8 @@
  *
  * At the moment this supports dates, but not times.
  */
-#ifndef PQXX_H_TIME
-#define PQXX_H_TIME
+#ifndef PQXX_TIME_HXX
+#define PQXX_TIME_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."

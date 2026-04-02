@@ -6,8 +6,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_STREAM_ITERATOR
-#define PQXX_H_STREAM_ITERATOR
+#ifndef PQXX_INTERNAL_STREAM_ITERATOR_HXX
+#define PQXX_INTERNAL_STREAM_ITERATOR_HXX
 
 #include <memory>
 

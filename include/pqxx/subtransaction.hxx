@@ -10,8 +10,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_SUBTRANSACTION
-#define PQXX_H_SUBTRANSACTION
+#ifndef PQXX_SUBTRANSACTION_HXX
+#define PQXX_SUBTRANSACTION_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."

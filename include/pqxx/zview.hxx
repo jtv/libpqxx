@@ -8,8 +8,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_ZVIEW
-#define PQXX_H_ZVIEW
+#ifndef PQXX_ZVIEW_HXX
+#define PQXX_ZVIEW_HXX
 
 #include <cassert>
 #include <string>
