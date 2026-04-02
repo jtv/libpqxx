@@ -19,13 +19,13 @@ using randomizer = std::mt19937;
 /** Defines various utilities that can help tests: randomisers, a temporary
  * filesystem directory.
  */
-struct context
+struct context final
 {
   /// Create a context for one thread to run tests.
   /** Seeds the randommiser with a highly predictable 0 initially.  Call the
    * @ref seed() function before consuming random values.
    */
-  context(std::size_t random_seed) : rnd{0}, rnd_seed{random_seed} {}
+  explicit context(std::size_t random_seed) : rnd{0}, rnd_seed{random_seed} {}
 
   context() = delete;
   context(context const &) = delete;
@@ -91,17 +91,20 @@ private:
 class test_failure : public std::logic_error
 {
 public:
-  test_failure(std::string const &desc, sl loc = sl::current());
+  explicit test_failure(std::string const &desc, sl loc = sl::current());
+  test_failure(test_failure const &) = default;
+  test_failure(test_failure &&) = default;
   ~test_failure() noexcept override;
 
-  sl const &location() const noexcept { return m_loc; }
+  [[nodiscard]] sl const &location() const noexcept { return m_loc; }
 
-  std::string_view name() const noexcept { return "Failure"; }
+  [[nodiscard]] std::string_view name() const noexcept { return "Failure"; }
+
+  test_failure &operator=(test_failure const &) = delete;
+  test_failure &operator=(test_failure &&) = delete;
 
 private:
-  test_failure &operator=(test_failure const &) = delete;
-
-  sl const m_loc;
+  sl m_loc;
 };
 
 
@@ -202,8 +205,8 @@ void check(
 
 template<typename ACTUAL, typename EXPECTED>
 inline void check_equal(
-  ACTUAL const &actual, char const actual_text[], EXPECTED const &expected,
-  char const expected_text[],
+  ACTUAL const &actual, char const *actual_text, EXPECTED const &expected,
+  char const *expected_text,
   std::string const &desc = "Equality check failed.", sl loc = sl::current())
 {
   if (expected == actual)
