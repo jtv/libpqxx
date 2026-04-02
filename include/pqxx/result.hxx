@@ -10,8 +10,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_RESULT
-#define PQXX_H_RESULT
+#ifndef PQXX_RESULT_HXX
+#define PQXX_RESULT_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
@@ -55,12 +55,15 @@ namespace pqxx::internal
 /// Various callbacks waiting for a notice to come in.
 struct notice_waiters final
 {
+  // NOLINTBEGIN(misc-non-private-member-variables-in-classes)
   std::function<void(zview)> notice_handler;
   std::list<errorhandler *> errorhandlers;
+  // NOLINTEND(misc-non-private-member-variables-in-classes)
 
   notice_waiters() = default;
   notice_waiters(notice_waiters const &) = delete;
   notice_waiters(notice_waiters &&) = delete;
+  ~notice_waiters() = default;
   notice_waiters &operator=(notice_waiters const &) = delete;
   notice_waiters &operator=(notice_waiters &&) = delete;
 };

@@ -59,7 +59,9 @@ public:
 
   errorhandler() = delete;
   errorhandler(errorhandler const &) = delete;
+  errorhandler(errorhandler &&) = delete;
   errorhandler &operator=(errorhandler const &) = delete;
+  errorhandler &operator=(errorhandler &&) = delete;
 
 private:
   connection *m_home;
@@ -84,7 +86,6 @@ public:
   /// Revert to previous handling of error notices.
   PQXX_ZARGS bool operator()(char const[]) noexcept override { return false; }
 
-private:
   quiet_errorhandler() = delete;
 };
 

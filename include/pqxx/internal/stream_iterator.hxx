@@ -14,7 +14,7 @@
 namespace pqxx
 {
 template<typename... TYPE> class stream_query;
-}
+} // namespace pqxx
 
 
 namespace pqxx::internal
@@ -38,12 +38,18 @@ public:
     advance(loc);
   }
   stream_from_input_iterator(stream_from_input_iterator const &) = default;
+  stream_from_input_iterator(stream_from_input_iterator &&) = default;
 
   stream_from_input_iterator &operator++()
   {
     advance(sl::current());
     return *this;
   }
+
+  stream_from_input_iterator &
+  operator=(stream_from_input_iterator const &) = default;
+  stream_from_input_iterator &
+  operator=(stream_from_input_iterator &&) = default;
 
   value_type const &operator*() const noexcept { return m_value; }
 
@@ -87,6 +93,7 @@ public:
   iterator end() const { return {}; }
 
 private:
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
   stream_t &m_home;
 };
 } // namespace pqxx::internal

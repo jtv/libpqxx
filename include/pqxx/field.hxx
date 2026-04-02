@@ -56,13 +56,16 @@ public:
 
   field_ref() noexcept = default;
   field_ref(field_ref const &) noexcept = default;
+  field_ref(field_ref &&) noexcept = default;
   field_ref(
     result const &res, result_size_type row_num,
     row_size_type col_num) noexcept :
           m_result(&res), m_row{row_num}, m_column{col_num}
   {}
+  ~field_ref() = default;
 
   field_ref &operator=(field_ref const &) noexcept = default;
+  field_ref &operator=(field_ref &&) noexcept = default;
 
   [[nodiscard]] PQXX_PURE result const &home() const noexcept
   {

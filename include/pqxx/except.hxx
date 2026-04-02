@@ -388,6 +388,10 @@ struct PQXX_LIBEXPORT sql_error : public failure
   {}
   sql_error(sql_error const &other) = default;
   sql_error(sql_error &&other) = default;
+  ~sql_error() = default;
+
+  sql_error &operator=(sql_error const &other) = default;
+  sql_error &operator=(sql_error &&other) = default;
 
   [[nodiscard]] std::string_view name() const noexcept override;
 
@@ -826,8 +830,8 @@ struct PQXX_LIBEXPORT invalid_cursor_name : sql_error
 
 struct PQXX_LIBEXPORT syntax_error : sql_error
 {
-  /// Approximate position in string where error occurred, or -1 if unknown.
-  int const error_position;
+  // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
+  [[deprecated("Call error_pos() instead.")]] int error_position;
 
   PQXX_ZARGS explicit syntax_error(
     std::string const &err, std::string const &Q = {},
@@ -837,6 +841,17 @@ struct PQXX_LIBEXPORT syntax_error : sql_error
   {}
 
   [[nodiscard]] std::string_view name() const noexcept override;
+
+  /// Approximate position in statement where the error occurred, or -1.
+  /** The special value `-1` is for cases where the error has no useful
+   * location in the SQL statement to indicate.
+   */
+  [[nodiscard]] constexpr int error_pos() const noexcept
+  {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
+    return error_position;
+#include "pqxx/internal/ignore-deprecated-post.hxx"
+  }
 };
 
 

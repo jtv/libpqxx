@@ -10,8 +10,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_RESULT_ITERATOR
-#define PQXX_H_RESULT_ITERATOR
+#ifndef PQXX_INTERNAL_RESULT_ITERATOR_HXX
+#define PQXX_INTERNAL_RESULT_ITERATOR_HXX
 
 #include "pqxx/row.hxx"
 
@@ -54,7 +54,7 @@ public:
   {}
 
   /// Create an iterator pointing at a row.
-  const_result_iterator(row_ref const &r) noexcept :
+  explicit const_result_iterator(row_ref const &r) noexcept :
           m_row{r.home(), r.row_number()}
   {}
 
@@ -180,9 +180,11 @@ public:
 
   /// Create an iterator, but in an unusable state.
   const_reverse_result_iterator() noexcept = default;
-  /// Copy an iterator.
   const_reverse_result_iterator(
-    const_reverse_result_iterator const &rhs) noexcept = default;
+    const_reverse_result_iterator const &) noexcept = default;
+  const_reverse_result_iterator(const_reverse_result_iterator &&) noexcept =
+    default;
+
   /// Copy a reverse iterator from a regular iterator.
   PQXX_INLINE_ONLY explicit const_reverse_result_iterator(
     const_result_iterator const &rhs) :
@@ -216,16 +218,10 @@ public:
    */
   //@{
   const_reverse_result_iterator &
-  operator=(const_reverse_result_iterator const &r)
-  {
-    iterator_type::operator=(r);
-    return *this;
-  }
-  const_reverse_result_iterator &operator=(const_reverse_result_iterator &&r)
-  {
-    iterator_type::operator=(std::move(r));
-    return *this;
-  }
+  operator=(const_reverse_result_iterator const &) noexcept = default;
+  const_reverse_result_iterator &
+  operator=(const_reverse_result_iterator &&) noexcept = default;
+
   const_reverse_result_iterator &operator++()
   {
     iterator_type::operator--();

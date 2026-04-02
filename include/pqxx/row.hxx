@@ -71,6 +71,7 @@ public:
   row_ref(result const &res, result_size_type index) :
           m_result{&res}, m_index{index}
   {}
+  ~row_ref() = default;
 
   row_ref &operator=(row_ref const &) noexcept = default;
   row_ref &operator=(row_ref &&) noexcept = default;
@@ -320,7 +321,10 @@ public:
   }
 
   /// The @ref result object to which this `row_ref` refers.
-  PQXX_PURE result const &home() const noexcept { return *m_result; }
+  [[nodiscard]] PQXX_PURE result const &home() const noexcept
+  {
+    return *m_result;
+  }
 
 private:
   friend class pqxx::internal::gate::row_ref_const_result_iterator;
@@ -427,6 +431,7 @@ public:
           m_index{ref.row_number()},
           m_end{std::size(ref)}
   {}
+  ~row() = default;
   row &operator=(row const &) noexcept = default;
   row &operator=(row &&) noexcept = default;
 

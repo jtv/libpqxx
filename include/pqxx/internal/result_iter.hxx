@@ -6,8 +6,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_RESULT_ITER
-#define PQXX_H_RESULT_ITER
+#ifndef PQXX_INTERNAL_RESULT_ITER_HXX
+#define PQXX_INTERNAL_RESULT_ITER_HXX
 
 #include <memory>
 
@@ -23,7 +23,10 @@ class result;
 namespace pqxx::internal
 {
 // TODO: Replace with generator?
+// TODO: Separate type for `end()` iterator.
 /// Iterator for looped unpacking of a result.
+/** A default-constructed `result_iter` denotes the `end()` of any iteration.
+ */
 template<typename... TYPE> class result_iter final
 {
 public:
@@ -31,6 +34,12 @@ public:
 
   /// Construct an "end" iterator.
   result_iter() = default;
+  result_iter(result_iter const &) = delete;
+  result_iter(result_iter &&) = delete;
+  ~result_iter() = default;
+
+  result_iter &operator=(result_iter const &) = delete;
+  result_iter &operator=(result_iter &&) = delete;
 
   explicit result_iter(result const &home, sl loc = sl::current()) :
           m_home{&home}, m_size{std::size(home)}
@@ -38,7 +47,6 @@ public:
     if (not std::empty(home))
       read(loc);
   }
-  result_iter(result_iter const &) = default;
 
   result_iter &operator++()
   {

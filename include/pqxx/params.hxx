@@ -8,8 +8,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_PARAMS
-#define PQXX_H_PARAMS
+#ifndef PQXX_PARAMS_HXX
+#define PQXX_PARAMS_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
@@ -208,7 +208,7 @@ public:
    * As soon as we climb back out of that call tree, we're done with that
    * data.
    */
-  pqxx::internal::c_params make_c_params(sl loc) const;
+  [[nodiscard]] pqxx::internal::c_params make_c_params(sl loc) const;
 
 private:
   /// Append a pack of params.
@@ -265,7 +265,7 @@ public:
   /** @warning Changing the current placeholder number will overwrite this.
    * Use the view immediately, or lose it.
    */
-  constexpr zview view() const & noexcept
+  [[nodiscard]] constexpr zview view() const & noexcept
   {
     return zview{std::data(m_buf), m_len};
   }
@@ -276,7 +276,10 @@ public:
    * parameters, the string will benefit from the Short String Optimization, or
    * SSO.
    */
-  std::string get() const { return std::string(std::data(m_buf), m_len); }
+  [[nodiscard]] std::string get() const
+  {
+    return std::string(std::data(m_buf), m_len);
+  }
 
   /// Move on to the next parameter.
   void next(sl loc = sl::current()) &
