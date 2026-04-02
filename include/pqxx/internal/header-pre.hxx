@@ -1,3 +1,4 @@
+// NOLINT(llvm-header-guard)
 /* Compiler settings for compiling libpqxx headers, and workarounds for all.
  *
  * Include this before including any other libpqxx headers from within libpqxx.

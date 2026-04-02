@@ -10,8 +10,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_DBTRANSACTION
-#define PQXX_H_DBTRANSACTION
+#ifndef PQXX_DBTRANSACTION_HXX
+#define PQXX_DBTRANSACTION_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
@@ -52,6 +52,9 @@ namespace pqxx
  */
 class PQXX_LIBEXPORT PQXX_NOVTABLE dbtransaction : public transaction_base
 {
+public:
+  dbtransaction() = delete;
+
 protected:
   /// Begin transaction.
   explicit dbtransaction(connection &cx, sl loc = sl::current()) :
@@ -68,9 +71,6 @@ protected:
     std::shared_ptr<std::string> rollback_cmd, sl loc = sl::current()) :
           transaction_base{cx, tname, std::move(rollback_cmd), loc}
   {}
-
-private:
-  dbtransaction() = delete;
 };
 } // namespace pqxx
 #endif

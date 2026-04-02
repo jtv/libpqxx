@@ -17,25 +17,27 @@ void test_074(pqxx::test::context &)
   pqxx::result R{tx.exec("SELECT * FROM pg_tables")};
   std::string const sval{R.at(0).at(1).c_str()};
   std::string sval2;
-  pqxx::fieldstream fs1(R.front()[1]);
+  pqxx::field f1{R.front()[1]};
+  pqxx::fieldstream fs1{f1};
   fs1 >> sval2;
   PQXX_CHECK_EQUAL(sval2, sval, "fieldstream returned wrong value.");
 
   R = tx.exec("SELECT count(*) FROM pg_tables");
   int ival{};
-  pqxx::fieldstream fs2(R.at(0).at(0));
+  pqxx::field const f2{pqxx::field{R.at(0).at(0)}};
+  pqxx::fieldstream fs2{f2};
   fs2 >> ival;
   PQXX_CHECK_EQUAL(ival, R.front().front().as<int>());
 
   double dval{};
-  (pqxx::fieldstream(R.at(0).at(0))) >> dval;
+  (pqxx::fieldstream{pqxx::field{R.at(0).at(0)}}) >> dval;
   PQXX_CHECK_BOUNDS(
     dval, R[0][0].as<double>() - 0.1, R[0][0].as<double>() + 0.1);
 
   auto const roughpi{static_cast<float>(3.1415926435)};
   R = tx.exec("SELECT " + pqxx::to_string(roughpi));
   float pival{};
-  (pqxx::fieldstream(R.at(0).at(0))) >> pival;
+  (pqxx::fieldstream{pqxx::field{R.at(0).at(0)}}) >> pival;
   PQXX_CHECK_BOUNDS(pival, roughpi - 0.001, roughpi + 0.001);
 
   PQXX_CHECK_EQUAL(pqxx::to_string(R[0][0]), R[0][0].c_str());

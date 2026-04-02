@@ -462,12 +462,16 @@ void test_stream_to_optionals(pqxx::test::context &)
   stream.write_values(18, std::make_unique<pqxx::zview>("Uq zv."));
   stream.complete();
 
+  // clang-tidy rule bug:
+  // NOLINTNEXTLINE(misc-const-correctness)
   std::string nulls;
   for (auto [key] : tx.query<int>(
          "SELECT key FROM pqxx_strings WHERE value IS NULL ORDER BY key"))
     nulls += pqxx::to_string(key) + '.';
   PQXX_CHECK_EQUAL(nulls, "1.2.3.7.8.9.13.14.15.");
 
+  // clang-tidy rule bug:
+  // NOLINTNEXTLINE(misc-const-correctness)
   std::string values;
   for (auto const &[value] :
        tx.query<std::string>("SELECT value FROM pqxx_strings WHERE value IS "
@@ -525,6 +529,8 @@ void test_stream_to_escaping(pqxx::test::context &)
 void test_stream_to_moves_into_optional(pqxx::test::context &)
 {
   pqxx::connection cx;
+  // clang-tidy rule bug:
+  // NOLINTNEXTLINE(misc-const-correctness)
   pqxx::transaction tx{cx};
   tx.exec("CREATE TEMP TABLE foo (a integer)").no_rows();
   std::optional<pqxx::stream_to> org{
@@ -544,6 +550,8 @@ void test_stream_to_empty_strings(pqxx::test::context &)
   // Reproduce #816: Streaming an array of 4 or more empty strings to a table
   // using stream_to crashes.
   pqxx::connection cx;
+  // clang-tidy rule bug:
+  // NOLINTNEXTLINE(misc-const-correctness)
   pqxx::transaction tx{cx};
   tx.exec("CREATE TEMP TABLE strs (list text[])").no_rows();
   std::vector<std::string> empties{"", "", "", ""};

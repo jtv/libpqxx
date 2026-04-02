@@ -1,5 +1,5 @@
-#ifndef PQXX_H_CALLGATE
-#define PQXX_H_CALLGATE
+#ifndef PQXX_INTERNAL_CALLGATE_HXX
+#define PQXX_INTERNAL_CALLGATE_HXX
 
 /*
 Here's what a typical gate class definition looks like:
@@ -13,7 +13,7 @@ class PQXX_PRIVATE @gateclass@ final : callgate<@host@>
 {
   friend class @client@;
 
-  constexpr @gateclass@(reference x) noexcept : super(x) {}
+  explicit constexpr @gateclass@(reference x) noexcept : super(x) {}
 
   // Methods here.  Use home() to access the host-class object.
 };
@@ -59,12 +59,13 @@ protected:
   /// A reference to the host class.  Helps keep constructors easy.
   using reference = HOME &;
 
-  constexpr callgate(reference x) noexcept : m_home(x) {}
+  explicit constexpr callgate(reference x) noexcept : m_home(x) {}
 
   /// The home object.  The gate class has full "private" access.
-  constexpr reference home() const noexcept { return m_home; }
+  [[nodiscard]] constexpr reference home() const noexcept { return m_home; }
 
 private:
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
   reference m_home;
 };
 } // namespace pqxx::internal

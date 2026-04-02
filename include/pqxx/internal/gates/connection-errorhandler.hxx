@@ -1,3 +1,6 @@
+#ifndef PQXX_INTERNAL_GATES_CONNECTION_ERRORHANDLER_HXX
+#define PQXX_INTERNAL_GATES_CONNECTION_ERRORHANDLER_HXX
+
 #include <pqxx/internal/callgate.hxx>
 
 namespace pqxx
@@ -12,7 +15,8 @@ class PQXX_PRIVATE connection_errorhandler final : callgate<connection>
 {
   friend class pqxx::errorhandler;
 
-  constexpr connection_errorhandler(reference x) noexcept : super(x) {}
+  explicit constexpr connection_errorhandler(reference x) noexcept : super(x)
+  {}
 
   void register_errorhandler(errorhandler *h)
   {
@@ -24,3 +28,4 @@ class PQXX_PRIVATE connection_errorhandler final : callgate<connection>
   }
 };
 } // namespace pqxx::internal::gate
+#endif

@@ -1,19 +1,19 @@
-#if !defined(PQXX_H_CONVERSIONS)
-#  define PQXX_H_CONVERSIONS
+#ifndef PQXX_INTERNAL_CONVERSIONS_HXX
+#define PQXX_INTERNAL_CONVERSIONS_HXX
 
-#  include <array>
-#  include <concepts>
-#  include <cstring>
-#  include <map>
-#  include <memory>
-#  include <numeric>
-#  include <optional>
-#  include <span>
-#  include <type_traits>
-#  include <variant>
+#include <array>
+#include <concepts>
+#include <cstring>
+#include <map>
+#include <memory>
+#include <numeric>
+#include <optional>
+#include <span>
+#include <type_traits>
+#include <variant>
 
-#  include "pqxx/encoding_group.hxx"
-#  include "pqxx/strconv.hxx"
+#include "pqxx/encoding_group.hxx"
+#include "pqxx/strconv.hxx"
 
 
 /* Internal helpers for string conversion, and conversion implementations.
@@ -245,11 +245,11 @@ inline constexpr bool is_unquoted_safe<T>{true};
 template<std::floating_point T>
 inline constexpr bool is_unquoted_safe<T>{true};
 
-#  define PQXX_SPECIALIZE_INT_TRAIT(typ)                                      \
-    template<>                                                                \
-    struct string_traits<typ> final                                           \
-            : pqxx::internal::integer_string_traits<typ>                      \
-    {}
+#define PQXX_SPECIALIZE_INT_TRAIT(typ)                                        \
+  template<>                                                                  \
+  struct string_traits<typ> final                                             \
+          : pqxx::internal::integer_string_traits<typ>                        \
+  {}
 
 PQXX_SPECIALIZE_INT_TRAIT(short);
 PQXX_SPECIALIZE_INT_TRAIT(unsigned short);
@@ -260,7 +260,7 @@ PQXX_SPECIALIZE_INT_TRAIT(unsigned long);
 PQXX_SPECIALIZE_INT_TRAIT(long long);
 PQXX_SPECIALIZE_INT_TRAIT(unsigned long long);
 
-#  undef PQXX_SPECIALIZE_INT_TRAIT
+#undef PQXX_SPECIALIZE_INT_TRAIT
 
 template<>
 struct string_traits<float> final : pqxx::internal::float_string_traits<float>
@@ -324,6 +324,8 @@ template<typename T> struct string_traits<std::optional<T>> final
     if (pqxx::is_null(value))
       return {};
     else
+      // (No need to check: if the optional were empty, it'd be null.)
+      // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
       return pqxx::to_buf(buf, *value, c);
   }
 
@@ -337,6 +339,8 @@ template<typename T> struct string_traits<std::optional<T>> final
     if (pqxx::is_null(value))
       return 0;
     else
+      // (No need to check: if the optional were empty, it'd be null.)
+      // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
       return pqxx::size_buffer(value.value());
   }
 };
@@ -524,7 +528,7 @@ template<> struct nullness<char *> final
 {
   static constexpr bool has_null = true;
   static constexpr bool always_null = false;
-  [[nodiscard]] PQXX_PURE static constexpr bool is_null(char *t) noexcept
+  [[nodiscard]] PQXX_PURE static constexpr bool is_null(char const *t) noexcept
   {
     return t == nullptr;
   }
@@ -847,7 +851,7 @@ template<binary DATA> struct string_traits<DATA> final
   static DATA from_string(std::string_view text, ctx c = {})
   {
     auto const size{pqxx::internal::size_unesc_bin(std::size(text))};
-    DATA buf;
+    DATA buf{};
     if constexpr (requires { buf.resize(std::size_t{}); })
     {
       // Make `buf` allocate the number of bytes we need to store.

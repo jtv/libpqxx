@@ -8,8 +8,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_UTIL
-#define PQXX_H_UTIL
+#ifndef PQXX_UTIL_HXX
+#define PQXX_UTIL_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
@@ -40,7 +40,7 @@
 
 /// The home of all libpqxx classes, functions, templates, etc.
 namespace pqxx
-{}
+{} // namespace pqxx
 
 
 // C++23: Retire wrapper.
@@ -676,6 +676,7 @@ make_strerror_rs_result(char const *err_result, std::span<char>)
   [[maybe_unused]] int err_num, [[maybe_unused]] std::span<char> buffer)
 {
   // Not entirely clear whether strerror_s will be in std or global namespace.
+  // NOLINTNEXTLINE(google-build-using-namespace)
   using namespace std;
 
 #if defined(PQXX_HAVE_STERROR_S) || defined(PQXX_HAVE_STRERROR_R)

@@ -60,7 +60,7 @@ namespace pqxx
  * try
  * {
  *   tx.exec("UPDATE employees SET wage=wage*2").no_rows();
- *   tx.commit();  // NOTE: do this inside try block
+ *   tx.commit();  // Do this inside "the" try block, right at the end.
  * }
  * catch (std::exception const &e)
  * {
@@ -95,6 +95,11 @@ public:
           internal::basic_transaction{
             cx, internal::begin_cmd<ISOLATION, READWRITE>, loc}
   {}
+
+  transaction(transaction const &) = delete;
+  transaction(transaction &&) = delete;
+  transaction &operator=(transaction const &) = delete;
+  transaction &operator=(transaction &&) = delete;
 
   ~transaction() noexcept override { close(sl::current()); }
 };

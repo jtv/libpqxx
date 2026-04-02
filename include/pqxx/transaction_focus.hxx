@@ -6,8 +6,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_TRANSACTION_FOCUS
-#define PQXX_H_TRANSACTION_FOCUS
+#ifndef PQXX_TRANSACTION_FOCUS_HXX
+#define PQXX_TRANSACTION_FOCUS_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
@@ -45,6 +45,7 @@ public:
   transaction_focus() = delete;
   transaction_focus(transaction_focus const &) = delete;
   transaction_focus &operator=(transaction_focus const &) = delete;
+  ~transaction_focus() = default;
 
   /// Class name, for human consumption.
   [[nodiscard]] constexpr std::string_view classname() const noexcept
@@ -90,7 +91,7 @@ protected:
   void register_me();
   void unregister_me() noexcept;
   void reg_pending_error(std::string const &, sl) noexcept;
-  bool registered() const noexcept { return m_registered; }
+  [[nodiscard]] bool registered() const noexcept { return m_registered; }
 
   transaction_base *m_trans;
 

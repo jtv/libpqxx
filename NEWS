@@ -2,6 +2,7 @@
  - Update GNU attributes to use standard `[[attribute]]` syntax. (#1199)
  - Fix mistake in check for GNU "pure" attribute.
  - Fix potential 1-byte buffer overrun in `stream_to`. (#1203)
+ - A lot more constructors are now `explicit`.
 8.0.0
  - C++20 is now the oldest C++ version that libpqxx supports.
  - Requires PostgreSQL 11 or better.
