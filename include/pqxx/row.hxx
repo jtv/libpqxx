@@ -752,6 +752,7 @@ public:
   const_row_iterator(field_ref const &f) noexcept : m_field{f} {}
   const_row_iterator(const_row_iterator const &) noexcept = default;
   const_row_iterator(const_row_iterator &&) noexcept = default;
+  ~const_row_iterator() = default;
 
   /// Current column number, if the iterator is pointing at a valid field.
   PQXX_PURE [[nodiscard]] size_type col() const noexcept
@@ -902,11 +903,7 @@ public:
    */
   //@{
   const_reverse_row_iterator &
-  operator=(const_reverse_row_iterator const &r) noexcept
-  {
-    iterator_type::operator=(r);
-    return *this;
-  }
+  operator=(const_reverse_row_iterator const &r) noexcept = default;
   const_reverse_row_iterator operator++() noexcept
   {
     iterator_type::operator--();
