@@ -10,8 +10,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_CURSOR
-#define PQXX_H_CURSOR
+#ifndef PQXX_CURSOR_HXX
+#define PQXX_CURSOR_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
@@ -459,7 +459,10 @@ public:
   icursor_iterator() noexcept;
   explicit icursor_iterator(istream_type &) noexcept;
   icursor_iterator(icursor_iterator const &) noexcept;
+  icursor_iterator(icursor_iterator &&) = delete;
   ~icursor_iterator() noexcept;
+
+  icursor_iterator &operator=(icursor_iterator &&) = delete;
 
   result const &operator*() const noexcept
   {
@@ -499,7 +502,7 @@ private:
   void refresh(sl) const;
 
   friend class internal::gate::icursor_iterator_icursorstream;
-  difference_type pos() const noexcept { return m_pos; }
+  [[nodiscard]] difference_type pos() const noexcept { return m_pos; }
   void fill(result const &);
 
   /// The `std::source_location` for where this iterator's stream was created.

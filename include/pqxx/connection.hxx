@@ -139,6 +139,8 @@ concept ZKey_ZValues = std::ranges::input_range<T> and requires(T t) {
  */
 struct notification final
 {
+  // NOLINTBEGIN(cppcoreguidelines-avoid-const-or-ref-data-members)
+
   /// The connection which received the notification.
   /** There will be no _backend_ transaction active on the connection when your
    * handler gets called, but there may be a @ref nontransaction.  (This is a
@@ -146,6 +148,8 @@ struct notification final
    * the backend.)
    */
   connection &conn;
+
+  // NOLINTEND(cppcoreguidelines-avoid-const-or-ref-data-members)
 
   /// Channel name.
   /** The notification logic will only pass the notification to a handler which
@@ -169,7 +173,7 @@ struct notification final
    * To check for that, compare this process ID to the return value of the
    * connection's `backendpid()`.
    */
-  int backend_pid;
+  int backend_pid = 0;
 };
 
 
@@ -1514,10 +1518,11 @@ class PQXX_LIBEXPORT connecting final
 {
 public:
   /// Start connecting.
-  connecting(zview connection_string = ""_zv, sl = sl::current());
+  explicit connecting(zview connection_string = ""_zv, sl = sl::current());
 
   connecting(connecting const &) = delete;
   connecting(connecting &&) = default;
+  ~connecting() = default;
   connecting &operator=(connecting const &) = delete;
   connecting &operator=(connecting &&) = default;
 

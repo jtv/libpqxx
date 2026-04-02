@@ -479,7 +479,7 @@ pqxx::result pqxx::transaction_base::direct_exec(
 {
   check_pending_error();
   return pqxx::internal::gate::connection_transaction{conn()}.exec(
-    std::move(cmd), desc, loc);
+    cmd, desc, loc);
 }
 
 
