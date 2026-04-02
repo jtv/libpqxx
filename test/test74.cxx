@@ -24,7 +24,8 @@ void test_074(pqxx::test::context &)
 
   R = tx.exec("SELECT count(*) FROM pg_tables");
   int ival{};
-  pqxx::fieldstream fs2{pqxx::field{R.at(0).at(0)}};
+  pqxx::field const f2{pqxx::field{R.at(0).at(0)}};
+  pqxx::fieldstream fs2{f2};
   fs2 >> ival;
   PQXX_CHECK_EQUAL(ival, R.front().front().as<int>());
 
