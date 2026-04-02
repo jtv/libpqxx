@@ -236,7 +236,7 @@ public:
   template<typename Row> void write_row(Row const &row, sl loc = sl::current())
   {
     fill_buffer(
-      row, conversion_context{trans().conn().get_encoding_group(loc), loc});
+      row, conversion_context{trans()->conn().get_encoding_group(loc), loc});
     write_buffer(loc);
   }
 
@@ -339,8 +339,6 @@ private:
         auto const total{offset + budget + 1};
         m_buffer.resize(total);
         auto const data{m_buffer.data()};
-        conversion_context const c{
-          trans()->conn().get_encoding_group(loc), loc};
         std::size_t const end{
           offset + into_buf({data + offset, data + total}, f, c)};
         assert((end + 1) < std::size(m_buffer));
@@ -367,7 +365,7 @@ private:
         // Treat like a string.
         m_field_buf.resize(budget);
         // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
-        escape_field_to_buffer(f.value(), loc);
+        escape_field_to_buffer(f.value(), c.loc);
       }
       // TODO: Support deleter template argument on unique_ptr.
       else if constexpr (
@@ -388,8 +386,6 @@ private:
       {
         // This field needs to be converted to a string, and after that,
         // escaped as well.
-        conversion_context const c{
-          trans()->conn().get_encoding_group(loc), loc};
         m_field_buf.resize(budget);
         escape_field_to_buffer(to_buf(m_field_buf, f, c), c.loc);
       }
@@ -454,7 +450,7 @@ private:
   template<typename... Ts> void fill_buffer(const Ts &...fields)
   {
     conversion_context const c{
-      trans().conn().get_encoding_group(m_created_loc), m_created_loc};
+      trans()->conn().get_encoding_group(m_created_loc), m_created_loc};
     (..., append_to_buffer(fields, c));
   }
 

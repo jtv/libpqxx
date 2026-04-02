@@ -47,7 +47,6 @@ public:
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 
   transaction_focus() = delete;
-  ~transaction_focus() = default;
   transaction_focus(transaction_focus const &) = delete;
   transaction_focus &operator=(transaction_focus const &) = delete;
   ~transaction_focus() = default;
