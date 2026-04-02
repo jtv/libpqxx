@@ -17,7 +17,7 @@ void test_074(pqxx::test::context &)
   pqxx::result R{tx.exec("SELECT * FROM pg_tables")};
   std::string const sval{R.at(0).at(1).c_str()};
   std::string sval2;
-  pqxx::field f1{R.front()[1]};
+  pqxx::field const f1{R.front()[1]};
   pqxx::fieldstream fs1{f1};
   fs1 >> sval2;
   PQXX_CHECK_EQUAL(sval2, sval, "fieldstream returned wrong value.");
