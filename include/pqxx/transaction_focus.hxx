@@ -65,10 +65,9 @@ public:
     return pqxx::internal::describe_object(m_classname, m_name);
   }
 
-  transaction_focus(transaction_focus &&other) :
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
+  transaction_focus(transaction_focus &&other) :
           m_trans{other.m_trans},
-#include "pqxx/internal/ignore-deprecated-post.hxx"
           m_classname{other.m_classname},
           // We can't move the name until later.
           m_name{},
@@ -86,14 +85,13 @@ public:
     {
       if (m_registered)
         unregister_me();
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
       m_trans = other.m_trans;
-#include "pqxx/internal/ignore-deprecated-post.hxx"
       m_classname = other.m_classname;
       move_name_and_registration(other);
     }
     return *this;
   }
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 
 protected:
   void register_me();
