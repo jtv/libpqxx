@@ -323,7 +323,7 @@ inline void check_less_equal(
 {
   if (value1 <= value2)
     return;
-  std::string fulldesc{std::format(
+  std::string const fulldesc{std::format(
     R"-({} ({} > {}: "lower"={}, "upper"={}))-", desc, text1, text2, value1,
     value2)};
   throw test_failure{fulldesc, loc};

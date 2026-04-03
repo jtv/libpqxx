@@ -212,7 +212,7 @@ public:
   }
 
   /// Would this bound, as a lower bound, include `value`?
-  constexpr bool extends_down_to(TYPE const &value) const
+  [[nodiscard]] constexpr bool extends_down_to(TYPE const &value) const
   {
     return std::visit(
       [&value](auto const &bound) noexcept(noexcept(bound.extends_down_to(
@@ -221,7 +221,7 @@ public:
   }
 
   /// Would this bound, as an upper bound, include `value`?
-  constexpr bool extends_up_to(TYPE const &value) const
+  [[nodiscard]] constexpr bool extends_up_to(TYPE const &value) const
   {
     return std::visit(
       [&value](auto const &bound) noexcept(noexcept(
@@ -331,7 +331,7 @@ public:
    * contrast, will notice that it is empty.  Similar things can happen for
    * floating-point types, but with more subtleties and edge cases.
    */
-  constexpr bool empty() const noexcept(
+  [[nodiscard]] constexpr bool empty() const noexcept(
     noexcept(m_lower.is_exclusive()) and noexcept(m_lower.is_limited()) and
     noexcept(*m_lower.value() < *m_upper.value()))
   {
@@ -341,7 +341,7 @@ public:
   }
 
   /// Does this range encompass `value`?
-  constexpr bool contains(TYPE value) const noexcept(
+  [[nodiscard]] constexpr bool contains(TYPE value) const noexcept(
     noexcept(m_lower.extends_down_to(value)) and
     noexcept(m_upper.extends_up_to(value)))
   {
@@ -352,7 +352,7 @@ public:
   /** This function is not particularly smart.  It does not know, for example,
    * that integer ranges `[0,9]` and `[0,10)` contain the same values.
    */
-  constexpr bool contains(range<TYPE> const &other) const
+  [[nodiscard]] constexpr bool contains(range<TYPE> const &other) const
     noexcept(noexcept((*this & other) == other))
   {
     return (*this & other) == other;

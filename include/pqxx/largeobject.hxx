@@ -22,8 +22,10 @@
 
 // This whole header is deprecated, so there's not much point checking these.
 //
-// NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
-// NOLINT(fuchsia-multiple-inheritance)
+// NOLINTBEGIN(
+//    cppcoreguidelines-avoid-const-or-ref-data-members,
+//    fuchsia-multiple-inheritance
+// )
 
 namespace pqxx
 {
@@ -224,7 +226,13 @@ public:
   [[deprecated("Use blob instead.")]] largeobjectaccess(
     dbtransaction &t, std::string_view file, openmode mode = default_mode);
 
+  largeobjectaccess() = delete;
+  largeobjectaccess(largeobjectaccess const &) = delete;
+  largeobjectaccess(largeobjectaccess &&) = delete;
   ~largeobjectaccess() noexcept { close(); }
+
+  largeobjectaccess &operator=(largeobjectaccess const &) = delete;
+  largeobjectaccess &operator=(largeobjectaccess &&) = delete;
 
   /// Object identifier.
   /** The number returned by this function uniquely identifies the large object
@@ -349,10 +357,6 @@ public:
   using largeobject::operator>;
   using largeobject::operator>=;
 
-  largeobjectaccess() = delete;
-  largeobjectaccess(largeobjectaccess const &) = delete;
-  largeobjectaccess &operator=(largeobjectaccess const &) = delete;
-
 private:
   PQXX_PRIVATE [[nodiscard]] std::string reason(int err) const;
   [[nodiscard]] internal::pq::PGconn *raw_connection() const
@@ -418,11 +422,17 @@ public:
     initialize(mode);
   }
 
+  largeobject_streambuf(largeobject_streambuf const &) = delete;
+  largeobject_streambuf(largeobject_streambuf &&) = delete;
+
   ~largeobject_streambuf() noexcept override
   {
     delete[] m_p;
     delete[] m_g;
   }
+
+  largeobject_streambuf &operator=(largeobject_streambuf const &) = delete;
+  largeobject_streambuf &operator=(largeobject_streambuf &&) = delete;
 
   /// For use by large object stream classes.
   void process_notice(zview const &s) { m_obj.process_notice(s); }
@@ -759,4 +769,9 @@ using lostream = basic_lostream<char>;
 
 // LCOV_EXCL_STOP
 } // namespace pqxx
+
+// NOLINTEND(
+//    cppcoreguidelines-avoid-const-or-ref-data-members,
+//    fuchsia-multiple-inheritance
+// )
 #endif

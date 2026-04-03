@@ -94,6 +94,7 @@ public:
 
   cursor_base() = delete;
   cursor_base(cursor_base const &) = delete;
+  cursor_base(cursor_base &&) = delete;
 
   // Really weird: gcc complains that this accesses deprecated m_name.
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
@@ -101,6 +102,7 @@ public:
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 
   cursor_base &operator=(cursor_base const &) = delete;
+  cursor_base &operator=(cursor_base &&) = delete;
 
   /**
    * @name Special movement distances.

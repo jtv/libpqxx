@@ -510,6 +510,8 @@ template<typename TYPE>
     return string_traits<TYPE>::from_string(text);
 }
 
+// clang-tidy rule bug:
+// NOLINTBEGIN(misc-unused-parameters)
 
 /// "Convert" a std::string_view to a std::string_view.
 /** Just returns its input.
@@ -523,6 +525,8 @@ template<>
 {
   return text;
 }
+
+// NOLINTEND(misc-unused-parameters)
 
 
 /// Attempt to convert postgres-generated string to given built-in object.

@@ -40,9 +40,12 @@ public:
     set_byte(2, b3);
     set_byte(3, b4);
   }
+  ~ipv4() = default;
+
+  ipv4 &operator=(ipv4 const &) = default;
+  ipv4 &operator=(ipv4 &&) = default;
 
   bool operator==(ipv4 const &o) const { return m_as_int == o.m_as_int; }
-  ipv4 &operator=(ipv4 const &) = default;
 
   /// Index bytes, from 0 to 3, in network (i.e. Big-Endian) byte order.
   unsigned int operator[](int byte) const
@@ -102,7 +105,7 @@ template<> struct string_traits<ipv4> final
     for (int i{0}; i < 4; ++i)
     {
       auto idx{static_cast<std::size_t>(i)};
-      std::string_view digits{&text[start], ends.at(idx) - start};
+      std::string_view const digits{&text[start], ends.at(idx) - start};
       auto value{pqxx::from_string<uint32_t>(digits)};
       ts.set_byte(i, value);
       start = ends.at(idx) + 1;
