@@ -179,7 +179,7 @@ public:
   {
     other.m_finished = true;
   }
-  // NOLINTEND(bugprone-use-after-move,hicpp-nivalid-access-moved)
+  // NOLINTEND(bugprone-use-after-move,hicpp-invalid-access-moved)
 
   ~stream_to() noexcept;
 

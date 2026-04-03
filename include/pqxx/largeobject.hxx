@@ -21,10 +21,9 @@
 
 
 // This whole header is deprecated, so there's not much point checking these.
-// NOLINT(
-//    cppcoreguidelines-avoid-const-or-ref-data-members,
-//    fuchsia-multiple-inheritance
-// )
+//
+// NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
+// NOLINT(fuchsia-multiple-inheritance)
 
 namespace pqxx
 {

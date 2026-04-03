@@ -297,6 +297,8 @@ public:
           m_upper{exclusive_bound<TYPE>{TYPE{}}}
   {}
 
+  ~range() = default;
+
   constexpr bool operator==(range const &rhs) const noexcept(
     noexcept(this->lower_bound() == rhs.lower_bound()) and
     noexcept(this->upper_bound() == rhs.upper_bound()) and
@@ -406,6 +408,8 @@ public:
       return {lower, upper};
   }
 
+  // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
+
   /// Convert to another base type.
   template<typename DEST> operator range<DEST>() const
   {
@@ -422,6 +426,8 @@ public:
 
     return {lower, upper};
   }
+
+  // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions)
 };
 
 
