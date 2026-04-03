@@ -152,7 +152,7 @@ stream_query<TYPE...>::read_line(sl loc) &
 {
   assert(not done());
 
-  internal::gate::connection_stream_from gate{m_trans->conn()};
+  internal::gate::connection_stream_from gate{trans().conn()};
   try
   {
     auto line{gate.read_copy_line(loc)};

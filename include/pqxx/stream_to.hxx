@@ -236,7 +236,7 @@ public:
   template<typename Row> void write_row(Row const &row, sl loc = sl::current())
   {
     fill_buffer(
-      row, conversion_context{m_trans->conn().get_encoding_group(loc), loc});
+      row, conversion_context{trans().conn().get_encoding_group(loc), loc});
     write_buffer(loc);
   }
 
@@ -448,7 +448,7 @@ private:
   template<typename... Ts> void fill_buffer(const Ts &...fields)
   {
     conversion_context const c{
-      m_trans->conn().get_encoding_group(m_created_loc), m_created_loc};
+      trans().conn().get_encoding_group(m_created_loc), m_created_loc};
     (..., append_to_buffer(fields, c));
   }
 

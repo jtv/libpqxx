@@ -28,6 +28,8 @@ namespace pqxx
 class PQXX_LIBEXPORT transaction_focus
 {
 public:
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
+
   transaction_focus(
     transaction_base &t, std::string_view cname, std::string_view oname) :
           m_trans{&t}, m_classname{cname}, m_name{oname}
@@ -41,6 +43,8 @@ public:
   transaction_focus(transaction_base &t, std::string_view cname) :
           m_trans{&t}, m_classname{cname}
   {}
+
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 
   transaction_focus() = delete;
   transaction_focus(transaction_focus const &) = delete;
@@ -62,7 +66,9 @@ public:
   }
 
   transaction_focus(transaction_focus &&other) :
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
           m_trans{other.m_trans},
+#include "pqxx/internal/ignore-deprecated-post.hxx"
           m_classname{other.m_classname},
           // We can't move the name until later.
           m_name{},
@@ -80,7 +86,9 @@ public:
     {
       if (m_registered)
         unregister_me();
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
       m_trans = other.m_trans;
+#include "pqxx/internal/ignore-deprecated-post.hxx"
       m_classname = other.m_classname;
       move_name_and_registration(other);
     }
@@ -93,7 +101,19 @@ protected:
   void reg_pending_error(std::string const &, sl) noexcept;
   [[nodiscard]] bool registered() const noexcept { return m_registered; }
 
-  transaction_base *m_trans;
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
+  /// The transaction focused on this `tranaction_focus`.
+  [[nodiscard]] transaction_base &trans() noexcept { return *m_trans; }
+  /// The transaction focused on this `tranaction_focus`.
+  [[nodiscard]] transaction_base const &trans() const noexcept
+  {
+    return *m_trans;
+  }
+#include "pqxx/internal/ignore-deprecated-post.hxx"
+
+  [[deprecated(
+    "This will become private.  Use trans() instead.")]] transaction_base
+    *m_trans;
 
 private:
   /// Perform part of a move operation.
