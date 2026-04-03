@@ -634,8 +634,12 @@ inline std::vector<std::string_view>
 to_buf(char *begin, char const *end, TYPE... value)
 {
   assert(begin <= end);
+
   // We can't construct the span as {begin, end} because end points to const.
   // Works fine on gcc 13, but clang 18 vomits huge cryptic errors.
+
+  // clang-tidy rule bug:
+  // NOLINTNEXTLINE(misc-const-correctness)
   std::span<char> buf{
     begin, check_cast<std::size_t>(
              end - begin, "string_view too large.", sl::current())};

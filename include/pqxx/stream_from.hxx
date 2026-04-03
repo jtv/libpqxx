@@ -81,9 +81,6 @@ public:
   using raw_line =
     std::pair<std::unique_ptr<char[], void (*)(void const *)>, std::size_t>;
 
-  stream_from(stream_from &&) = delete;
-  stream_from &operator=(stream_from &&) = delete;
-
   /// Factory: Execute query, and stream the results.
   /** The query can be a SELECT query or a VALUES query; or it can be an
    * UPDATE, INSERT, or DELETE with a RETURNING clause.
@@ -193,8 +190,14 @@ public:
     transaction_base &, std::string_view table, Iter columns_begin,
     Iter columns_end);
 
+  stream_from(stream_from const &) = delete;
+  stream_from(stream_from &&) = delete;
   ~stream_from() noexcept;
 
+  stream_from &operator=(stream_from const &) = delete;
+  stream_from &operator=(stream_from &&) = delete;
+
+  // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
   // LCOV_EXCL_START
   /// May this stream still produce more data?
   [[nodiscard]] constexpr operator bool() const noexcept
@@ -202,6 +205,7 @@ public:
     return not m_finished;
   }
   // LCOV_EXCL_STOP
+  // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions)
 
   /// Has this stream produced all the data it is going to produce?
   [[nodiscard]] constexpr bool operator!() const noexcept
@@ -321,7 +325,7 @@ inline stream_from::stream_from(
 
 template<typename Tuple> inline stream_from &stream_from::operator>>(Tuple &t)
 {
-  sl loc{sl::current()};
+  sl const loc{sl::current()};
   if (m_finished) [[unlikely]]
     return *this;
   static constexpr auto tup_size{std::tuple_size_v<Tuple>};

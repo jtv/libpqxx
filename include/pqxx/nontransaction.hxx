@@ -66,14 +66,20 @@ public:
    * @param tname Optional tname for the transaction, beginning with a letter
    * and containing only letters and digits.
    */
-  nontransaction(
+  explicit nontransaction(
     connection &cx, std::string_view tname = ""sv, sl loc = sl::current()) :
           transaction_base{cx, tname, std::shared_ptr<std::string>{}, loc}
   {
     register_transaction();
   }
 
+  nontransaction() = delete;
+  nontransaction(nontransaction const &) = delete;
+  nontransaction(nontransaction &&) = delete;
   ~nontransaction() override { close(sl::current()); }
+
+  nontransaction &operator=(nontransaction const &) = delete;
+  nontransaction &operator=(nontransaction &&) = delete;
 
 private:
   void do_commit(sl) override {}

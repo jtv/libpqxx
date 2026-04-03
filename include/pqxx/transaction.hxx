@@ -36,6 +36,13 @@ protected:
 
 private:
   void do_commit(sl) override;
+
+public:
+  basic_transaction() = delete;
+  basic_transaction(basic_transaction const &) = delete;
+  basic_transaction(basic_transaction &&) = delete;
+  basic_transaction &operator=(basic_transaction const &) = delete;
+  basic_transaction &operator=(basic_transaction &&) = delete;
 };
 } // namespace pqxx::internal
 

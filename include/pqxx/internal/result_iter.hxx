@@ -117,6 +117,10 @@ template<typename... TYPE> inline auto pqxx::result::iter() const
 }
 
 
+// A for_each iteration of a result.
+//
+// This is a strange place to define an inline member function on result, but
+// ordering of definitions leaves no better place for it.
 template<typename CALLABLE>
 inline void pqxx::result::for_each(CALLABLE &&func, sl loc) const
 {

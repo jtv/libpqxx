@@ -714,6 +714,10 @@ public:
     super::init(&m_buf);
   }
 
+  basic_lostream() = delete;
+  basic_lostream(basic_lostream const &) = delete;
+  basic_lostream(basic_lostream &&) = delete;
+
   ~basic_lostream() override
   {
     try
@@ -726,6 +730,9 @@ public:
       m_buf.process_notice(e.what());
     }
   }
+
+  basic_lostream &operator=(basic_lostream const &) = delete;
+  basic_lostream &operator=(basic_lostream &&) = delete;
 
 private:
   largeobject_streambuf<CHAR, TRAITS> m_buf;
