@@ -158,14 +158,15 @@ public:
     return {tx, path, columns, loc};
   }
 
+  stream_to(stream_to const &) = delete;
+
   // Some false positives from clang-tidy checks in this constructor.  The
   // initial base-class move moves only the embedded base-class object, not the
   // individual member variables that fall outside the base class.
   // Also there's one deliberate invalidation step of the moved-from object,
   // which is also being flagged as a potential use-after-move.
 
-  // NOLINTBEGIN(bugprone-use-after-move,hicpp-nivalid-access-moved)
-
+  // NOLINTBEGIN(bugprone-use-after-move,hicpp-invalid-access-moved)
   stream_to(stream_to &&other) :
           // (This first step only moves the transaction_focus base-class
           // object.)
@@ -178,16 +179,21 @@ public:
   {
     other.m_finished = true;
   }
-
   // NOLINTEND(bugprone-use-after-move,hicpp-nivalid-access-moved)
 
   ~stream_to() noexcept;
 
+  stream_to &operator=(stream_to const &) = delete;
+  stream_to &operator=(stream_to &&) = delete;
+
+  // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
   /// Does this stream still need to @ref complete()?
   [[nodiscard]] constexpr operator bool() const noexcept
   {
     return not m_finished;
   }
+  // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions)
+
   /// Has this stream been through its concluding @c complete()?
   [[nodiscard]] constexpr bool operator!() const noexcept
   {

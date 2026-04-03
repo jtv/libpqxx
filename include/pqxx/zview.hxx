@@ -96,6 +96,8 @@ public:
     invariant();
   }
 
+  // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
+
   /// @warning There's an implicit conversion from `std::string`.
   constexpr zview(std::string const &str) noexcept :
           std::string_view{str.c_str(), str.size()}
@@ -114,6 +116,8 @@ public:
   {
     invariant();
   }
+
+  // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
 
   zview(std::nullptr_t) = delete;
 
@@ -137,8 +141,10 @@ public:
     return data();
   }
 
+  // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
   /// Return as C string.
   constexpr operator char const *() const noexcept { return data(); }
+  // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions)
 
   /// Disambiguating comparison operator: leave it to `std::string_view`.
   constexpr bool operator==(zview const &rhs) const noexcept

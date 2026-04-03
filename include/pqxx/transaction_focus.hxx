@@ -98,9 +98,9 @@ protected:
   [[nodiscard]] bool registered() const noexcept { return m_registered; }
 
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-  /// The transaction focused on this `tranaction_focus`.
+  /// The transaction focused on this `transaction_focus`.
   [[nodiscard]] transaction_base &trans() noexcept { return *m_trans; }
-  /// The transaction focused on this `tranaction_focus`.
+  /// The transaction focused on this `transaction_focus`.
   [[nodiscard]] transaction_base const &trans() const noexcept
   {
     return *m_trans;
