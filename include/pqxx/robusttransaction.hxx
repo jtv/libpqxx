@@ -26,7 +26,12 @@ class PQXX_LIBEXPORT PQXX_NOVTABLE basic_robusttransaction
         : public dbtransaction
 {
 public:
+  basic_robusttransaction(basic_robusttransaction const &) = delete;
+  basic_robusttransaction(basic_robusttransaction &&) = delete;
   ~basic_robusttransaction() override = 0;
+
+  basic_robusttransaction &operator=(basic_robusttransaction const &) = delete;
+  basic_robusttransaction &operator=(basic_robusttransaction &&) = delete;
 
 protected:
   basic_robusttransaction(connection &cx, zview begin_command, sl);
