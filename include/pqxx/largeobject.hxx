@@ -20,6 +20,13 @@
 #include "pqxx/dbtransaction.hxx"
 
 
+// This whole header is deprecated, so there's not much point checking these.
+// NOLINT(
+//    fuchsia-multiple-inheritance,
+//    cppcoreguidelines-owning-memory,
+//    cppcoreguidelines-avoid-const-or-ref-data-members
+// )
+
 namespace pqxx
 {
 // This class is deprecated.
@@ -642,6 +649,9 @@ public:
     super::init(&m_buf);
   }
 
+  basic_olostream(basic_olostream const &) = delete;
+  basic_olostream(basic_olostream &&) = delete;
+
   ~basic_olostream() override
   {
     try
@@ -654,6 +664,9 @@ public:
       m_buf.process_notice(e.what());
     }
   }
+
+  basic_olostream &operator=(basic_olostream const &) = delete;
+  basic_olostream &operator=(basic_olostream &&) = delete;
 
 private:
   largeobject_streambuf<CHAR, TRAITS> m_buf;

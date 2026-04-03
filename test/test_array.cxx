@@ -632,8 +632,8 @@ void test_array_at_checks_bounds(pqxx::test::context &)
 
   PQXX_CHECK_EQUAL(simple.at(0), 0);
   PQXX_CHECK_EQUAL(simple.at(2), 2);
-  PQXX_CHECK_THROWS(simple.at(3), pqxx::range_error);
-  PQXX_CHECK_THROWS(simple.at(-1), pqxx::range_error);
+  PQXX_CHECK_THROWS((std::ignore = simple.at(3)), pqxx::range_error);
+  PQXX_CHECK_THROWS((std::ignore = simple.at(-1)), pqxx::range_error);
 
   // Two-dimensional case:
   pqxx::array<int, 2> const twodim{"{{0,1},{2,3},{4,5}}", cx};
@@ -646,10 +646,10 @@ void test_array_at_checks_bounds(pqxx::test::context &)
   PQXX_CHECK_EQUAL(twodim.at(0, 0), 0);
   PQXX_CHECK_EQUAL(twodim.at(1, 1), 3);
   PQXX_CHECK_EQUAL(twodim.at(2, 1), 5);
-  PQXX_CHECK_THROWS(twodim.at(3, 0), pqxx::range_error);
-  PQXX_CHECK_THROWS(twodim.at(0, 2), pqxx::range_error);
-  PQXX_CHECK_THROWS(twodim.at(0, -1), pqxx::range_error);
-  PQXX_CHECK_THROWS(twodim.at(-1, 0), pqxx::range_error);
+  PQXX_CHECK_THROWS((std::ignore = twodim.at(3, 0)), pqxx::range_error);
+  PQXX_CHECK_THROWS((std::ignore = twodim.at(0, 2)), pqxx::range_error);
+  PQXX_CHECK_THROWS((std::ignore = twodim.at(0, -1)), pqxx::range_error);
+  PQXX_CHECK_THROWS((std::ignore = twodim.at(-1, 0)), pqxx::range_error);
 
   // Three-dimensional:
   pqxx::array<int, 3> const threedim{
