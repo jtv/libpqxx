@@ -305,7 +305,7 @@ public:
 
       auto const written{pqxx::into_buf<COUNTER>(
         {data + 1, data + std::size(m_buf) - 1}, m_current, c)};
-      std::size_t end{1 + written};
+      std::size_t const end{1 + written};
       assert(end < std::size(m_buf));
       data[end] = '\0';
       m_len = check_cast<COUNTER>(end, "placeholders counter", loc);
@@ -313,12 +313,12 @@ public:
     else [[likely]]
     {
       // Shortcut for the common case: just increment that last digit.
-      ++m_buf[m_len - 1];
+      ++m_buf.at(m_len - 1);
     }
   }
 
   /// Return the current placeholder number.  The initial placeholder is 1.
-  COUNTER count() const noexcept { return m_current; }
+  [[nodiscard]] COUNTER count() const noexcept { return m_current; }
 
 private:
   /// Current placeholder number.  Starts at 1.

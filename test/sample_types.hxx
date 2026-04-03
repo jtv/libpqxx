@@ -135,9 +135,10 @@ template<> struct string_traits<ipv4> final
     return 20;
   }
 };
+} // namespace pqxx
 
 
-namespace
+namespace pqxx::test::internal
 {
 inline char nibble_to_hex(unsigned nibble)
 {
@@ -162,9 +163,11 @@ inline unsigned hex_to_digit(char hex)
   else
     throw std::runtime_error{"Invalid hex in bytea."};
 }
-} // namespace
+} // namespace pqxx::test::internal
 
 
+namespace pqxx
+{
 template<> struct nullness<bytea> final : no_null<bytea>
 {};
 
@@ -179,25 +182,29 @@ template<> struct string_traits<bytea> final
     value.reserve((std::size(text) - 2) / 2);
     for (std::size_t i = 2; i < std::size(text); i += 2)
     {
-      auto hi = hex_to_digit(text[i]), lo = hex_to_digit(text[i + 1]);
+      auto hi = pqxx::test::internal::hex_to_digit(text[i]),
+           lo = pqxx::test::internal::hex_to_digit(text[i + 1]);
       value.push_back(static_cast<unsigned char>((hi << 4) | lo));
     }
     return value;
   }
 
+  // NOLINTNEXTLINE(readability-non-const-parameter)
   static zview to_buf(char *begin, char *end, bytea const &value)
   {
     auto const need = size_buffer(value);
     auto const have = end - begin;
     if (std::size_t(have) < need)
       throw pqxx::conversion_overrun{"Not enough space in buffer for bytea."};
+    // clang-tidy rule bug:
+    // NOLINTNEXTLINE(misc-const-correctness)
     char *pos = begin;
     *pos++ = '\\';
     *pos++ = 'x';
     for (unsigned char const u : value)
     {
-      *pos++ = nibble_to_hex(unsigned(u) >> 4);
-      *pos++ = nibble_to_hex(unsigned(u) & 0x0f);
+      *pos++ = pqxx::test::internal::nibble_to_hex(unsigned(u) >> 4);
+      *pos++ = pqxx::test::internal::nibble_to_hex(unsigned(u) & 0x0f);
     }
     *pos++ = '\0';
     return {begin, pos - begin - 1};

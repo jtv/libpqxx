@@ -117,8 +117,6 @@ public:
     invariant();
   }
 
-  // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions)
-
   zview(std::nullptr_t) = delete;
 
   /// Construct a `zview` from a string literal.
@@ -134,6 +132,8 @@ public:
   PQXX_ZARGS constexpr zview(char const (&literal)[size]) :
           zview(literal, size - 1)
   {}
+
+  // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions)
 
   /// Return as C string.
   [[nodiscard]] constexpr char const *c_str() const & noexcept
