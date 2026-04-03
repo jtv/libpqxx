@@ -117,7 +117,7 @@ public:
     invariant();
   }
 
-  // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
+  // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions)
 
   zview(std::nullptr_t) = delete;
 
