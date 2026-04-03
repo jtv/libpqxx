@@ -8,8 +8,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_SQL_CURSOR_HXX
-#define PQXX_SQL_CURSOR_HXX
+#ifndef PQXX_INTERNAL_SQL_CURSOR_HXX
+#define PQXX_INTERNAL_SQL_CURSOR_HXX
 
 namespace pqxx::internal
 {
@@ -40,7 +40,12 @@ public:
     transaction_base &t, std::string_view cname,
     cursor_base::ownership_policy op, sl = sl::current());
 
+  sql_cursor(sql_cursor const &) = delete;
+  sql_cursor(sql_cursor &&) = delete;
   ~sql_cursor() noexcept;
+
+  sql_cursor &operator=(sql_cursor const &) = delete;
+  sql_cursor &operator=(sql_cursor &&) = delete;
 
   result fetch(difference_type rows, difference_type &displacement, sl);
   PQXX_INLINE_COV result fetch(difference_type rows, sl loc)
@@ -63,7 +68,10 @@ public:
    * Position may be unknown if (and only if) this cursor was adopted, and has
    * never hit its starting position (position zero).
    */
-  PQXX_INLINE_COV difference_type pos() const noexcept { return m_pos; }
+  PQXX_INLINE_COV [[nodiscard]] difference_type pos() const noexcept
+  {
+    return m_pos;
+  }
 
   /// End position, or -1 for unknown
   /**
@@ -72,17 +80,23 @@ public:
    *
    * End position is unknown until it is encountered during use.
    */
-  PQXX_INLINE_COV difference_type endpos() const noexcept { return m_endpos; }
+  PQXX_INLINE_COV [[nodiscard]] difference_type endpos() const noexcept
+  {
+    return m_endpos;
+  }
 
   /// Return zero-row result for this cursor.
-  PQXX_INLINE_COV result const &empty_result() const noexcept
+  PQXX_INLINE_COV [[nodiscard]] result const &empty_result() const noexcept
   {
     return m_empty_result;
   }
 
   void close(sl loc);
 
-  PQXX_PURE constexpr sl created_loc() const noexcept { return m_created_loc; }
+  PQXX_PURE [[nodiscard]] constexpr sl created_loc() const noexcept
+  {
+    return m_created_loc;
+  }
 
 private:
   difference_type adjust(difference_type hoped, difference_type actual);

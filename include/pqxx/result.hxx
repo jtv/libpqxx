@@ -583,7 +583,7 @@ private:
   friend class pqxx::internal::gate::result_connection;
   friend class pqxx::internal::gate::result_row;
   bool operator!() const noexcept { return m_data.get() == nullptr; }
-  // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-cnoversions)
+  // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
   operator bool() const noexcept { return m_data.get() != nullptr; }
 
   [[noreturn]] PQXX_COLD PQXX_PRIVATE void
