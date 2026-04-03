@@ -239,7 +239,7 @@ namespace pqxx::internal
  * So, if construction of the return value fails, there is no choice but to
  * terminate.
  */
-PQXX_LIBEXPORT PQXX_ZARGS PQXX_PURE std::string
+PQXX_LIBEXPORT PQXX_ZARGS std::string
 demangle_type_name(char const[]) noexcept;
 #endif
 } // namespace pqxx::internal
