@@ -50,6 +50,8 @@ constexpr inline int const version_patch{@PQXX_PATCH@};
 } // namespace pqxx
 
 
+// NOLINTBEGIN(modernize-macro-to-enum)
+
 /// Full libpqxx version string.  @deprecated Use @ref pqxx::version instead.
 #define PQXX_VERSION "@PQXXVERSION@"
 /// Library ABI version.  @deprecated Use @ref pqxx::abi_version instead.
@@ -58,4 +60,7 @@ constexpr inline int const version_patch{@PQXX_PATCH@};
 #define PQXX_VERSION_MAJOR @PQXX_MAJOR@
 /// Minor version number.  @deprecated Use @ref pqxx::version_minor instead.
 #define PQXX_VERSION_MINOR @PQXX_MINOR@
+
+// NOLINTEND(modernize-macro-to-enum)
+
 #endif
