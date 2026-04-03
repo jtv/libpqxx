@@ -296,7 +296,7 @@ public:
    * the number of fields in `t`.
    */
   template<typename... TYPE>
-  std::tuple<TYPE...> as(sl loc = sl::current()) const
+  [[nodiscard]] std::tuple<TYPE...> as(sl loc = sl::current()) const
   {
     return as_tuple<std::tuple<TYPE...>>(loc);
   }
@@ -661,7 +661,7 @@ public:
    * the number of fields in `t`.
    */
   template<typename... TYPE>
-  std::tuple<TYPE...> as(sl loc = sl::current()) const
+  [[nodiscard]] std::tuple<TYPE...> as(sl loc = sl::current()) const
   {
     return as_row_ref().as<TYPE...>(loc);
   }
@@ -677,7 +677,7 @@ public:
    * the number of fields in `TUPLE`.
    */
   template<typename TUPLE>
-  TUPLE as_tuple(sl loc = sl::current()) const
+  [[nodiscard]] TUPLE as_tuple(sl loc = sl::current()) const
     requires(requires(TUPLE t) { std::get<0>(t); })
   {
     return as_row_ref().as_tuple<TUPLE>(loc);

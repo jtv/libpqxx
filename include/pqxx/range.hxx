@@ -23,12 +23,12 @@ namespace pqxx
 struct no_bound final
 {
   template<typename TYPE>
-  constexpr bool extends_down_to(TYPE const &) const noexcept
+  [[nodiscard]] constexpr bool extends_down_to(TYPE const &) const noexcept
   {
     return true;
   }
   template<typename TYPE>
-  constexpr bool extends_up_to(TYPE const &) const noexcept
+  [[nodiscard]] constexpr bool extends_up_to(TYPE const &) const noexcept
   {
     return true;
   }
@@ -505,11 +505,17 @@ template<typename TYPE> struct string_traits<range<TYPE>> final
 
     // The field parser uses this to track which field it's parsing, and
     // when not to expect a field separator.
+    // clang-tidy rule bug:
+    // NOLINTNEXTLINE(misc-const-correctness)
     std::size_t index{0};
     // The last field we expect to see.
     static constexpr std::size_t last{1};
+
     // Current parsing position.  We skip the opening parenthesis or bracket.
+    // clang-tidy rule bug:
+    // NOLINTNEXTLINE(misc-const-correctness)
     std::size_t pos{1};
+
     // The string may leave out either bound to indicate that it's unlimited.
     std::optional<TYPE> lower, upper;
     // We reuse the same field parser we use for composite values and arrays.

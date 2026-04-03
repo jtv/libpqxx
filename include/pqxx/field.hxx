@@ -882,12 +882,18 @@ inline std::nullptr_t from_string<std::nullptr_t>(field const &value, ctx c)
 }
 
 
+// clang-tidy rule bug:
+// NOLINTBEGIN(misc-unused-parameters)
+
 /// Convert a field_ref to a string.
 template<>
 PQXX_LIBEXPORT inline std::string to_string(field_ref const &value, ctx)
 {
   return std::string{value.view()};
 }
+
+// NOLINTEND(misc-unused-parameters)
+
 /// Convert a field to a string.
 template<> PQXX_LIBEXPORT inline std::string to_string(field const &value, ctx)
 {

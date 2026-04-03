@@ -564,11 +564,14 @@ template<> inline std::string to_string(result const &value, ctx)
 }
 
 
+// clang-tidy rule bug:
+// NOLINTBEGIN(misc-unused-parameters)
 template<>
 inline std::string to_string(result::const_iterator const &value, ctx)
 {
   return pqxx::test::list_result_iterator(value);
 }
+// NOLINTEND(misc-unused-parameters)
 } // namespace pqxx
 
 #endif

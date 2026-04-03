@@ -474,6 +474,8 @@ pqxx::result pqxx::transaction_base::direct_exec(
 }
 
 
+// TODO: Pass cmd as a const reference.
+// NOLINTBEGIN(perforance-unnecessary-value-param)
 pqxx::result pqxx::transaction_base::direct_exec(
   std::shared_ptr<std::string> cmd, std::string_view desc, sl loc)
 {
@@ -481,6 +483,7 @@ pqxx::result pqxx::transaction_base::direct_exec(
   return pqxx::internal::gate::connection_transaction{conn()}.exec(
     cmd, desc, loc);
 }
+// NOLINTEND(perforance-unnecessary-value-param)
 
 
 void pqxx::transaction_base::register_pending_error(zview err, sl loc) noexcept
