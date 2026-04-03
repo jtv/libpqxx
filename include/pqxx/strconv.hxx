@@ -161,6 +161,8 @@ template<typename TYPE, TYPE null_value> struct all_null
  */
 struct conversion_context final
 {
+  // NOLINTBEGIN(misc-non-private-member-variables-in-classes)
+
   /// Encoding group describing the client text encoding.
   /** This will not tell you what the exact _encoding_ is.  All libpqxx cares
    * about is how to parse text in a given encoding, so that it can reliably
@@ -180,6 +182,9 @@ struct conversion_context final
    */
   sl loc = sl::current();
 
+  // NOLINTEND(misc-non-private-member-variables-in-classes)
+
+  // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
   constexpr conversion_context(sl lc = sl::current()) : loc{lc} {}
 
   explicit constexpr conversion_context(

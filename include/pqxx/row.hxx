@@ -180,7 +180,7 @@ public:
    * configurations this may move exceptions out of `try` blocks that are meant
    * to catch them.
    */
-  reference at(zview col_name, sl loc = sl::current()) const
+  [[nodiscard]] reference at(zview col_name, sl loc = sl::current()) const
   {
     if (m_result == nullptr)
       throw usage_error{"Indexing uninitialised row.", loc};
@@ -426,7 +426,7 @@ public:
   row() noexcept = default;
   row(row &&) noexcept = default;
   row(row const &) noexcept = default;
-  row(row_ref const &ref) :
+  explicit row(row_ref const &ref) :
           m_result{ref.home()},
           m_index{ref.row_number()},
           m_end{std::size(ref)}

@@ -582,7 +582,7 @@ int pqxx::result::column_type_modifier(
 pqxx::row pqxx::result::one_row(sl loc) const
 {
   check_one_row(loc);
-  return front();
+  return row{front()};
 }
 
 
@@ -624,7 +624,7 @@ std::optional<pqxx::row> pqxx::result::opt_row(sl loc) const
   }
   else if (sz == 1)
   {
-    return {front()};
+    return row{front()};
   }
   else
   {
