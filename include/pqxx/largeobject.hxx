@@ -22,9 +22,8 @@
 
 // This whole header is deprecated, so there's not much point checking these.
 // NOLINT(
-//    fuchsia-multiple-inheritance,
-//    cppcoreguidelines-owning-memory,
-//    cppcoreguidelines-avoid-const-or-ref-data-members
+//    cppcoreguidelines-avoid-const-or-ref-data-members,
+//    fuchsia-multiple-inheritance
 // )
 
 namespace pqxx
@@ -71,6 +70,7 @@ public:
   [[deprecated("Use blob instead.")]] largeobject(
     dbtransaction &t, std::string_view file);
 
+  // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
   /// Take identity of an opened large object.
   /** Copy identity of already opened large object.  Note that this may be done
    * as an implicit conversion.
@@ -78,6 +78,7 @@ public:
    */
   [[deprecated("Use blob instead.")]] largeobject(
     largeobjectaccess const &o) noexcept;
+  // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions)
 
   /// Object identifier.
   /** The number returned by this function identifies the large object in the
@@ -353,8 +354,8 @@ public:
   largeobjectaccess &operator=(largeobjectaccess const &) = delete;
 
 private:
-  PQXX_PRIVATE std::string reason(int err) const;
-  internal::pq::PGconn *raw_connection() const
+  PQXX_PRIVATE [[nodiscard]] std::string reason(int err) const;
+  [[nodiscard]] internal::pq::PGconn *raw_connection() const
   {
     return largeobject::raw_connection(m_trans);
   }
@@ -366,6 +367,8 @@ private:
   int m_fd = -1;
 };
 
+
+// NOLINTBEGIN(cppcoreguidelines-owning-memory)
 
 /// Streambuf to use large objects in standard I/O streams.
 /** @deprecated Access large objects directly using the @ref blob class.
@@ -538,6 +541,7 @@ private:
   char_type *m_g, *m_p;
 };
 
+// NOLINTEND(cppcoreguidelines-owning-memory)
 
 /// Input stream that gets its data from a large object.
 /** @deprecated Access large objects directly using the @ref blob class.

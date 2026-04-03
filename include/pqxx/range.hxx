@@ -149,13 +149,17 @@ private:
 
 public:
   range_bound() = delete;
+
+  // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
   constexpr range_bound(no_bound) noexcept : m_bound{} {}
 
+  // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
   constexpr range_bound(inclusive_bound<TYPE> const &bound) noexcept(
     noexcept(inclusive_bound<TYPE>{bound})) :
           m_bound{bound}
   {}
 
+  // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
   constexpr range_bound(exclusive_bound<TYPE> const &bound) noexcept(
     noexcept(exclusive_bound{bound})) :
           m_bound{bound}
@@ -188,19 +192,19 @@ public:
   range_bound &operator=(range_bound &&) = default;
 
   /// Is this a finite bound?
-  constexpr bool is_limited() const noexcept
+  [[nodiscard]] constexpr bool is_limited() const noexcept
   {
     return not std::holds_alternative<no_bound>(m_bound);
   }
 
   /// Is this boundary an inclusive one?
-  constexpr bool is_inclusive() const noexcept
+  [[nodiscard]] constexpr bool is_inclusive() const noexcept
   {
     return std::holds_alternative<inclusive_bound<TYPE>>(m_bound);
   }
 
   /// Is this boundary an exclusive one?
-  constexpr bool is_exclusive() const noexcept
+  [[nodiscard]] constexpr bool is_exclusive() const noexcept
   {
     return std::holds_alternative<exclusive_bound<TYPE>>(m_bound);
   }
