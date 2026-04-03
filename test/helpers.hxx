@@ -556,6 +556,8 @@ template<> inline std::string to_string(row const &value, ctx)
 }
 
 
+// clang-tidy rule bug:
+// NOLINTNEXTLINE(misc-unused-parameters)
 template<> inline std::string to_string(result const &value, ctx)
 {
   return pqxx::test::list_result(value);

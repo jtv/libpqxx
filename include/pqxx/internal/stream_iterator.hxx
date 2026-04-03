@@ -46,6 +46,8 @@ public:
     return *this;
   }
 
+  ~stream_from_input_iterator() = default;
+
   stream_from_input_iterator &
   operator=(stream_from_input_iterator const &) = default;
   stream_from_input_iterator &

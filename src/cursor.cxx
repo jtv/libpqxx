@@ -23,12 +23,13 @@
 
 #include "pqxx/internal/header-post.hxx"
 
-
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
 pqxx::cursor_base::cursor_base(
   connection &context, std::string_view Name, bool embellish_name, sl loc) :
         m_name{embellish_name ? context.adorn_name(Name) : Name},
         m_created_loc{loc}
 {}
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 
 
 pqxx::result::size_type

@@ -147,10 +147,11 @@ public:
   void remove(dbtransaction &t) const;
 
 protected:
-  PQXX_PURE static internal::pq::PGconn *
+  PQXX_PURE [[nodiscard]] static internal::pq::PGconn *
   raw_connection(dbtransaction const &T);
 
-  PQXX_PRIVATE std::string reason(connection const &, int err) const;
+  PQXX_PRIVATE [[nodiscard]] std::string
+  reason(connection const &, int err) const;
 
 private:
   oid m_id = oid_none;

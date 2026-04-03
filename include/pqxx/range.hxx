@@ -173,6 +173,8 @@ public:
 
   constexpr range_bound(range_bound &&) = default;
 
+  ~range_bound() = default;
+
   constexpr bool operator==(range_bound const &rhs) const
   {
     if (this->is_limited())

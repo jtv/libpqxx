@@ -21,6 +21,8 @@
 
 namespace pqxx
 {
+// NOLINTBEGIN(fuchsia-multiple-inheritance)
+
 /**
  * @ingroup transactions
  */
@@ -95,11 +97,13 @@ public:
   ~subtransaction() noexcept override;
 
 private:
-  std::string quoted_name() const
+  [[nodiscard]] std::string quoted_name() const
   {
     return quote_name(transaction_focus::name());
   }
   void do_commit(sl) override;
 };
+
+// NOLINTEND(fuchsia-multiple-inheritance)
 } // namespace pqxx
 #endif
