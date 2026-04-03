@@ -91,7 +91,7 @@ public:
   {}
 
   /// Nest a subtransaction in another subtransaction.
-  explicit subtransaction(
+  subtransaction(
     subtransaction &t, std::string_view name = ""sv, sl loc = sl::current());
 
   subtransaction(subtransaction const &) = delete;

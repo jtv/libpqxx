@@ -312,7 +312,7 @@ public:
    * the number of fields in `TUPLE`.
    */
   template<typename TUPLE>
-  TUPLE as_tuple(sl loc = sl::current()) const
+  [[nodiscard]] TUPLE as_tuple(sl loc = sl::current()) const
     requires(requires(TUPLE t) { std::get<0>(t); })
   {
     check_size(std::tuple_size_v<TUPLE>, loc);
@@ -363,13 +363,14 @@ private:
 
   /// Convert row's values as a new tuple.
   template<typename TUPLE, std::size_t... indexes>
-  auto get_tuple(std::index_sequence<indexes...>, sl) const
+  [[nodiscard]] auto get_tuple(std::index_sequence<indexes...>, sl) const
   {
     return std::make_tuple(get_field<TUPLE, indexes>()...);
   }
 
   /// Extract and convert a field.
-  template<typename TUPLE, std::size_t index> auto get_field() const
+  template<typename TUPLE, std::size_t index>
+  [[nodiscard]] auto get_field() const
   {
     return (*this)[index].as<std::tuple_element_t<index, TUPLE>>();
   }
