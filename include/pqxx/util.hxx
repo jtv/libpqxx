@@ -305,11 +305,15 @@ inline bool str_contains(HAYSTACK const &haystack, NEEDLE const &needle)
 {
   // C++23: Replace with `haystack.contains(needle)`.  Retire wrapper.
   // clang-tidy rule bug:
-  // NOLINTNEXTLINE(
+  // NOLINTBEGIN(
   //    cppcoreguidelines-pro-bounds-array-to-pointer-decay,
   //    hicpp-no-array-decay
   // )
   return haystack.find(needle) != HAYSTACK::npos;
+  // NOLINTEND(
+  //    cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  //    hicpp-no-array-decay
+  // )
 }
 
 
