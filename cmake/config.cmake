@@ -53,7 +53,8 @@ execute_process(
 if(NOT filter_result STREQUAL "0")
     message(
         FATAL_ERROR
-        "Filtering config failed (${filter_result}): ${filter_stderr}")
+            "Filtering config failed (${filter_result}): ${filter_stderr}"
+    )
 endif()
 
 message(STATUS "Generating configuration headers - done")
