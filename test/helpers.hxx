@@ -217,8 +217,18 @@ inline void check_equal(
   char const *expected_text,
   std::string const &desc = "Equality check failed.", sl loc = sl::current())
 {
+  // clang-tidy rule bug:
+  // NOLINTBEGIN(
+  //    cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  //    hicpp-no-array-decay
+  // )
   if (expected == actual)
     return;
+  // NOLINTEND(
+  //    cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  //    hicpp-no-array-decay
+  // )
+
   std::string const fulldesc = desc + " (" + actual_text + " <> " +
                                expected_text +
                                ": "
@@ -233,6 +243,12 @@ inline void check_equal(
       expected_text, to_string(expected), to_string(actual)),
     loc};
 }
+
+// clang-tidy rule bug:
+// NOLINTBEGIN(
+//    cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+//    hicpp-no-array-decay
+// )
 
 // Verify that two values are not equal.
 // Takes an optional failure description as a third argument.
@@ -260,6 +276,11 @@ inline void check_not_equal(
                                to_string(value2) + ")";
   throw test_failure{fulldesc, loc};
 }
+
+// NOLINTEND(
+//    cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+//    hicpp-no-array-decay
+// )
 
 
 // Verify that value1 is less/greater than value2.

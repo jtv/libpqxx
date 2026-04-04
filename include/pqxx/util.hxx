@@ -293,6 +293,12 @@ inline constexpr void ignore_unused(T &&...) noexcept
 {}
 
 
+// clang-tidy rule bug:
+// NOLINTBEGIN(
+//    cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+//    hicpp-no-array-decay
+// )
+
 /// Does string `haystack` contain `needle`?
 /** This is a wrapper for C++23 `haystack.contains(needle)`.  It will
  * disappear when libpqxx requires C++23 or better.
@@ -306,6 +312,10 @@ inline bool str_contains(HAYSTACK const &haystack, NEEDLE const &needle)
   // C++23: Replace with `haystack.contains(needle)`.  Retire wrapper.
   return haystack.find(needle) != HAYSTACK::npos;
 }
+// NOLINTEND(
+//    cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+//    hicpp-no-array-decay
+// )
 
 
 /// Concept: something that works like a `std::source_location`.
@@ -400,6 +410,12 @@ PQXX_ZARGS inline constexpr char const *as_c_string(char const str[]) noexcept
 /// Get a raw C string pointer.
 template<std::size_t N>
 inline constexpr char const *as_c_string(char (&str)[N]) noexcept
+{
+  return str;
+}
+/// Get a raw C string pointer.
+template<std::size_t N>
+inline constexpr char const *as_c_string(char const (&str)[N]) noexcept
 {
   return str;
 }

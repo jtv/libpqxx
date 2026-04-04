@@ -1639,8 +1639,17 @@ inline connection::connection(
     pqxx::internal::check_libpqxx_version(
       version_major, version_minor, version_patch, version)};
 
+  // clang-tidy rule bug:
+  // NOLINTBEGIN(
+  //    cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  //    hicpp-no-array-decay
+  // )
   pqxx::internal::connection_string_parser const parsed_string{
     pqxx::internal::as_c_string(connection_string), loc};
+  // NOLINTEND(
+  //    cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  //    hicpp-no-array-decay
+  // )
   auto [keys, values]{parsed_string.parse()};
 
   // Merge key/value pairs into the pairs we got from the connection string.
