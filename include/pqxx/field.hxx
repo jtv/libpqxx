@@ -249,8 +249,9 @@ public:
 
   /// Read SQL array contents as a @ref pqxx::array.
   template<typename ELEMENT, auto... ARGS>
-  [[deprecated("Use as<pqxx::array<ELEMENT, ...>>().")]]
-  array<ELEMENT, ARGS...> as_sql_array(sl loc = sl::current()) const
+  [[deprecated("Use as<pqxx::array<ELEMENT, ...>>().")]] [[nodiscard]] array<
+    ELEMENT, ARGS...>
+  as_sql_array(sl loc = sl::current()) const
   {
     using array_type = array<ELEMENT, ARGS...>;
 
