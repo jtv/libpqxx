@@ -217,8 +217,18 @@ inline void check_equal(
   char const *expected_text,
   std::string const &desc = "Equality check failed.", sl loc = sl::current())
 {
+  // clang-tidy rule bug:
+  // NOLINTBEGIN(
+  //    cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  //    hicpp-no-array-decay
+  // )
   if (expected == actual)
     return;
+  // NOLINTEND(
+  //    cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  //    hicpp-no-array-decay
+  // )
+
   std::string const fulldesc = desc + " (" + actual_text + " <> " +
                                expected_text +
                                ": "
