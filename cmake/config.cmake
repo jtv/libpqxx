@@ -50,8 +50,10 @@ execute_process(
         "${CONFIG_H}" "${CONFIG_H_COM}"
 )
 # Staggering: execute_process() will fail *silently* on error...
-if(NOT filter_result EQUAL 0)
-    message(FATAL_ERROR "Filtering config failed: ${filter_stderr}")
+if(NOT filter_result STREQUAL "0")
+    message(
+        FATAL_ERROR
+        "Filtering config failed (${filter_result}): ${filter_stderr}")
 endif()
 
 message(STATUS "Generating configuration headers - done")
