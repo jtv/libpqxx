@@ -311,7 +311,6 @@ inline bool str_contains(HAYSTACK const &haystack, NEEDLE const &needle)
 {
   // C++23: Replace with `haystack.contains(needle)`.  Retire wrapper.
   return haystack.find(needle) != HAYSTACK::npos;
-
 }
 // NOLINTEND(
 //    cppcoreguidelines-pro-bounds-array-to-pointer-decay,
