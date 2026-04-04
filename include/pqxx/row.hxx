@@ -905,7 +905,6 @@ public:
   const_reverse_row_iterator(const_reverse_row_iterator const &) noexcept =
     default;
   const_reverse_row_iterator(const_reverse_row_iterator &&) noexcept = default;
-  ~const_reverse_row_iterator() = default;
 
   explicit const_reverse_row_iterator(super const &rhs) noexcept :
           const_row_iterator{rhs}

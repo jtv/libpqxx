@@ -24,6 +24,7 @@ namespace pqxx::internal
 class PQXX_LIBEXPORT basic_transaction : public dbtransaction
 {
 public:
+  basic_transaction() = delete;
   basic_transaction(basic_transaction const &) = delete;
   basic_transaction(basic_transaction &&) = delete;
   basic_transaction &operator=(basic_transaction const &) = delete;
@@ -41,18 +42,6 @@ protected:
 
 private:
   void do_commit(sl) override;
-
-public:
-  basic_transaction() = delete;
-  basic_transaction(basic_transaction const &) = delete;
-  basic_transaction(basic_transaction &&) = delete;
-
-  // NOLINTNEXTLINE(cppcoreguidelines-virtual-class-destructor)
-  ~basic_transaction() noexcept override = 0;
-
-  basic_transaction &operator=(basic_transaction const &) = delete;
-  basic_transaction &operator=(basic_transaction &&) = delete;
-};
 } // namespace pqxx::internal
 
 

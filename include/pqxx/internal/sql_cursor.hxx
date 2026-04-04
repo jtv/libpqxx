@@ -42,8 +42,6 @@ public:
 
   sql_cursor(sql_cursor const &) = delete;
   sql_cursor(sql_cursor &&) = delete;
-  sql_cursor &operator=(sql_cursor const &) = delete;
-  sql_cursor &operator=(sql_cursor &&) = delete;
 
   ~sql_cursor() noexcept;
 

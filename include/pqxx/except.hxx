@@ -896,6 +896,8 @@ struct PQXX_LIBEXPORT invalid_cursor_name : sql_error
 };
 
 
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
+
 struct PQXX_LIBEXPORT syntax_error : sql_error
 {
   // NOLINTBEGIN(

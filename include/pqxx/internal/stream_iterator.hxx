@@ -39,24 +39,18 @@ public:
   }
   stream_from_input_iterator(stream_from_input_iterator const &) = default;
   stream_from_input_iterator(stream_from_input_iterator &&) = default;
+  ~stream_from_input_iterator() = default;
+
   stream_from_input_iterator &
   operator=(stream_from_input_iterator const &) = default;
   stream_from_input_iterator &
   operator=(stream_from_input_iterator &&) = default;
-  ~stream_from_input_iterator() = default;
 
   stream_from_input_iterator &operator++()
   {
     advance(sl::current());
     return *this;
   }
-
-  ~stream_from_input_iterator() = default;
-
-  stream_from_input_iterator &
-  operator=(stream_from_input_iterator const &) = default;
-  stream_from_input_iterator &
-  operator=(stream_from_input_iterator &&) = default;
 
   value_type const &operator*() const noexcept { return m_value; }
 

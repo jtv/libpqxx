@@ -234,7 +234,6 @@ public:
 
   stateless_cursor &operator=(stateless_cursor &&) = default;
   stateless_cursor &operator=(stateless_cursor const &) = delete;
-  ~stateless_cursor() = default;
 
   /// Close this cursor.
   /** The destructor will do this for you automatically.

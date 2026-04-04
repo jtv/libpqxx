@@ -357,12 +357,6 @@ public:
   using largeobject::operator>;
   using largeobject::operator>=;
 
-  largeobjectaccess() = delete;
-  largeobjectaccess(largeobjectaccess const &) = delete;
-  largeobjectaccess(largeobjectaccess &&) = delete;
-  largeobjectaccess &operator=(largeobjectaccess const &) = delete;
-  largeobjectaccess &operator=(largeobjectaccess &&) = delete;
-
 private:
   PQXX_PRIVATE [[nodiscard]] std::string reason(int err) const;
   [[nodiscard]] internal::pq::PGconn *raw_connection() const
@@ -432,8 +426,6 @@ public:
     largeobject_streambuf const &) = default;
   [[deprecated("Use blob instead.")]] largeobject_streambuf(
     largeobject_streambuf &&) = default;
-  largeobject_streambuf &operator=(largeobject_streambuf const &) = default;
-  largeobject_streambuf &operator=(largeobject_streambuf &&) = default;
 
   ~largeobject_streambuf() noexcept override
   {
@@ -674,8 +666,6 @@ public:
     basic_olostream const &) = default;
   [[deprecated("Use blob instead.")]] basic_olostream(basic_olostream &&) =
     default;
-  basic_olostream &operator=(basic_olostream const &) = default;
-  basic_olostream &operator=(basic_olostream &&) = default;
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 
   /// Create a basic_olostream.
@@ -691,9 +681,6 @@ public:
   {
     super::init(&m_buf);
   }
-
-  basic_olostream(basic_olostream const &) = delete;
-  basic_olostream(basic_olostream &&) = delete;
 
   ~basic_olostream() override
   {
@@ -776,8 +763,6 @@ public:
     default;
   [[deprecated("Use blob instead.")]] basic_lostream(basic_lostream &&) =
     default;
-  basic_lostream &operator=(basic_lostream const &) = default;
-  basic_lostream &operator=(basic_lostream &&) = default;
 
   ~basic_lostream() override
   {

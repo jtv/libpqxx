@@ -193,7 +193,6 @@ public:
   {
     super::operator--();
   }
-  ~const_reverse_result_iterator() noexcept = default;
 
   ~const_reverse_result_iterator() = default;
 
