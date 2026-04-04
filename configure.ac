@@ -387,7 +387,8 @@ AC_CONFIG_FILES([Makefile include/Makefile libpqxx.pc])
 # So we take just the ones with the "PQXX" marker and write them into a
 # header just for compiler-related configuration.
 AC_CONFIG_COMMANDS([configitems],
-	[grep PQXX include/pqxx/config.h >include/pqxx/config-compiler.h])
+	[${srcdir}/tools/filter_config.py \
+	    include/pqxx/config.h include/pqxx/config-compiler.h])
 
 AC_CONFIG_FILES([compile_flags])
 AC_OUTPUT

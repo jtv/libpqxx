@@ -1,8 +1,12 @@
 Building using CMake
 ====================
 
-First of all, the libpqxx build requires the full PostgreSQL development
-package.  You must have that package installed before you can build libpqxx.
+First of all, the libpqxx build requires the development package for `libpq`,
+PostgreSQL's C client library.  You must have that package installed before you
+can build libpqxx.
+
+It also requires Python 3, which comes pre-installed on many systems.  And, you
+may need various standard Unix or GNU command-line utilities.
 
 The instructions will assume that you're working from a command-line shell.
 If you prefer to work from an IDE, you'll have to know how your IDE likes to
