@@ -9,8 +9,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_TRANSACTION
-#define PQXX_H_TRANSACTION
+#ifndef PQXX_TRANSACTION_HXX
+#define PQXX_TRANSACTION_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
@@ -32,10 +32,19 @@ protected:
     sl = sl::current());
   basic_transaction(connection &cx, zview begin_command, sl = sl::current());
 
-  ~basic_transaction() noexcept override = 0;
-
 private:
   void do_commit(sl) override;
+
+public:
+  basic_transaction() = delete;
+  basic_transaction(basic_transaction const &) = delete;
+  basic_transaction(basic_transaction &&) = delete;
+
+  // NOLINTNEXTLINE(cppcoreguidelines-virtual-class-destructor)
+  ~basic_transaction() noexcept override = 0;
+
+  basic_transaction &operator=(basic_transaction const &) = delete;
+  basic_transaction &operator=(basic_transaction &&) = delete;
 };
 } // namespace pqxx::internal
 

@@ -10,8 +10,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_CURSOR
-#define PQXX_H_CURSOR
+#ifndef PQXX_CURSOR_HXX
+#define PQXX_CURSOR_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
@@ -94,7 +94,15 @@ public:
 
   cursor_base() = delete;
   cursor_base(cursor_base const &) = delete;
+  cursor_base(cursor_base &&) = delete;
+
+  // Really weird: gcc complains that this accesses deprecated m_name.
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
+  ~cursor_base() = default;
+#include "pqxx/internal/ignore-deprecated-post.hxx"
+
   cursor_base &operator=(cursor_base const &) = delete;
+  cursor_base &operator=(cursor_base &&) = delete;
 
   /**
    * @name Special movement distances.
@@ -141,7 +149,9 @@ public:
    */
   [[nodiscard]] constexpr std::string const &name() const noexcept
   {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
     return m_name;
+#include "pqxx/internal/ignore-deprecated-post.hxx"
   }
 
 protected:
@@ -150,12 +160,30 @@ protected:
     sl loc = sl::current());
 
   /// The `std::source_location` for where this cursor was created.
-  [[nodiscard]] sl created_loc() const { return m_created_loc; }
+  [[nodiscard]] sl created_loc() const
+  {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
+    return m_created_loc;
+#include "pqxx/internal/ignore-deprecated-post.hxx"
+  }
 
-  std::string const m_name;
+  // NOLINTBEGIN(
+  //    cppcoreguidelines-non-private-member-variables-in-classes,
+  //    misc-non-private-member-variables-in-classes
+  // )
+
+  [[deprecated(
+    "This will become private.  Use name() instead.")]] std::string const
+    m_name;
 
   /// The `std::source_location` for where this cursor was created.
-  sl m_created_loc;
+  [[deprecated("This will become private.  Use created_loc() instead.")]] sl
+    m_created_loc;
+
+  // NOLINTEND(
+  //    cppcoreguidelines-non-private-member-variables-in-classes,
+  //    misc-non-private-member-variables-in-classes
+  // )
 };
 } // namespace pqxx
 
@@ -212,8 +240,10 @@ public:
   }
 
   stateless_cursor(stateless_cursor &&) = default;
-  stateless_cursor &operator=(stateless_cursor &&) = default;
   stateless_cursor(stateless_cursor const &) = delete;
+  ~stateless_cursor() = default;
+
+  stateless_cursor &operator=(stateless_cursor &&) = default;
   stateless_cursor &operator=(stateless_cursor const &) = delete;
 
   /// Close this cursor.
@@ -344,8 +374,12 @@ public:
     transaction_base &context, field const &cname, difference_type sstride = 1,
     cursor_base::ownership_policy op = cursor_base::owned, sl = sl::current());
 
+  // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
+
   /// Return `true` if this stream may still return more data.
   constexpr operator bool() const & noexcept { return not m_done; }
+
+  // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions)
 
   /// Read new value into given result object; same as operator `>>`.
   /** The result set may continue any number of rows from zero to the chosen
@@ -459,7 +493,10 @@ public:
   icursor_iterator() noexcept;
   explicit icursor_iterator(istream_type &) noexcept;
   icursor_iterator(icursor_iterator const &) noexcept;
+  icursor_iterator(icursor_iterator &&) = delete;
   ~icursor_iterator() noexcept;
+
+  icursor_iterator &operator=(icursor_iterator &&) = delete;
 
   result const &operator*() const noexcept
   {
@@ -499,7 +536,7 @@ private:
   void refresh(sl) const;
 
   friend class internal::gate::icursor_iterator_icursorstream;
-  difference_type pos() const noexcept { return m_pos; }
+  [[nodiscard]] difference_type pos() const noexcept { return m_pos; }
   void fill(result const &);
 
   /// The `std::source_location` for where this iterator's stream was created.

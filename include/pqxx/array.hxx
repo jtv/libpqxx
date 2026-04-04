@@ -120,7 +120,8 @@ public:
     return m_extents;
   }
 
-  template<std::integral... INDEX> ELEMENT const &at(INDEX... index) const
+  template<std::integral... INDEX>
+  [[nodiscard]] ELEMENT const &at(INDEX... index) const
   {
     static_assert(sizeof...(index) == DIMENSIONS);
     check_bounds(index...);
@@ -164,23 +165,44 @@ public:
    */
   //@{
   /// Begin iteration of individual elements.
-  PQXX_PURE constexpr auto cbegin() const noexcept { return m_elts.cbegin(); }
+  PQXX_PURE [[nodiscard]] constexpr auto cbegin() const noexcept
+  {
+    return m_elts.cbegin();
+  }
   /// Return end point of iteration.
-  PQXX_PURE constexpr auto cend() const noexcept { return m_elts.cend(); }
+  PQXX_PURE [[nodiscard]] constexpr auto cend() const noexcept
+  {
+    return m_elts.cend();
+  }
   /// Begin iteration of individual elements.
-  PQXX_PURE constexpr auto begin() const noexcept { return cbegin(); }
+  PQXX_PURE [[nodiscard]] constexpr auto begin() const noexcept
+  {
+    return cbegin();
+  }
   /// Return endpoint of iteration.
-  PQXX_PURE constexpr auto end() const noexcept { return cend(); }
+  PQXX_PURE [[nodiscard]] constexpr auto end() const noexcept
+  {
+    return cend();
+  }
   /// Begin reverse iteration.
-  PQXX_PURE constexpr auto crbegin() const noexcept
+  PQXX_PURE [[nodiscard]] constexpr auto crbegin() const noexcept
   {
     return m_elts.crbegin();
   }
   /// Return end point of reverse iteration.
-  PQXX_PURE constexpr auto crend() const noexcept { return m_elts.crend(); }
-  PQXX_PURE constexpr auto rbegin() const noexcept { return crbegin(); }
+  PQXX_PURE [[nodiscard]] constexpr auto crend() const noexcept
+  {
+    return m_elts.crend();
+  }
+  PQXX_PURE [[nodiscard]] constexpr auto rbegin() const noexcept
+  {
+    return crbegin();
+  }
   /// Return end point of reverse iteration.
-  PQXX_PURE constexpr auto rend() const noexcept { return crend(); }
+  PQXX_PURE [[nodiscard]] constexpr auto rend() const noexcept
+  {
+    return crend();
+  }
   //@}
 
   /// Number of elements in the array.
@@ -208,7 +230,7 @@ public:
    * enough address space to create the array, even if your system allowed you
    * to use your full address space.
    */
-  constexpr auto ssize() const noexcept
+  [[nodiscard]] constexpr auto ssize() const noexcept
   {
     return static_cast<std::ptrdiff_t>(size());
   }
@@ -216,12 +238,18 @@ public:
   /// Refer to the first element, if any.
   /** If the array is empty, dereferencing this results in undefined behaviour.
    */
-  constexpr auto const &front() const noexcept { return m_elts.front(); }
+  [[nodiscard]] constexpr auto const &front() const noexcept
+  {
+    return m_elts.front();
+  }
 
   /// Refer to the last element, if any.
   /** If the array is empty, dereferencing this results in undefined behaviour.
    */
-  constexpr auto const &back() const noexcept { return m_elts.back(); }
+  [[nodiscard]] constexpr auto const &back() const noexcept
+  {
+    return m_elts.back();
+  }
 
 private:
   /// Throw an error if `data` is not a `DIMENSIONS`-dimensional SQL array.
@@ -498,7 +526,8 @@ private:
   }
 
   /// Map a multidimensional index to an entry in our linear storage.
-  template<typename... INDEX> std::size_t locate(INDEX... index) const noexcept
+  template<typename... INDEX>
+  [[nodiscard]] std::size_t locate(INDEX... index) const noexcept
   {
     static_assert(
       sizeof...(index) == DIMENSIONS,
@@ -507,7 +536,8 @@ private:
   }
 
   template<typename OUTER, typename... INDEX>
-  constexpr std::size_t add_index(OUTER outer, INDEX... indexes) const noexcept
+  [[nodiscard]] constexpr std::size_t
+  add_index(OUTER outer, INDEX... indexes) const noexcept
   {
     std::size_t const first{
       check_cast<std::size_t>(outer, "array index"sv, m_ctx.loc)};

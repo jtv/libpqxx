@@ -61,7 +61,7 @@ void Test(pqxx::connection &C, bool ExplicitAbort)
     if (ExplicitAbort)
       doomed.abort();
 
-    // The doomed tranaction ends here because it goes out of scope, even if
+    // The doomed transaction ends here because it goes out of scope, even if
     // there was no explicit commit or abort.
   }
 

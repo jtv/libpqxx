@@ -10,8 +10,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_STATEMENT_PARAMETER
-#define PQXX_H_STATEMENT_PARAMETER
+#ifndef PQXX_INTERNAL_STATEMENT_PARAMETERS_HXX
+#define PQXX_INTERNAL_STATEMENT_PARAMETERS_HXX
 
 #include <cstring>
 #include <iterator>
@@ -46,9 +46,15 @@ struct PQXX_LIBEXPORT c_params final
   /// Copying these objects is pointless and expensive.  Don't do it.
   c_params(c_params const &) = delete;
   c_params(c_params &&) = default;
+  ~c_params() = default;
+
+  c_params &operator=(c_params const &) = delete;
+  c_params &operator=(c_params &&) = default;
 
   /// Pre-allocate storage for `n` parameters.
   void reserve(std::size_t n) &;
+
+  // NOLINTBEGIN(misc-non-private-member-variables-in-classes)
 
   /// As used by libpq: pointers to parameter values.
   std::vector<char const *> values;
@@ -56,6 +62,8 @@ struct PQXX_LIBEXPORT c_params final
   std::vector<int> lengths;
   /// As used by libpq: effectively boolean "is this a binary parameter?"
   std::vector<int> formats;
+
+  // NOLINTEND(misc-non-private-member-variables-in-classes)
 };
 } // namespace pqxx::internal
 #endif

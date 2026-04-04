@@ -231,7 +231,16 @@ namespace pqxx::internal
 {
 #if !defined(PQXX_HAVE_TYPE_DISPLAY)
 /// Attempt to demangle @c std::type_info::name() to something human-readable.
-PQXX_LIBEXPORT PQXX_ZARGS std::string demangle_type_name(char const[]);
+/** Even though this function is `noexcept`, it is technically possible for the
+ * construction of the return value to fail.  I've never heard of this ever
+ * happening, but if it does, there is no way to catch the exception anyway
+ * because it happens before `main()`.
+ *
+ * So, if construction of the return value fails, there is no choice but to
+ * terminate.
+ */
+PQXX_LIBEXPORT PQXX_ZARGS std::string
+demangle_type_name(char const[]) noexcept;
 #endif
 } // namespace pqxx::internal
 

@@ -6,15 +6,15 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_STREAM_ITERATOR
-#define PQXX_H_STREAM_ITERATOR
+#ifndef PQXX_INTERNAL_STREAM_ITERATOR_HXX
+#define PQXX_INTERNAL_STREAM_ITERATOR_HXX
 
 #include <memory>
 
 namespace pqxx
 {
 template<typename... TYPE> class stream_query;
-}
+} // namespace pqxx
 
 
 namespace pqxx::internal
@@ -38,12 +38,20 @@ public:
     advance(loc);
   }
   stream_from_input_iterator(stream_from_input_iterator const &) = default;
+  stream_from_input_iterator(stream_from_input_iterator &&) = default;
 
   stream_from_input_iterator &operator++()
   {
     advance(sl::current());
     return *this;
   }
+
+  ~stream_from_input_iterator() = default;
+
+  stream_from_input_iterator &
+  operator=(stream_from_input_iterator const &) = default;
+  stream_from_input_iterator &
+  operator=(stream_from_input_iterator &&) = default;
 
   value_type const &operator*() const noexcept { return m_value; }
 
@@ -72,6 +80,7 @@ private:
 };
 
 
+// TODO: Use separate type for end().
 // TODO: Replace with generator?
 /// Iteration over a @ref stream_query.
 template<typename... TYPE> class stream_input_iteration final
@@ -80,13 +89,14 @@ public:
   using stream_t = stream_from;
   using iterator = stream_from_input_iterator<TYPE...>;
   explicit stream_input_iteration(stream_t &home) : m_home{home} {}
-  iterator begin(sl loc = sl::current()) const
+  [[nodiscard]] iterator begin(sl loc = sl::current()) const
   {
     return iterator{m_home, loc};
   }
-  iterator end() const { return {}; }
+  [[nodiscard]] iterator end() const { return {}; }
 
 private:
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
   stream_t &m_home;
 };
 } // namespace pqxx::internal

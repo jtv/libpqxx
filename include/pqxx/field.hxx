@@ -56,13 +56,16 @@ public:
 
   field_ref() noexcept = default;
   field_ref(field_ref const &) noexcept = default;
+  field_ref(field_ref &&) noexcept = default;
   field_ref(
     result const &res, result_size_type row_num,
     row_size_type col_num) noexcept :
           m_result(&res), m_row{row_num}, m_column{col_num}
   {}
+  ~field_ref() = default;
 
   field_ref &operator=(field_ref const &) noexcept = default;
+  field_ref &operator=(field_ref &&) noexcept = default;
 
   [[nodiscard]] PQXX_PURE result const &home() const noexcept
   {
@@ -246,8 +249,9 @@ public:
 
   /// Read SQL array contents as a @ref pqxx::array.
   template<typename ELEMENT, auto... ARGS>
-  [[deprecated("Use as<pqxx::array<ELEMENT, ...>>().")]]
-  array<ELEMENT, ARGS...> as_sql_array(sl loc = sl::current()) const
+  [[deprecated("Use as<pqxx::array<ELEMENT, ...>>().")]] [[nodiscard]] array<
+    ELEMENT, ARGS...>
+  as_sql_array(sl loc = sl::current()) const
   {
     using array_type = array<ELEMENT, ARGS...>;
 
@@ -601,10 +605,8 @@ private:
     return m_home;
   }
 
-  field(
-    result const &r, result_size_type row_num, row_size_type col_num) noexcept
-          :
-          m_home{r}, m_row{row_num}, m_col{col_num}
+  field(result r, result_size_type row_num, row_size_type col_num) noexcept :
+          m_home{std::move(r)}, m_row{row_num}, m_col{col_num}
   {}
 
   /// Build a @ref conversion_context, using the result's encoding group.
@@ -742,6 +744,8 @@ private:
 };
 
 
+// NOLINTBEGIN(fuchsia-multiple-inheritance)
+
 /// Input stream that gets its data from a result field
 /** @deprecated To convert a field's value string to some other type, e.g. to
  * an `int`, use the field's `as<...>()` member function.  To read a field
@@ -778,6 +782,8 @@ public:
 private:
   field_streambuf<CHAR, TRAITS> m_buf;
 };
+
+// NOLINTEND(fuchsia-multiple-inheritance)
 
 
 /// @deprecated Read a field using `field::as<...>()` or `field::c_str()`.
@@ -877,12 +883,18 @@ inline std::nullptr_t from_string<std::nullptr_t>(field const &value, ctx c)
 }
 
 
+// clang-tidy rule bug:
+// NOLINTBEGIN(misc-unused-parameters)
+
 /// Convert a field_ref to a string.
 template<>
 PQXX_LIBEXPORT inline std::string to_string(field_ref const &value, ctx)
 {
   return std::string{value.view()};
 }
+
+// NOLINTEND(misc-unused-parameters)
+
 /// Convert a field to a string.
 template<> PQXX_LIBEXPORT inline std::string to_string(field const &value, ctx)
 {

@@ -113,8 +113,10 @@ void test_row_as_tuple(pqxx::test::context &)
   PQXX_CHECK_EQUAL(std::get<0>(t), 1);
   PQXX_CHECK_EQUAL(std::get<1>(t), "Alice");
 
-  PQXX_CHECK_THROWS(r.as_tuple<short_tuple_t>(), pqxx::usage_error);
-  PQXX_CHECK_THROWS(r.as_tuple<long_tuple_t>(), pqxx::usage_error);
+  PQXX_CHECK_THROWS(
+    (std::ignore = r.as_tuple<short_tuple_t>()), pqxx::usage_error);
+  PQXX_CHECK_THROWS(
+    (std::ignore = r.as_tuple<long_tuple_t>()), pqxx::usage_error);
 }
 
 

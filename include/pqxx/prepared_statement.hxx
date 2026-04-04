@@ -8,8 +8,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_PREPARED_STATEMENT
-#define PQXX_H_PREPARED_STATEMENT
+#ifndef PQXX_PREPARED_STATEMENT_HXX
+#define PQXX_PREPARED_STATEMENT_HXX
 
 namespace pqxx
 {
@@ -69,7 +69,9 @@ namespace pqxx
 class PQXX_LIBEXPORT prepped final : public std::string_view
 {
 public:
-  constexpr prepped(std::string_view name) noexcept : std::string_view{name} {}
+  explicit constexpr prepped(std::string_view name) noexcept :
+          std::string_view{name}
+  {}
 };
 } // namespace pqxx
 

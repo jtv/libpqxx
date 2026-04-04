@@ -474,13 +474,16 @@ pqxx::result pqxx::transaction_base::direct_exec(
 }
 
 
+// TODO: Pass cmd as a const reference.
+// NOLINTBEGIN(performance-unnecessary-value-param)
 pqxx::result pqxx::transaction_base::direct_exec(
   std::shared_ptr<std::string> cmd, std::string_view desc, sl loc)
 {
   check_pending_error();
   return pqxx::internal::gate::connection_transaction{conn()}.exec(
-    std::move(cmd), desc, loc);
+    cmd, desc, loc);
 }
+// NOLINTEND(performance-unnecessary-value-param)
 
 
 void pqxx::transaction_base::register_pending_error(zview err, sl loc) noexcept
@@ -556,7 +559,7 @@ std::string pqxx::transaction_base::description() const
 
 void pqxx::transaction_focus::register_me()
 {
-  pqxx::internal::gate::transaction_transaction_focus{*m_trans}.register_focus(
+  pqxx::internal::gate::transaction_transaction_focus{trans()}.register_focus(
     this);
   m_registered = true;
 }
@@ -564,7 +567,7 @@ void pqxx::transaction_focus::register_me()
 
 void pqxx::transaction_focus::unregister_me() noexcept
 {
-  pqxx::internal::gate::transaction_transaction_focus{*m_trans}
+  pqxx::internal::gate::transaction_transaction_focus{trans()}
     .unregister_focus(this);
   m_registered = false;
 }
@@ -573,6 +576,6 @@ void pqxx::transaction_focus::unregister_me() noexcept
 void pqxx::transaction_focus::reg_pending_error(
   std::string const &err, sl loc) noexcept
 {
-  pqxx::internal::gate::transaction_transaction_focus{*m_trans}
+  pqxx::internal::gate::transaction_transaction_focus{trans()}
     .register_pending_error(err, loc);
 }

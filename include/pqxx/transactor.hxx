@@ -8,8 +8,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_TRANSACTOR
-#define PQXX_H_TRANSACTOR
+#ifndef PQXX_TRANSACTOR_HXX
+#define PQXX_TRANSACTOR_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
@@ -97,9 +97,9 @@ namespace pqxx
  * @return Whatever your callback returns.
  */
 template<typename TRANSACTION_CALLBACK>
-inline auto
+inline std::invoke_result_t<TRANSACTION_CALLBACK>
 perform(TRANSACTION_CALLBACK &&callback, int attempts, sl loc = sl::current())
-  -> std::invoke_result_t<TRANSACTION_CALLBACK>
+
 {
   if (attempts <= 0)
     throw std::invalid_argument{
@@ -181,8 +181,8 @@ perform(TRANSACTION_CALLBACK &&callback, int attempts, sl loc = sl::current())
  * @return Whatever your callback returns.
  */
 template<typename TRANSACTION_CALLBACK>
-inline auto perform(TRANSACTION_CALLBACK &&callback, sl loc = sl::current())
-  -> std::invoke_result_t<TRANSACTION_CALLBACK>
+inline std::invoke_result_t<TRANSACTION_CALLBACK>
+perform(TRANSACTION_CALLBACK &&callback, sl loc = sl::current())
 {
   return perform(callback, 3, loc);
 }

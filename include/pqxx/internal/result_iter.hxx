@@ -6,8 +6,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_RESULT_ITER
-#define PQXX_H_RESULT_ITER
+#ifndef PQXX_INTERNAL_RESULT_ITER_HXX
+#define PQXX_INTERNAL_RESULT_ITER_HXX
 
 #include <memory>
 
@@ -23,7 +23,10 @@ class result;
 namespace pqxx::internal
 {
 // TODO: Replace with generator?
+// TODO: Separate type for `end()` iterator.
 /// Iterator for looped unpacking of a result.
+/** A default-constructed `result_iter` denotes the `end()` of any iteration.
+ */
 template<typename... TYPE> class result_iter final
 {
 public:
@@ -31,6 +34,12 @@ public:
 
   /// Construct an "end" iterator.
   result_iter() = default;
+  result_iter(result_iter const &) = delete;
+  result_iter(result_iter &&) = delete;
+  ~result_iter() = default;
+
+  result_iter &operator=(result_iter const &) = delete;
+  result_iter &operator=(result_iter &&) = delete;
 
   explicit result_iter(result const &home, sl loc = sl::current()) :
           m_home{&home}, m_size{std::size(home)}
@@ -38,14 +47,13 @@ public:
     if (not std::empty(home))
       read(loc);
   }
-  result_iter(result_iter const &) = default;
 
   result_iter &operator++()
   {
     PQXX_ASSUME(m_home != nullptr);
     PQXX_ASSUME(m_index <= m_size);
     // TODO: Would be nice to get at least the result's creation location.
-    sl loc{sl::current()};
+    sl const loc{sl::current()};
     ++m_index;
     if (m_index >= m_size)
       m_home = nullptr;
@@ -71,7 +79,7 @@ private:
 
   result const *m_home{nullptr};
   result::size_type m_index{0};
-  result::size_type m_size;
+  result::size_type m_size{0};
   value_type m_value;
 };
 
@@ -82,21 +90,22 @@ template<typename... TYPE> class result_iteration final
 public:
   using iterator = result_iter<TYPE...>;
 
-  explicit result_iteration(result const &home) : m_home{home}
+  explicit result_iteration(result home) : m_home{std::move(home)}
   {
     m_home.expect_columns(sizeof...(TYPE));
   }
 
-  iterator begin() const
+  [[nodiscard]] iterator begin() const
   {
     if (std::size(m_home) == 0)
       return end();
     else
       return iterator{m_home};
   }
-  iterator end() const { return {}; }
+  [[nodiscard]] iterator end() const { return {}; }
 
 private:
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
   pqxx::result const m_home;
 };
 } // namespace pqxx::internal
@@ -108,6 +117,10 @@ template<typename... TYPE> inline auto pqxx::result::iter() const
 }
 
 
+// A for_each iteration of a result.
+//
+// This is a strange place to define an inline member function on result, but
+// ordering of definitions leaves no better place for it.
 template<typename CALLABLE>
 inline void pqxx::result::for_each(CALLABLE &&func, sl loc) const
 {

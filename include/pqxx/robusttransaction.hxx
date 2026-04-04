@@ -10,8 +10,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_ROBUSTTRANSACTION
-#define PQXX_H_ROBUSTTRANSACTION
+#ifndef PQXX_ROBUSTTRANSACTION_HXX
+#define PQXX_ROBUSTTRANSACTION_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
@@ -26,7 +26,12 @@ class PQXX_LIBEXPORT PQXX_NOVTABLE basic_robusttransaction
         : public dbtransaction
 {
 public:
+  basic_robusttransaction(basic_robusttransaction const &) = delete;
+  basic_robusttransaction(basic_robusttransaction &&) = delete;
   ~basic_robusttransaction() override = 0;
+
+  basic_robusttransaction &operator=(basic_robusttransaction const &) = delete;
+  basic_robusttransaction &operator=(basic_robusttransaction &&) = delete;
 
 protected:
   basic_robusttransaction(connection &cx, zview begin_command, sl);
@@ -109,7 +114,13 @@ public:
             loc}
   {}
 
+  robusttransaction(robusttransaction const &) = delete;
+  robusttransaction(robusttransaction &&) = delete;
+
   ~robusttransaction() noexcept override { close(sl::current()); }
+
+  robusttransaction &operator=(robusttransaction const &) = delete;
+  robusttransaction &operator=(robusttransaction &&) = delete;
 };
 
 /**

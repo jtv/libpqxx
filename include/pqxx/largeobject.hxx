@@ -8,8 +8,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_LARGEOBJECT
-#define PQXX_H_LARGEOBJECT
+#ifndef PQXX_LARGEOBJECT_HXX
+#define PQXX_LARGEOBJECT_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
@@ -19,6 +19,13 @@
 
 #include "pqxx/dbtransaction.hxx"
 
+
+// This whole header is deprecated, so there's not much point checking these.
+//
+// NOLINTBEGIN(
+//    cppcoreguidelines-avoid-const-or-ref-data-members,
+//    fuchsia-multiple-inheritance
+// )
 
 namespace pqxx
 {
@@ -64,6 +71,7 @@ public:
   [[deprecated("Use blob instead.")]] largeobject(
     dbtransaction &t, std::string_view file);
 
+  // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
   /// Take identity of an opened large object.
   /** Copy identity of already opened large object.  Note that this may be done
    * as an implicit conversion.
@@ -71,6 +79,7 @@ public:
    */
   [[deprecated("Use blob instead.")]] largeobject(
     largeobjectaccess const &o) noexcept;
+  // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions)
 
   /// Object identifier.
   /** The number returned by this function identifies the large object in the
@@ -140,10 +149,11 @@ public:
   void remove(dbtransaction &t) const;
 
 protected:
-  PQXX_PURE static internal::pq::PGconn *
+  PQXX_PURE [[nodiscard]] static internal::pq::PGconn *
   raw_connection(dbtransaction const &T);
 
-  PQXX_PRIVATE std::string reason(connection const &, int err) const;
+  PQXX_PRIVATE [[nodiscard]] std::string
+  reason(connection const &, int err) const;
 
 private:
   oid m_id = oid_none;
@@ -216,7 +226,13 @@ public:
   [[deprecated("Use blob instead.")]] largeobjectaccess(
     dbtransaction &t, std::string_view file, openmode mode = default_mode);
 
+  largeobjectaccess() = delete;
+  largeobjectaccess(largeobjectaccess const &) = delete;
+  largeobjectaccess(largeobjectaccess &&) = delete;
   ~largeobjectaccess() noexcept { close(); }
+
+  largeobjectaccess &operator=(largeobjectaccess const &) = delete;
+  largeobjectaccess &operator=(largeobjectaccess &&) = delete;
 
   /// Object identifier.
   /** The number returned by this function uniquely identifies the large object
@@ -341,13 +357,9 @@ public:
   using largeobject::operator>;
   using largeobject::operator>=;
 
-  largeobjectaccess() = delete;
-  largeobjectaccess(largeobjectaccess const &) = delete;
-  largeobjectaccess &operator=(largeobjectaccess const &) = delete;
-
 private:
-  PQXX_PRIVATE std::string reason(int err) const;
-  internal::pq::PGconn *raw_connection() const
+  PQXX_PRIVATE [[nodiscard]] std::string reason(int err) const;
+  [[nodiscard]] internal::pq::PGconn *raw_connection() const
   {
     return largeobject::raw_connection(m_trans);
   }
@@ -359,6 +371,8 @@ private:
   int m_fd = -1;
 };
 
+
+// NOLINTBEGIN(cppcoreguidelines-owning-memory)
 
 /// Streambuf to use large objects in standard I/O streams.
 /** @deprecated Access large objects directly using the @ref blob class.
@@ -408,11 +422,17 @@ public:
     initialize(mode);
   }
 
+  largeobject_streambuf(largeobject_streambuf const &) = delete;
+  largeobject_streambuf(largeobject_streambuf &&) = delete;
+
   ~largeobject_streambuf() noexcept override
   {
     delete[] m_p;
     delete[] m_g;
   }
+
+  largeobject_streambuf &operator=(largeobject_streambuf const &) = delete;
+  largeobject_streambuf &operator=(largeobject_streambuf &&) = delete;
 
   /// For use by large object stream classes.
   void process_notice(zview const &s) { m_obj.process_notice(s); }
@@ -531,6 +551,7 @@ private:
   char_type *m_g, *m_p;
 };
 
+// NOLINTEND(cppcoreguidelines-owning-memory)
 
 /// Input stream that gets its data from a large object.
 /** @deprecated Access large objects directly using the @ref blob class.
@@ -642,6 +663,9 @@ public:
     super::init(&m_buf);
   }
 
+  basic_olostream(basic_olostream const &) = delete;
+  basic_olostream(basic_olostream &&) = delete;
+
   ~basic_olostream() override
   {
     try
@@ -654,6 +678,9 @@ public:
       m_buf.process_notice(e.what());
     }
   }
+
+  basic_olostream &operator=(basic_olostream const &) = delete;
+  basic_olostream &operator=(basic_olostream &&) = delete;
 
 private:
   largeobject_streambuf<CHAR, TRAITS> m_buf;
@@ -714,6 +741,10 @@ public:
     super::init(&m_buf);
   }
 
+  basic_lostream() = delete;
+  basic_lostream(basic_lostream const &) = delete;
+  basic_lostream(basic_lostream &&) = delete;
+
   ~basic_lostream() override
   {
     try
@@ -727,6 +758,9 @@ public:
     }
   }
 
+  basic_lostream &operator=(basic_lostream const &) = delete;
+  basic_lostream &operator=(basic_lostream &&) = delete;
+
 private:
   largeobject_streambuf<CHAR, TRAITS> m_buf;
 };
@@ -735,4 +769,9 @@ using lostream = basic_lostream<char>;
 
 // LCOV_EXCL_STOP
 } // namespace pqxx
+
+// NOLINTEND(
+//    cppcoreguidelines-avoid-const-or-ref-data-members,
+//    fuchsia-multiple-inheritance
+// )
 #endif

@@ -8,8 +8,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_ZVIEW
-#define PQXX_H_ZVIEW
+#ifndef PQXX_ZVIEW_HXX
+#define PQXX_ZVIEW_HXX
 
 #include <cassert>
 #include <string>
@@ -96,6 +96,8 @@ public:
     invariant();
   }
 
+  // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
+
   /// @warning There's an implicit conversion from `std::string`.
   constexpr zview(std::string const &str) noexcept :
           std::string_view{str.c_str(), str.size()}
@@ -131,14 +133,18 @@ public:
           zview(literal, size - 1)
   {}
 
+  // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions)
+
   /// Return as C string.
   [[nodiscard]] constexpr char const *c_str() const & noexcept
   {
     return data();
   }
 
+  // NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions)
   /// Return as C string.
   constexpr operator char const *() const noexcept { return data(); }
+  // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions)
 
   /// Disambiguating comparison operator: leave it to `std::string_view`.
   constexpr bool operator==(zview const &rhs) const noexcept

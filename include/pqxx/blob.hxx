@@ -10,8 +10,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_BLOB
-#define PQXX_H_BLOB
+#ifndef PQXX_BLOB_HXX
+#define PQXX_BLOB_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
@@ -266,7 +266,10 @@ private:
   {
     return errmsg(&tx.conn());
   }
-  PQXX_PRIVATE std::string errmsg() const { return errmsg(m_conn); }
+  PQXX_PRIVATE [[nodiscard]] std::string errmsg() const
+  {
+    return errmsg(m_conn);
+  }
   PQXX_PRIVATE std::int64_t seek(std::int64_t offset, int whence, sl);
   std::size_t raw_read(std::byte buf[], std::size_t size, sl);
   void raw_write(bytes_view, sl);

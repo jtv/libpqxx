@@ -28,6 +28,8 @@ namespace pqxx
 class PQXX_LIBEXPORT transaction_focus
 {
 public:
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
+
   transaction_focus(
     transaction_base &t, std::string_view cname, std::string_view oname) :
           m_trans{&t}, m_classname{cname}, m_name{oname}
@@ -41,6 +43,8 @@ public:
   transaction_focus(transaction_base &t, std::string_view cname) :
           m_trans{&t}, m_classname{cname}
   {}
+
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 
   transaction_focus() = delete;
   transaction_focus(transaction_focus const &) = delete;
@@ -61,11 +65,10 @@ public:
     return pqxx::internal::describe_object(m_classname, m_name);
   }
 
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   transaction_focus(transaction_focus &&other) :
           m_trans{other.m_trans},
           m_classname{other.m_classname},
-          // We can't move the name until later.
-          m_name{},
           m_registered{other.m_registered}
   {
     // This is a bit more complicated than you might expect.  The transaction
@@ -86,6 +89,7 @@ public:
     }
     return *this;
   }
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 
 protected:
   void register_me();
@@ -93,7 +97,27 @@ protected:
   void reg_pending_error(std::string const &, sl) noexcept;
   [[nodiscard]] bool registered() const noexcept { return m_registered; }
 
-  transaction_base *m_trans;
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
+  /// The transaction focused on this `transaction_focus`.
+  [[nodiscard]] transaction_base &trans() noexcept { return *m_trans; }
+  /// The transaction focused on this `transaction_focus`.
+  [[nodiscard]] transaction_base const &trans() const noexcept
+  {
+    return *m_trans;
+  }
+#include "pqxx/internal/ignore-deprecated-post.hxx"
+
+  // NOLINTBEGIN(
+  //    cppcoreguidelines-non-private-member-variables-in-classes,
+  //    misc-non-private-member-variables-in-classes
+  // )
+  [[deprecated(
+    "This will become private.  Use trans() instead.")]] transaction_base
+    *m_trans;
+  // NOLINTEND(
+  //    cppcoreguidelines-non-private-member-variables-in-classes,
+  //    misc-non-private-member-variables-in-classes
+  // )
 
 private:
   /// Perform part of a move operation.
