@@ -2,14 +2,14 @@
 
 """Extract relevant configuration macros from generated header.
 
-We rnu `configure` or `cmake` to configure a build.  It spits out a config
+We run `configure` or `cmake` to configure a build.  It spits out a config
 header, but there are a lot of definitions in there that we don't actually
 want.  Not just because they're not needed, but also because they pollute the
 macro namespace.  It'd be fine if it was just inside libpqxx source files, but
 the header affects client applications as well.
 
-So, we write our own header file that contains only the mcaro definitions
-starting with "PQXX".  Also, we add some boilerplate.
+So, we write our own header file that contains only the macro definitions
+with "PQXX" in the name.  Also, we add some boilerplate.
 """
 
 from pathlib import Path
@@ -25,6 +25,8 @@ FOOTER = """\
 """
 
 
+# TODO: Use argparse.
+# TODO: Supporting stdin/stdout might be nice.
 def main() -> int:
     """Main entry point.  Returns exit code."""
     infile = Path(sys.argv[1])
