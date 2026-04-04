@@ -414,6 +414,12 @@ inline constexpr char const *as_c_string(char (&str)[N]) noexcept
   return str;
 }
 /// Get a raw C string pointer.
+template<std::size_t N>
+inline constexpr char const *as_c_string(char const (&str)[N]) noexcept
+{
+  return str;
+}
+/// Get a raw C string pointer.
 inline constexpr char const *as_c_string(std::string const &str) noexcept
 {
   return str.c_str();
