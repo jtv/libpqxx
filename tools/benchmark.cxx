@@ -71,20 +71,15 @@ class pq_result final : public benchmark
 {
 public:
   pq_result(char const *connstr = "", char const *encoding = "utf8") :
-          m_cx{PQconnectdb(connstr)}
+          m_cx(PQconnectdb(connstr), [](PGconn *ptr) { PQfinish(ptr); })
   {
     if (m_cx == nullptr)
       throw std::bad_alloc{};
     check_conn();
-    if (PQsetClientEncoding(m_cx, encoding) != 0)
-    {
-      PQfinish(m_cx);
+    if (PQsetClientEncoding(m_cx.get(), encoding) != 0)
       throw std::runtime_error{
         std::format("Setting client encoding {} failed.", encoding)};
-    }
   }
-
-  ~pq_result() { PQfinish(m_cx); }
 
   /// This benchmark's name.
   static constexpr std::string_view name = "pq_result";
@@ -96,7 +91,7 @@ public:
         "Number of rows ({}) is greater than can be indexed.", rows)};
     auto const conn = compose_ints_query(rows, columns);
     std::unique_ptr<PGresult, decltype(&clear_result)> res{
-      PQexec(m_cx, conn.c_str()), &clear_result};
+      PQexec(m_cx.get(), conn.c_str()), &clear_result};
     check_result(res.get());
     if (PQnfields(res.get()) != columns)
       throw std::runtime_error{std::format(
@@ -128,15 +123,15 @@ public:
   }
 
 private:
-  PGconn *m_cx;
+  std::unique_ptr<PGconn, void (*)(PGconn *)> m_cx;
 
   /// Throw exception if connection is in a bad state.
   void check_conn() const
   {
     if (m_cx == nullptr)
       throw std::runtime_error{"No connection."};
-    if (PQstatus(m_cx) != CONNECTION_OK)
-      throw std::runtime_error{PQerrorMessage(m_cx)};
+    if (PQstatus(m_cx.get()) != CONNECTION_OK)
+      throw std::runtime_error{PQerrorMessage(m_cx.get())};
   }
 
   /// Throw exception if `res` indicates a failed query.
@@ -180,10 +175,9 @@ public:
       for (auto const field : row)
       {
         if (first)
-        {
-          std::cout << ' ';
           first = false;
-        }
+        else
+          std::cout << ' ';
         std::cout << field.as<std::size_t>();
       }
       std::cout << '\n';
@@ -323,7 +317,7 @@ inline void time_bench(std::string_view name, FUNC const &code)
       finish - start)};
 
   std::cerr.setf(std::ios::fixed);
-  std::cerr << seconds << '\n';
+  std::cerr << seconds.count() << "s\n";
 }
 
 
@@ -371,7 +365,7 @@ struct options
   /** The benchmark will try querying 1 row if this is zero, or 10 rows if it
    * is set to 1, or 100 rows if it's 2, and so on.
    */
-  std::size_t size = 7;
+  std::size_t size = 100u;
 
   /// Encoding name.
   std::string encoding = "utf8";
