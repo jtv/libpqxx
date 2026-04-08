@@ -4,6 +4,10 @@
 #include <format>
 #include <iostream>
 
+// TODO: Replace "print to stdout" workload with configurable wait.
+// TODO: --help/-h option.
+// TODO: Select number of columns in command line.
+// TODO: More flexible syntax for specifying numbers of rows.
 namespace
 {
 /// Fatal but well-handled error.
