@@ -487,10 +487,14 @@ options parse_opts(char *argv[])
     }
   }
 
-  if (want_size)
-    throw fail{"Missing argument to --size."};
+  if (want_connect)
+    throw fail{"Missing argument to --connect."};
+  if (want_delay)
+    throw fail{"Missing argument to --delay."};
   if (want_encoding)
     throw fail{"Missing argument to --encoding."};
+  if (want_size)
+    throw fail{"Missing argument to --size."};
   return opts;
 }
 } // namespace
