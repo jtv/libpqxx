@@ -1,10 +1,11 @@
 #include <libpq-fe.h>
+#include <pqxx/internal/wait.hxx>
 #include <pqxx/pqxx>
 
 #include <format>
 #include <iostream>
 
-// TODO: Configurable processing delay per row.
+// TODO: Configurable connection string.
 // TODO: --help/-h option.
 // TODO: More flexible syntax for specifying numbers of rows.
 // TODO: Support options like --size=10 or -s10.
@@ -17,6 +18,32 @@ struct fail final : std::runtime_error
 };
 
 
+struct options
+{
+  /// Number of rows to test, as an order of magnitude.
+  /** The benchmark will try querying 1 row if this is zero, or 10 rows if it
+   * is set to 1, or 100 rows if it's 2, and so on.
+   */
+  std::size_t size = 100u;
+
+  /// Processing delay for each row of data, in microseconds.
+  /** Use this to simulate how long it takes an application to process a row of
+   * data received from the database.
+   */
+  unsigned delay = 10u;
+
+  /// Encoding name.
+  std::string encoding = "utf8";
+
+  /// Print output?
+  /** This adds significant overhead to the processing of each item of data.
+   * Used for debugging, but also to stop the compiler from noticing that we
+   * don't do anything productive with the data and eliminating it altogether.
+   */
+  bool print = false;
+};
+
+
 /// Hollow base class for comparable benchmarks.
 class benchmark
 {
@@ -25,7 +52,34 @@ public:
   /** The derived-class constructors take a connection string and a client
    * encoding string.
    */
-  benchmark() = default;
+  benchmark() = delete;
+  explicit benchmark(options opts) : m_opts{std::move(opts)} {}
+
+  benchmark(benchmark const &) = default;
+  benchmark(benchmark &&) = default;
+  ~benchmark() = default;
+
+  benchmark &operator=(benchmark const &) = default;
+  benchmark &operator=(benchmark &&) = default;
+
+  /// The `options` governing this benchmark.
+  options const &opts() const noexcept { return m_opts; }
+
+  /// This benchmark's base name, e.g. "pqxx-stream".
+  static constexpr std::string_view name() noexcept { return "UNNAMED!"; }
+
+  /// Generate a human-readable brief description for this benchmark.
+  template<std::size_t columns>
+  std::string
+  describe(std::string_view base_name, std::string_view scenario) const
+  {
+    return std::format(
+      "{}-{} columns=1 delay={}ms enc={} rows={}", base_name, scenario,
+      opts().delay, opts().encoding, opts().size);
+  }
+
+  /// Delay to simulate processing of a row's data in the application.
+  void delay() const { pqxx::internal::wait_for(opts().delay); }
 
   /// Query and process `rows` rows of `columns` integers.
   /** The processing consists of reading each field; parsing it to a `size_t`
@@ -33,20 +87,21 @@ public:
    *
    * Each row ends in a newline character.  Each field is followed by a space.
    */
-  template<std::size_t columns> void query_ints(std::size_t rows, bool print);
+  template<std::size_t columns> void query_ints();
 
   /// Query and process `rows` rows of `columns` strings, of average `length`.
   /** The processing consists of reading each field, and printing it to
    * `cout`.
    */
-  template<std::size_t columns>
-  void query_strings(std::size_t rows, std::size_t length, bool print);
+  template<std::size_t columns> void query_strings();
+
+private:
+  options m_opts;
 };
 
 
 template<typename BM>
-concept benchmark_type =
-  std::derived_from<BM, benchmark> and requires(BM b) { b.name; };
+concept benchmark_type = std::derived_from<BM, benchmark>;
 
 
 /// Generate SQL to query `rows` rows of `columns` integers each.
@@ -68,7 +123,9 @@ std::string compose_ints_query(std::size_t rows, std::size_t columns)
 class pq_result final : public benchmark
 {
 public:
-  pq_result(char const *connstr = "", char const *encoding = "utf8") :
+  pq_result(
+    options opts, char const *connstr = "", char const *encoding = "utf8") :
+          benchmark{opts},
           m_cx(PQconnectdb(connstr), [](PGconn *ptr) { PQfinish(ptr); })
   {
     if (m_cx == nullptr)
@@ -79,11 +136,12 @@ public:
         std::format("Setting client encoding {} failed.", encoding)};
   }
 
-  /// This benchmark's name.
-  static constexpr std::string_view name = "pq_result";
+  static constexpr std::string_view name() noexcept { return "pq_result"; }
 
-  template<std::size_t columns> void query_ints(std::size_t rows, bool print)
+  template<std::size_t columns> void query_ints()
   {
+    auto const rows{opts().size};
+    bool const print{opts().print};
     if (std::cmp_greater(rows, (std::numeric_limits<int>::max)()))
       throw fail{std::format(
         "Number of rows ({}) is greater than can be indexed.", rows)};
@@ -98,6 +156,7 @@ public:
       static_cast<std::size_t>(PQntuples(res.get()))};
     for (std::size_t row{0u}; row < actual_rows; ++row)
     {
+      delay();
       for (std::size_t column{0u}; column < columns; ++column)
       {
         auto const field = PQgetvalue(
@@ -154,17 +213,19 @@ private:
 class pqxx_result final : public benchmark
 {
 public:
-  pqxx_result(char const *connstr = "", char const *encoding = "utf8") :
-          m_cx{connstr}
+  pqxx_result(
+    options opts, char const *connstr = "", char const *encoding = "utf8") :
+          benchmark{std::move(opts)}, m_cx{connstr}
   {
     m_cx.set_client_encoding(encoding);
   }
 
-  /// This benchmark's name.
-  static constexpr std::string_view name = "pqxx_result";
+  static constexpr std::string_view name() noexcept { return "pqxx_result"; }
 
-  template<std::size_t columns> void query_ints(std::size_t rows, bool print)
+  template<std::size_t columns> void query_ints()
   {
+    auto const rows{opts().size};
+    bool const print{opts().print};
     if (std::cmp_greater(rows, (std::numeric_limits<int>::max)()))
       throw fail{std::format(
         "Number of rows ({}) is greater than can be indexed.", rows)};
@@ -173,6 +234,7 @@ public:
     res.expect_columns(columns);
     for (auto const row : res)
     {
+      delay();
       if (print)
       {
         bool first{true};
@@ -198,17 +260,19 @@ private:
 class pqxx_stream final : public benchmark
 {
 public:
-  pqxx_stream(char const *connstr = "", char const *encoding = "utf8") :
-          m_cx{connstr}
+  pqxx_stream(
+    options opts, char const *connstr = "", char const *encoding = "utf8") :
+          benchmark{std::move(opts)}, m_cx{connstr}
   {
     m_cx.set_client_encoding(encoding);
   }
 
-  /// This benchmark's name.
-  static constexpr std::string_view name = "pqxx_stream";
+  static constexpr std::string_view name() noexcept { return "pqxx_stream"; }
 
-  template<std::size_t columns> void query_ints(std::size_t rows, bool print)
+  template<std::size_t columns> void query_ints()
   {
+    auto const rows{opts().size};
+    bool const print{opts().print};
     pqxx::nontransaction tx{m_cx};
     auto const query = compose_ints_query(rows, columns);
     std::size_t actual_rows = 0u;
@@ -225,6 +289,7 @@ public:
 
     for (auto row : stream)
     {
+      delay();
       if (print)
       {
         // This is also horrible code because it's something you never need to
@@ -329,27 +394,22 @@ inline void time_bench(std::string_view name, FUNC const &code)
 }
 
 
-template<benchmark_type Benchmark>
-void measure(char const encoding[], std::size_t rows, bool print)
+template<benchmark_type Benchmark> void measure(options const &opts)
 {
-  Benchmark bench{"", encoding};
+  Benchmark bench{opts, ""};
 
-  time_bench(
-    std::format(
-      "{}-ints columns=1 rows={} enc={}", bench.name, rows, encoding),
-    [&bench, rows, print] { bench.template query_ints<1>(rows, print); });
-  time_bench(
-    std::format(
-      "{}-ints columns=4 rows={} enc={}", bench.name, rows, encoding),
-    [&bench, rows, print] { bench.template query_ints<4>(rows, print); });
-  time_bench(
-    std::format(
-      "{}-ints columns=16 rows={} enc={}", bench.name, rows, encoding),
-    [&bench, rows, print] { bench.template query_ints<16>(rows, print); });
-  time_bench(
-    std::format(
-      "{}-ints columns=32 rows={} enc={}", bench.name, rows, encoding),
-    [&bench, rows, print] { bench.template query_ints<32>(rows, print); });
+  time_bench(bench.template describe<1>(Benchmark::name(), "ints"), [&bench] {
+    bench.template query_ints<1>();
+  });
+  time_bench(bench.template describe<4>(Benchmark::name(), "ints"), [&bench] {
+    bench.template query_ints<4>();
+  });
+  time_bench(bench.template describe<16>(Benchmark::name(), "ints"), [&bench] {
+    bench.template query_ints<16>();
+  });
+  time_bench(bench.template describe<32>(Benchmark::name(), "ints"), [&bench] {
+    bench.template query_ints<32>();
+  });
 }
 
 
@@ -367,50 +427,34 @@ constexpr std::size_t ipow(std::size_t base, std::size_t exp)
 }
 
 
-struct options
-{
-  /// Number of rows to test, as an order of magnitude.
-  /** The benchmark will try querying 1 row if this is zero, or 10 rows if it
-   * is set to 1, or 100 rows if it's 2, and so on.
-   */
-  std::size_t size = 100u;
-
-  /// Encoding name.
-  std::string encoding = "utf8";
-
-  /// Print output?
-  /** This adds significant overhead to the processing of each item of data.
-   * Used for debugging, but also to stop the compiler from noticing that we
-   * don't do anything productive with the data and eliminating it altogether.
-   */
-  bool print = false;
-};
-
-
 options parse_opts(char *argv[])
 {
   options opts;
 
-  bool want_size{false};
-  bool want_encoding{false};
+  bool want_delay{false}, want_encoding{false}, want_size{false};
 
   for (std::size_t i{1}; argv[i]; ++i)
   {
     std::string_view const arg{argv[i]};
     assert((int(want_size) + int(want_encoding)) < 2);
-    if (want_size)
+    if (want_delay)
     {
-      opts.size = ipow(10, pqxx::from_string<std::size_t>(arg));
-      want_size = false;
+      opts.delay = pqxx::from_string<decltype(opts.delay)>(arg);
+      want_delay = false;
     }
     else if (want_encoding)
     {
       opts.encoding = arg;
       want_encoding = false;
     }
-    else if ((arg == "--size") or (arg == "-s"))
+    else if (want_size)
     {
-      want_size = true;
+      opts.size = ipow(10, pqxx::from_string<std::size_t>(arg));
+      want_size = false;
+    }
+    else if ((arg == "--delay") or (arg == "-d"))
+    {
+      want_delay = true;
     }
     else if ((arg == "--encoding") or (arg == "-e"))
     {
@@ -419,6 +463,10 @@ options parse_opts(char *argv[])
     else if ((arg == "--print") or (arg == "-p"))
     {
       opts.print = true;
+    }
+    else if ((arg == "--size") or (arg == "-s"))
+    {
+      want_size = true;
     }
     else
     {
@@ -441,9 +489,9 @@ int main(int, char *argv[])
   {
     options const opts{parse_opts(argv)};
 
-    measure<pq_result>(opts.encoding.c_str(), opts.size, opts.print);
-    measure<pqxx_result>(opts.encoding.c_str(), opts.size, opts.print);
-    measure<pqxx_stream>(opts.encoding.c_str(), opts.size, opts.print);
+    measure<pq_result>(opts);
+    measure<pqxx_result>(opts);
+    measure<pqxx_stream>(opts);
   }
   catch (fail const &err)
   {
