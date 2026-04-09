@@ -7,8 +7,6 @@
 #include <iostream>
 
 // TODO: Is type conversion actually relevant to the benchmark?
-// TODO: Clean up redundant encodings settings.
-// TODO: Configurable connection string.
 // TODO: --help/-h option.
 // TODO: More flexible syntax for specifying numbers of rows.
 // TODO: Support options like --size=10 or -s10.
