@@ -7,6 +7,7 @@
 #include <iostream>
 
 // TODO: Is type conversion actually relevant to the benchmark?
+// TODO: Clean up redundant encodings settings.
 // TODO: Configurable connection string.
 // TODO: --help/-h option.
 // TODO: More flexible syntax for specifying numbers of rows.
@@ -33,6 +34,9 @@ struct options
    * data received from the database.
    */
   unsigned delay = 10u;
+
+  /// Database connection string.
+  std::string connect = "";
 
   /// Encoding name.
   std::string encoding = "utf8";
@@ -76,8 +80,8 @@ public:
   describe(std::string_view base_name, std::string_view scenario) const
   {
     return std::format(
-      "{} columns=1 delay={}ms enc={} rows={}", base_name, scenario,
-      opts().delay, opts().encoding, opts().size);
+      "{}-{} columns={} delay={}ms enc={} rows={}", base_name, scenario,
+      columns, opts().delay, opts().encoding, opts().size);
   }
 
   /// Delay to simulate processing of a row's data in the application.
@@ -120,17 +124,18 @@ std::string compose_ints_query(std::size_t rows, std::size_t columns)
 class pq_result final : public benchmark
 {
 public:
-  pq_result(
-    options opts, char const *connstr = "", char const *encoding = "utf8") :
-          benchmark{opts},
-          m_cx(PQconnectdb(connstr), [](PGconn *ptr) { PQfinish(ptr); })
+  pq_result(options o) :
+          benchmark{std::move(o)},
+          m_cx(PQconnectdb(opts().connect.c_str()), [](PGconn *ptr) {
+            PQfinish(ptr);
+          })
   {
     if (m_cx == nullptr)
       throw std::bad_alloc{};
     check_conn();
-    if (PQsetClientEncoding(m_cx.get(), encoding) != 0)
+    if (PQsetClientEncoding(m_cx.get(), opts().encoding.c_str()) != 0)
       throw std::runtime_error{
-        std::format("Setting client encoding {} failed.", encoding)};
+        std::format("Setting client encoding {} failed.", opts().encoding)};
   }
 
   static constexpr std::string_view name() noexcept { return "pq_result"; }
@@ -210,11 +215,10 @@ private:
 class pqxx_result final : public benchmark
 {
 public:
-  pqxx_result(
-    options opts, char const *connstr = "", char const *encoding = "utf8") :
-          benchmark{std::move(opts)}, m_cx{connstr}
+  pqxx_result(options o) :
+          benchmark{std::move(o)}, m_cx{opts().connect.c_str()}
   {
-    m_cx.set_client_encoding(encoding);
+    m_cx.set_client_encoding(opts().encoding);
   }
 
   static constexpr std::string_view name() noexcept { return "pqxx_result"; }
@@ -259,11 +263,10 @@ private:
 class pqxx_stream final : public benchmark
 {
 public:
-  pqxx_stream(
-    options opts, char const *connstr = "", char const *encoding = "utf8") :
-          benchmark{std::move(opts)}, m_cx{connstr}
+  pqxx_stream(options o) :
+          benchmark{std::move(o)}, m_cx{opts().connect.c_str()}
   {
-    m_cx.set_client_encoding(encoding);
+    m_cx.set_client_encoding(opts().encoding);
   }
 
   static constexpr std::string_view name() noexcept { return "pqxx_stream"; }
@@ -396,7 +399,7 @@ inline void time_bench(std::string_view name, FUNC const &code)
 
 template<benchmark_type Benchmark> void measure(options const &opts)
 {
-  Benchmark bench{opts, ""};
+  Benchmark bench{opts};
 
   time_bench(bench.template describe<1>(Benchmark::name(), "ints"), [&bench] {
     bench.template query_ints<1>();
@@ -431,13 +434,19 @@ options parse_opts(char *argv[])
 {
   options opts;
 
-  bool want_delay{false}, want_encoding{false}, want_size{false};
+  bool want_connect{false}, want_delay{false}, want_encoding{false},
+    want_size{false};
 
   for (std::size_t i{1}; argv[i]; ++i)
   {
     std::string_view const arg{argv[i]};
     assert((int(want_size) + int(want_encoding)) < 2);
-    if (want_delay)
+    if (want_connect)
+    {
+      opts.connect = arg;
+      want_connect = false;
+    }
+    else if (want_delay)
     {
       opts.delay = pqxx::from_string<decltype(opts.delay)>(arg);
       want_delay = false;
@@ -451,6 +460,10 @@ options parse_opts(char *argv[])
     {
       opts.size = ipow(10, pqxx::from_string<std::size_t>(arg));
       want_size = false;
+    }
+    else if ((arg == "--connect") or (arg == "-c"))
+    {
+      want_connect = true;
     }
     else if ((arg == "--delay") or (arg == "-d"))
     {
