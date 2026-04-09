@@ -1,10 +1,12 @@
 #include <libpq-fe.h>
-#include <pqxx/internal/wait.hxx>
 #include <pqxx/pqxx>
+
+#include <pqxx/internal/wait.hxx>
 
 #include <format>
 #include <iostream>
 
+// TODO: Is type conversion actually relevant to the benchmark?
 // TODO: Configurable connection string.
 // TODO: --help/-h option.
 // TODO: More flexible syntax for specifying numbers of rows.
@@ -74,7 +76,7 @@ public:
   describe(std::string_view base_name, std::string_view scenario) const
   {
     return std::format(
-      "{}-{} columns=1 delay={}ms enc={} rows={}", base_name, scenario,
+      "{} columns=1 delay={}ms enc={} rows={}", base_name, scenario,
       opts().delay, opts().encoding, opts().size);
   }
 
@@ -88,12 +90,6 @@ public:
    * Each row ends in a newline character.  Each field is followed by a space.
    */
   template<std::size_t columns> void query_ints();
-
-  /// Query and process `rows` rows of `columns` strings, of average `length`.
-  /** The processing consists of reading each field, and printing it to
-   * `cout`.
-   */
-  template<std::size_t columns> void query_strings();
 
 private:
   options m_opts;
@@ -235,19 +231,21 @@ public:
     for (auto const row : res)
     {
       delay();
-      if (print)
+      bool first{true};
+      for (auto const field : row)
       {
-        bool first{true};
-        for (auto const field : row)
+        auto const value{field.as<std::size_t>()};
+        if (print)
         {
           if (first)
             first = false;
           else
             std::cout << ' ';
-          std::cout << field.as<std::size_t>();
+          std::cout << value;
         }
-        std::cout << '\n';
       }
+      if (print)
+        std::cout << '\n';
     }
   }
 
@@ -290,6 +288,7 @@ public:
     for (auto row : stream)
     {
       delay();
+      // XXX: Ensure the conversions still happen, even when not printing.
       if (print)
       {
         // This is also horrible code because it's something you never need to
