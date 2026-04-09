@@ -4,10 +4,10 @@
 #include <format>
 #include <iostream>
 
-// TODO: Replace "print to stdout" workload with configurable wait.
+// TODO: Configurable processing delay per row.
 // TODO: --help/-h option.
-// TODO: Select number of columns in command line.
 // TODO: More flexible syntax for specifying numbers of rows.
+// TODO: Support options like --size=10 or -s10.
 namespace
 {
 /// Fatal but well-handled error.
@@ -15,12 +15,6 @@ struct fail final : std::runtime_error
 {
   fail(std::string const &whatarg) : std::runtime_error{whatarg} {}
 };
-
-
-void clear_result(PGresult *r) noexcept
-{
-  PQclear(r);
-}
 
 
 /// Hollow base class for comparable benchmarks.
@@ -35,18 +29,18 @@ public:
 
   /// Query and process `rows` rows of `columns` integers.
   /** The processing consists of reading each field; parsing it to a `size_t`
-   * and writing it to `cout`.
+   * and, if `print` is true, writing it to `cout`.
    *
    * Each row ends in a newline character.  Each field is followed by a space.
    */
-  template<std::size_t columns> void query_ints(std::size_t rows);
+  template<std::size_t columns> void query_ints(std::size_t rows, bool print);
 
   /// Query and process `rows` rows of `columns` strings, of average `length`.
   /** The processing consists of reading each field, and printing it to
    * `cout`.
    */
   template<std::size_t columns>
-  void query_strings(std::size_t rows, std::size_t length);
+  void query_strings(std::size_t rows, std::size_t length, bool print);
 };
 
 
@@ -88,14 +82,14 @@ public:
   /// This benchmark's name.
   static constexpr std::string_view name = "pq_result";
 
-  template<std::size_t columns> void query_ints(std::size_t rows)
+  template<std::size_t columns> void query_ints(std::size_t rows, bool print)
   {
     if (std::cmp_greater(rows, (std::numeric_limits<int>::max)()))
       throw fail{std::format(
         "Number of rows ({}) is greater than can be indexed.", rows)};
     auto const conn = compose_ints_query(rows, columns);
-    std::unique_ptr<PGresult, decltype(&clear_result)> res{
-      PQexec(m_cx.get(), conn.c_str()), &clear_result};
+    std::unique_ptr<PGresult, decltype(&PQclear)> res{
+      PQexec(m_cx.get(), conn.c_str()), &PQclear};
     check_result(res.get());
     if (PQnfields(res.get()) != columns)
       throw std::runtime_error{std::format(
@@ -118,11 +112,15 @@ public:
         if (success.ptr != (field + len))
           throw fail{std::format("Could not parse whole field: '{}'", field)};
 
-        if (column > 0u)
-          std::cout << ' ';
-        std::cout << value;
+        if (print)
+        {
+          if (column > 0u)
+            std::cout << ' ';
+          std::cout << value;
+        }
       }
-      std::cout << '\n';
+      if (print)
+        std::cout << '\n';
     }
   }
 
@@ -165,7 +163,7 @@ public:
   /// This benchmark's name.
   static constexpr std::string_view name = "pqxx_result";
 
-  template<std::size_t columns> void query_ints(std::size_t rows)
+  template<std::size_t columns> void query_ints(std::size_t rows, bool print)
   {
     if (std::cmp_greater(rows, (std::numeric_limits<int>::max)()))
       throw fail{std::format(
@@ -175,16 +173,19 @@ public:
     res.expect_columns(columns);
     for (auto const row : res)
     {
-      bool first{true};
-      for (auto const field : row)
+      if (print)
       {
-        if (first)
-          first = false;
-        else
-          std::cout << ' ';
-        std::cout << field.as<std::size_t>();
+        bool first{true};
+        for (auto const field : row)
+        {
+          if (first)
+            first = false;
+          else
+            std::cout << ' ';
+          std::cout << field.as<std::size_t>();
+        }
+        std::cout << '\n';
       }
-      std::cout << '\n';
     }
   }
 
@@ -206,7 +207,7 @@ public:
   /// This benchmark's name.
   static constexpr std::string_view name = "pqxx_stream";
 
-  template<std::size_t columns> void query_ints(std::size_t rows)
+  template<std::size_t columns> void query_ints(std::size_t rows, bool print)
   {
     pqxx::nontransaction tx{m_cx};
     auto const query = compose_ints_query(rows, columns);
@@ -224,53 +225,56 @@ public:
 
     for (auto row : stream)
     {
-      // This is also horrible code because it's something you never need to do
-      // in the real world, and so nothing is designed for it.  There are
-      // probably nicer ways to do it, but it'll do for now.
-      // C++26: Consider using "template for".
-      print_field<columns, 0>(row);
-      print_field<columns, 1>(row);
-      print_field<columns, 2>(row);
-      print_field<columns, 3>(row);
-      print_field<columns, 4>(row);
-      print_field<columns, 5>(row);
-      print_field<columns, 6>(row);
-      print_field<columns, 7>(row);
-      print_field<columns, 8>(row);
-      print_field<columns, 9>(row);
-      print_field<columns, 10>(row);
-      print_field<columns, 11>(row);
-      print_field<columns, 12>(row);
-      print_field<columns, 13>(row);
-      print_field<columns, 14>(row);
-      print_field<columns, 15>(row);
-      print_field<columns, 16>(row);
-      print_field<columns, 17>(row);
-      print_field<columns, 18>(row);
-      print_field<columns, 19>(row);
-      print_field<columns, 20>(row);
-      print_field<columns, 21>(row);
-      print_field<columns, 22>(row);
-      print_field<columns, 23>(row);
-      print_field<columns, 24>(row);
-      print_field<columns, 25>(row);
-      print_field<columns, 26>(row);
-      print_field<columns, 27>(row);
-      print_field<columns, 28>(row);
-      print_field<columns, 29>(row);
-      print_field<columns, 30>(row);
-      print_field<columns, 31>(row);
-      print_field<columns, 32>(row);
-      print_field<columns, 33>(row);
-      print_field<columns, 34>(row);
-      print_field<columns, 35>(row);
-      print_field<columns, 36>(row);
-      print_field<columns, 37>(row);
-      print_field<columns, 38>(row);
-      print_field<columns, 39>(row);
-      static_assert(columns <= 40);
+      if (print)
+      {
+        // This is also horrible code because it's something you never need to
+        // do in the real world, and so nothing is designed for it.  There are
+        // probably nicer ways to do it, but it'll do for now.
+        // C++26: Consider using "template for".
+        print_field<columns, 0>(row);
+        print_field<columns, 1>(row);
+        print_field<columns, 2>(row);
+        print_field<columns, 3>(row);
+        print_field<columns, 4>(row);
+        print_field<columns, 5>(row);
+        print_field<columns, 6>(row);
+        print_field<columns, 7>(row);
+        print_field<columns, 8>(row);
+        print_field<columns, 9>(row);
+        print_field<columns, 10>(row);
+        print_field<columns, 11>(row);
+        print_field<columns, 12>(row);
+        print_field<columns, 13>(row);
+        print_field<columns, 14>(row);
+        print_field<columns, 15>(row);
+        print_field<columns, 16>(row);
+        print_field<columns, 17>(row);
+        print_field<columns, 18>(row);
+        print_field<columns, 19>(row);
+        print_field<columns, 20>(row);
+        print_field<columns, 21>(row);
+        print_field<columns, 22>(row);
+        print_field<columns, 23>(row);
+        print_field<columns, 24>(row);
+        print_field<columns, 25>(row);
+        print_field<columns, 26>(row);
+        print_field<columns, 27>(row);
+        print_field<columns, 28>(row);
+        print_field<columns, 29>(row);
+        print_field<columns, 30>(row);
+        print_field<columns, 31>(row);
+        print_field<columns, 32>(row);
+        print_field<columns, 33>(row);
+        print_field<columns, 34>(row);
+        print_field<columns, 35>(row);
+        print_field<columns, 36>(row);
+        print_field<columns, 37>(row);
+        print_field<columns, 38>(row);
+        print_field<columns, 39>(row);
+        static_assert(columns <= 40);
+        std::cout << '\n';
+      }
 
-      std::cout << '\n';
       ++actual_rows;
     }
 
@@ -326,26 +330,26 @@ inline void time_bench(std::string_view name, FUNC const &code)
 
 
 template<benchmark_type Benchmark>
-void measure(char const encoding[], std::size_t rows)
+void measure(char const encoding[], std::size_t rows, bool print)
 {
   Benchmark bench{"", encoding};
 
   time_bench(
     std::format(
       "{}-ints columns=1 rows={} enc={}", bench.name, rows, encoding),
-    [&bench, rows] { bench.template query_ints<1>(rows); });
+    [&bench, rows, print] { bench.template query_ints<1>(rows, print); });
   time_bench(
     std::format(
       "{}-ints columns=4 rows={} enc={}", bench.name, rows, encoding),
-    [&bench, rows] { bench.template query_ints<4>(rows); });
+    [&bench, rows, print] { bench.template query_ints<4>(rows, print); });
   time_bench(
     std::format(
       "{}-ints columns=16 rows={} enc={}", bench.name, rows, encoding),
-    [&bench, rows] { bench.template query_ints<16>(rows); });
+    [&bench, rows, print] { bench.template query_ints<16>(rows, print); });
   time_bench(
     std::format(
       "{}-ints columns=32 rows={} enc={}", bench.name, rows, encoding),
-    [&bench, rows] { bench.template query_ints<32>(rows); });
+    [&bench, rows, print] { bench.template query_ints<32>(rows, print); });
 }
 
 
@@ -373,6 +377,13 @@ struct options
 
   /// Encoding name.
   std::string encoding = "utf8";
+
+  /// Print output?
+  /** This adds significant overhead to the processing of each item of data.
+   * Used for debugging, but also to stop the compiler from noticing that we
+   * don't do anything productive with the data and eliminating it altogether.
+   */
+  bool print = false;
 };
 
 
@@ -405,6 +416,10 @@ options parse_opts(char *argv[])
     {
       want_encoding = true;
     }
+    else if ((arg == "--print") or (arg == "-p"))
+    {
+      opts.print = true;
+    }
     else
     {
       throw fail{std::format("Unexpected argument: '{}'.", arg)};
@@ -426,9 +441,9 @@ int main(int, char *argv[])
   {
     options const opts{parse_opts(argv)};
 
-    measure<pq_result>(opts.encoding.c_str(), opts.size);
-    measure<pqxx_result>(opts.encoding.c_str(), opts.size);
-    measure<pqxx_stream>(opts.encoding.c_str(), opts.size);
+    measure<pq_result>(opts.encoding.c_str(), opts.size, opts.print);
+    measure<pqxx_result>(opts.encoding.c_str(), opts.size, opts.print);
+    measure<pqxx_stream>(opts.encoding.c_str(), opts.size, opts.print);
   }
   catch (fail const &err)
   {
