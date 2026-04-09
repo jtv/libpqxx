@@ -84,8 +84,9 @@ public:
   void delay() const { pqxx::internal::wait_for(opts().delay); }
 
   /// Query and process `rows` rows of `columns` integers.
-  /** The processing consists of reading each field; parsing it to a `size_t`
-   * and, if `print` is true, writing it to `cout`.
+  /** The processing consists of reading each field; parsing it to a `size_t`,
+   * pausing for the configured delay and, if `print` is true, writing the data
+   * to `cout`.
    *
    * Each row ends in a newline character.  Each field is followed by a space.
    */
