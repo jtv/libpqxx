@@ -188,8 +188,7 @@ public:
     else
     {
       // TODO: Block-allocate storage for parameters.
-      m_params.emplace_back(
-        entry{to_string(value, conversion_context{m_enc, loc})});
+      m_params.emplace_back(to_string(value, conversion_context{m_enc, loc}));
     }
   }
 
@@ -232,7 +231,7 @@ private:
   // contents.
   using entry =
     std::variant<std::nullptr_t, zview, std::string, bytes_view, bytes>;
-  std::vector<entry> m_params;
+  std::vector<entry> m_params{};
 
   encoding_group m_enc{encoding_group::unknown};
 
