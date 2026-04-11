@@ -231,7 +231,7 @@ private:
   // contents.
   using entry =
     std::variant<std::nullptr_t, zview, std::string, bytes_view, bytes>;
-  std::vector<entry> m_params{};
+  std::vector<entry> m_params;
 
   encoding_group m_enc{encoding_group::unknown};
 
