@@ -6,10 +6,10 @@
 #include <format>
 #include <iostream>
 
-// TODO: Is type conversion actually relevant to the benchmark?
 // TODO: --help/-h option.
 // TODO: More flexible syntax for specifying numbers of rows.
 // TODO: Support options like --size=10 or -s10.
+// TODO: Specify number of columns on the command line.
 namespace
 {
 /// Fatal but well-handled error.
@@ -30,21 +30,17 @@ struct options
   /// Processing delay for each row of data, in microseconds.
   /** Use this to simulate how long it takes an application to process a row of
    * data received from the database.
+   *
+   * Honestly it's kind of pointless right now: a delay of just 1ms will
+   * dominate the benchmark and swamp out the speed differences.
    */
-  unsigned delay = 10u;
+  unsigned delay = 0u;
 
   /// Database connection string.
   std::string connect = "";
 
   /// Encoding name.
   std::string encoding = "utf8";
-
-  /// Print output?
-  /** This adds significant overhead to the processing of each item of data.
-   * Used for debugging, but also to stop the compiler from noticing that we
-   * don't do anything productive with the data and eliminating it altogether.
-   */
-  bool print = false;
 };
 
 
@@ -86,13 +82,10 @@ public:
   void delay() const { pqxx::internal::wait_for(opts().delay); }
 
   /// Query and process `rows` rows of `columns` integers.
-  /** The processing consists of reading each field; parsing it to a `size_t`,
-   * pausing for the configured delay and, if `print` is true, writing the data
-   * to `cout`.
-   *
-   * Each row ends in a newline character.  Each field is followed by a space.
+  /** The processing consists of adding up the unsigned integral values of each
+   * field, pausing for the configured per-row delay.
    */
-  template<std::size_t columns> void query_ints();
+  template<std::size_t columns> std::size_t query_ints();
 
 private:
   options m_opts;
@@ -138,10 +131,9 @@ public:
 
   static constexpr std::string_view name() noexcept { return "pq_result"; }
 
-  template<std::size_t columns> void query_ints()
+  template<std::size_t columns> std::size_t query_ints()
   {
     auto const rows{opts().size};
-    bool const print{opts().print};
     if (std::cmp_greater(rows, (std::numeric_limits<int>::max)()))
       throw fail{std::format(
         "Number of rows ({}) is greater than can be indexed.", rows)};
@@ -154,6 +146,7 @@ public:
         "Expected {} column(s), got {}.", columns, PQnfields(res.get()))};
     std::size_t const actual_rows{
       static_cast<std::size_t>(PQntuples(res.get()))};
+    std::size_t output{0};
     for (std::size_t row{0u}; row < actual_rows; ++row)
     {
       delay();
@@ -164,23 +157,10 @@ public:
         if (field == nullptr)
           throw std::runtime_error{"No value in field!"};
 
-        std::size_t value{}, len{std::strlen(field)};
-        auto const success{std::from_chars(field, field + len, value)};
-        if (success.ec != std::errc{})
-          throw fail{std::format("Could not convert number: {}", field)};
-        if (success.ptr != (field + len))
-          throw fail{std::format("Could not parse whole field: '{}'", field)};
-
-        if (print)
-        {
-          if (column > 0u)
-            std::cout << ' ';
-          std::cout << value;
-        }
+        output += parse_size_t(field);
       }
-      if (print)
-        std::cout << '\n';
     }
+    return output;
   }
 
 private:
@@ -206,6 +186,18 @@ private:
     if (PQresultStatus(res) != PGRES_TUPLES_OK)
       throw std::runtime_error{PQresultErrorMessage(res)};
   }
+
+  static std::size_t parse_size_t(std::string_view field)
+  {
+    auto const start = std::data(field), end = start + std::size(field);
+    std::size_t value{};
+    auto const success = std::from_chars(start, end, value);
+    if (success.ec != std::errc{})
+      throw fail{std::format("Could not convert to number: '{}'", field)};
+    if (success.ptr != end)
+      throw fail{std::format("Coul dnot parse whole field: '{}'", field)};
+    return value;
+  }
 };
 
 
@@ -221,35 +213,22 @@ public:
 
   static constexpr std::string_view name() noexcept { return "pqxx_result"; }
 
-  template<std::size_t columns> void query_ints()
+  template<std::size_t columns> std::size_t query_ints()
   {
     auto const rows{opts().size};
-    bool const print{opts().print};
     if (std::cmp_greater(rows, (std::numeric_limits<int>::max)()))
       throw fail{std::format(
         "Number of rows ({}) is greater than can be indexed.", rows)};
     pqxx::nontransaction tx{m_cx};
     auto const res = tx.exec(compose_ints_query(rows, columns));
     res.expect_columns(columns);
+    std::size_t output{0};
     for (auto const row : res)
     {
       delay();
-      bool first{true};
-      for (auto const field : row)
-      {
-        auto const value{field.as<std::size_t>()};
-        if (print)
-        {
-          if (first)
-            first = false;
-          else
-            std::cout << ' ';
-          std::cout << value;
-        }
-      }
-      if (print)
-        std::cout << '\n';
+      for (auto const field : row) output += field.as<std::size_t>();
     }
+    return output;
   }
 
 private:
@@ -269,77 +248,69 @@ public:
 
   static constexpr std::string_view name() noexcept { return "pqxx_stream"; }
 
-  template<std::size_t columns> void query_ints()
+  template<std::size_t columns> std::size_t query_ints()
   {
     auto const rows{opts().size};
-    bool const print{opts().print};
     pqxx::nontransaction tx{m_cx};
     auto const query = compose_ints_query(rows, columns);
     std::size_t actual_rows = 0u;
+    std::size_t output = 0u;
 
-    // Call tx.stream<size_t, size_t, size_t...>(...).  In real-world code this
-    // is a strange and unusual pattern.
     auto stream{[&]<std::size_t... Is>(std::index_sequence<Is...>) {
       return tx
         .stream<typename repeat_n<std::size_t, columns>::template type<Is>...>(
           query);
-      // or: obj.bar<typename repeat_n<std::size_t, columns>::template
-      // type<Is>...>();
     }(std::make_index_sequence<columns>{})};
 
     for (auto row : stream)
     {
       delay();
-      // XXX: Ensure the conversions still happen, even when not printing.
-      if (print)
-      {
-        // This is also horrible code because it's something you never need to
-        // do in the real world, and so nothing is designed for it.  There are
-        // probably nicer ways to do it, but it'll do for now.
-        // C++26: Consider using "template for".
-        print_field<columns, 0>(row);
-        print_field<columns, 1>(row);
-        print_field<columns, 2>(row);
-        print_field<columns, 3>(row);
-        print_field<columns, 4>(row);
-        print_field<columns, 5>(row);
-        print_field<columns, 6>(row);
-        print_field<columns, 7>(row);
-        print_field<columns, 8>(row);
-        print_field<columns, 9>(row);
-        print_field<columns, 10>(row);
-        print_field<columns, 11>(row);
-        print_field<columns, 12>(row);
-        print_field<columns, 13>(row);
-        print_field<columns, 14>(row);
-        print_field<columns, 15>(row);
-        print_field<columns, 16>(row);
-        print_field<columns, 17>(row);
-        print_field<columns, 18>(row);
-        print_field<columns, 19>(row);
-        print_field<columns, 20>(row);
-        print_field<columns, 21>(row);
-        print_field<columns, 22>(row);
-        print_field<columns, 23>(row);
-        print_field<columns, 24>(row);
-        print_field<columns, 25>(row);
-        print_field<columns, 26>(row);
-        print_field<columns, 27>(row);
-        print_field<columns, 28>(row);
-        print_field<columns, 29>(row);
-        print_field<columns, 30>(row);
-        print_field<columns, 31>(row);
-        print_field<columns, 32>(row);
-        print_field<columns, 33>(row);
-        print_field<columns, 34>(row);
-        print_field<columns, 35>(row);
-        print_field<columns, 36>(row);
-        print_field<columns, 37>(row);
-        print_field<columns, 38>(row);
-        print_field<columns, 39>(row);
-        static_assert(columns <= 40);
-        std::cout << '\n';
-      }
+
+      // This is also horrible code because it's something you never need to
+      // do in the real world, and so nothing is designed for it.  There are
+      // probably nicer ways to do it, but it'll do for now.
+      // C++26: Consider using "template for".
+      output += process_field<columns, 0>(row);
+      output += process_field<columns, 1>(row);
+      output += process_field<columns, 2>(row);
+      output += process_field<columns, 3>(row);
+      output += process_field<columns, 4>(row);
+      output += process_field<columns, 5>(row);
+      output += process_field<columns, 6>(row);
+      output += process_field<columns, 7>(row);
+      output += process_field<columns, 8>(row);
+      output += process_field<columns, 9>(row);
+      output += process_field<columns, 10>(row);
+      output += process_field<columns, 11>(row);
+      output += process_field<columns, 12>(row);
+      output += process_field<columns, 13>(row);
+      output += process_field<columns, 14>(row);
+      output += process_field<columns, 15>(row);
+      output += process_field<columns, 16>(row);
+      output += process_field<columns, 17>(row);
+      output += process_field<columns, 18>(row);
+      output += process_field<columns, 19>(row);
+      output += process_field<columns, 20>(row);
+      output += process_field<columns, 21>(row);
+      output += process_field<columns, 22>(row);
+      output += process_field<columns, 23>(row);
+      output += process_field<columns, 24>(row);
+      output += process_field<columns, 25>(row);
+      output += process_field<columns, 26>(row);
+      output += process_field<columns, 27>(row);
+      output += process_field<columns, 28>(row);
+      output += process_field<columns, 29>(row);
+      output += process_field<columns, 30>(row);
+      output += process_field<columns, 31>(row);
+      output += process_field<columns, 32>(row);
+      output += process_field<columns, 33>(row);
+      output += process_field<columns, 34>(row);
+      output += process_field<columns, 35>(row);
+      output += process_field<columns, 36>(row);
+      output += process_field<columns, 37>(row);
+      output += process_field<columns, 38>(row);
+      output += process_field<columns, 39>(row);
+      static_assert(columns <= 40);
 
       ++actual_rows;
     }
@@ -347,6 +318,8 @@ public:
     if (actual_rows != rows)
       throw std::runtime_error{
         std::format("Expected {} row(s), got {}.", rows, actual_rows)};
+
+    return output;
   }
 
 private:
@@ -356,16 +329,14 @@ private:
     template<std::size_t> using type = T;
   };
 
-  /// Print a field value, followed by a space.
+  /// Return a field's numeric value, or 0 if it's not applicable.
   template<std::size_t columns, std::size_t field>
-  static void print_field(auto const &row)
+  static std::size_t process_field(auto const &row)
   {
     if constexpr (columns > field)
-    {
-      if constexpr (field > 0)
-        std::cout << ' ';
-      std::cout << std::get<field>(row);
-    }
+      return std::get<field>(row);
+    else
+      return 0u;
   }
 
   pqxx::connection m_cx;
@@ -377,14 +348,14 @@ concept benchmark_func = std::invocable<FUNC>;
 
 
 template<benchmark_func FUNC>
-inline void time_bench(std::string_view name, FUNC const &code)
+inline std::size_t time_bench(std::string_view name, FUNC const &code)
 {
   using timer = std::chrono::steady_clock;
 
   std::cerr << name << ": ";
 
   auto const start{timer::now()};
-  code();
+  auto const output{code()};
   auto const finish{timer::now()};
   auto const seconds{
     std::chrono::duration_cast<std::chrono::duration<double, std::ratio<1>>>(
@@ -392,25 +363,18 @@ inline void time_bench(std::string_view name, FUNC const &code)
 
   std::cerr.setf(std::ios::fixed);
   std::cerr << seconds.count() << "s\n";
+
+  return output;
 }
 
 
-template<benchmark_type Benchmark> void measure(options const &opts)
+template<benchmark_type Benchmark, std::size_t Columns>
+std::size_t measure(options const &opts)
 {
   Benchmark bench{opts};
-
-  time_bench(bench.template describe<1>(Benchmark::name(), "ints"), [&bench] {
-    bench.template query_ints<1>();
-  });
-  time_bench(bench.template describe<4>(Benchmark::name(), "ints"), [&bench] {
-    bench.template query_ints<4>();
-  });
-  time_bench(bench.template describe<16>(Benchmark::name(), "ints"), [&bench] {
-    bench.template query_ints<16>();
-  });
-  time_bench(bench.template describe<32>(Benchmark::name(), "ints"), [&bench] {
-    bench.template query_ints<32>();
-  });
+  return time_bench(
+    bench.template describe<Columns>(Benchmark::name(), "ints"),
+    [&bench] { return bench.template query_ints<Columns>(); });
 }
 
 
@@ -471,10 +435,6 @@ options parse_opts(char *argv[])
     {
       want_encoding = true;
     }
-    else if ((arg == "--print") or (arg == "-p"))
-    {
-      opts.print = true;
-    }
     else if ((arg == "--size") or (arg == "-s"))
     {
       want_size = true;
@@ -504,9 +464,21 @@ int main(int, char *argv[])
   {
     options const opts{parse_opts(argv)};
 
-    measure<pq_result>(opts);
-    measure<pqxx_result>(opts);
-    measure<pqxx_stream>(opts);
+    // XXX: Configurable number of columns.
+    constexpr std::size_t columns = 16;
+    auto const pq_result_value{measure<pq_result, columns>(opts)};
+    auto const pqxx_result_value{measure<pqxx_result, columns>(opts)};
+    auto const pqxx_stream_value{measure<pqxx_stream, columns>(opts)};
+
+    if (
+      (pqxx_result_value != pq_result_value) or
+      (pqxx_stream_value != pq_result_value))
+    {
+      throw fail{std::format(
+        "Inconsistent computation results: pq_result-int returned {}, "
+        "pqxx_result-int {}, pqxx_stream-int {}.",
+        pq_result_value, pqxx_result_value, pqxx_stream_value)};
+    }
   }
   catch (fail const &err)
   {
