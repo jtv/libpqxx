@@ -9,7 +9,6 @@
 // TODO: --help/-h option.
 // TODO: More flexible syntax for specifying numbers of rows.
 // TODO: Support options like --size=10 or -s10.
-// TODO: Specify number of columns on the command line.
 namespace
 {
 /// Fatal but well-handled error.
@@ -26,6 +25,11 @@ struct options
    * is set to 1, or 100 rows if it's 2, and so on.
    */
   std::size_t size = 100u;
+
+  /// Number of columns in result sets to test.
+  /** Must be greater than zero, but smaller than 40.
+   */
+  std::size_t columns = 10u;
 
   /// Processing delay for each row of data, in microseconds.
   /** Use this to simulate how long it takes an application to process a row of
@@ -396,14 +400,19 @@ options parse_opts(char *argv[])
 {
   options opts;
 
-  bool want_connect{false}, want_delay{false}, want_encoding{false},
-    want_size{false};
+  bool want_columns{false}, want_connect{false}, want_delay{false},
+    want_encoding{false}, want_size{false};
 
   for (std::size_t i{1}; argv[i]; ++i)
   {
     std::string_view const arg{argv[i]};
     assert((int(want_size) + int(want_encoding)) < 2);
-    if (want_connect)
+    if (want_columns)
+    {
+      opts.columns = pqxx::from_string<std::size_t>(arg);
+      want_columns = false;
+    }
+    else if (want_connect)
     {
       opts.connect = arg;
       want_connect = false;
@@ -422,6 +431,10 @@ options parse_opts(char *argv[])
     {
       opts.size = ipow(10, pqxx::from_string<std::size_t>(arg));
       want_size = false;
+    }
+    else if ((arg == "--columns") or (arg == "-w"))
+    {
+      want_columns = true;
     }
     else if ((arg == "--connect") or (arg == "-c"))
     {
@@ -445,6 +458,8 @@ options parse_opts(char *argv[])
     }
   }
 
+  if (want_columns)
+    throw fail{"Missing argument to --columns."};
   if (want_connect)
     throw fail{"Missing argument to --connect."};
   if (want_delay)
@@ -455,6 +470,25 @@ options parse_opts(char *argv[])
     throw fail{"Missing argument to --size."};
   return opts;
 }
+
+
+/// Run benchmarks, compare sums as a correctness check.
+template<std::size_t columns> void run_and_compare(options const &opts)
+{
+  auto const pq_result_value{measure<pq_result, columns>(opts)};
+  auto const pqxx_result_value{measure<pqxx_result, columns>(opts)};
+  auto const pqxx_stream_value{measure<pqxx_stream, columns>(opts)};
+
+  if (
+    (pqxx_result_value != pq_result_value) or
+    (pqxx_stream_value != pq_result_value))
+  {
+    throw fail{std::format(
+      "Inconsistent computation results: pq_result-int returned {}, "
+      "pqxx_result-int {}, pqxx_stream-int {}.",
+      pq_result_value, pqxx_result_value, pqxx_stream_value)};
+  }
+}
 } // namespace
 
 
@@ -464,20 +498,50 @@ int main(int, char *argv[])
   {
     options const opts{parse_opts(argv)};
 
-    // XXX: Configurable number of columns.
-    constexpr std::size_t columns = 16;
-    auto const pq_result_value{measure<pq_result, columns>(opts)};
-    auto const pqxx_result_value{measure<pqxx_result, columns>(opts)};
-    auto const pqxx_stream_value{measure<pqxx_stream, columns>(opts)};
-
-    if (
-      (pqxx_result_value != pq_result_value) or
-      (pqxx_stream_value != pq_result_value))
+    switch (opts.columns)
     {
-      throw fail{std::format(
-        "Inconsistent computation results: pq_result-int returned {}, "
-        "pqxx_result-int {}, pqxx_stream-int {}.",
-        pq_result_value, pqxx_result_value, pqxx_stream_value)};
+    case 1: run_and_compare<1>(opts); break;
+    case 2: run_and_compare<2>(opts); break;
+    case 3: run_and_compare<3>(opts); break;
+    case 4: run_and_compare<4>(opts); break;
+    case 5: run_and_compare<5>(opts); break;
+    case 6: run_and_compare<6>(opts); break;
+    case 7: run_and_compare<7>(opts); break;
+    case 8: run_and_compare<8>(opts); break;
+    case 9: run_and_compare<9>(opts); break;
+    case 10: run_and_compare<10>(opts); break;
+    case 11: run_and_compare<11>(opts); break;
+    case 12: run_and_compare<12>(opts); break;
+    case 13: run_and_compare<13>(opts); break;
+    case 14: run_and_compare<14>(opts); break;
+    case 15: run_and_compare<15>(opts); break;
+    case 16: run_and_compare<16>(opts); break;
+    case 17: run_and_compare<17>(opts); break;
+    case 18: run_and_compare<18>(opts); break;
+    case 19: run_and_compare<19>(opts); break;
+    case 20: run_and_compare<20>(opts); break;
+    case 21: run_and_compare<21>(opts); break;
+    case 22: run_and_compare<22>(opts); break;
+    case 23: run_and_compare<23>(opts); break;
+    case 24: run_and_compare<24>(opts); break;
+    case 25: run_and_compare<25>(opts); break;
+    case 26: run_and_compare<26>(opts); break;
+    case 27: run_and_compare<27>(opts); break;
+    case 28: run_and_compare<28>(opts); break;
+    case 29: run_and_compare<29>(opts); break;
+    case 30: run_and_compare<30>(opts); break;
+    case 31: run_and_compare<31>(opts); break;
+    case 32: run_and_compare<32>(opts); break;
+    case 33: run_and_compare<33>(opts); break;
+    case 34: run_and_compare<34>(opts); break;
+    case 35: run_and_compare<35>(opts); break;
+    case 36: run_and_compare<36>(opts); break;
+    case 37: run_and_compare<37>(opts); break;
+    case 38: run_and_compare<38>(opts); break;
+    case 39: run_and_compare<39>(opts); break;
+    default:
+      throw fail{
+        std::format("Unsupported number of columns: {}.", opts.columns)};
     }
   }
   catch (fail const &err)
