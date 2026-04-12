@@ -20,10 +20,7 @@ struct fail final : std::runtime_error
 
 struct options
 {
-  /// Number of rows to test, as an order of magnitude.
-  /** The benchmark will try querying 1 row if this is zero, or 10 rows if it
-   * is set to 1, or 100 rows if it's 2, and so on.
-   */
+  /// Number of rows to test.
   std::size_t size = 100u;
 
   /// Number of columns in result sets to test.
@@ -35,8 +32,8 @@ struct options
   /** Use this to simulate how long it takes an application to process a row of
    * data received from the database.
    *
-   * Honestly it's kind of pointless right now: a delay of just 1ms will
-   * dominate the benchmark and swamp out the speed differences.
+   * Honestly it's kind of pointless right now: a delay of just one microsecond
+   * will dominate the benchmark and swamp out the speed differences.
    */
   unsigned delay = 0u;
 
@@ -78,7 +75,7 @@ public:
   describe(std::string_view base_name, std::string_view scenario) const
   {
     return std::format(
-      "{}-{} columns={} delay={}ms enc={} rows={}", base_name, scenario,
+      "{}-{} columns={} delay={}micros enc={} rows={}", base_name, scenario,
       columns, opts().delay, opts().encoding, opts().size);
   }
 
@@ -199,7 +196,7 @@ private:
     if (success.ec != std::errc{})
       throw fail{std::format("Could not convert to number: '{}'", field)};
     if (success.ptr != end)
-      throw fail{std::format("Coul dnot parse whole field: '{}'", field)};
+      throw fail{std::format("Could not parse whole field: '{}'", field)};
     return value;
   }
 };
@@ -406,7 +403,9 @@ options parse_opts(char *argv[])
   for (std::size_t i{1}; argv[i]; ++i)
   {
     std::string_view const arg{argv[i]};
-    assert((int(want_size) + int(want_encoding)) < 2);
+    assert(
+      (int(want_columns) + int(want_connect) + int(want_delay) +
+       int(want_encoding) + int(want_size)) < 2);
     if (want_columns)
     {
       opts.columns = pqxx::from_string<std::size_t>(arg);
@@ -429,6 +428,7 @@ options parse_opts(char *argv[])
     }
     else if (want_size)
     {
+      // The "--size" option takes an order of magnitude.
       opts.size = ipow(10, pqxx::from_string<std::size_t>(arg));
       want_size = false;
     }

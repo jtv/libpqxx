@@ -472,7 +472,7 @@ template<nonbinary_range TYPE>
             std::format(
               "Text copy exceeded buffer space: tried to copy {} bytes '{}' "
               "into a buffer of {} bytes at offset {}.",
-              next - i, from.substr(i), next - i, here),
+              next - i, from.substr(i), std::size(buf), here),
             c.loc};
         std::memmove(std::data(buf) + here, std::data(from) + i, next - i);
         here += (next - i);
