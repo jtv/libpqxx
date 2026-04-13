@@ -327,6 +327,11 @@ jobs:
           path: "coverage_html"
 
   infer:
+    # This run sometimes crashes with an enigmatic error: End of File.
+    # I'm speculating that this may be because it's trying to write a file,
+    # running out of storage, and only noticing the problem when it tries to
+    # read the file later.
+    resource_class: large
     parameters:
       cxx_ver:
         type: string
@@ -352,7 +357,7 @@ jobs:
           command: "infer capture -- make -j4 check TESTS="
       - run:
           name: Infer
-          no_output_timeout: 30m
+          no_output_timeout: 20m
           command: "infer analyze --bufferoverrun --datalog --loop-hoisting \
               --siof-check-iostreams -- \
               make -j4 check TESTS= 1> >(tee infer.log) 2> >(tee stderr.log)"
