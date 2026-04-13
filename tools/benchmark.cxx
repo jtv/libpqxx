@@ -446,6 +446,7 @@ For the numeric arguments, you can pass either a number or a simple "x to the
 power of y" formula, such as "10^3" for 1,000 or "2^8" for 256.
 )xx";
 
+
 [[noreturn]] void exit_with_help()
 {
   std::cout << help_output;
@@ -463,6 +464,7 @@ enum class arg_opts
   encoding,
   size
 };
+
 
 options parse_opts(char *argv[])
 {
