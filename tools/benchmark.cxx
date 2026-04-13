@@ -11,7 +11,7 @@ namespace
 /// Fatal but well-handled error.
 struct fail final : std::runtime_error
 {
-  fail(std::string const &whatarg) : std::runtime_error{whatarg} {}
+  explicit fail(std::string const &whatarg) : std::runtime_error{whatarg} {}
 };
 
 
@@ -40,7 +40,7 @@ struct options
   unsigned delay = 0u;
 
   /// Database connection string.
-  std::string connect = "";
+  std::string connect;
 
   /// Encoding name.
   std::string encoding = "utf8";
@@ -66,14 +66,14 @@ public:
   benchmark &operator=(benchmark &&) = default;
 
   /// The `options` governing this benchmark.
-  options const &opts() const noexcept { return m_opts; }
+  [[nodiscard]] options const &opts() const noexcept { return m_opts; }
 
   /// This benchmark's base name, e.g. "pqxx-stream".
   static constexpr std::string_view name() noexcept { return "UNNAMED!"; }
 
   /// Generate a human-readable brief description for this benchmark.
   template<std::size_t columns>
-  std::string
+  [[nodiscard]] std::string
   describe(std::string_view base_name, std::string_view scenario) const
   {
     return std::format(
@@ -119,7 +119,7 @@ std::string compose_ints_query(std::size_t rows, std::size_t columns)
 class pq_result final : public benchmark
 {
 public:
-  pq_result(options o) :
+  explicit pq_result(options o) :
           benchmark{std::move(o)},
           m_cx(PQconnectdb(opts().connect.c_str()), [](PGconn *ptr) {
             PQfinish(ptr);
@@ -209,7 +209,7 @@ private:
 class pqxx_result final : public benchmark
 {
 public:
-  pqxx_result(options o) :
+  explicit pqxx_result(options o) :
           benchmark{std::move(o)}, m_cx{opts().connect.c_str()}
   {
     m_cx.set_client_encoding(opts().encoding);
@@ -244,7 +244,7 @@ private:
 class pqxx_stream final : public benchmark
 {
 public:
-  pqxx_stream(options o) :
+  explicit pqxx_stream(options o) :
           benchmark{std::move(o)}, m_cx{opts().connect.c_str()}
   {
     m_cx.set_client_encoding(opts().encoding);
@@ -423,7 +423,7 @@ T parse_human_number(std::string_view text)
 }
 
 
-constexpr static auto help_output =
+constexpr auto help_output =
   R"xx(Query benchmark for libpqxx.
 
 Times some simple queries using various libpqxx calls, as well as using raw
