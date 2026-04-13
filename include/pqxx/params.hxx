@@ -188,8 +188,7 @@ public:
     else
     {
       // TODO: Block-allocate storage for parameters.
-      m_params.emplace_back(
-        entry{to_string(value, conversion_context{m_enc, loc})});
+      m_params.emplace_back(to_string(value, conversion_context{m_enc, loc}));
     }
   }
 

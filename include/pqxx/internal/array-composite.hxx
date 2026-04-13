@@ -453,10 +453,10 @@ template<nonbinary_range TYPE>
       // C++26: Use buf.at().
       buf[here++] = '"';
 
-      auto const sz{std::size(buf)}, elt_budget{pqxx::size_buffer(elt)};
+      auto const elt_budget{pqxx::size_buffer(elt)};
       // Use the tail end of the destination buffer as an intermediate
       // buffer.
-      assert(std::cmp_less(elt_budget, sz - here));
+      assert(std::cmp_less(elt_budget, std::size(buf) - here));
       auto const from{pqxx::to_buf(buf.last(elt_budget), elt, c)};
       auto const end{std::size(from)};
       auto const find{get_char_finder<'\\', '"'>(c.enc, c.loc)};
@@ -467,8 +467,15 @@ template<nonbinary_range TYPE>
       while (i < end)
       {
         auto next{find(from, i, c.loc)};
-        here =
-          copy_chars<false>({std::data(from) + i, next - i}, buf, here, c.loc);
+        if (std::cmp_greater(here + next - i, std::size(buf)))
+          throw conversion_overrun{
+            std::format(
+              "Text copy exceeded buffer space: tried to copy {} bytes "
+              "into a buffer of {} bytes at offset {} ('{}').",
+              next - i, std::size(buf), here, from.substr(i)),
+            c.loc};
+        std::memmove(std::data(buf) + here, std::data(from) + i, next - i);
+        here += (next - i);
         if (next < end)
         {
           // We hit either a quote or a backslash.  Insert an escape

@@ -124,7 +124,7 @@ void populate_schema(pqxx::connection &cx)
   cust.write_values(1, "Acme");
   cust.write_values(2, "The Government");
   cust.write_values(3, "Sirius Cybernetics Corp.");
-  cust.write_values(4, "A chap I met at the club called Bernard");
+  cust.write_values(4, "Some chap I bumped into in the mess called Bernard");
   cust.complete();
 
   // Don't forget to commit the transaction!  Otherwise it was all for nought.

@@ -166,7 +166,7 @@ jobs:
           command: ". vars.sh && bash.exe -c \". vars.sh && \
             CXX=<< parameters.compiler >> \
             CXXFLAGS='-O1 -std=<< parameters.cxx_ver >>' \
-            cmake -G Ninja .\""
+            cmake -G Ninja . -DBUILD_TOOLS=1\""
           shell: bash.exe
       - store_artifacts:
           path: include/pqxx
@@ -218,7 +218,7 @@ jobs:
             mkdir -p /tmp/pqxx && \
             cd /tmp/pqxx && \
             CXX=clang++ CXXFLAGS='-O0 \
-              -std=<< parameters.cxx_ver >>' cmake \"$SRC\""
+              -std=<< parameters.cxx_ver >>' cmake \"$SRC\" -DBUILD_TOOLS=1"
       - run:
           name: Analyse
           # Tricky.  I don't really want the pointless stdout output from
@@ -327,6 +327,11 @@ jobs:
           path: "coverage_html"
 
   infer:
+    # This tool run sometimes crashes with an enigmatic error: End_of_file.
+    # I'm speculating that it may be because it's trying to write a file,
+    # running out of storage, and only noticing the problem when it tries to
+    # read the file later.
+    resource_class: large
     parameters:
       cxx_ver:
         type: string
@@ -352,6 +357,7 @@ jobs:
           command: "infer capture -- make -j4 check TESTS="
       - run:
           name: Infer
+          no_output_timeout: 20m
           command: "infer analyze --bufferoverrun --datalog --loop-hoisting \
               --siof-check-iostreams -- \
               make -j4 check TESTS= 1> >(tee infer.log) 2> >(tee stderr.log)"
