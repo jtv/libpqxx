@@ -6,8 +6,6 @@
 #include <format>
 #include <iostream>
 
-// TODO: --help/-h option.
-// TODO: Support options like --size=10 or -s10.
 namespace
 {
 /// Fatal but well-handled error.
@@ -15,6 +13,11 @@ struct fail final : std::runtime_error
 {
   fail(std::string const &whatarg) : std::runtime_error{whatarg} {}
 };
+
+
+/// Early successful exit.
+struct early_exit final : std::exception
+{};
 
 
 struct options
@@ -418,80 +421,97 @@ T parse_human_number(std::string_view text)
 }
 
 
+constexpr static auto help_output =
+  R"xx(Query benchmark for libpqxx.
+
+Times some simple queries using various libpqxx calls, as well as using raw
+libpq calls.
+
+Options:
+  --columns <C> or -w <C>
+      Query data <C> columns wide.
+  --connect <C> or -c <C>
+      Connect to database using connection string <C>.
+  --delay <D> or -d <D>
+      Pause for <D> microseconds for each row, to simulate processing.
+  --encoding <E> or -e <E>
+      Simulate processing using client encoding <E>, e.g. UTF-8 or SJIS or
+      GB18030.  Encodings can differ in their performance characteristics.
+  --help or -h
+      Show this explanation, and exit.
+  --size <R> or -s <R>
+      Query <R> rows of data.
+
+For the numeric arguments, you can pass either a number or a simple "x to the
+power of y" formula, such as "10^3" for 1,000 or "2^8" for 256.
+)xx";
+
+[[noreturn]] void exit_with_help()
+{
+  std::cout << help_output;
+  throw early_exit{};
+}
+
+
+/// Options that take an argument.
+enum class arg_opts
+{
+  none,
+  columns,
+  connect,
+  delay,
+  encoding,
+  size
+};
+
 options parse_opts(char *argv[])
 {
   options opts;
 
-  bool want_columns{false}, want_connect{false}, want_delay{false},
-    want_encoding{false}, want_size{false};
-
+  arg_opts want = arg_opts::none;
   for (std::size_t i{1}; argv[i]; ++i)
   {
     std::string_view const arg{argv[i]};
-    assert(
-      (int(want_columns) + int(want_connect) + int(want_delay) +
-       int(want_encoding) + int(want_size)) < 2);
-    if (want_columns)
+    if (want == arg_opts::none)
     {
-      opts.columns = parse_human_number(arg);
-      want_columns = false;
-    }
-    else if (want_connect)
-    {
-      opts.connect = arg;
-      want_connect = false;
-    }
-    else if (want_delay)
-    {
-      opts.delay = parse_human_number<decltype(options::delay)>(arg);
-      want_delay = false;
-    }
-    else if (want_encoding)
-    {
-      opts.encoding = arg;
-      want_encoding = false;
-    }
-    else if (want_size)
-    {
-      opts.size = parse_human_number(arg);
-      want_size = false;
-    }
-    else if ((arg == "--columns") or (arg == "-w"))
-    {
-      want_columns = true;
-    }
-    else if ((arg == "--connect") or (arg == "-c"))
-    {
-      want_connect = true;
-    }
-    else if ((arg == "--delay") or (arg == "-d"))
-    {
-      want_delay = true;
-    }
-    else if ((arg == "--encoding") or (arg == "-e"))
-    {
-      want_encoding = true;
-    }
-    else if ((arg == "--size") or (arg == "-s"))
-    {
-      want_size = true;
+      // The previous option was one that requires an argument.  Parse `arg`
+      // as such.
+      // TODO: Support "--size=10" and "-s10" syntax.
+      if ((arg == "--columns") or (arg == "-w"))
+        want = arg_opts::columns;
+      else if ((arg == "--connect") or (arg == "-c"))
+        want = arg_opts::connect;
+      else if ((arg == "--delay") or (arg == "-d"))
+        want = arg_opts::delay;
+      else if ((arg == "--encoding") or (arg == "-e"))
+        want = arg_opts::encoding;
+      else if ((arg == "--help") or (arg == "-h"))
+        exit_with_help();
+      else if ((arg == "--size") or (arg == "-s"))
+        want = arg_opts::size;
+      else
+        throw fail{std::format("Unexpected argument: '{}'.", arg)};
     }
     else
     {
-      throw fail{std::format("Unexpected argument: '{}'.", arg)};
+      switch (want)
+      {
+      case arg_opts::columns: opts.columns = parse_human_number(arg); break;
+      case arg_opts::connect: opts.connect = arg; break;
+      case arg_opts::delay:
+        opts.delay = parse_human_number<decltype(options::delay)>(arg);
+        break;
+      case arg_opts::encoding: opts.encoding = arg; break;
+      case arg_opts::size: opts.size = parse_human_number(arg); break;
+      case arg_opts::none: PQXX_UNREACHABLE;
+      }
+      want = arg_opts::none;
     }
   }
 
-  if (want_columns)
-    throw fail{"Missing argument to --columns."};
-  if (want_connect)
-    throw fail{"Missing argument to --connect."};
-  if (want_delay)
-    throw fail{"Missing argument to --delay."};
-  if (want_encoding)
-    throw fail{"Missing argument to --encoding."};
-  if (want_size)
-    throw fail{"Missing argument to --size."};
+  if (want != arg_opts::none)
+    throw fail{"Last option is missing an argument."};
+
   return opts;
 }
 
@@ -565,6 +585,10 @@ int main(int, char *argv[])
     case 39: run_and_compare<39>(opts); break;
     default: throw fail{"Supported numbers of columns are 1-40 exclusive."};
     }
+  }
+  catch (early_exit const &)
+  {
+    return 0;
   }
   catch (fail const &err)
   {
