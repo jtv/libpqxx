@@ -416,6 +416,8 @@ T parse_human_number(std::string_view text)
     // Caret notation.
     T base = pqxx::from_string<T>(text.substr(0, caret)),
       exp = pqxx::from_string<T>(text.substr(caret + 1));
+    if (std::cmp_equal(base, 0) and std::cmp_equal(exp, 0))
+      throw fail{"The meaning of 0^0 is mathematically ambiguous."};
     return ipow(base, exp);
   }
 }
@@ -589,7 +591,8 @@ int main(int, char *argv[])
     case 37: run_and_compare<37>(opts); break;
     case 38: run_and_compare<38>(opts); break;
     case 39: run_and_compare<39>(opts); break;
-    default: throw fail{"Maximum supported number of columns is 39."};
+    case 40: run_and_compare<39>(opts); break;
+    default: throw fail{"Maximum supported number of columns is 40."};
     }
   }
   catch (early_exit const &)
