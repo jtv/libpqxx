@@ -24,6 +24,12 @@ PQXXVERSION="$(cd "$SRCDIR" && "$SRCDIR/tools/extract_version.py")"
 ARGS="${1:-}"
 
 
+# Is command $1 available?
+have_command() {
+    command -v -- "$1" >/dev/null
+}
+
+
 # Check that all source code is pure ASCII.
 #
 # I'd love to have rich Unicode, but I can live without it.  Mainly we don't
@@ -157,21 +163,21 @@ EOF
 
 
 pylint() {
-    if which pyflakes >/dev/null
+    if have_command pyflakes
     then
         pyflakes "$SRCDIR"
     else
         uv -q run --with=pyflakes==3.4.0 pyflakes "$SRCDIR"
     fi
 
-    if which ruff >/dev/null
+    if have_command ruff
     then
         ruff check -q "$SRCDIR"
     else
         uv -q run --with=ruff==0.14.14 ruff check -q "$SRCDIR"
     fi
 
-    if which pyrefly >/dev/null
+    if have_command pyrefly
     then
         pyrefly check .
     else
@@ -183,7 +189,7 @@ pylint() {
 shelllint() {
     local cmd
 
-    if which shellcheck >/dev/null
+    if have_command shellcheck
     then
         cmd=(shellcheck)
     else
@@ -195,7 +201,7 @@ shelllint() {
 
 
 mdlint() {
-    if which mdl >/dev/null
+    if have_command mdl
     then
         find "$SRCDIR" -name \*.md -exec \
             mdl -s "$SRCDIR/.mdl_style.rb" -c "$SRCDIR/.markdownlint.yaml" \
