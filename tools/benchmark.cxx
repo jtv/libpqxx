@@ -133,6 +133,12 @@ public:
         std::format("Setting client encoding {} failed.", opts().encoding)};
   }
 
+  pq_result(pq_result const &) = delete;
+  pq_result(pq_result &&) = delete;
+  pq_result &operator=(pq_result const &) = delete;
+  pq_result &operator=(pq_result &&) = delete;
+  ~pq_result() = default;
+
   static constexpr std::string_view name() noexcept { return "pq_result"; }
 
   template<std::size_t columns> std::size_t query_ints()
@@ -142,7 +148,7 @@ public:
       throw fail{std::format(
         "Number of rows ({}) is greater than can be indexed.", rows)};
     auto const conn = compose_ints_query(rows, columns);
-    std::unique_ptr<PGresult, decltype(&PQclear)> res{
+    std::unique_ptr<PGresult, decltype(&PQclear)> const res{
       PQexec(m_cx.get(), conn.c_str()), &PQclear};
     check_result(res.get());
     if (PQnfields(res.get()) != columns)
@@ -215,6 +221,12 @@ public:
     m_cx.set_client_encoding(opts().encoding);
   }
 
+  pqxx_result(pqxx_result const &) = delete;
+  pqxx_result(pqxx_result &&) = delete;
+  pqxx_result &operator=(pqxx_result const &) = delete;
+  pqxx_result &operator=(pqxx_result &&) = delete;
+  ~pqxx_result() = default;
+
   static constexpr std::string_view name() noexcept { return "pqxx_result"; }
 
   template<std::size_t columns> std::size_t query_ints()
@@ -249,6 +261,12 @@ public:
   {
     m_cx.set_client_encoding(opts().encoding);
   }
+
+  pqxx_stream(pqxx_stream const &) = delete;
+  pqxx_stream(pqxx_stream &&) = delete;
+  pqxx_stream &operator=(pqxx_stream const &) = delete;
+  pqxx_stream &operator=(pqxx_stream &&) = delete;
+  ~pqxx_stream() = default;
 
   static constexpr std::string_view name() noexcept { return "pqxx_stream"; }
 
