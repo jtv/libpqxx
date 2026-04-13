@@ -327,8 +327,8 @@ jobs:
           path: "coverage_html"
 
   infer:
-    # This run sometimes crashes with an enigmatic error: End of File.
-    # I'm speculating that this may be because it's trying to write a file,
+    # This tool run sometimes crashes with an enigmatic error: End_of_file.
+    # I'm speculating that it may be because it's trying to write a file,
     # running out of storage, and only noticing the problem when it tries to
     # read the file later.
     resource_class: large

@@ -7,7 +7,6 @@
 #include <iostream>
 
 // TODO: --help/-h option.
-// TODO: More flexible syntax for specifying numbers of rows.
 // TODO: Support options like --size=10 or -s10.
 namespace
 {
@@ -94,7 +93,8 @@ private:
 
 
 template<typename BM>
-concept benchmark_type = std::derived_from<BM, benchmark>;
+concept benchmark_type =
+  std::derived_from<BM, benchmark> and requires { BM::name(); };
 
 
 /// Generate SQL to query `rows` rows of `columns` integers each.
@@ -379,17 +379,42 @@ std::size_t measure(options const &opts)
 }
 
 
-constexpr std::size_t ipow(std::size_t base, std::size_t exp)
+template<std::integral T = std::size_t> constexpr T ipow(T base, T exp)
 {
-  auto const limit{((std::numeric_limits<std::size_t>::max)() - 1) / base};
-  std::size_t result{1};
+  if (base == 0)
+    return 0;
+
+  auto const limit{((std::numeric_limits<T>::max)() - 1) / base};
+  T result{1};
   for (std::size_t i{0}; i < exp; ++i)
   {
     if (result > limit)
-      throw fail{std::format("Number too large: {}**{}", base, exp)};
+      throw fail{std::format("Number too large: {}^{}", base, exp)};
     result *= base;
   }
   return result;
+}
+
+
+/// Parse a human-provided, integral number.
+/** Supports a bit of extra syntax: you can write numbers like 10^3 for 1,000.
+ */
+template<std::integral T = std::size_t>
+T parse_human_number(std::string_view text)
+{
+  auto const caret = text.find('^');
+  if (caret == std::string_view::npos)
+  {
+    // Just a regular number.
+    return pqxx::from_string<T>(text);
+  }
+  else
+  {
+    // Caret notation.
+    T base = pqxx::from_string<T>(text.substr(0, caret)),
+      exp = pqxx::from_string<T>(text.substr(caret + 1));
+    return ipow(base, exp);
+  }
 }
 
 
@@ -408,7 +433,7 @@ options parse_opts(char *argv[])
        int(want_encoding) + int(want_size)) < 2);
     if (want_columns)
     {
-      opts.columns = pqxx::from_string<std::size_t>(arg);
+      opts.columns = parse_human_number(arg);
       want_columns = false;
     }
     else if (want_connect)
@@ -418,7 +443,7 @@ options parse_opts(char *argv[])
     }
     else if (want_delay)
     {
-      opts.delay = pqxx::from_string<decltype(opts.delay)>(arg);
+      opts.delay = parse_human_number<decltype(options::delay)>(arg);
       want_delay = false;
     }
     else if (want_encoding)
@@ -428,8 +453,7 @@ options parse_opts(char *argv[])
     }
     else if (want_size)
     {
-      // The "--size" option takes an order of magnitude.
-      opts.size = ipow(10, pqxx::from_string<std::size_t>(arg));
+      opts.size = parse_human_number(arg);
       want_size = false;
     }
     else if ((arg == "--columns") or (arg == "-w"))
@@ -539,9 +563,7 @@ int main(int, char *argv[])
     case 37: run_and_compare<37>(opts); break;
     case 38: run_and_compare<38>(opts); break;
     case 39: run_and_compare<39>(opts); break;
-    default:
-      throw fail{
-        std::format("Unsupported number of columns: {}.", opts.columns)};
+    default: throw fail{"Supported numbers of columns are 1-40 exclusive."};
     }
   }
   catch (fail const &err)
