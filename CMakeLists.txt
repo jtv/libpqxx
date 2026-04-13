@@ -19,7 +19,15 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 # Generate a "compilation database" so we can use run-clang-tidy, to run static
 # checks in parallel.
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 option(BUILD_DOC "Build documentation" OFF)
+option(BUILD_TOOLS "Build tools" OFF)
+
+if(NOT SKIP_BUILD_EXAMPLES AND
+   CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR
+)
+    option(BUILD_EXAMPLES "Build examples" ON)
+endif()
 
 if(NOT SKIP_BUILD_TEST AND CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     option(BUILD_TEST "Build all test cases" ON)
@@ -27,11 +35,6 @@ endif()
 
 # TODO: Enable PQXX_HAVE_STACKTRACE if appropriate.
 
-if(NOT SKIP_BUILD_EXAMPLES AND
-   CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR
-)
-    option(BUILD_EXAMPLES "Build examples" ON)
-endif()
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 include(config)
@@ -40,11 +43,14 @@ add_subdirectory(include)
 if(BUILD_DOC)
     add_subdirectory(doc)
 endif()
+if(BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()
 if(BUILD_TEST)
     add_subdirectory(test)
 endif()
-if(BUILD_EXAMPLES)
-    add_subdirectory(examples)
+if(BUILD_TOOLS)
+    add_subdirectory(tools)
 endif()
 
 # Installation
