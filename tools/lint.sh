@@ -26,7 +26,7 @@ ARGS="${1:-}"
 
 # Is command $1 available?
 have_command() {
-  command -v -- "$1" >/dev/null
+    command -v -- "$1" >/dev/null
 }
 
 
