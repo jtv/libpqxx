@@ -470,9 +470,9 @@ template<nonbinary_range TYPE>
         if (std::cmp_greater(here + next - i, std::size(buf)))
           throw conversion_overrun{
             std::format(
-              "Text copy exceeded buffer space: tried to copy {} bytes '{}' "
-              "into a buffer of {} bytes at offset {}.",
-              next - i, from.substr(i), std::size(buf), here),
+              "Text copy exceeded buffer space: tried to copy {} bytes "
+              "into a buffer of {} bytes at offset {} ('{}').",
+              next - i, std::size(buf), here, from.substr(i)),
             c.loc};
         std::memmove(std::data(buf) + here, std::data(from) + i, next - i);
         here += (next - i);

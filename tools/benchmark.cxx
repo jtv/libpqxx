@@ -476,8 +476,7 @@ options parse_opts(char *argv[])
     std::string_view const arg{argv[i]};
     if (want == arg_opts::none)
     {
-      // The previous option was one that requires an argument.  Parse `arg`
-      // as such.
+      // We're expecting a fresh command-line option.
       // TODO: Support "--size=10" and "-s10" syntax.
       if ((arg == "--columns") or (arg == "-w"))
         want = arg_opts::columns;
@@ -496,6 +495,8 @@ options parse_opts(char *argv[])
     }
     else
     {
+      // The previous option was one that requires an argument.  Parse `arg`
+      // as such.
       switch (want)
       {
       case arg_opts::columns: opts.columns = parse_human_number(arg); break;
@@ -507,6 +508,8 @@ options parse_opts(char *argv[])
       case arg_opts::size: opts.size = parse_human_number(arg); break;
       case arg_opts::none: PQXX_UNREACHABLE;
       }
+      // In each of these cases, we no longer want the next command-line item
+      // to be an argument to the option.
       want = arg_opts::none;
     }
   }
@@ -546,6 +549,7 @@ int main(int, char *argv[])
 
     switch (opts.columns)
     {
+    case 0: throw fail{"Results must contain at least one column."};
     case 1: run_and_compare<1>(opts); break;
     case 2: run_and_compare<2>(opts); break;
     case 3: run_and_compare<3>(opts); break;
@@ -585,7 +589,7 @@ int main(int, char *argv[])
     case 37: run_and_compare<37>(opts); break;
     case 38: run_and_compare<38>(opts); break;
     case 39: run_and_compare<39>(opts); break;
-    default: throw fail{"Supported numbers of columns are 1-40 exclusive."};
+    default: throw fail{"Maximum supported number of columns is 39."};
     }
   }
   catch (early_exit const &)
