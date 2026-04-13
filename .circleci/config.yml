@@ -352,6 +352,7 @@ jobs:
           command: "infer capture -- make -j4 check TESTS="
       - run:
           name: Infer
+          no_output_timeout: 30m
           command: "infer analyze --bufferoverrun --datalog --loop-hoisting \
               --siof-check-iostreams -- \
               make -j4 check TESTS= 1> >(tee infer.log) 2> >(tee stderr.log)"
