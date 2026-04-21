@@ -12,6 +12,7 @@ So, we write our own header file that contains only the macro definitions
 with "PQXX" in the name.  Also, we add some boilerplate.
 """
 
+from os import rename
 from pathlib import Path
 import sys
 
@@ -31,13 +32,18 @@ def main() -> int:
     """Main entry point.  Returns exit code."""
     infile = Path(sys.argv[1])
     outfile = Path(sys.argv[2])
-    with infile.open("r") as instream, outfile.open("w") as outstream:
+    tmp = outfile.with_suffix(".tmp")
+    with infile.open("r") as instream, tmp.open("w") as outstream:
         print(HEADER, file=outstream)
         for line in instream:
             if "PQXX" in line:
                 print(line.strip(), file=outstream)
         print(FOOTER, file=outstream, end="")
 
+    # Now move the output file into place.  Doing this afterwards makes it
+    # possible to use the same file for input and output.
+    # TODO: With Python 3.14 or better, use tmp.rename(outfile).
+    rename(tmp, outfile)
     return 0
 
 
