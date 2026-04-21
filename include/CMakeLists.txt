@@ -55,7 +55,7 @@ install(
     PATTERN zview
     PATTERN internal/*.hxx
     PATTERN internal/gates/*.hxx
-    PATTERN config.h
+    PATTERN internal/config.h
     PATTERN pqxx
     PATTERN doc EXCLUDE
 )

@@ -20,9 +20,9 @@ try_compile(
     SOURCES ${PROJECT_SOURCE_DIR}/config-tests/stacktrace_support.cxx
 )
 
-set(AC_CONFIG_H_IN "${PROJECT_SOURCE_DIR}/include/pqxx/config.h.in")
-set(CM_CONFIG_H_IN "${PROJECT_BINARY_DIR}/include/pqxx/config_cmake.h.in")
-set(CONFIG_H "${PROJECT_BINARY_DIR}/include/pqxx/config.h")
+set(AC_CONFIG_H_IN "${PROJECT_SOURCE_DIR}/include/pqxx/internal/config.h.in")
+set(CM_CONFIG_H_IN "${PROJECT_BINARY_DIR}/include/pqxx/internal/config_cmake.h.in")
+set(CONFIG_H "${PROJECT_BINARY_DIR}/include/pqxx/internal/config.h")
 message(STATUS "Generating configuration headers")
 
 # First we write config_cmake.h.in based on autoconf's config.h.in.

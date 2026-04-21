@@ -6928,7 +6928,7 @@ PQXXVERSION=$PACKAGE_VERSION
 
 
 
-ac_config_headers="$ac_config_headers include/pqxx/config.h"
+ac_config_headers="$ac_config_headers include/pqxx/internal/config.h"
 
 
 # Default prefix for installs.
@@ -22330,7 +22330,7 @@ for ac_config_target in $ac_config_targets
 do
   case $ac_config_target in
     "depfiles") CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
-    "include/pqxx/config.h") CONFIG_HEADERS="$CONFIG_HEADERS include/pqxx/config.h" ;;
+    "include/pqxx/internal/config.h") CONFIG_HEADERS="$CONFIG_HEADERS include/pqxx/internal/config.h" ;;
     "libtool") CONFIG_COMMANDS="$CONFIG_COMMANDS libtool" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "include/Makefile") CONFIG_FILES="$CONFIG_FILES include/Makefile" ;;

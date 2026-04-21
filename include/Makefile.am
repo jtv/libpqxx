@@ -74,7 +74,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/internal/gates/transaction-transaction_focus.hxx
 
 
-nobase_nodist_include_HEADERS = pqxx/config.h
+nobase_nodist_include_HEADERS = pqxx/internal/config.h
 
 EXTRA_DIST = \
 	pqxx/doc/*.md \

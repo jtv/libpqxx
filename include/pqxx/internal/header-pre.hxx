@@ -44,7 +44,7 @@
 
 
 // Configuration macros enabled by the build system.
-#include "pqxx/config.h"
+#include "pqxx/internal/config.h"
 
 // MSVC has a nonstandard definition of __cplusplus.
 #if defined(_MSC_VER)

@@ -24,7 +24,7 @@ PQXX_ABI=m4_esyscmd_s([./tools/extract_version.py --abi])
 AC_SUBST(PQXXVERSION, $PACKAGE_VERSION)
 AC_SUBST(PQXX_ABI)
 
-AC_CONFIG_HEADERS([include/pqxx/config.h])
+AC_CONFIG_HEADERS([include/pqxx/internal/config.h])
 
 # Default prefix for installs.
 AC_PREFIX_DEFAULT(/usr/local)
