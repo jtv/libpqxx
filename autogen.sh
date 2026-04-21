@@ -67,7 +67,6 @@ autoconf
 # So, we filter the config header template here, leaving only "PQXX" macros.
 # This way it will work for "configure"-based builds, CMake builds, and custom
 # builds.
-./tools/filter_config.py \
-    include/pqxx/internal/config.h.in include/pqxx/internal/config.h.in
+./tools/filter_config.py include/pqxx/internal/config.h.in
 
 echo "Done."

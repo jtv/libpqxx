@@ -8,14 +8,14 @@ want.  Not just because they're not needed, but also because they pollute the
 macro namespace.  It'd be fine if it was just inside libpqxx source files, but
 the header affects client applications as well.
 
-So, we rewrite the header to contain only the macro definitions with "PQXX" in
-the name.
-
-Usage: filter_config.py <infile> <outfile>.
-
-The input file and output file may be the same.
+So, we rewrite the header (or its template) to contain only the macro
+definitions with "PQXX" in the name.
 """
 
+from argparse import (
+    ArgumentParser,
+    Namespace,
+)
 from pathlib import Path
 import sys
 
@@ -25,12 +25,23 @@ import sys
 HEADER = "// NOLINT(llvm-header-guard)"
 
 
-# TODO: Use argparse.
-# TODO: Supporting stdin/stdout might be nice.
+def parse_args() -> Namespace:
+    parser = ArgumentParser(description=__doc__)
+    parser.add_argument("infile", type=str, help="Input header.")
+    parser.add_argument(
+        "--outfile",
+        "-o",
+        type=str,
+        help="Optional output header; defaults to same as input.",
+    )
+    return parser.parse_args()
+
+
 def main() -> int:
     """Main entry point.  Returns exit code."""
-    infile = Path(sys.argv[1])
-    outfile = Path(sys.argv[2])
+    args = parse_args()
+    infile = Path(args.infile)
+    outfile = Path(args.outfile or args.infile)
     tmp = outfile.with_suffix(".tmp")
     with infile.open("r") as instream, tmp.open("w") as outstream:
         print(HEADER, file=outstream)
