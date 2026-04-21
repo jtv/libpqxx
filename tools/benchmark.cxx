@@ -1,3 +1,13 @@
+// A simple benchmark for libpqxx query performance.
+/** This tool executes a simple query (but one returning a lot of data, if you
+ * tell it to!) and compares timings between different methods of doing so:
+ *
+ * 1. using raw libpq calls,
+ * 2. using a libpqxx "exec()" call,
+ * 3. using a libpqxx "stream()" call.
+ *
+ * Use the "--help" (or "-h") option for instructions.
+ */
 #include <libpq-fe.h>
 #include <pqxx/pqxx>
 
