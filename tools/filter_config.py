@@ -16,15 +16,6 @@ from os import rename
 from pathlib import Path
 import sys
 
-HEADER = """\
-#ifndef PQXX_CONFIG_COMPILER_H
-#define PQXX_CONFIG_COMPILER_H
-"""
-
-FOOTER = """\
-#endif
-"""
-
 
 # TODO: Use argparse.
 # TODO: Supporting stdin/stdout might be nice.
@@ -34,11 +25,9 @@ def main() -> int:
     outfile = Path(sys.argv[2])
     tmp = outfile.with_suffix(".tmp")
     with infile.open("r") as instream, tmp.open("w") as outstream:
-        print(HEADER, file=outstream)
         for line in instream:
             if "PQXX" in line:
                 print(line.strip(), file=outstream)
-        print(FOOTER, file=outstream, end="")
 
     # Now move the output file into place.  Doing this afterwards makes it
     # possible to use the same file for input and output.

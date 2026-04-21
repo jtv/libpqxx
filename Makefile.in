@@ -698,7 +698,7 @@ EXTRA_DIST = autogen.sh configitems Makefile.am.template README.md VERSION \
 noinst_HEADERS = test/helpers.hxx
 tools_benchmark_SOURCES = tools/benchmark.cxx
 tools_benchmark_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
-DISTCLEANFILES = include/pqxx/config-compiler.h
+DISTCLEANFILES = include/pqxx/config.h
 MAINTAINERCLEANFILES = \
     Makefile.in aclocal.m4 config.h.in config.log configure stamp-h.in \
     config/config.guess config/config.sub config/install-sh config/ltmain.sh \

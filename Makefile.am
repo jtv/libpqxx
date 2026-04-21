@@ -65,7 +65,7 @@ tools_benchmark_SOURCES = tools/benchmark.cxx
 tools_benchmark_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
 
 
-DISTCLEANFILES = include/pqxx/config-compiler.h
+DISTCLEANFILES = include/pqxx/config.h
 
 MAINTAINERCLEANFILES = \
     Makefile.in aclocal.m4 config.h.in config.log configure stamp-h.in \

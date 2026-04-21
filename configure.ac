@@ -373,22 +373,9 @@ occurring in the file.
 # Remove redundant occurrances of -lpq
 LIBS=[$(echo "$LIBS" | sed -e 's/-lpq * -lpq\>/-lpq/g')]
 
-
 AC_PROG_MAKE_SET
 
 AC_CONFIG_FILES([Makefile include/Makefile libpqxx.pc])
-
-
-# We've let autoconf generate a config.h.  But there's a lot of stuff in there
-# that we don't need, and that we absolutely do not want.  We'd like to avoid
-# polluting the application's namespace with macros that aren't clearly marked
-# as libpqxx-related.
-#
-# So we take just the ones with the "PQXX" marker and write them into a
-# header just for compiler-related configuration.
-AC_CONFIG_COMMANDS([configitems],
-	[${srcdir}/tools/filter_config.py \
-	    include/pqxx/config.h include/pqxx/config-compiler.h])
 
 AC_CONFIG_FILES([compile_flags])
 AC_OUTPUT
