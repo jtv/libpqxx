@@ -21,7 +21,9 @@ try_compile(
 )
 
 set(AC_CONFIG_H_IN "${PROJECT_SOURCE_DIR}/include/pqxx/internal/config.h.in")
-set(CM_CONFIG_H_IN "${PROJECT_BINARY_DIR}/include/pqxx/internal/config_cmake.h.in")
+set(CM_CONFIG_H_IN
+    "${PROJECT_BINARY_DIR}/include/pqxx/internal/config_cmake.h.in"
+)
 set(CONFIG_H "${PROJECT_BINARY_DIR}/include/pqxx/internal/config.h")
 message(STATUS "Generating configuration headers")
 
