@@ -700,10 +700,7 @@ tools_benchmark_SOURCES = tools/benchmark.cxx
 tools_benchmark_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
 DISTCLEANFILES = include/pqxx/internal/config.h
 MAINTAINERCLEANFILES = \
-    Makefile.in aclocal.m4 internal/config.h.in config.log configure \
-    stamp-h.in config/config.guess config/config.sub config/install-sh \
-    config/ltmain.sh config/missing config/mkinstalldirs \
-    include/pqxx/Makefile.in include/pqxx/stamp-h.in
+    Makefile.in aclocal.m4 include/pqxx/internal/config.h.in config.log
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libpqxx.pc
@@ -2202,6 +2199,9 @@ uninstall-am: uninstall-libLTLIBRARIES uninstall-pkgconfigDATA
 
 .PRECIOUS: Makefile
 
+    configure stamp-h.in config/config.guess config/config.sub \
+    config/install-sh config/ltmain.sh config/missing config/mkinstalldirs \
+    include/pqxx/Makefile.in include/pqxx/stamp-h.in
 
 # We use README.md, but automake expects plain README.
 README: README.md
