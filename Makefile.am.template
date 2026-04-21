@@ -46,9 +46,9 @@ tools_benchmark_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
 DISTCLEANFILES = include/pqxx/internal/config.h
 
 MAINTAINERCLEANFILES = \
-    Makefile.in aclocal.m4 include/pqxx/internal/config.h.in config.log
-    configure stamp-h.in config/config.guess config/config.sub \
-    config/install-sh config/ltmain.sh config/missing config/mkinstalldirs \
+    Makefile.in aclocal.m4 config.log configure stamp-h.in \
+    config/config.guess config/config.sub config/install-sh config/ltmain.sh \
+    config/missing config/mkinstalldirs include/pqxx/internal/config.h.in \
     include/pqxx/Makefile.in include/pqxx/stamp-h.in
 
 pkgconfigdir = $(libdir)/pkgconfig
