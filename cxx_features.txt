@@ -12,9 +12,6 @@
 # From these, the autogen script generates code snippets that the build
 # configuration step can try to compile, as well as the bits of config
 # to do that in the supported build systems.
-#
-# Remember to enter each of these in configitems as well, or they won't
-# end up in the actual configuration headers.
 
 # Example:
 # PQXX_HAVE_MULTIDIM __cpp_multidimensional_subscript
