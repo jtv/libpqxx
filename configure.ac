@@ -24,7 +24,7 @@ PQXX_ABI=m4_esyscmd_s([./tools/extract_version.py --abi])
 AC_SUBST(PQXXVERSION, $PACKAGE_VERSION)
 AC_SUBST(PQXX_ABI)
 
-AC_CONFIG_HEADERS([include/pqxx/config.h])
+AC_CONFIG_HEADERS([include/pqxx/internal/config.h])
 
 # Default prefix for installs.
 AC_PREFIX_DEFAULT(/usr/local)
@@ -373,22 +373,9 @@ occurring in the file.
 # Remove redundant occurrances of -lpq
 LIBS=[$(echo "$LIBS" | sed -e 's/-lpq * -lpq\>/-lpq/g')]
 
-
 AC_PROG_MAKE_SET
 
 AC_CONFIG_FILES([Makefile include/Makefile libpqxx.pc])
-
-
-# We've let autoconf generate a config.h.  But there's a lot of stuff in there
-# that we don't need, and that we absolutely do not want.  We'd like to avoid
-# polluting the application's namespace with macros that aren't clearly marked
-# as libpqxx-related.
-#
-# So we take just the ones with the "PQXX" marker and write them into a
-# header just for compiler-related configuration.
-AC_CONFIG_COMMANDS([configitems],
-	[${srcdir}/tools/filter_config.py \
-	    include/pqxx/config.h include/pqxx/config-compiler.h])
 
 AC_CONFIG_FILES([compile_flags])
 AC_OUTPUT

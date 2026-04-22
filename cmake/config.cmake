@@ -20,10 +20,11 @@ try_compile(
     SOURCES ${PROJECT_SOURCE_DIR}/config-tests/stacktrace_support.cxx
 )
 
-set(AC_CONFIG_H_IN "${PROJECT_SOURCE_DIR}/include/pqxx/config.h.in")
-set(CM_CONFIG_H_IN "${PROJECT_BINARY_DIR}/include/pqxx/config_cmake.h.in")
-set(CONFIG_H "${PROJECT_BINARY_DIR}/include/pqxx/config.h")
-set(CONFIG_H_COM "${PROJECT_BINARY_DIR}/include/pqxx/config-compiler.h")
+set(AC_CONFIG_H_IN "${PROJECT_SOURCE_DIR}/include/pqxx/internal/config.h.in")
+set(CM_CONFIG_H_IN
+    "${PROJECT_BINARY_DIR}/include/pqxx/internal/config_cmake.h.in"
+)
+set(CONFIG_H "${PROJECT_BINARY_DIR}/include/pqxx/internal/config.h")
 message(STATUS "Generating configuration headers")
 
 # First we write config_cmake.h.in based on autoconf's config.h.in.
@@ -37,24 +38,5 @@ endforeach()
 # Now have CMake write config.h based on that config_cmake.h.in.  This makes the
 # process look as much like the autoconf one as we can.
 configure_file("${CM_CONFIG_H_IN}" "${CONFIG_H}" @ONLY)
-
-find_package(Python3 REQUIRED COMPONENTS Interpreter)
-
-# Then grab the PQXX macros from config.h and write them to config-compiler.h.
-execute_process(
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    RESULT_VARIABLE filter_result
-    ERROR_VARIABLE filter_stderr
-    COMMAND
-        ${Python3_EXECUTABLE} "${PROJECT_SOURCE_DIR}/tools/filter_config.py"
-        "${CONFIG_H}" "${CONFIG_H_COM}"
-)
-# Staggering: execute_process() will fail *silently* on error...
-if(NOT filter_result STREQUAL "0")
-    message(
-        FATAL_ERROR
-            "Filtering config failed (${filter_result}): ${filter_stderr}"
-    )
-endif()
 
 message(STATUS "Generating configuration headers - done")

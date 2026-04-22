@@ -43,8 +43,8 @@
 #define PQXX_HEADER_PRE
 
 
-// Workarounds & definitions that need to be included even in library's headers
-#include "pqxx/config-compiler.h"
+// Configuration macros enabled by the build system.
+#include "pqxx/internal/config.h"
 
 // MSVC has a nonstandard definition of __cplusplus.
 #if defined(_MSC_VER)

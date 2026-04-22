@@ -30,7 +30,7 @@ AUTOMAKE_OPTIONS = subdir-objects serial-tests
 # doing anything like installing the headers.  I'm not sure it matters.
 SUBDIRS = . include
 
-EXTRA_DIST = autogen.sh configitems Makefile.am.template README.md VERSION \
+EXTRA_DIST = autogen.sh Makefile.am.template README.md VERSION \
 	requirements.json .clang-format .clang-tidy .cmake-format \
 	.inferconfig .lcovrc .lgtm.yml .lift .mdlrc .mdl_style.rb .yamllint \
 	doc/Doxyfile \
@@ -65,12 +65,12 @@ tools_benchmark_SOURCES = tools/benchmark.cxx
 tools_benchmark_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
 
 
-DISTCLEANFILES = include/pqxx/config-compiler.h
+DISTCLEANFILES = include/pqxx/internal/config.h
 
 MAINTAINERCLEANFILES = \
-    Makefile.in aclocal.m4 config.h.in config.log configure stamp-h.in \
+    Makefile.in aclocal.m4 config.log configure stamp-h.in \
     config/config.guess config/config.sub config/install-sh config/ltmain.sh \
-    config/missing config/mkinstalldirs \
+    config/missing config/mkinstalldirs include/pqxx/internal/config.h.in \
     include/pqxx/Makefile.in include/pqxx/stamp-h.in
 
 pkgconfigdir = $(libdir)/pkgconfig

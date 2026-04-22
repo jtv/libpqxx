@@ -58,4 +58,15 @@ aclocal -I . -I config/m4
 automake --add-missing --copy
 autoconf
 
+# Limit config.h.in to just the macros we want to export.
+#
+# Our public headers rely on the config header.  There's no way around that.
+# But we don't actually want it to manipulate macros like PACKAGE_NAME etc.
+# that could affect an application's build.  We don't even need them.
+#
+# So, we filter the config header template here, leaving only "PQXX" macros.
+# This way it will work for "configure"-based builds, CMake builds, and custom
+# builds.
+./tools/filter_config.py include/pqxx/internal/config.h.in
+
 echo "Done."

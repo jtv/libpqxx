@@ -6928,7 +6928,7 @@ PQXXVERSION=$PACKAGE_VERSION
 
 
 
-ac_config_headers="$ac_config_headers include/pqxx/config.h"
+ac_config_headers="$ac_config_headers include/pqxx/internal/config.h"
 
 
 # Default prefix for installs.
@@ -21176,7 +21176,6 @@ fi
 # Remove redundant occurrances of -lpq
 LIBS=$(echo "$LIBS" | sed -e 's/-lpq * -lpq\>/-lpq/g')
 
-
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether ${MAKE-make} sets \$(MAKE)" >&5
 printf %s "checking whether ${MAKE-make} sets \$(MAKE)... " >&6; }
 set x ${MAKE-make}
@@ -21211,17 +21210,6 @@ fi
 
 
 ac_config_files="$ac_config_files Makefile include/Makefile libpqxx.pc"
-
-
-
-# We've let autoconf generate a config.h.  But there's a lot of stuff in there
-# that we don't need, and that we absolutely do not want.  We'd like to avoid
-# polluting the application's namespace with macros that aren't clearly marked
-# as libpqxx-related.
-#
-# So we take just the ones with the "PQXX" marker and write them into a
-# header just for compiler-related configuration.
-ac_config_commands="$ac_config_commands configitems"
 
 
 ac_config_files="$ac_config_files compile_flags"
@@ -22342,12 +22330,11 @@ for ac_config_target in $ac_config_targets
 do
   case $ac_config_target in
     "depfiles") CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
-    "include/pqxx/config.h") CONFIG_HEADERS="$CONFIG_HEADERS include/pqxx/config.h" ;;
+    "include/pqxx/internal/config.h") CONFIG_HEADERS="$CONFIG_HEADERS include/pqxx/internal/config.h" ;;
     "libtool") CONFIG_COMMANDS="$CONFIG_COMMANDS libtool" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "include/Makefile") CONFIG_FILES="$CONFIG_FILES include/Makefile" ;;
     "libpqxx.pc") CONFIG_FILES="$CONFIG_FILES libpqxx.pc" ;;
-    "configitems") CONFIG_COMMANDS="$CONFIG_COMMANDS configitems" ;;
     "compile_flags") CONFIG_FILES="$CONFIG_FILES compile_flags" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
@@ -23756,8 +23743,6 @@ compiler_lib_search_path=$lt_compiler_lib_search_path_CXX
 _LT_EOF
 
  ;;
-    "configitems":C) ${srcdir}/tools/filter_config.py \
-	    include/pqxx/config.h include/pqxx/config-compiler.h ;;
 
   esac
 done # for ac_tag

@@ -1,6 +1,7 @@
 8.0.2
  - Simple benchmark tool for query performance.
- - Fixed an apparent `memcpy()` overlap.
+ - Fix an apparent `memcpy()` overlap.
+ - Rename `config-compiler.h` to just `internal/config.h`. (#1211)
 8.0.1
  - A lot more constructors are now `explicit`.
  - Update GNU attributes to use standard `[[attribute]]` syntax. (#1199)

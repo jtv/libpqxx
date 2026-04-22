@@ -2,7 +2,7 @@
  */
 #include "pqxx-source.hxx"
 
-#include "pqxx/config-compiler.h"
+#include "pqxx/internal/config.h"
 
 #include <array>
 

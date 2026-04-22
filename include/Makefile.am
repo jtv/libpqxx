@@ -2,6 +2,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/array pqxx/array.hxx \
 	pqxx/blob pqxx/blob.hxx \
 	pqxx/composite pqxx/composite.hxx \
+	pqxx/config-compiler.h \
 	pqxx/connection pqxx/connection.hxx \
 	pqxx/cursor pqxx/cursor.hxx \
 	pqxx/dbtransaction pqxx/dbtransaction.hxx \
@@ -74,7 +75,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/internal/gates/transaction-transaction_focus.hxx
 
 
-nobase_nodist_include_HEADERS = pqxx/config.h pqxx/config-compiler.h
+nobase_nodist_include_HEADERS = pqxx/internal/config.h
 
 EXTRA_DIST = \
 	pqxx/doc/*.md \
