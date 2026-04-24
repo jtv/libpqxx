@@ -288,7 +288,7 @@ PQXX_INLINE_COV inline void parse_composite_field(
       throw conversion_error{
         std::format(
           "Composite value contained more fields than the expected {}: '{}'.",
-          to_string(last_field, c), std::data(input)),
+          to_string(last_field, c), input),
         loc};
     if (input[pos] != ')' and input[pos] != ']')
       throw conversion_error{
