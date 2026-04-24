@@ -344,7 +344,7 @@ specialize_parse_composite_field(conversion_context const &c)
   throw internal_error{
     std::format(
       "Unexpected encoding group code: {}.",
-      std::underlying_type_t<encoding_group>(c.enc)),
+      static_cast<std::underlying_type_t<encoding_group>>(c.enc)),
     c.loc};
 }
 

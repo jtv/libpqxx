@@ -153,7 +153,7 @@ array_parser::specialize_for_encoding(encoding_group enc, sl loc)
   [[unlikely]] throw pqxx::internal_error{
     std::format(
       "Unsupported encoding code: {}.",
-      std::underlying_type_t<encoding_group>(enc)),
+      static_cast<std::underlying_type_t<encoding_group>>(enc)),
     loc};
 
 #undef PQXX_ENCODING_CASE

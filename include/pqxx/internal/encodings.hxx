@@ -332,7 +332,7 @@ PQXX_PURE
     throw pqxx::internal_error{
       std::format(
         "Unexpected encoding group: {}.",
-        std::underlying_type_t<encoding_group>(enc)),
+        static_cast<std::underlying_type_t<encoding_group>>(enc)),
       loc};
   }
 }
