@@ -151,7 +151,10 @@ array_parser::specialize_for_encoding(encoding_group enc, sl loc)
     PQXX_ENCODING_CASE(sjis);
   }
   [[unlikely]] throw pqxx::internal_error{
-    std::format("Unsupported encoding code: {}.", to_string(enc)), loc};
+    std::format(
+      "Unsupported encoding code: {}.",
+      std::underlying_type_t<encoding_group>(enc)),
+    loc};
 
 #undef PQXX_ENCODING_CASE
 }

@@ -217,13 +217,17 @@ void test_connection_client_encoding(pqxx::test::context &tctx)
     {"GB18030", pqxx::encoding_group::gb18030},
     {"SJIS", pqxx::encoding_group::sjis},
     {"SHIFT_JIS_2004", pqxx::encoding_group::sjis},
-    // Not actually ASCII-safe, but just close enough for our purposes.
+    // Close enough to ASCII-safe for our purposes, but not actually
+    // generally safe.
     {"UHC", pqxx::encoding_group::ascii_safe},
   };
+  using underlying = std::underlying_type_t<pqxx::encoding_group>;
   for (auto const &[name, enc] : unsafe_encodings)
   {
     cx.set_client_encoding(name);
-    PQXX_CHECK_EQUAL(cx.get_encoding_group(), enc);
+    PQXX_CHECK_EQUAL(
+      static_cast<underlying>(cx.get_encoding_group()),
+      static_cast<underlying>(enc));
   }
 
   std::vector<char const *> const safe_encodings{
@@ -269,7 +273,8 @@ void test_connection_client_encoding(pqxx::test::context &tctx)
   {
     cx.set_client_encoding(e);
     PQXX_CHECK_EQUAL(
-      cx.get_encoding_group(), pqxx::encoding_group::ascii_safe,
+      static_cast<underlying>(cx.get_encoding_group()),
+      static_cast<underlying>(pqxx::encoding_group::ascii_safe),
       std::format("Unexpected encoding group for '{}'.", e));
   }
 
