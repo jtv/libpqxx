@@ -288,7 +288,7 @@ PQXX_INLINE_COV inline void parse_composite_field(
       throw conversion_error{
         std::format(
           "Composite value contained more fields than the expected {}: '{}'.",
-          to_string(last_field, c), std::data(input)),
+          to_string(last_field, c), input),
         loc};
     if (input[pos] != ')' and input[pos] != ']')
       throw conversion_error{
@@ -296,7 +296,7 @@ PQXX_INLINE_COV inline void parse_composite_field(
           "Composite value has unexpected characters where closing "
           "parenthesis "
           "was expected: '{}'.",
-          std::string{input}),
+          input),
         loc};
 
     pos += one_ascii_char;
@@ -306,7 +306,7 @@ PQXX_INLINE_COV inline void parse_composite_field(
         std::format(
           "Composite value has unexpected text after closing parenthesis: "
           "'{}'.",
-          std::string{input}),
+          input),
         loc};
   }
   ++index;
@@ -342,7 +342,9 @@ specialize_parse_composite_field(conversion_context const &c)
     return parse_composite_field<encoding_group::sjis>;
   }
   throw internal_error{
-    std::format("Unexpected encoding group code: {}.", to_string(c.enc)),
+    std::format(
+      "Unexpected encoding group code: {}.",
+      static_cast<std::underlying_type_t<encoding_group>>(c.enc)),
     c.loc};
 }
 

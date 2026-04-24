@@ -18,12 +18,6 @@
 #include "pqxx/strconv.hxx"
 
 
-namespace pqxx
-{
-PQXX_DECLARE_ENUM_CONVERSION(encoding_group);
-} // namespace pqxx
-
-
 namespace pqxx::internal
 {
 /// Return PostgreSQL's name for encoding enum value.
@@ -336,7 +330,10 @@ PQXX_PURE
 
   default:
     throw pqxx::internal_error{
-      std::format("Unexpected encoding group: {}.", to_string(enc)), loc};
+      std::format(
+        "Unexpected encoding group: {}.",
+        static_cast<std::underlying_type_t<encoding_group>>(enc)),
+      loc};
   }
 }
 } // namespace pqxx::internal
