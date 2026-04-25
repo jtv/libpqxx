@@ -493,8 +493,8 @@ jobs:
           command: ". /tmp/vars.sh && \
                 mkdir client && \
                 cd client && \
-                cp ../examples/quick_example.cxx . && \
-                << parameters.compiler >> quick_example.cxx -lpqxx -lpq && \
+                cp ../examples/quick_example.cxx clnt.cxx && \
+                << parameters.compiler >> -std=c++20 clnt.cxx -lpqxx -lpq && \
                 ./a.out"
 
 
