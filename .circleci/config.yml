@@ -467,6 +467,9 @@ jobs:
           path: "/tmp/vars.sh"
 
       - run:
+          name: Start database
+          command: ". /tmp/vars.sh && ./tools/run-test-postgres.sh postgres"
+      - run:
           name: Autogen
           command: ". /tmp/vars.sh && autoreconf"
       - run:
@@ -488,10 +491,11 @@ jobs:
       - run:
           name: Build using just the installed headers & binary
           command: ". /tmp/vars.sh && \
-                cd unpacked/libpqxx-* && \
-                rm -rf include src && \
-                ./tools/run-test-postgres.sh postgres && \
-                make -j4 check"
+                mkdir client && \
+                cd client && \
+                cp ../examples/quick_example.cxx . && \
+                << parameters.compiler >> quick_example.cxx -lpqxx -lpq && \
+                ./a.out"
 
 
 workflows:
