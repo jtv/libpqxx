@@ -20,9 +20,12 @@ SUBDIRS = . include
 EXTRA_DIST = autogen.sh Makefile.am.template README.md VERSION \
 	requirements.json .clang-format .clang-tidy .cmake-format \
 	.inferconfig .lcovrc .lgtm.yml .lift .mdlrc .mdl_style.rb .yamllint \
-	doc/Doxyfile \
-	src/pqxx-source.hxx \
+	doc/Doxyfile include/pqxx/version.hxx.template \
+	src/pqxx-source.hxx include/pqxx/doc/mainpage.md.template \
 	test/helpers.hxx test/sample_types.hxx \
+###MAKTEMPLATE:FOREACH include/pqxx/doc/*.md
+        include/pqxx/doc/###BASENAME###.md \
+###MAKTEMPLATE:ENDFOREACH
 ###MAKTEMPLATE:FOREACH tools/*.cxx
 	tools/###BASENAME###.cxx \
 ###MAKTEMPLATE:ENDFOREACH

@@ -76,8 +76,3 @@ nobase_include_HEADERS= pqxx/pqxx \
 
 
 nobase_nodist_include_HEADERS = pqxx/internal/config.h
-
-EXTRA_DIST = \
-	pqxx/doc/*.md \
-	pqxx/doc/mainpage.md.template \
-	pqxx/version.hxx.template
