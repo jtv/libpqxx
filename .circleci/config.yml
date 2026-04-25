@@ -486,9 +486,11 @@ jobs:
                 ./configure CXX=<< parameters.compiler >> CXXFLAGS=-O0 && \
                 make -j4 && make install"
       - run:
-          name: Build using installed headers & binary
-          command: ". /tmp/vars.sh && cd unpacked/libpqxx-* && \
-                rm -rf include src && ./tools/run-test-postgres.sh && \
+          name: Build using just the installed headers & binary
+          command: ". /tmp/vars.sh && \
+                cd unpacked/libpqxx-* && \
+                rm -rf include src && \
+                ./tools/run-test-postgres.sh postgres && \
                 make -j4 check"
 
 
