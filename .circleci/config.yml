@@ -446,7 +446,7 @@ jobs:
           path: test.log
 
 
-  try-make-dist:
+  try-make-dist-install:
     parameters:
       compiler:
         type: string
@@ -480,11 +480,16 @@ jobs:
           name: Extract tarball
           command: "tar --one-top-level=unpacked -xf libpqxx-*.*.tar*"
       - run:
-          name: Build from extracted tarball
+          name: Build from extracted tarball, install
           command: ". /tmp/vars.sh && \
                 cd unpacked/libpqxx-* && \
                 ./configure CXX=<< parameters.compiler >> CXXFLAGS=-O0 && \
-                make -j4"
+                make -j4 && make install"
+      - run:
+          name: Build using installed headers & binary
+          command: ". /tmp/vars.sh && cd unpacked/libpqxx-* && \
+                rm -rf include src && ./tools/run-test-postgres.sh && \
+                make -j4 check"
 
 
 workflows:
@@ -542,7 +547,7 @@ workflows:
               compiler: ["clang++", "g++"]
               cxx_ver: ["c++20", "c++23", "c++26"]
 
-      - try-make-dist:
+      - try-make-dist-install:
           matrix:
             parameters:
               compiler: ["clang++"]
