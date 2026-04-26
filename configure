@@ -20715,7 +20715,13 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 
  */
 
-char const * __restrict x;
+char first(char const * __restrict x)
+
+{
+
+  return x[0];
+
+}
 
 
 _ACEOF
