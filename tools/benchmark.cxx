@@ -114,6 +114,7 @@ concept benchmark_type =
 std::string compose_ints_query(std::size_t rows, std::size_t columns)
 {
   std::string tail;
+  tail.reserve(10 * columns);
   for (std::size_t c{1u}; c < columns; ++c)
     tail += std::format(", n*{}", c + 1);
   return std::format(

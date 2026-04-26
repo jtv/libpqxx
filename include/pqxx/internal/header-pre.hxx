@@ -137,6 +137,17 @@
 #endif
 
 
+// C++ extension similar to C's "restrict" keyword.
+/** Apparently gcc accepts both `__restrict` and `__restrict__`, the latter
+ * being the standard gcc format; but Visual Studio accepts only `__restrict`.
+ */
+#if defined(PQXX_HAVE___RESTRICT)
+#  define PQXX_RESTRICT __restrict
+#else
+#  define PQXX_RESTRICT /* restrict */
+#endif
+
+
 // Workarounds for Windows
 #ifdef _WIN32
 

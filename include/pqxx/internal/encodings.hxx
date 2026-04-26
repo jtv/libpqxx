@@ -106,7 +106,7 @@ find_ascii_char(std::string_view haystack, std::size_t here, sl loc)
   static_assert((... and ((NEEDLE & 0x80) == 0)));
 
   auto const sz{std::size(haystack)};
-  auto const data{std::data(haystack)};
+  auto const PQXX_RESTRICT data{std::data(haystack)};
   while (here < sz)
   {
     // Look up the next character boundary.  This can be quite costly, so we

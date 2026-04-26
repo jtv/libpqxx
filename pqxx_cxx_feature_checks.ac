@@ -139,4 +139,14 @@ AC_COMPILE_IFELSE(
         [Define if this feature is available.]),
     PQXX_HAVE_ZARGS=no)
 AC_MSG_RESULT($PQXX_HAVE_ZARGS)
+AC_MSG_CHECKING([PQXX_HAVE___RESTRICT])
+PQXX_HAVE___RESTRICT=yes
+AC_COMPILE_IFELSE(
+    [read_test(PQXX_HAVE___RESTRICT.cxx)],
+    AC_DEFINE(
+        [PQXX_HAVE___RESTRICT],
+        1,
+        [Define if this feature is available.]),
+    PQXX_HAVE___RESTRICT=no)
+AC_MSG_RESULT($PQXX_HAVE___RESTRICT)
 # End of config.
