@@ -38,7 +38,7 @@ before_build:
         /wd5045 /wd5246 /wd5264 /wd6924\" \
         .\n\
     7z a -bsp0 config-headers.zip \
-        \"%APPVEYOR_BUILD_FOLDER%/include/pqxx/config-*.h*\"\n\
+        \"%APPVEYOR_BUILD_FOLDER%/include/pqxx/internal/config.h\"\n\
     appveyor PushArtifact config-headers.zip"
 
 configuration: Debug

@@ -65,6 +65,14 @@
 #endif
 
 
+#if __has_cpp_attribute(gnu::hot)
+/// Tell the compiler that this function can get called a lot.
+#  define PQXX_HOT [[gnu::hot]]
+#else
+#  define PQXX_HOT /* hot */
+#endif
+
+
 #if __has_cpp_attribute(gnu::cold)
 /// Tell the compiler to optimise a function for size, not speed.
 #  define PQXX_COLD [[gnu::cold]]
@@ -134,6 +142,17 @@
 #  define PQXX_ZARGS [[gnu::null_terminated_string_arg]]
 #else
 #  define PQXX_ZARGS /* null-terminated string args */
+#endif
+
+
+// C++ extension similar to C's "restrict" keyword.
+/** Apparently gcc accepts both `__restrict` and `__restrict__`, the latter
+ * being the standard gcc format; but Visual Studio accepts only `__restrict`.
+ */
+#if defined(PQXX_HAVE_UU_RESTRICT)
+#  define PQXX_RESTRICT __restrict
+#else
+#  define PQXX_RESTRICT /* restrict */
 #endif
 
 

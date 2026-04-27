@@ -20612,6 +20612,48 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $PQXX_HAVE_TYPE_DISPLAY" >&5
 printf "%s\n" "$PQXX_HAVE_TYPE_DISPLAY" >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking PQXX_HAVE_UU_RESTRICT" >&5
+printf %s "checking PQXX_HAVE_UU_RESTRICT... " >&6; }
+PQXX_HAVE_UU_RESTRICT=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+// Test for non-standard "__restrict" keyword.
+
+/** This keyword seems to exist in gcc and Visual Studio, with an effect
+
+ * similar to that of C's "restrict" keyword.
+
+ *
+
+ * We can't do much with this keyword, sadly, because there's no way to apply
+
+ * it to a view or a span, only to a raw pointer.  We no longer use a lot of
+
+ * raw pointers in libpqxx.
+
+ */
+
+char first(char const * __restrict x)
+
+{
+
+  return x[0];
+
+}
+
+
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"
+then :
+
+printf "%s\n" "#define PQXX_HAVE_UU_RESTRICT 1" >>confdefs.h
+
+else $as_nop
+  PQXX_HAVE_UU_RESTRICT=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $PQXX_HAVE_UU_RESTRICT" >&5
+printf "%s\n" "$PQXX_HAVE_UU_RESTRICT" >&6; }
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking PQXX_HAVE_YEAR_MONTH_DAY" >&5
 printf %s "checking PQXX_HAVE_YEAR_MONTH_DAY... " >&6; }
 PQXX_HAVE_YEAR_MONTH_DAY=yes

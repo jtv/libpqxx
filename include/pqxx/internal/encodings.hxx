@@ -30,7 +30,7 @@ enc_group(int /* libpq encoding ID */, sl);
 
 /// Extract byte from buffer, return as unsigned char.
 /** Don't generate out-of-line copies; they complicate profiling. */
-PQXX_PURE PQXX_INLINE_ONLY constexpr inline unsigned char
+PQXX_PURE PQXX_INLINE_ONLY PQXX_HOT constexpr inline unsigned char
 get_byte(std::string_view buffer, std::size_t offset) noexcept
 {
   assert(offset < std::size(buffer));
@@ -68,7 +68,7 @@ throw_for_truncated_character(
 
 /// Does value lie between bottom and top, inclusive?
 /** Don't generate out-of-line copies; they complicate profiling. */
-PQXX_PURE PQXX_INLINE_ONLY constexpr inline bool
+PQXX_PURE PQXX_INLINE_ONLY PQXX_HOT constexpr inline bool
 between_inc(unsigned char value, unsigned bottom, unsigned top) noexcept
 {
   return value >= bottom and value <= top;
@@ -98,7 +98,7 @@ template<encoding_group> struct glyph_scanner final
  * otherwise.
  */
 template<encoding_group ENC, char... NEEDLE>
-PQXX_INLINE_COV inline constexpr std::size_t
+PQXX_INLINE_COV PQXX_HOT inline constexpr std::size_t
 find_ascii_char(std::string_view haystack, std::size_t here, sl loc)
 {
   // We only know how to search for ASCII characters.  It's an optimisation
@@ -106,7 +106,7 @@ find_ascii_char(std::string_view haystack, std::size_t here, sl loc)
   static_assert((... and ((NEEDLE & 0x80) == 0)));
 
   auto const sz{std::size(haystack)};
-  auto const data{std::data(haystack)};
+  char const *PQXX_RESTRICT const data{std::data(haystack)};
   while (here < sz)
   {
     // Look up the next character boundary.  This can be quite costly, so we
@@ -153,7 +153,7 @@ find_ascii_char(std::string_view haystack, std::size_t here, sl loc)
  */
 template<> struct glyph_scanner<encoding_group::ascii_safe> final
 {
-  PQXX_INLINE_ONLY PQXX_PURE static constexpr std::size_t
+  PQXX_INLINE_ONLY PQXX_PURE PQXX_HOT static constexpr std::size_t
   call(std::string_view, std::size_t start, sl) noexcept
   {
     return start + 1;
