@@ -66,7 +66,7 @@
 
 
 #if __has_cpp_attribute(gnu::hot)
-/// Tell th ecompiler that this function can get called a lot.
+/// Tell the compiler that this function can get called a lot.
 #  define PQXX_HOT [[gnu::hot]]
 #else
 #  define PQXX_HOT /* hot */
