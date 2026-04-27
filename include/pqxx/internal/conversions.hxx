@@ -23,7 +23,7 @@
 namespace pqxx::internal
 {
 /// Convert a number in [0, 9] to its ASCII digit.
-PQXX_PURE inline constexpr char number_to_digit(int i) noexcept
+PQXX_PURE PQXX_HOT inline constexpr char number_to_digit(int i) noexcept
 {
   PQXX_ASSUME(i >= 0);
   PQXX_ASSUME(i <= 9);
@@ -34,7 +34,7 @@ PQXX_PURE inline constexpr char number_to_digit(int i) noexcept
 /// Compute numeric value of given textual digit (assuming that it is a digit).
 /** The digit must be a base-10 digit.
  */
-PQXX_PURE inline constexpr int digit_to_number(char c) noexcept
+PQXX_PURE PQXX_HOT inline constexpr int digit_to_number(char c) noexcept
 {
   PQXX_ASSUME(c >= '0');
   PQXX_ASSUME(c <= '9');
@@ -46,12 +46,12 @@ PQXX_PURE inline constexpr int digit_to_number(char c) noexcept
 /** Don't worry about the exact parameter types: the sizes will be reasonably
  * small, and nonnegative.
  */
-PQXX_LIBEXPORT std::string
+PQXX_LIBEXPORT PQXX_COLD std::string
 state_buffer_overrun(int have_bytes, int need_bytes);
 
 
 template<typename HAVE, typename NEED>
-PQXX_INLINE_COV inline std::string
+PQXX_INLINE_COV PQXX_COLD inline std::string
 state_buffer_overrun(HAVE have_bytes, NEED need_bytes)
 {
   return state_buffer_overrun(
@@ -147,13 +147,13 @@ generic_into_buf(std::span<char> buf, T const &value, ctx c = {})
  */
 template<std::floating_point T> struct float_string_traits
 {
-  PQXX_LIBEXPORT static T from_string(std::string_view text, ctx = {});
+  PQXX_LIBEXPORT PQXX_HOT static T from_string(std::string_view text, ctx = {});
 
-  PQXX_LIBEXPORT static std::string_view
+  PQXX_LIBEXPORT PQXX_HOT static std::string_view
   to_buf(std::span<char> buf, T const &value, ctx c = {});
 
   // Return a nonnegative integral value's number of decimal digits.
-  static constexpr std::size_t digits10(std::size_t value) noexcept
+  PQXX_HOT static constexpr std::size_t digits10(std::size_t value) noexcept
   {
     if (value < 10)
       return 1;
@@ -161,7 +161,7 @@ template<std::floating_point T> struct float_string_traits
       return 1 + digits10(value / 10);
   }
 
-  PQXX_INLINE_COV static constexpr std::size_t size_buffer(T const &) noexcept
+  PQXX_HOT PQXX_INLINE_COV static constexpr std::size_t size_buffer(T const &) noexcept
   {
     using lims = std::numeric_limits<T>;
     // See #328 for a detailed discussion on the maximum number of digits.
@@ -213,11 +213,11 @@ template<std::floating_point T> struct float_string_traits
  */
 template<pqxx::internal::integer T> struct integer_string_traits
 {
-  PQXX_LIBEXPORT static T from_string(std::string_view text, ctx = {});
-  PQXX_LIBEXPORT static std::string_view
+  PQXX_LIBEXPORT PQXX_HOT static T from_string(std::string_view text, ctx = {});
+  PQXX_LIBEXPORT PQXX_HOT static std::string_view
   to_buf(std::span<char> buf, T const &value, ctx c = {});
 
-  PQXX_INLINE_ONLY static constexpr std::size_t size_buffer(T const &) noexcept
+  PQXX_INLINE_ONLY PQXX_HOT static constexpr std::size_t size_buffer(T const &) noexcept
   {
     /** Includes a sign if needed; the number of base-10 digits which the type
      * can reliably represent; and the one extra base-10 digit which the type
@@ -277,15 +277,15 @@ struct string_traits<long double> final
 
 template<> struct string_traits<bool> final
 {
-  PQXX_LIBEXPORT static bool from_string(std::string_view text, ctx c = {});
+  PQXX_LIBEXPORT PQXX_HOT static bool from_string(std::string_view text, ctx c = {});
 
-  static constexpr zview
+  PQXX_PURE PQXX_HOT static constexpr zview
   to_buf(std::span<char>, bool const &value, ctx = {}) noexcept
   {
     return value ? "true"_zv : "false"_zv;
   }
 
-  static constexpr std::size_t size_buffer(bool const &) noexcept { return 5; }
+  PQXX_PURE PQXX_HOT static constexpr std::size_t size_buffer(bool const &) noexcept { return 5; }
 };
 
 
@@ -297,12 +297,12 @@ template<typename T> struct nullness<std::optional<T>> final
   static constexpr bool has_null = true;
   /// Technically, you could have an optional of an always-null type.
   static constexpr bool always_null = pqxx::always_null<T>();
-  [[nodiscard]] PQXX_PURE static constexpr bool
+  [[nodiscard]] PQXX_PURE PQXX_HOT static constexpr bool
   is_null(std::optional<T> const &v) noexcept
   {
     return ((not v.has_value()) or pqxx::is_null(*v));
   }
-  [[nodiscard]] PQXX_PURE static constexpr std::optional<T> null() noexcept
+  [[nodiscard]] PQXX_PURE PQXX_HOT static constexpr std::optional<T> null() noexcept
   {
     return {};
   }

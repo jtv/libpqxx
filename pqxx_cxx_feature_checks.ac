@@ -119,6 +119,16 @@ AC_COMPILE_IFELSE(
         [Define if this feature is available.]),
     PQXX_HAVE_TYPE_DISPLAY=no)
 AC_MSG_RESULT($PQXX_HAVE_TYPE_DISPLAY)
+AC_MSG_CHECKING([PQXX_HAVE_UU_RESTRICT])
+PQXX_HAVE_UU_RESTRICT=yes
+AC_COMPILE_IFELSE(
+    [read_test(PQXX_HAVE_UU_RESTRICT.cxx)],
+    AC_DEFINE(
+        [PQXX_HAVE_UU_RESTRICT],
+        1,
+        [Define if this feature is available.]),
+    PQXX_HAVE_UU_RESTRICT=no)
+AC_MSG_RESULT($PQXX_HAVE_UU_RESTRICT)
 AC_MSG_CHECKING([PQXX_HAVE_YEAR_MONTH_DAY])
 PQXX_HAVE_YEAR_MONTH_DAY=yes
 AC_COMPILE_IFELSE(
@@ -139,14 +149,4 @@ AC_COMPILE_IFELSE(
         [Define if this feature is available.]),
     PQXX_HAVE_ZARGS=no)
 AC_MSG_RESULT($PQXX_HAVE_ZARGS)
-AC_MSG_CHECKING([PQXX_HAVE___RESTRICT])
-PQXX_HAVE___RESTRICT=yes
-AC_COMPILE_IFELSE(
-    [read_test(PQXX_HAVE___RESTRICT.cxx)],
-    AC_DEFINE(
-        [PQXX_HAVE___RESTRICT],
-        1,
-        [Define if this feature is available.]),
-    PQXX_HAVE___RESTRICT=no)
-AC_MSG_RESULT($PQXX_HAVE___RESTRICT)
 # End of config.

@@ -65,6 +65,14 @@
 #endif
 
 
+#if __has_cpp_attribute(gnu::hot)
+/// Tell th ecompiler that this function can get called a lot.
+#  define PQXX_HOT [[gnu::hot]]
+#else
+#  define PQXX_HOT /* hot */
+#endif
+
+
 #if __has_cpp_attribute(gnu::cold)
 /// Tell the compiler to optimise a function for size, not speed.
 #  define PQXX_COLD [[gnu::cold]]
@@ -141,7 +149,7 @@
 /** Apparently gcc accepts both `__restrict` and `__restrict__`, the latter
  * being the standard gcc format; but Visual Studio accepts only `__restrict`.
  */
-#if defined(PQXX_HAVE___RESTRICT)
+#if defined(PQXX_HAVE_UU_RESTRICT)
 #  define PQXX_RESTRICT __restrict
 #else
 #  define PQXX_RESTRICT /* restrict */
