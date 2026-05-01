@@ -86,9 +86,8 @@ jobs:
 
       - run:
           name: Install
-          # TODO: Move the extra install into install-deps.sh.
-          command: "./tools/install-deps.sh ubuntu clang++ >/tmp/vars.sh && \
-              apt-get install -qy libc++-dev"
+          command: "./tools/install-deps.sh ubuntu clang++ libc++-dev \
+              >/tmp/vars.sh"
           max_auto_reruns: 3
       - store_artifacts:
           path: "/tmp/install.log"

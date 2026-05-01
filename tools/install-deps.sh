@@ -262,7 +262,7 @@ pacman -S \
 if [ -z "${1:-}" ] || [ -z "${2:-}" ]
 then
     cat >&2 <<EOF
-Usage: $0 <profile> <compiler>
+Usage: $0 <profile> <compiler> [extra packages...]
 
 Where <profile> is usually an OS name, sometimes a combination of OS and
 purpose: archlinux, archilinux-lint, debian, fedora, macos, windows...
