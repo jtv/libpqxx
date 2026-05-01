@@ -169,7 +169,7 @@ install_macos() {
     #
     # We need a bit of extra syntax to work around this.  This "${A+B}" syntax
     # means "if A is set, use B, otherwise use an empty value."
-    local extra="${EXTRA_PACKAGES[@]+"${EXTRA_PACKAGES[@]}"}"
+    local extra=("${EXTRA_PACKAGES[@]+"${EXTRA_PACKAGES[@]}"}")
     local pg_ver=18
 
     brew_install \
