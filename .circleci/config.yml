@@ -74,7 +74,7 @@ jobs:
   # Test like test-linux, except using clang and its own C++ library, libc++.
   # (By default it uses gcc's libstdc++, because that's what existing packages
   # are built against.)
-  test-libc++:
+  test-libcplusplus:
     parameters:
       cxx_ver:
         type: string
@@ -587,7 +587,7 @@ workflows:
               # is -O1.
               opt: [0, 2, 3]
 
-      - test-libc++:
+      - test-libcplusplus:
           matrix:
             parameters:
               cxx_ver: ["c++20", "c++23", "c++26"]
