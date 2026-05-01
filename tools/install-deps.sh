@@ -27,6 +27,11 @@
 set -Cue -o pipefail
 
 
+PROFILE="$1"
+COMPILER="$2"
+EXTRA_PACKAGES=("${@:3}")
+
+
 # For Debian-flavoured distros:
 export DEBIAN_FRONTEND=noninteractive TZ=UTC
 
@@ -272,9 +277,6 @@ EOF
     exit 1
 fi
 
-PROFILE="$1"
-COMPILER="$2"
-EXTRA_PACKAGES=("${@:3}")
 
 case "$PROFILE" in
     archlinux)
