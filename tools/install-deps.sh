@@ -163,11 +163,18 @@ install_fedora() {
 
 install_macos() {
     # Looks like our compilers come pre-installed on this image.
+
+    # macOS ships with an older bash version because of licencing issues,
+    # and that version treats an empty array as uninitialised!
+    #
+    # We need a bit of extra syntax to work around this.  This "${A+B}" syntax
+    # means "if A is set, use B, otherwise use an empty value."
+    local extra="${EXTRA_PACKAGES[@]+"${EXTRA_PACKAGES[@]}"}"
     local pg_ver=18
 
     brew_install \
         "${PKGS_ALL_AUTOTOOLS[@]}" \
-        postgresql@$pg_ver uv libpq "${EXTRA_PACKAGES[@]}"
+        postgresql@$pg_ver uv libpq "${extra[@]+"${extra[@]}"}"
 
     echo "export PGHOST=/tmp PGBIN=/opt/homebrew/bin/ PGVER=$pg_ver"
 }
