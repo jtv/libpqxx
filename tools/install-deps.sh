@@ -5,7 +5,7 @@
 # Must be run with root privileges.  This is meant for use in disposable
 # containers and VMs.
 #
-# Usage: install-deps.sh <system> <compiler>
+# Usage: install-deps.sh <system> <compiler> [extra OS packages...]
 #
 # Where <system> is one of the environments for which this script works:
 # * archlinux
@@ -90,18 +90,7 @@ install_archlinux() {
     pacman_install \
         "${PKGS_ARCHLINUX_BASE[@]}" "${PKGS_ARCHLINUX_AUTOTOOLS[@]}" \
         postgresql which \
-        "$(compiler_pkg "$1")"
-
-    echo "export PGHOST=/run/postgresql"
-}
-
-
-# Install test coveraage tools.
-install_archlinux_coverage() {
-    pacman_install \
-        "${PKGS_ARCHLINUX_BASE[@]}" "${PKGS_ARCHLINUX_AUTOTOOLS[@]}" \
-        lcov postgresql which \
-        "$(compiler_pkg "$1")"
+        "$(compiler_pkg "$1")" "${EXTRA_PACKAGES[@]}"
 
     echo "export PGHOST=/run/postgresql"
 }
@@ -123,7 +112,7 @@ install_archlinux_infer() {
     pacman_install \
         "${PKGS_ARCHLINUX_BASE[@]}" "${PKGS_ARCHLINUX_AUTOTOOLS[@]}" \
         tzdata wget xz \
-        "$(compiler_pkg "$1")"
+        "$(compiler_pkg "$1")" "${EXTRA_PACKAGES[@]}"
 
     cd /opt
     # This is not idempotent.  I wasn't joking about using a disposable
@@ -140,7 +129,7 @@ install_archlinux_lint() {
         "${PKGS_ARCHLINUX_BASE[@]}" \
         cmake cppcheck make markdownlint python-pyflakes ruff shellcheck \
         which yamllint \
-        "$(compiler_pkg "$1")"
+        "$(compiler_pkg "$1")" "${EXTRA_PACKAGES[@]}"
 }
 
 
@@ -148,7 +137,7 @@ install_debian() {
     apt_install \
         "${PKGS_DEBIAN_BASE[@]}" "${PKGS_DEBIAN_AUTOTOOLS[@]}" \
         postgresql \
-        "$(compiler_pkg "$1" clang g++)"
+        "$(compiler_pkg "$1" clang g++)" "${EXTRA_PACKAGES[@]}"
 
     echo "export PGHOST=/tmp"
     echo "export PATH='$PATH:$HOME/.local/bin'"
@@ -161,7 +150,7 @@ install_fedora() {
         "${PKGS_ALL_AUTOTOOLS[@]}" \
         libasan libubsan postgresql postgresql-devel postgresql-server \
         python3 uv which \
-        "$(compiler_pkg "$1" clang g++)"
+        "$(compiler_pkg "$1" clang g++)" "${EXTRA_PACKAGES[@]}"
 
     echo "export PGHOST=/tmp"
 }
@@ -173,7 +162,7 @@ install_macos() {
 
     brew_install \
         "${PKGS_ALL_AUTOTOOLS[@]}" \
-        postgresql@$pg_ver uv libpq
+        postgresql@$pg_ver uv libpq "${EXTRA_PACKAGES[@]}"
 
     echo "export PGHOST=/tmp PGBIN=/opt/homebrew/bin/ PGVER=$pg_ver"
 }
@@ -185,7 +174,7 @@ install_ubuntu_codeql() {
         sudo -E apt-get -q -o DPkg::Lock::Timeout=120 update
         sudo -E apt-get -q install -y -o DPkg::Lock::Timeout=120 \
             cmake git libpq-dev make \
-            "$(compiler_pkg "$1" clang g++)"
+            "$(compiler_pkg "$1" clang g++)" "${EXTRA_PACKAGES[@]}"
     ) >>/tmp/install.log
 }
 
@@ -194,7 +183,7 @@ install_ubuntu() {
     apt_install \
         "${PKGS_DEBIAN_BASE[@]}" "${PKGS_DEBIAN_AUTOTOOLS[@]}" \
         postgresql \
-        "$(compiler_pkg "$1" clang g++)"
+        "$(compiler_pkg "$1" clang g++)" "${EXTRA_PACKAGES[@]}"
 
     echo "export PGHOST=/tmp"
     echo "export PATH='$PATH:$HOME/.local/bin'"
@@ -206,7 +195,7 @@ install_ubuntu_valgrind() {
     apt_install \
         "${PKGS_DEBIAN_BASE[@]}" \
 	cmake ninja-build postgresql valgrind \
-        "$(compiler_pkg "$1" clang g++)"
+        "$(compiler_pkg "$1" clang g++)" "${EXTRA_PACKAGES[@]}"
 
     echo "export PGHOST=/tmp"
     echo "export PATH='$PATH:$HOME/.local/bin'"
@@ -260,6 +249,7 @@ pacman -S \
     cmake \
     ninja \
     $cxxpkg \
+    "${EXTRA_PACKAGES[@]}" \
     --noconfirm
 " | tee -a install.log >&2
 
@@ -284,13 +274,11 @@ fi
 
 PROFILE="$1"
 COMPILER="$2"
+EXTRA_PACKAGES="${@:3}"
 
 case "$PROFILE" in
     archlinux)
         install_archlinux "$COMPILER"
-        ;;
-    archlinux-coverage)
-        install_archlinux_coverage "$COMPILER"
         ;;
     archlinux-infer)
         install_archlinux_infer "$COMPILER"
