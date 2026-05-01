@@ -19977,13 +19977,13 @@ then
 			"${srcdir}/config/flags/maintainer-mode.txt"
 	fi
 
-	# In "audit," enable all runtime checks we can.
+	# In "audit," enable all the run-time checks we can.
 	if test "$enable_audit" = "yes"
 	then
-		# These macros enable extra runtime checking in various
+		# These macros enable extra run-time checking in various
 		# standard library implementations.
 		add_compiler_opts \
-			-D_FORTIFY_SOURCE=2 \
+			-D_FORTIFY_SOURCE=3 \
 			-D_GLIBCXX_ASSERTIONS \
 			-D_GLIBCXX_DEBUG \
 			-D_GLIBCXX_DEBUG_PEDANTIC \
