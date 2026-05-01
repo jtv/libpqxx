@@ -6,7 +6,7 @@
  * it to a view or a span, only to a raw pointer.  We no longer use a lot of
  * raw pointers in libpqxx.
  */
-char first(char const * __restrict x)
+char first(char const *__restrict x)
 {
   return x[0];
 }

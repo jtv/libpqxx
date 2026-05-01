@@ -147,7 +147,8 @@ generic_into_buf(std::span<char> buf, T const &value, ctx c = {})
  */
 template<std::floating_point T> struct float_string_traits
 {
-  PQXX_LIBEXPORT PQXX_HOT static T from_string(std::string_view text, ctx = {});
+  PQXX_LIBEXPORT PQXX_HOT static T
+  from_string(std::string_view text, ctx = {});
 
   PQXX_LIBEXPORT PQXX_HOT static std::string_view
   to_buf(std::span<char> buf, T const &value, ctx c = {});
@@ -161,7 +162,8 @@ template<std::floating_point T> struct float_string_traits
       return 1 + digits10(value / 10);
   }
 
-  PQXX_HOT PQXX_INLINE_COV static constexpr std::size_t size_buffer(T const &) noexcept
+  PQXX_HOT PQXX_INLINE_COV static constexpr std::size_t
+  size_buffer(T const &) noexcept
   {
     using lims = std::numeric_limits<T>;
     // See #328 for a detailed discussion on the maximum number of digits.
@@ -213,11 +215,13 @@ template<std::floating_point T> struct float_string_traits
  */
 template<pqxx::internal::integer T> struct integer_string_traits
 {
-  PQXX_LIBEXPORT PQXX_HOT static T from_string(std::string_view text, ctx = {});
+  PQXX_LIBEXPORT PQXX_HOT static T
+  from_string(std::string_view text, ctx = {});
   PQXX_LIBEXPORT PQXX_HOT static std::string_view
   to_buf(std::span<char> buf, T const &value, ctx c = {});
 
-  PQXX_INLINE_ONLY PQXX_HOT static constexpr std::size_t size_buffer(T const &) noexcept
+  PQXX_INLINE_ONLY PQXX_HOT static constexpr std::size_t
+  size_buffer(T const &) noexcept
   {
     /** Includes a sign if needed; the number of base-10 digits which the type
      * can reliably represent; and the one extra base-10 digit which the type
@@ -277,7 +281,8 @@ struct string_traits<long double> final
 
 template<> struct string_traits<bool> final
 {
-  PQXX_LIBEXPORT PQXX_HOT static bool from_string(std::string_view text, ctx c = {});
+  PQXX_LIBEXPORT PQXX_HOT static bool
+  from_string(std::string_view text, ctx c = {});
 
   PQXX_PURE PQXX_HOT static constexpr zview
   to_buf(std::span<char>, bool const &value, ctx = {}) noexcept
@@ -285,7 +290,11 @@ template<> struct string_traits<bool> final
     return value ? "true"_zv : "false"_zv;
   }
 
-  PQXX_PURE PQXX_HOT static constexpr std::size_t size_buffer(bool const &) noexcept { return 5; }
+  PQXX_PURE PQXX_HOT static constexpr std::size_t
+  size_buffer(bool const &) noexcept
+  {
+    return 5;
+  }
 };
 
 
@@ -302,7 +311,8 @@ template<typename T> struct nullness<std::optional<T>> final
   {
     return ((not v.has_value()) or pqxx::is_null(*v));
   }
-  [[nodiscard]] PQXX_PURE PQXX_HOT static constexpr std::optional<T> null() noexcept
+  [[nodiscard]] PQXX_PURE PQXX_HOT static constexpr std::optional<T>
+  null() noexcept
   {
     return {};
   }
