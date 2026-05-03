@@ -296,34 +296,37 @@ template<typename TYPE>
 
   TYPE out{};
   auto const res{std::from_chars(here, end, out)};
-  if (res.ec == std::errc() and res.ptr == end)
-    PQXX_LIKELY
-  return out;
-
-  std::string msg;
-  if (res.ec == std::errc())
+  if (res.ec != std::errc() or res.ptr != end)
   {
-    msg = "Could not parse full string.";
-  }
-  else
-  {
-    switch (res.ec)
+    std::string msg;
+    if (res.ec == std::errc())
     {
-    case std::errc::result_out_of_range: msg = "Value out of range."; break;
-    case std::errc::invalid_argument: msg = "Invalid argument."; break;
-    default: break;
+      msg = "Could not parse full string.";
     }
-  }
+    else
+    {
+      switch (res.ec)
+      {
+      case std::errc::result_out_of_range: msg = "Value out of range."; break;
+      case std::errc::invalid_argument: msg = "Invalid argument."; break;
+      default: break;
+      }
+    }
 
-  auto const base{
-    "Could not convert '" + std::string(in) +
-    "' "
-    "to " +
-    pqxx::type_name<TYPE>};
-  if (std::empty(msg))
-    throw pqxx::conversion_error{base + "."};
+    auto const base{
+      "Could not convert '" + std::string(in) +
+      "' "
+      "to " +
+      std::string{pqxx::name_type<TYPE>()}};
+    if (std::empty(msg))
+      throw pqxx::conversion_error{base + "."};
+    else
+      throw pqxx::conversion_error{base + ": " + msg};
+  }
   else
-    throw pqxx::conversion_error{base + ": " + msg};
+  {
+    PQXX_LIKELY return out;
+  }
 }
 #endif
 } // namespace
@@ -419,7 +422,8 @@ template<typename T>
 {
   if (std::size(text) == 0)
     throw pqxx::conversion_error{
-      "Attempt to convert empty string to " + pqxx::type_name<T> + "."};
+      "Attempt to convert empty string to " +
+      std::string{pqxx::name_type<T>()} + "."};
 
   char const *const data{std::data(text)};
   std::size_t i{0};
@@ -435,7 +439,7 @@ template<typename T>
   for (; i < std::size(text) and (data[i] == ' ' or data[i] == '\t'); ++i);
   if (i == std::size(text))
     throw pqxx::conversion_error{
-      "Converting string to " + pqxx::type_name<T> +
+      "Converting string to " + std::string{pqxx::name_type<T>()} +
       ", but it contains only whitespace."};
 
   char const initial{data[i]};
@@ -451,12 +455,13 @@ template<typename T>
   {
     if constexpr (not std::is_signed_v<T>)
       throw pqxx::conversion_error{
-        "Attempt to convert negative value to " + pqxx::type_name<T> + "."};
+        "Attempt to convert negative value to " +
+        std::string{pqxx::name_type<T>()} + "."};
 
     ++i;
     if (i >= std::size(text))
       throw pqxx::conversion_error{
-        "Converting string to " + pqxx::type_name<T> +
+        "Converting string to " + std::string{pqxx::name_type<T>()} +
         ", but it contains only a sign."};
     for (; i < std::size(text) and pqxx::internal::is_digit(data[i]); ++i)
       result = absorb_digit_negative(
@@ -465,7 +470,7 @@ template<typename T>
   else
   {
     throw pqxx::conversion_error{
-      "Could not convert string to " + pqxx::type_name<T> +
+      "Could not convert string to " + std::string{pqxx::name_type<T>()} +
       ": "
       "'" +
       std::string{text} + "'."};
@@ -473,7 +478,7 @@ template<typename T>
 
   if (i < std::size(text))
     throw pqxx::conversion_error{
-      "Unexpected text after " + pqxx::type_name<T> +
+      "Unexpected text after " + std::string{pqxx::name_type<T>()} +
       ": "
       "'" +
       std::string{text} + "'."};
@@ -534,7 +539,8 @@ inline T PQXX_COLD from_string_awful_float(std::string_view text)
 {
   if (std::empty(text))
     throw pqxx::conversion_error{
-      "Trying to convert empty string to " + pqxx::type_name<T> + "."};
+      "Trying to convert empty string to " +
+      std::string{pqxx::name_type<T>()} + "."};
 
   bool ok{false};
   T result;

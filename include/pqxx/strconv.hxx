@@ -394,6 +394,11 @@ private:
 #define PQXX_DECLARE_ENUM_CONVERSION(ENUM)                                    \
   template<> struct string_traits<ENUM> : pqxx::internal::enum_traits<ENUM>   \
   {};                                                                         \
+  template<>                                                                  \
+  inline constexpr PQXX_PURE std::string_view name_type<ENUM>() noexcept      \
+  {                                                                           \
+    return #ENUM;                                                             \
+  }                                                                           \
   template<> inline std::string_view const type_name<ENUM>                    \
   {                                                                           \
     #ENUM                                                                     \
