@@ -16,6 +16,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <iterator>
+#include <string>
+#include <string_view>
+#include <typeinfo>
 
 #if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_RANGES)
 #  include <ranges>

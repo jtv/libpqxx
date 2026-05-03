@@ -1287,7 +1287,8 @@ template<typename T> inline void into_string(T const &value, std::string &out)
 {
   if (is_null(value))
     throw conversion_error{
-      "Attempt to convert null " + name_type<T>() + " to a string."};
+      "Attempt to convert null " + std::string{name_type<T>()} +
+      " to a string."};
 
   // We can't just reserve() data; modifying the terminating zero leads to
   // undefined behaviour.
