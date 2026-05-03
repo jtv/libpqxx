@@ -399,7 +399,7 @@ private:
   {                                                                           \
     return #ENUM;                                                             \
   }                                                                           \
-  template<> inline std::string_view const type_name<ENUM>                    \
+  template<> [[maybe_unused]] inline std::string_view const type_name<ENUM>   \
   {                                                                           \
     #ENUM                                                                     \
   }
