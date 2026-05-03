@@ -223,7 +223,7 @@ public:
     if (is_null())
     {
       if constexpr (not nullness<T>::has_null)
-        internal::throw_null_conversion(type_name<T>);
+        internal::throw_null_conversion(name_type<T>());
       else
         return nullness<T>::null();
     }
@@ -251,7 +251,7 @@ public:
 
     // There's no such thing as a null SQL array.
     if (is_null())
-      internal::throw_null_conversion(type_name<array_type>);
+      internal::throw_null_conversion(name_type<array_type>());
     else
       return array_type{this->view(), this->m_home.m_encoding};
   }
@@ -375,7 +375,7 @@ template<> inline std::string_view field::as<std::string_view>() const
 {
   if (is_null())
     PQXX_UNLIKELY
-  internal::throw_null_conversion(type_name<std::string_view>);
+  internal::throw_null_conversion(name_type<std::string_view>());
   return view();
 }
 
@@ -413,7 +413,7 @@ template<> inline zview field::as<zview>() const
 {
   if (is_null())
     PQXX_UNLIKELY
-  internal::throw_null_conversion(type_name<zview>);
+  internal::throw_null_conversion(name_type<zview>());
   return zview{c_str(), size()};
 }
 
@@ -552,7 +552,7 @@ template<typename T> inline T from_string(field const &value)
     if constexpr (nullness<T>::has_null)
       return nullness<T>::null();
     else
-      internal::throw_null_conversion(type_name<T>);
+      internal::throw_null_conversion(name_type<T>());
   }
   else
   {

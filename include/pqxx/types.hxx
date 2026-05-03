@@ -1,13 +1,13 @@
 /* Basic type aliases and forward declarations.
  *
- * Copyright (c) 2000-2025, Jeroen T. Vermeulen
+ * Copyright (c) 2000-2026, Jeroen T. Vermeulen
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_TYPES
-#define PQXX_H_TYPES
+#ifndef PQXX_TYPES_HXX
+#define PQXX_TYPES_HXX
 
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
@@ -20,6 +20,13 @@
 #if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_RANGES)
 #  include <ranges>
 #endif
+
+
+namespace pqxx::internal
+{
+/// Attempt to demangle @c std::type_info::name() to something human-readable.
+PQXX_LIBEXPORT std::string demangle_type_name(char const[]);
+} // namespace pqxx::internal
 
 
 namespace pqxx
@@ -169,6 +176,119 @@ struct from_table_t
  */
 struct from_query_t
 {};
+
+
+/// A human-readable name for a type, used in error messages and such.
+/** Actually this may not always be very user-friendly.  It uses
+ * @c std::type_info::name().  On gcc-like compilers we try to demangle its
+ * output.  Visual Studio produces human-friendly names out of the box.
+ *
+ * This variable is not inline.  Inlining it gives rise to "memory leak"
+ * warnings from asan, the address sanitizer, possibly from use of
+ * @c std::type_info::name.
+ */
+template<typename TYPE>
+std::string const type_name{internal::demangle_type_name(typeid(TYPE).name())};
+
+
+/// Return human-readable name for `TYPE`.
+template<typename TYPE> inline constexpr std::string_view name_type() noexcept
+{
+  return type_name<TYPE>;
+}
+
+
+// Specialisations of name_type<>() follow.  This may avoid problems with gcc
+// 15, where definitions of `type_name<...>` (the templated global variable)
+// in the library and in the headers are not considered identical, leading to
+// a double free.
+//
+// We work around this by specialising the function for the built-in types, so
+// that we may never need type_name.
+
+template<>
+PQXX_PURE constexpr inline std::string_view name_type<std::string>() noexcept
+{
+  return "std::string";
+}
+template<>
+PQXX_PURE constexpr inline std::string_view
+name_type<std::string_view>() noexcept
+{
+  return "std::string_view";
+}
+template<>
+PQXX_PURE constexpr inline std::string_view name_type<char const *>() noexcept
+{
+  return "char const *";
+}
+template<>
+PQXX_PURE constexpr inline std::string_view name_type<bool>() noexcept
+{
+  return "bool";
+}
+template<>
+PQXX_PURE constexpr inline std::string_view name_type<short>() noexcept
+{
+  return "short";
+}
+template<>
+PQXX_PURE constexpr inline std::string_view name_type<int>() noexcept
+{
+  return "int";
+}
+template<>
+PQXX_PURE constexpr inline std::string_view name_type<long>() noexcept
+{
+  return "long";
+}
+template<>
+PQXX_PURE constexpr inline std::string_view name_type<long long>() noexcept
+{
+  return "long long";
+}
+template<>
+PQXX_PURE constexpr inline std::string_view
+name_type<unsigned short>() noexcept
+{
+  return "unsigned short";
+}
+template<>
+PQXX_PURE constexpr inline std::string_view name_type<unsigned>() noexcept
+{
+  return "unsigned";
+}
+template<>
+PQXX_PURE constexpr inline std::string_view name_type<unsigned long>() noexcept
+{
+  return "unsigned long";
+}
+template<>
+PQXX_PURE constexpr inline std::string_view
+name_type<unsigned long long>() noexcept
+{
+  return "unsigned long long";
+}
+template<>
+PQXX_PURE constexpr inline std::string_view name_type<float>() noexcept
+{
+  return "float";
+}
+template<>
+PQXX_PURE constexpr inline std::string_view name_type<double>() noexcept
+{
+  return "double";
+}
+template<>
+PQXX_PURE constexpr inline std::string_view name_type<long double>() noexcept
+{
+  return "long double";
+}
+template<>
+PQXX_PURE constexpr inline std::string_view name_type<nullptr_t>() noexcept
+{
+  return "nullptr_t";
+}
 
 } // namespace pqxx
 #endif

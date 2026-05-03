@@ -112,6 +112,13 @@ constexpr zview operator""_zv(char const str[], std::size_t len) noexcept
 {
   return zview{str, len};
 }
+
+
+template<>
+PQXX_PURE constexpr inline std::string_view name_type<zview>() noexcept
+{
+  return "pqxx::zview";
+}
 } // namespace pqxx
 
 

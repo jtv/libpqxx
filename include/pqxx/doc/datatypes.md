@@ -73,11 +73,11 @@ First off, of course, you need a C++ type.  It may be your own, but it doesn't
 have to be.  It could be a type from a third-party library, or even one from
 the standard library that libpqxx does not yet support.
 
-First thing to do is specialise the `pqxx::type_name` variable to give the type
-a human-readable name.  It's not strictly needed, but it helps: Human-facing
-text such as error messages may need to mention the type by name.  If you don't
-define one, libpqxx will try to figure one out with some help from the
-compiler, but it may not always be easy to read.
+First thing to do is specialise the `pqxx::type_name` variable and its newer
+replacement, `pqxx::name_type()` to give the type a human-readable name.  It's
+not strictly needed, but it helps: Human-facing text such as error messages may
+need to mention the type by name.  If you don't define one, libpqxx will try to
+figure one out with some help from the compiler, but it may not always be easy to read.
 
 Then, does your type have a built-in null value?  For example, a `char *` can
 be null on the C++ side.  Or some types are _always_ null, such as `nullptr`.
@@ -112,8 +112,8 @@ The library also provides specialisations for `std::optional<T>`,
 `T`, you'll also automatically have conversions for those.
 
 
-Specialise `type_name`
-----------------------
+Specialise `type_name` and `name_type()`
+----------------------------------------
 
 When errors happen during conversion, libpqxx will an compose error message for
 the user.  Sometimes this message will mentio the name of the type that's being
@@ -123,13 +123,20 @@ By default, this will probably work fine on some compilers, or the name may
 come out a little strange on other compilers, but some may make it harder to
 recognise.  So it can help to define a name yourself.
 
-To tell libpqxx the name of a given type `T`, there's a template variable
-called `pqxx::type_name<T>`.  It should contain `T`'s human-readable name:
+To tell libpqxx the name of a given type `T`, there's a template function
+`name_type<T>()`, as well as a legacy variable called `pqxx::type_name<T>`.
+The function should return, and the variable should contain, `T`'s
+human-readable name:
 
 ```cxx
     // T is your type.
     namespace pqxx
     {
+    template<> inline constexpr std::string_view name_type<T>()
+    {
+      return "T";
+    }
+
     template<> inline std::string_view const type_name<T>{"My T type's name"};
     }
 ```

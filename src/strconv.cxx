@@ -131,13 +131,14 @@ wrap_to_chars(char *begin, char *end, T const &value)
   {
   case std::errc::value_too_large:
     throw pqxx::conversion_overrun{
-      "Could not convert " + pqxx::type_name<T> +
+      "Could not convert " + std::string{pqxx::name_type<T>()} +
       " to string: "
       "buffer too small (" +
       pqxx::to_string(end - begin) + " bytes)."};
   default:
     throw pqxx::conversion_error{
-      "Could not convert " + pqxx::type_name<T> + " to string."};
+      "Could not convert " + std::string{pqxx::name_type<T>()} +
+      " to string."};
   }
   // No need to check for overrun here: we never even told to_chars about that
   // last byte in the buffer, so it didn't get used up.
@@ -159,7 +160,7 @@ zview integral_traits<T>::to_buf(char *begin, char *end, T const &value)
     need{static_cast<ptrdiff_t>(size_buffer(value))};
   if (space < need)
     throw conversion_overrun{
-      "Could not convert " + type_name<T> +
+      "Could not convert " + std::string{name_type<T>()} +
       " to string: "
       "buffer too small.  " +
       pqxx::internal::state_buffer_overrun(space, need)};
