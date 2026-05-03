@@ -199,7 +199,7 @@ inline void parse_composite_field(
     else
       throw conversion_error{
         "Can't read composite field " + to_string(index) + ": C++ type " +
-        type_name<T> + " does not support nulls."};
+        std::string{name_type<T>()} + " does not support nulls."};
     break;
 
   case '"': {
