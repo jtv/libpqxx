@@ -137,7 +137,7 @@ human-readable name:
       return "T";
     }
 
-    template<> inline std::string_view const type_name<T>{"My T type's name"};
+    template<> inline std::string const type_name<T>{"My T type's name"};
     }
 ```
 
