@@ -73,7 +73,7 @@ First off, of course, you need a C++ type.  It may be your own, but it doesn't
 have to be.  It could be a type from a third-party library, or even one from
 the standard library that libpqxx does not yet support.
 
-First thing to do is specialise the `pqxx::name_type()` functino template to
+First thing to do is specialise the `pqxx::name_type()` function template to
 give the type a human-readable name.  It's not strictly needed, but it helps:
 Human-facing text such as error messages may need to mention the type by name.
 If you don't define one, libpqxx will try to figure one out with some help from
@@ -132,7 +132,7 @@ human-readable name:
     // T is your type.
     namespace pqxx
     {
-    template<> inline constexpr std::string_view name_type<T>()
+    template<> inline constexpr std::string_view name_type<T>() noexcept
     {
       return "T";
     }

@@ -18,7 +18,9 @@
 #include <iterator>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <typeinfo>
+#include <utility>
 
 #if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_RANGES)
 #  include <ranges>
