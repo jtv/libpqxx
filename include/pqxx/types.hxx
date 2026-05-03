@@ -285,9 +285,10 @@ PQXX_PURE constexpr inline std::string_view name_type<long double>() noexcept
   return "long double";
 }
 template<>
-PQXX_PURE constexpr inline std::string_view name_type<nullptr_t>() noexcept
+PQXX_PURE constexpr inline std::string_view
+name_type<std::nullptr_t>() noexcept
 {
-  return "nullptr_t";
+  return "std::nullptr_t";
 }
 
 } // namespace pqxx
