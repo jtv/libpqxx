@@ -120,8 +120,8 @@ the user.  Sometimes this message will mention the name of the type that's being
 converted.
 
 By default, this will work fine when using the gcc or clang compilers, but the
-name may come out a little strange on other compilers.  So, it can help to
-define a name yourself.
+name may come out a little strange on other compilers, or even illegible due to
+the compiler's name mangling.  So, it can help to define a name yourself.
 
 To tell libpqxx the name of a given type `T`, specialise the template function
 `name_type<T>()`.  It should return `T`'s human-readable name:
