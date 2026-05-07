@@ -119,12 +119,12 @@ When errors happen during conversion, libpqxx will compose an error message for
 the user.  Sometimes this message will mention the name of the type that's being
 converted.
 
-By default, this will probably work fine on some compilers, or the name may
-come out a little strange on other compilers, but some may make it harder to
-recognise.  So it can help to define a name yourself.
+By default, this will work fine when using the gcc or clang compilers, but the
+name may come out a little strange on other compilers.  So, it can help to
+define a name yourself.
 
-To tell libpqxx the name of a given type `T`, there's a template function
-`name_type<T>()` The function should return `T`'s human-readable name:
+To tell libpqxx the name of a given type `T`, specialise the template function
+`name_type<T>()`.  It should return `T`'s human-readable name:
 
 ```cxx
     // T is your type.
@@ -134,6 +134,7 @@ To tell libpqxx the name of a given type `T`, there's a template function
     {
       return "My T type's name";
     }
+    } // namespace pqxx
 ```
 
 Define this early on in your translation unit, before any code that might cause
@@ -146,9 +147,8 @@ to compute, it may help to compose it inside the function as a
 that.  A `string_view` does not maintain storage space for the text it
 contains, but a `std::string` does.
 
-This entire problem goes away when you compile C++26 or better; in that
-situation, libpqxx will simply obtain the type's name using the new Reflection
-language feature.
+This entire problem goes away in libpqxx 8 when compiling C++26 or better.
+Then there will be no need to bother with this at all.
 
 
 Specialise `nullness`
