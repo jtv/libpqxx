@@ -116,7 +116,7 @@ Specialise `name_type()`
 ------------------------
 
 When errors happen during conversion, libpqxx will compose an error message for
-the user.  Sometimes this message will mentio the name of the type that's being
+the user.  Sometimes this message will mention the name of the type that's being
 converted.
 
 By default, this will probably work fine on some compilers, or the name may
