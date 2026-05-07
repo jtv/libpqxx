@@ -124,9 +124,7 @@ come out a little strange on other compilers, but some may make it harder to
 recognise.  So it can help to define a name yourself.
 
 To tell libpqxx the name of a given type `T`, there's a template function
-`name_type<T>()`, as well as a legacy variable called `pqxx::type_name<T>`.
-The function should return, and the variable should contain, `T`'s
-human-readable name:
+`name_type<T>()` The function should return `T`'s human-readable name:
 
 ```cxx
     // T is your type.
@@ -134,10 +132,7 @@ human-readable name:
     {
     template<> inline constexpr std::string_view name_type<T>() noexcept
     {
-      return "T";
-    }
-
-    template<> inline std::string const type_name<T>{"My T type's name"};
+      return "My T type's name";
     }
 ```
 
@@ -146,10 +141,14 @@ libpqxx to need the name.  That way, the libpqxx code which needs to know the
 type's name can see your definition.
 
 In cases where the name is not a simple compile-time constant but needs code
-to compute, you may need to make its type `std::string`.  A `string_view` does
-not maintain storage space for the text it contains.  However, some code
-analysis tools may report false posiives when initialising such strings at
-initialisation time.
+to compute, it may help to compose it inside the function as a
+`static std::string const` variable, and then return a `std::string_view` on
+that.  A `string_view` does not maintain storage space for the text it
+contains, but a `std::string` does.
+
+This entire problem goes away when you compile C++26 or better; in that
+situation, libpqxx will simply obtain the type's name using the new Reflection
+language feature.
 
 
 Specialise `nullness`
