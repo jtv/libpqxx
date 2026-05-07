@@ -130,7 +130,7 @@ To tell libpqxx the name of a given type `T`, specialise the template function
     // T is your type.
     namespace pqxx
     {
-    template<> inline constexpr std::string_view name_type<T>() noexcept
+    template<> inline std::string_view name_type<T>() noexcept
     {
       return "My T type's name";
     }
