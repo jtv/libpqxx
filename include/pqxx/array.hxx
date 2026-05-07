@@ -407,9 +407,9 @@ private:
               m_elts.emplace_back(nullness<ELEMENT>::null());
             else
               throw unexpected_null{pqxx::internal::concat(
-                "Array contains a null ", type_name<ELEMENT>,
+                "Array contains a null ", name_type<ELEMENT>(),
                 ".  Consider making it an array of std::optional<",
-                type_name<ELEMENT>, "> instead.")};
+                name_type<ELEMENT>(), "> instead.")};
           }
           else
             m_elts.emplace_back(from_string<ELEMENT>(field));

@@ -282,7 +282,7 @@ private:
     {
       if (std::data(text) != nullptr)
         throw conversion_error{concat(
-          "Streaming a non-null value into a ", type_name<field_type>,
+          "Streaming a non-null value into a ", name_type<field_type>(),
           ", which must always be null.")};
     }
     else if (std::data(text) == nullptr)
@@ -290,7 +290,7 @@ private:
       if constexpr (nullity::has_null)
         return nullity::null();
       else
-        internal::throw_null_conversion(type_name<field_type>);
+        internal::throw_null_conversion(name_type<field_type>());
     }
     else
     {

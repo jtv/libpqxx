@@ -356,7 +356,7 @@ inline void stream_from::extract_value(Tuple &t) const
     if constexpr (nullity::has_null)
       std::get<index>(t) = nullity::null();
     else
-      internal::throw_null_conversion(type_name<field_type>);
+      internal::throw_null_conversion(name_type<field_type>());
   }
   else
   {
