@@ -16,7 +16,7 @@
 #  endif
 
 /// Full libpqxx version string.
-#  define PQXX_VERSION "7.10.6"
+#  define PQXX_VERSION "7.10.7"
 /// Library ABI version.
 #  define PQXX_ABI "7.10"
 
