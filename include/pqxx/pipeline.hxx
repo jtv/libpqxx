@@ -26,7 +26,7 @@
 
 namespace pqxx
 {
-// TODO: libpq 14 introduced a similar "pipeline mode."  Can we use that?
+// TODO: libpq 14 introduced a similar "pipeline mode."  Replace with that.
 
 /// Processes several queries in FIFO manner, optimized for high throughput.
 /** Use a pipeline if you want to keep doing useful work while your queries are
