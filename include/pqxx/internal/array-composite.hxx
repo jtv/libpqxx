@@ -300,7 +300,9 @@ composite_field_parser<T> specialize_parse_composite_field(encoding_group enc)
   case encoding_group::UTF8:
     return parse_composite_field<encoding_group::UTF8>;
   }
-  throw internal_error{concat("Unexpected encoding group code: ", enc, ".")};
+  throw internal_error{concat(
+    "Unexpected encoding group code: ",
+    static_cast<std::underlying_type_t<encoding_group>>(enc), ".")};
 }
 
 

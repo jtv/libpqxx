@@ -30,7 +30,6 @@
  */
 
 #include "pqxx/connection.hxx"
-#include "pqxx/internal/concat.hxx"
 #include "pqxx/internal/encoding_group.hxx"
 #include "pqxx/internal/stream_query.hxx"
 #include "pqxx/isolation.hxx"

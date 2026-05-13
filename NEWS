@@ -1,4 +1,5 @@
 7.10.7
+ - Backport more 8.0 changes that might soothe Valgrind. (#1195)
 7.10.6
  - Fix warnings about unnecessary copying in `test_range.cxx`.
  - Backport `name_type()` from 8.0.  Should help with #1195.
