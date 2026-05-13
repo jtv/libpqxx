@@ -568,7 +568,7 @@ workflows:
       - infer:
           matrix:
             parameters:
-              cxx_ver: ["c++23"]
+              cxx_ver: ["c++20"]
 
       - valgrind:
           matrix:
