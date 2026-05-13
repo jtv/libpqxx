@@ -6,6 +6,8 @@
 
 #include <array>
 
+// TODO: Prune #includes once we have PQsocketPoll().
+
 // For WSAPoll().
 // Normally we'd do this *after* including <thread>, but MinGW complains: it
 // issues a warning telling us to include winsock2.h before windows.h.
