@@ -62,6 +62,7 @@
 
 namespace
 {
+// TODO: No longer needed once we have PQsocketPoll().
 template<typename T>
 T to_milli(unsigned seconds, unsigned microseconds, pqxx::sl loc)
 {
@@ -71,6 +72,7 @@ T to_milli(unsigned seconds, unsigned microseconds, pqxx::sl loc)
 }
 
 
+// TODO: No longer needed once we have PQsocketPoll().
 #if !defined(PQXX_HAVE_POLL) && defined(PQXX_HAVE_SELECT)
 /// Set a bit on an fd_set.
 [[maybe_unused]] void set_fdbit(fd_set &bits, auto fd)
@@ -95,6 +97,7 @@ void pqxx::internal::wait_fd(
   int fd, bool for_read, bool for_write, unsigned seconds,
   unsigned microseconds, [[maybe_unused]] sl loc)
 {
+// TODO: As of libpq 17, replace with PQsocketPoll()/PQgetCurrentTimeUSec().
 // WSAPoll is available in winsock2.h only for versions of Windows >= 0x0600
 #if defined(_WIN32) && (_WIN32_WINNT >= 0x0600)
   static_assert(SOCKET_ERROR == -1);
@@ -155,6 +158,7 @@ PQXX_COLD void pqxx::internal::wait_for(unsigned int microseconds)
   // MinGW still does not have a functioning <thread> header.  Work around this
   // using select().
   // Not worth optimising for though -- they'll have to fix it at some point.
+// TODO: As of libpq 17, replace with PQsocketPoll()/PQgetCurrentTimeUSec()?
   timeval tv{microseconds / 1'000'000u, microseconds % 1'000'000u};
   select(0, nullptr, nullptr, nullptr, &tv);
 #endif
