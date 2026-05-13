@@ -158,7 +158,7 @@ PQXX_COLD void pqxx::internal::wait_for(unsigned int microseconds)
   // MinGW still does not have a functioning <thread> header.  Work around this
   // using select().
   // Not worth optimising for though -- they'll have to fix it at some point.
-// TODO: As of libpq 17, replace with PQsocketPoll()/PQgetCurrentTimeUSec()?
+  // TODO: As of libpq 17, replace with PQsocketPoll()/PQgetCurrentTimeUSec()?
   timeval tv{microseconds / 1'000'000u, microseconds % 1'000'000u};
   select(0, nullptr, nullptr, nullptr, &tv);
 #endif
