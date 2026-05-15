@@ -671,8 +671,8 @@ workflows:
       - test-tsan:
           matrix:
             parameters:
-              os: "archlinux"
-              compiler: ["clang++"]
+              os: ["archlinux"]
+              compiler: ["clang++", "g++"]
               cxx_ver: ["c++23"]
 
       - try-make-dist-install:
