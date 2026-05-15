@@ -131,21 +131,19 @@ jobs:
   # the same run.
   test-tsan:
     parameters:
-      os:
-        type: string
       compiler:
         type: string
       cxx_ver:
         type: string
     docker:
-      - image: << parameters.os >>
+      - image: ubuntu:26.04
     steps:
       - checkout
 
       - run:
           name: Install
           command: "./tools/install-deps.sh \
-              << parameters.os >> << parameters.compiler >> >/tmp/vars.sh"
+              ubuntu << parameters.compiler >> >/tmp/vars.sh"
           max_auto_reruns: 3
       - store_artifacts:
           path: "/tmp/vars.sh"
@@ -153,7 +151,7 @@ jobs:
       - run:
           name: Setup
           # Thread sanitizer seems to need this.
-          command: "sysctl vm.mmap_rnd_bits=30"
+          command: "sysctl vm.mmap_rnd_bits=28"
 
       - run:
           name: Autogen
@@ -676,7 +674,6 @@ workflows:
       - test-tsan:
           matrix:
             parameters:
-              os: ["ubuntu"]
               compiler: ["clang++", "g++"]
               cxx_ver: ["c++23"]
 
