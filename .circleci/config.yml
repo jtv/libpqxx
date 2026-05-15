@@ -671,7 +671,7 @@ workflows:
       - test-tsan:
           matrix:
             parameters:
-              os: ["archlinux"]
+              os: ["ubuntu"]
               compiler: ["clang++", "g++"]
               cxx_ver: ["c++23"]
 
