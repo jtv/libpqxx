@@ -11,7 +11,9 @@ from argparse import (
     Namespace,
 )
 from contextlib import nullcontext
+from os import devnull
 from pathlib import Path
+import shlex
 from subprocess import (
     DEVNULL,
     run,
@@ -73,7 +75,10 @@ def compiler_accepts(
     command: str, source: Path, flag: str, prev: str = ""
 ) -> bool:
     """Return whether the compiler seems to accept `flag`."""
-    return run_quietly(f"{command} {prev} {flag} -c {source}")
+    # This won't work with the default shell in Windows.  But then again who
+    # would run the configure script there?
+    src = shlex.quote(str(source))
+    return run_quietly(f"{command} {prev} {flag} -c {src} -o {devnull}")
 
 
 def open_in(path: str):
@@ -102,15 +107,14 @@ def main() -> None:
     """Main entry point."""
     args = parse_args()
     good_flags: list[str] = []
-    source = Path("config-tests") / "minimal.cxx"
-    src = source.name
+    source = Path(__file__).parents[1] / "config-tests" / "minimal.cxx"
     with open_in(args.flags) as flags:
         for line in flags:
             flag = line.strip()
             if flag == "" or flag.startswith("#"):
                 continue
             prev = " ".join(good_flags)
-            if compiler_accepts(args.command, Path(src), flag, prev=prev):
+            if compiler_accepts(args.command, source, flag, prev=prev):
                 good_flags.append(flag)
 
     sep = " " if args.single_line else "\n"
