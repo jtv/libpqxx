@@ -139,8 +139,7 @@ jobs:
       cxx_ver:
         type: string
     machine:
-      image: ubuntu-2404
-    resource_class: large
+      image: ubuntu-2404:current
     steps:
       - checkout
 
