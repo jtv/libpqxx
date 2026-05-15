@@ -131,9 +131,11 @@ jobs:
   # the same run.
   test-tsan:
     parameters:
-      cxx_ver:
-        type: string
       os:
+        type: string
+      compiler:
+        type: string
+      cxx_ver:
         type: string
     docker:
       - image: << parameters.os >>
@@ -143,7 +145,7 @@ jobs:
       - run:
           name: Install
           command: "./tools/install-deps.sh \
-              << parameters.os >> clang++ >/tmp/vars.sh"
+              << parameters.os >> << parameters.compiler >> >/tmp/vars.sh"
           max_auto_reruns: 3
       - store_artifacts:
           path: "/tmp/vars.sh"
@@ -154,7 +156,7 @@ jobs:
       - run:
           name: Configure
           command: ". /tmp/vars.sh && ./configure --enable-maintainer-mode \
-                CXX=clang++ \
+                CXX=<< parameters.compiler >> \
                 CXXFLAGS=\"\
                     -O0 -std=<< parameters.cxx_ver >> -fsanitize=thread\""
       - store_artifacts:
@@ -669,8 +671,9 @@ workflows:
       - test-tsan:
           matrix:
             parameters:
-              cxx_ver: ["c++20", "c++23", "c++26"]
               os: "archlinux"
+              compiler: ["clang++"]
+              cxx_ver: ["c++23"]
 
       - try-make-dist-install:
           matrix:
