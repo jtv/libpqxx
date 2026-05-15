@@ -130,13 +130,12 @@ jobs:
   # In normal runs we enable the address sanitizer, but you can't have both in
   # the same run.
   test-tsan:
+    runs-on: ubuntu-latest
     parameters:
       compiler:
         type: string
       cxx_ver:
         type: string
-    docker:
-      - image: ubuntu:26.04
     steps:
       - checkout
 
@@ -171,8 +170,7 @@ jobs:
           path: postgres.log
       - run:
           name: Test
-          command: ". /tmp/vars.sh && \
-              setarch $(uname -m) -R echo xxxtestingxxx"
+          command: ". /tmp/vars.sh && setarch $(uname -m) -R ./test/runner"
 
   test-macos:
     parameters:
