@@ -670,6 +670,7 @@ workflows:
           matrix:
             parameters:
               cxx_ver: ["c++20", "c++23", "c++26"]
+              os: "archlinux"
 
       - try-make-dist-install:
           matrix:
