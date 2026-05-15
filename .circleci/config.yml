@@ -139,14 +139,16 @@ jobs:
       cxx_ver:
         type: string
     machine:
+      # Remember to update Ubuntu release string.  :-(
       image: ubuntu-2404:current
     steps:
       - checkout
 
       - run:
           name: Install
+          # Remember to update clang release number.  :-(
           command: "sudo ./tools/install-deps.sh \
-              ubuntu << parameters.compiler >> libstdc++-dev >/tmp/vars.sh"
+              ubuntu << parameters.compiler >> libstdc++-18-dev >/tmp/vars.sh"
           max_auto_reruns: 3
       - store_artifacts:
           path: "/tmp/vars.sh"
