@@ -13,6 +13,7 @@ from argparse import (
 from contextlib import nullcontext
 from os import devnull
 from pathlib import Path
+import shlex
 from subprocess import (
     DEVNULL,
     run,
@@ -74,7 +75,8 @@ def compiler_accepts(
     command: str, source: Path, flag: str, prev: str = ""
 ) -> bool:
     """Return whether the compiler seems to accept `flag`."""
-    return run_quietly(f"{command} {prev} {flag} -c {source} -o {devnull}")
+    src = shlex.quote(str(source))
+    return run_quietly(f"{command} {prev} {flag} -c {src} -o {devnull}")
 
 
 def open_in(path: str):
