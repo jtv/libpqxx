@@ -153,9 +153,10 @@ jobs:
           command: ". /tmp/vars.sh && autoreconf"
       - run:
           name: Configure
-          command: ". /tmp/vars.sh && ./configure \
-                --enable-maintainer-mode -fanalyze=thread \
-                CXX=clang++ CXXFLAGS=\"-O0 -std=<< parameters.cxx_ver >>\""
+          command: ". /tmp/vars.sh && ./configure --enable-maintainer-mode \
+                CXX=clang++ \
+                CXXFLAGS=\"\
+                    -O0 -std=<< parameters.cxx_ver >> -fsanitize=thread\""
       - store_artifacts:
           path: config.log
       - store_artifacts:
