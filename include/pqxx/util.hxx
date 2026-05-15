@@ -745,6 +745,38 @@ inline std::size_t copy_chars(
     dst[at++] = '\0';
   return at;
 }
+
+
+/// Return the first position of `input` _after_ any whitespace at `here`.
+/** If the search hits the end of `input`, return value will equal
+ * `input.size()`.
+ *
+ * This needs no encoding information: whenever we encounter a non-ASCII
+ * character, we also know that it's not ASCII whitespace.  We can tell from
+ * the first byte in the character.
+ */
+[[nodiscard]] std::size_t
+skip_ascii_whitespace(std::string_view input, std::size_t here = 0) noexcept
+{
+  for (auto const sz{std::size(input)}; here < sz; ++here)
+  {
+    switch (input.at(here))
+    {
+    case '\f':
+    case '\t':
+    case '\n':
+    case '\r':
+    case '\v':
+    case ' ':
+      // Still eating whitespace.  Keep going.
+      continue;
+    }
+    // Break out of the "for".  Not the "switch."
+    break;
+  }
+
+  return here;
+}
 } // namespace pqxx::internal
 
 
