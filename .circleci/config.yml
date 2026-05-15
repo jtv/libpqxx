@@ -125,10 +125,13 @@ jobs:
       - store_artifacts:
           path: examples
 
-  # Like test-linux, but enable thread sanitizer.
+  # Run tests through thread sanitizer.
   #
   # In normal runs we enable the address sanitizer, but you can't have both in
-  # the same run.
+  # the same run.  The thread has some further special requirements, so we need
+  # to run it in a full VM, not a container.  The "setarch" call disables ASLR
+  # (address space randomisation) for the duration of one process, which gets
+  # us around the problem.
   test-tsan:
     machine:
       image: ubuntu-2404:current
@@ -142,7 +145,7 @@ jobs:
 
       - run:
           name: Install
-          command: "./tools/install-deps.sh \
+          command: "sudo ./tools/install-deps.sh \
               ubuntu << parameters.compiler >> >/tmp/vars.sh"
           max_auto_reruns: 3
       - store_artifacts:
