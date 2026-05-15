@@ -75,6 +75,8 @@ def compiler_accepts(
     command: str, source: Path, flag: str, prev: str = ""
 ) -> bool:
     """Return whether the compiler seems to accept `flag`."""
+    # This won't work with the default shell in Windows.  But then again who
+    # would run the configure script there?
     src = shlex.quote(str(source))
     return run_quietly(f"{command} {prev} {flag} -c {src} -o {devnull}")
 
