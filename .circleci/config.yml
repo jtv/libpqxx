@@ -150,7 +150,10 @@ jobs:
           max_auto_reruns: 3
       - store_artifacts:
           path: "/tmp/vars.sh"
-
+      - run:
+          name: Configure
+          # Disable ASLR so we can use the thread sanitizer.
+          command: "sudo sysctl -w kernel.randomize_va_space=0"
       - run:
           name: Autogen
           command: ". /tmp/vars.sh && autoreconf"
