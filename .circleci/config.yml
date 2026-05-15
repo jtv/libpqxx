@@ -131,7 +131,7 @@ jobs:
   # the same run.
   test-tsan:
     machine:
-      image: ubuntu-2204:current
+      image: ubuntu-2404:current
     parameters:
       compiler:
         type: string
