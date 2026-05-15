@@ -146,7 +146,7 @@ jobs:
       - run:
           name: Install
           command: "sudo ./tools/install-deps.sh \
-              ubuntu << parameters.compiler >> >/tmp/vars.sh"
+              ubuntu << parameters.compiler >> libstdc++-dev >/tmp/vars.sh"
           max_auto_reruns: 3
       - store_artifacts:
           path: "/tmp/vars.sh"
