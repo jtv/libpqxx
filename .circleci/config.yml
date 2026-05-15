@@ -131,7 +131,7 @@ jobs:
   # the same run.
   test-tsan:
     executor:
-      name: ubuntu/latest
+      name: ubuntu/default
     parameters:
       compiler:
         type: string
