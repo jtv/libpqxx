@@ -149,11 +149,6 @@ jobs:
           path: "/tmp/vars.sh"
 
       - run:
-          name: Setup
-          # Thread sanitizer seems to need this.
-          command: "echo 0 | sudo tee /proc/sys/kernel/randomize_va_space"
-
-      - run:
           name: Autogen
           command: ". /tmp/vars.sh && autoreconf"
       - run:
