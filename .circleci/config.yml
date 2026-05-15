@@ -130,7 +130,8 @@ jobs:
   # In normal runs we enable the address sanitizer, but you can't have both in
   # the same run.
   test-tsan:
-    runs-on: ubuntu-latest
+    executor:
+      name: ubuntu/latest
     parameters:
       compiler:
         type: string
