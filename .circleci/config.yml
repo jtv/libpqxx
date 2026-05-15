@@ -139,7 +139,7 @@ jobs:
       cxx_ver:
         type: string
     machine:
-      image: ubuntu-2404
+      image: ubuntu-2204
     steps:
       - checkout
 
