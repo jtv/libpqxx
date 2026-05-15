@@ -133,6 +133,8 @@ jobs:
     parameters:
       cxx_ver:
         type: string
+      os:
+        tpe: string
     docker:
       - image: << parameters.os >>
     steps:
