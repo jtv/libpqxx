@@ -130,8 +130,8 @@ jobs:
   # Run tests through thread sanitizer.
   #
   # In normal runs we enable the address sanitizer, but you can't have both in
-  # the same run.  The thread has some further special requirements, so we need
-  # to run it in a full VM, not a container.
+  # the same run.  The thread sanitizer has some further special requirements,
+  # so we need to run it in a full VM, not a container.
   test-tsan:
     parameters:
       compiler:
@@ -147,7 +147,7 @@ jobs:
           name: Install
           # Remember to update clang release number.  :-(
           command: "sudo ./tools/install-deps.sh \
-              ubuntu << parameters.compiler >> libstdc++-14-dev >/tmp/vars.sh"
+              ubuntu << parameters.compiler >> libstdc++-18-dev >/tmp/vars.sh"
           max_auto_reruns: 3
       - store_artifacts:
           path: "/tmp/vars.sh"
