@@ -153,10 +153,6 @@ jobs:
       - store_artifacts:
           path: "/tmp/vars.sh"
       - run:
-          name: Configure
-          # Disable ASLR so we can use the thread sanitizer.
-          command: "sudo sysctl -w kernel.randomize_va_space=0"
-      - run:
           name: Autogen
           command: ". /tmp/vars.sh && autoreconf"
       - run:
@@ -171,17 +167,19 @@ jobs:
           path: include/pqxx
       - run:
           name: Make
-          command: . /tmp/vars.sh && make -j4 TESTS= check
+          command: ". /tmp/vars.sh && make -j4 TESTS= check"
       - run:
           name: Start database
-          command: "sudo service postgresql start"
+          command: ". /tmp/vars.sh && ./tools/run-test-postgres.sh"
       - store_artifacts:
           path: postgres.log
       - run:
           name: Test
           # Run the tests, but in a special personality without address
           # randomisation (ASLR).  It thwarts the thread sanitizer.
-          command: "setarch $(uname -m) -R ./test/runner"
+          command: "sudo sysctl -w kernel.randomize_va_space=0 && \
+              . /tmp/vars.sh && \
+              setarch $(uname -m) -R ./test/runner"
 
   test-macos:
     parameters:
