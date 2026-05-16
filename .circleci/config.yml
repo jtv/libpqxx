@@ -144,7 +144,6 @@ jobs:
     steps:
       - checkout
 
-      - run: whoami
       - run:
           name: Install
           # Remember to update clang release number.  :-(
@@ -182,7 +181,7 @@ jobs:
           name: Test
           # Run the tests, but in a special personality without address
           # randomisation (ASLR).  It thwarts the thread sanitizer.
-          command: ". /tmp/vars.sh && setarch $(uname -m) -R ./test/runner"
+          command: "setarch $(uname -m) -R ./test/runner"
 
   test-macos:
     parameters:
