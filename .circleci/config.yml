@@ -155,12 +155,19 @@ jobs:
       - run:
           name: Autogen
           command: ". /tmp/vars.sh && autoreconf"
+      - run
+          # Disable address space randomization (ASLR) because it thwarts the
+          # thread sanitizer.  This is why we need to run this test in a full
+          # VM, rather than a container.
+          name: ASLR
+          command: "sudo sysctl -w kernel.randomize_va_space=0"
       - run:
           name: Configure
-          command: ". /tmp/vars.sh && ./configure --enable-maintainer-mode \
-                CXX=<< parameters.compiler >> \
-                CXXFLAGS=\"\
-                    -O0 -std=<< parameters.cxx_ver >> -fsanitize=thread\""
+          command: ". /tmp/vars.sh && \
+              setarch $(uname -m) -R ./configure --enable-maintainer-mode \
+                  CXX=<< parameters.compiler >> \
+                  CXXFLAGS=\"\
+                      -O0 -std=<< parameters.cxx_ver >> -fsanitize=thread\""
       - store_artifacts:
           path: config.log
       - store_artifacts:
@@ -177,9 +184,7 @@ jobs:
           name: Test
           # Run the tests, but in a special personality without address
           # randomisation (ASLR).  It thwarts the thread sanitizer.
-          command: "sudo sysctl -w kernel.randomize_va_space=0 && \
-              . /tmp/vars.sh && \
-              setarch $(uname -m) -R ./test/runner"
+          command: ". /tmp/vars.sh && setarch $(uname -m) -R ./test/runner"
 
   test-macos:
     parameters:
