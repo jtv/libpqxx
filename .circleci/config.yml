@@ -147,7 +147,7 @@ jobs:
           name: Install
           # Remember to update clang release number.  :-(
           command: "sudo ./tools/install-deps.sh \
-              ubuntu << parameters.compiler >> libstdc++-18-dev >/tmp/vars.sh"
+              ubuntu << parameters.compiler >> libstdc++-17-dev >/tmp/vars.sh"
           max_auto_reruns: 3
       - store_artifacts:
           path: "/tmp/vars.sh"
