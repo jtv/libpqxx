@@ -143,7 +143,6 @@ jobs:
       image: ubuntu-2404:current
     steps:
       - checkout
-
       - run:
           name: Install
           # Remember to update clang release number.  :-(
@@ -155,7 +154,7 @@ jobs:
       - run:
           name: Autogen
           command: ". /tmp/vars.sh && autoreconf"
-      - run
+      - run:
           # Disable address space randomization (ASLR) because it thwarts the
           # thread sanitizer.  This is why we need to run this test in a full
           # VM, rather than a container.
