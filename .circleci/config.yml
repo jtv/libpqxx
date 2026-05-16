@@ -151,6 +151,8 @@ jobs:
           max_auto_reruns: 3
       - store_artifacts:
           path: "/tmp/vars.sh"
+      - run: Stop system postgres
+          command: "sudo service postgresql stop"
       - run:
           name: Autogen
           command: ". /tmp/vars.sh && autoreconf"
