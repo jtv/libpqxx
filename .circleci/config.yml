@@ -185,7 +185,7 @@ jobs:
       - run:
           name: Test
           # Run the tests, but in a special personality without address
-          # randomisation (ASLR).  It thwarts the thread sanitizer.
+          # randomisation.
           command: ". /tmp/vars.sh && setarch $(uname -m) -R ./test/runner"
 
   test-macos:
