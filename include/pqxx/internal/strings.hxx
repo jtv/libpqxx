@@ -1,5 +1,5 @@
-#ifndef PQXX_INTERNAL_ARRAY_COMPOSITE_HXX
-#define PQXX_INTERNAL_ARRAY_COMPOSITE_HXX
+#ifndef PQXX_INTERNAL_STRINGS_HXX
+#define PQXX_INTERNAL_STRINGS_HXX
 
 /* Helpers for dealing with SQL strings.
  */
