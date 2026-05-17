@@ -35,10 +35,10 @@ scan_unquoted_hstore_string(std::string_view input, std::size_t offset, sl loc)
 }
 } // namespace pqxx::internal
 
+// XXX: Hstore double-quoted strings don't support SQL-style '""' escaping!
 
 namespace pqxx
 {
-// XXX: Template on encoding so we can call scan_double_quoted_string() etc.
 /// An iterator for an @ref hstore_parse.
 /** This class does all the heavy lifting, so these are not lightweight
  * objects.  They are not trivial to create, copy, or move.
