@@ -26,11 +26,11 @@ PQXX_LIBEXPORT class hstore_end final
 
 template<encoding_group ENC>
 inline constexpr std::size_t
-scan_unquoted_hstore_string(std::string_view input, std::size_t offset, sl loc)
+scan_unquoted_hstore_string(std::string_view input, std::size_t pos, sl loc)
 {
   // This is where unquoted strings in hstore differ from unquoted strings in
   // arrays or composite types.  Any whitespace will terminate the string.
-  return find_ascii_char<ENC, ',', ' ', '\f', '\t', '\n', '\r', '\v', ' '>(
+  return find_ascii_char<ENC, ',', ' ', '\f', '\t', '\n', '\r', '\v'>(
     input, pos, loc);
 }
 } // namespace pqxx::internal
@@ -49,6 +49,10 @@ PQXX_LIBEXPORT class hstore_iterator final
 public:
   hstore_iterator(std::string_view input, ctx c) : m_input{input}, m_ctx{c}
   {
+    // As an invariant for scan_entry(), we must move past any leading
+    // whitespace.  This is also how we can detect end(): m_offset will point
+    // to the end of m_buffer.
+    m_offset = pqxx::internal::skip_ascii_whitespace(m_input, 0);
     scan_entry();
   }
   hstore_iterator() = delete;
@@ -94,19 +98,30 @@ private:
    *
    * This version of the call takes the encoding group as a template parameter.
    * There is also a version that figures this out at run time.
+   *
+   * As an invariant, before and after this call, `m_offset` always points at
+   * either the end of `m_input`, or at the beginning of the entry we're about
+   * to advance beyond.  This also means that there must never be any
+   * whitespace at `m_offset`.
    */
-  template<pqxx::internal::encoding_group ENC> void scan_entry()
+  template<pqxx::encoding_group ENC> void scan_entry()
   {
     auto const sz{std::size(m_input)};
-    std::size_t here{pqxx::internal::skip_ascii_whitespace(m_input, m_offset)};
+    std::size_t here{m_offset};
+
+    // If we're at the end, we're done.
     if (here >= sz)
-      throw pqxx::conversion_error{"Empty hstore value."};
-    if (m_input.at(here] == '"')
-      here =
-        pqxx::internal::scan_double_quoted_string<ENC>(m_input, here, m_ctx.loc);
+      return;
+
+    // There is no further whitespace at m_offset.
+    assert(skip_ascii_whitespace(m_input, here) == here);
+
+    if (m_input.at[here] == '"')
+      here = pqxx::internal::scan_double_quoted_string<ENC>(
+        m_input, here, m_ctx.loc);
     else
-      here =
-        pqxx::internal::scan_unquoted_hstore_string<ENC>(m_input, here, m_ctx.loc);
+      here = pqxx::internal::scan_unquoted_hstore_string<ENC>(
+        m_input, here, m_ctx.loc);
 
     m_key = m_input.substr(m_offset, here - m_offset);
 
@@ -124,15 +139,17 @@ private:
     here += 2;
 
     here = pqxx::internal::skip_ascii_whitespace(m_input, here);
-    if (here >= sz) throw pqxx::conversion_error{std::format("No value in hstore entry: '{}'", m_input)};
+    if (here >= sz)
+      throw pqxx::conversion_error{
+        std::format("No value in hstore entry: '{}'", m_input)};
 
     auto const value_start{here};
     if (m_input.at(here) == '"')
-      here =
-        pqxx::internal::scan_double_quoted_string<ENC>(m_input, here, m_ctx.loc);
+      here = pqxx::internal::scan_double_quoted_string<ENC>(
+        m_input, here, m_ctx.loc);
     else
-      here =
-        pqxx::internal::scan_unquoted_hstore_string<ENC>(m_input, here, m_ctx.loc);
+      here = pqxx::internal::scan_unquoted_hstore_string<ENC>(
+        m_input, here, m_ctx.loc);
 
     // XXX: This can be NULL (unquoted)... how do we represent that?
     m_value = m_input.substr(value_start, here - value_start);
@@ -150,7 +167,10 @@ private:
     // character starting with an ASCII-range byte is a single-byte ASCII
     // character.
     if ((here < std::size(m_input)) and (m_input.at(here) == ','))
+    {
       ++here;
+      here = pqxx::internal::skip_ascii_whitespace(m_input, here);
+    }
 
     m_offset = here;
   }
@@ -223,8 +243,7 @@ public:
    * duration of the parse.  The parse ends when the last iterator dereference
    * has completed (i.e. typically when your iteration hits `end()`).
    */
-  hstore_parse(std::string_view input, ctx c = {}) :
-          m_input{input, c}, m_ctx{c}
+  hstore_parse(std::string_view input, ctx c = {}) : m_input{input}, m_ctx{c}
   {}
 
   hstore_parse() = default;
@@ -233,14 +252,14 @@ public:
   hstore_parse &operator=(hstore_parse const &) = default;
   hstore_parse &operator=(hstore_parse &&) = default;
 
-  [[nodiscard]] hstore_iterator<KEY, VALUE> cbegin() const noexcept
+  [[nodiscard]] auto cbegin() const noexcept
   {
-    return hstore_iterator < KEY, VALUE{m_input};
+    return hstore_iterator<KEY, VALUE>{m_input};
   }
 
   [[nodiscard]] auto begin() const noexcept { return cbegin(); }
 
-  [[nodiscard]] hstore_end cend() const noexcept { return {}; }
+  [[nodiscard]] auto cend() const noexcept { return {}; }
   [[nodiscard]] auto end() const noexcept { return cend(); }
 
 private:
