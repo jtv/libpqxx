@@ -16,11 +16,11 @@ namespace pqxx::internal
 constexpr std::size_t one_ascii_char{1u};
 
 
-// Find the end of a double-quoted string.
+// Find the end of a double-quoted SQL string.
 /** `input[pos]` must be the opening double quote.
  *
- * The backend double-quotes strings in composites or arrays, when needed.
- * Special characters are escaped using backslashes.
+ * The backend double-quotes strings in composites or arrays, when needed, as
+ * well as in hstore values.  Special characters are escaped using backslashes.
  *
  * Returns the offset of the first position after the closing quote.
  */
@@ -56,7 +56,7 @@ scan_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
         pos += one_ascii_char;
         if (pos >= sz)
           throw argument_error{
-            "Unexpected end of string: double double-quote."};
+            "Unexpected end of string: double double-quote.", loc};
       }
       else
       {
@@ -95,6 +95,22 @@ scan_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
   throw argument_error{
     "Missing closing double-quote: " + std::string{input}, loc};
 }
+
+
+#ifndef NDEBUG
+static_assert(
+  scan_double_quoted_string<encoding_group::ascii_safe>(
+    "\"\"", 0u, sl::current()) == 2);
+static_assert(
+  scan_double_quoted_string<encoding_group::ascii_safe>(
+    " \"\"", 1u, sl::current()) == 3);
+static_assert(
+  scan_double_quoted_string<encoding_group::ascii_safe>(
+    "\"\\\"\"", 0u, sl::current()) == 4);
+static_assert(
+  scan_double_quoted_string<encoding_group::ascii_safe>(
+    "\"\\\\\"", 0u, sl::current()) == 4);
+#endif // NDEBUG
 
 
 // TODO: Needs version with caller-supplied buffer.
