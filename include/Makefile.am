@@ -51,6 +51,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/internal/stream_iterator.hxx \
 	pqxx/internal/stream_query.hxx \
 	pqxx/internal/stream_query_impl.hxx \
+	pqxx/internal/strings.hxx \
 	pqxx/internal/wait.hxx \
 	pqxx/internal/gates/connection-errorhandler.hxx \
 	pqxx/internal/gates/connection-largeobject.hxx \

@@ -755,7 +755,7 @@ inline std::size_t copy_chars(
  * character, we also know that it's not ASCII whitespace.  We can tell from
  * the first byte in the character.
  */
-[[nodiscard]] std::size_t
+[[nodiscard]] inline std::size_t
 skip_ascii_whitespace(std::string_view input, std::size_t here = 0) noexcept
 {
   for (auto const sz{std::size(input)}; here < sz; ++here)

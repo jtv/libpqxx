@@ -11,6 +11,8 @@
 #ifndef PQXX_HSTORE_HXX
 #define PQXX_HSTORE_HXX
 
+#include "pqxx/internal/strings.hxx"
+
 namespace pqxx::internal
 {
 /// The `end()` of a @ref hstore_parse.
