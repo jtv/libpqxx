@@ -30,6 +30,7 @@ scan_unquoted_hstore_string(std::string_view input, std::size_t pos, sl loc)
 {
   // This is where unquoted strings in hstore differ from unquoted strings in
   // arrays or composite types.  Any whitespace will terminate the string.
+  // XXX: Support backslash escapes in unquoted strings!  (Especially commas.)
   return find_ascii_char<ENC, ',', ' ', '\f', '\t', '\n', '\r', '\v'>(
     input, pos, loc);
 }
@@ -63,6 +64,8 @@ public:
 
   [[nodiscard]] std::pair<KEY, VALUE> operator*() const
   {
+    // XXX: Check for nulls.
+    // XXX: Unquote/unescape if necessary.
     return {
       from_string<KEY>(m_key, m_ctx), from_string<VALUE>(m_value, m_ctx)};
   }
@@ -151,7 +154,9 @@ private:
       here = pqxx::internal::scan_unquoted_hstore_string<ENC>(
         m_input, here, m_ctx.loc);
 
-    // XXX: This can be NULL (unquoted)... how do we represent that?
+    // The value can be null, but we can detect that later, during operator*(),
+    // since m_value includes any quotes around the value.  So we'll be able to
+    // distinguish `NULL` from `"NULL"` at that time.
     m_value = m_input.substr(value_start, here - value_start);
 
     here = pqxx::internal::skip_ascii_whitespace(m_input, here);
