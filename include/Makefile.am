@@ -10,6 +10,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/errorhandler pqxx/errorhandler.hxx \
 	pqxx/except pqxx/except.hxx \
 	pqxx/field pqxx/field.hxx \
+	pqxx/hstore pqxx/hstore.hxx \
 	pqxx/isolation pqxx/isolation.hxx \
 	pqxx/largeobject pqxx/largeobject.hxx \
 	pqxx/nontransaction pqxx/nontransaction.hxx \
