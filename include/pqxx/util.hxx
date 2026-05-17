@@ -755,7 +755,7 @@ inline std::size_t copy_chars(
  * character, we also know that it's not ASCII whitespace.  We can tell from
  * the first byte in the character.
  */
-[[nodiscard]] inline std::size_t
+[[nodiscard]] inline constexpr std::size_t
 skip_ascii_whitespace(std::string_view input, std::size_t here = 0) noexcept
 {
   for (auto const sz{std::size(input)}; here < sz; ++here)
@@ -777,6 +777,26 @@ skip_ascii_whitespace(std::string_view input, std::size_t here = 0) noexcept
 
   return here;
 }
+
+
+#ifndef NDEBUG
+static_assert(skip_ascii_whitespace("") == 0);
+static_assert(skip_ascii_whitespace("x") == 0);
+static_assert(skip_ascii_whitespace(" ") == 1);
+static_assert(skip_ascii_whitespace(" x") == 1);
+static_assert(skip_ascii_whitespace(" x ") == 1);
+static_assert(skip_ascii_whitespace(" \n\r\t\v\f") == 6);
+static_assert(skip_ascii_whitespace(" \n\r\t\v\fx") == 6);
+static_assert(skip_ascii_whitespace("", 0u) == 0);
+static_assert(skip_ascii_whitespace(" ", 0u) == 1);
+static_assert(skip_ascii_whitespace(" ", 1u) == 1);
+static_assert(skip_ascii_whitespace("  ", 1u) == 2);
+static_assert(skip_ascii_whitespace("x ", 1u) == 2);
+static_assert(skip_ascii_whitespace("\t\xe0\xb8\x81") == 1);
+// Doesn't skip non-ASCII whitespace.
+static_assert(skip_ascii_whitespace("\x85") == 0);
+static_assert(skip_ascii_whitespace("\xe2\x80\x81") == 0);
+#endif // NDEBUG
 } // namespace pqxx::internal
 
 
