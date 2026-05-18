@@ -248,7 +248,7 @@ am_test_runner_OBJECTS = test/test00.$(OBJEXT) test/test01.$(OBJEXT) \
 	test/test_errorhandler.$(OBJEXT) test/test_escape.$(OBJEXT) \
 	test/test_exceptions.$(OBJEXT) test/test_field.$(OBJEXT) \
 	test/test_float.$(OBJEXT) test/test_helpers.$(OBJEXT) \
-	test/test_largeobject.$(OBJEXT) \
+	test/test_hstore.$(OBJEXT) test/test_largeobject.$(OBJEXT) \
 	test/test_nonblocking_connect.$(OBJEXT) \
 	test/test_notice_handler.$(OBJEXT) \
 	test/test_notification.$(OBJEXT) test/test_params.$(OBJEXT) \
@@ -338,6 +338,7 @@ am__depfiles_remade = examples/$(DEPDIR)/complete_example.Po \
 	test/$(DEPDIR)/test_escape.Po \
 	test/$(DEPDIR)/test_exceptions.Po test/$(DEPDIR)/test_field.Po \
 	test/$(DEPDIR)/test_float.Po test/$(DEPDIR)/test_helpers.Po \
+	test/$(DEPDIR)/test_hstore.Po \
 	test/$(DEPDIR)/test_largeobject.Po \
 	test/$(DEPDIR)/test_nonblocking_connect.Po \
 	test/$(DEPDIR)/test_notice_handler.Po \
@@ -810,6 +811,7 @@ test_runner_SOURCES = \
   test/test_field.cxx \
   test/test_float.cxx \
   test/test_helpers.cxx \
+  test/test_hstore.cxx \
   test/test_largeobject.cxx \
   test/test_nonblocking_connect.cxx \
   test/test_notice_handler.cxx \
@@ -1167,6 +1169,8 @@ test/test_float.$(OBJEXT): test/$(am__dirstamp) \
 	test/$(DEPDIR)/$(am__dirstamp)
 test/test_helpers.$(OBJEXT): test/$(am__dirstamp) \
 	test/$(DEPDIR)/$(am__dirstamp)
+test/test_hstore.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
 test/test_largeobject.$(OBJEXT): test/$(am__dirstamp) \
 	test/$(DEPDIR)/$(am__dirstamp)
 test/test_nonblocking_connect.$(OBJEXT): test/$(am__dirstamp) \
@@ -1340,6 +1344,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_field.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_float.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_helpers.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_hstore.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_largeobject.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_nonblocking_connect.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_notice_handler.Po@am__quote@ # am--include-marker
@@ -1977,6 +1982,7 @@ distclean: distclean-recursive
 	-rm -f test/$(DEPDIR)/test_field.Po
 	-rm -f test/$(DEPDIR)/test_float.Po
 	-rm -f test/$(DEPDIR)/test_helpers.Po
+	-rm -f test/$(DEPDIR)/test_hstore.Po
 	-rm -f test/$(DEPDIR)/test_largeobject.Po
 	-rm -f test/$(DEPDIR)/test_nonblocking_connect.Po
 	-rm -f test/$(DEPDIR)/test_notice_handler.Po
@@ -2138,6 +2144,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f test/$(DEPDIR)/test_field.Po
 	-rm -f test/$(DEPDIR)/test_float.Po
 	-rm -f test/$(DEPDIR)/test_helpers.Po
+	-rm -f test/$(DEPDIR)/test_hstore.Po
 	-rm -f test/$(DEPDIR)/test_largeobject.Po
 	-rm -f test/$(DEPDIR)/test_nonblocking_connect.Po
 	-rm -f test/$(DEPDIR)/test_notice_handler.Po
