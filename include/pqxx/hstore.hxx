@@ -16,12 +16,32 @@
 #endif
 
 #include "pqxx/internal/strings.hxx"
+#include "pqxx/strconv.hxx"
 
 namespace pqxx::internal
 {
 /// The `end()` of a @ref hstore_parse.
-PQXX_LIBEXPORT class hstore_end final
-{};
+struct PQXX_LIBEXPORT hstore_end final
+{
+  [[nodiscard]] auto operator<=>(hstore_end const &) const noexcept
+  {
+    return 0;
+  }
+
+  /// For comparison to @ref hstore_iterator (not yet defined here).
+  template<typename RHS>
+  [[nodiscard]] auto operator==(RHS const &r) const noexcept
+  {
+    return r == *this;
+  }
+
+  /// For comparison to @ref hstore_iterator (not yet defined here).
+  template<typename RHS>
+  [[nodiscard]] auto operator!=(RHS const &r) const noexcept
+  {
+    return r != *this;
+  }
+};
 
 
 template<encoding_group ENC>
@@ -45,7 +65,7 @@ namespace pqxx
  * objects.  They are not trivial to create, copy, or move.
  */
 template<typename KEY, typename VALUE>
-PQXX_LIBEXPORT class hstore_iterator final
+class PQXX_LIBEXPORT hstore_iterator final
 {
 public:
   hstore_iterator(std::string_view input, ctx c) : m_input{input}, m_ctx{c}
@@ -89,9 +109,18 @@ public:
     return old;
   }
 
-  auto operator<=>(pqxx::internal::hstore_end const &) const noexcept
+  [[nodiscard]] auto operator==(pqxx::internal::hstore_end) const noexcept
   {
-    return m_offset <=> std::size(m_input);
+    return m_offset == std::size(m_input);
+  }
+  [[nodiscard]] auto operator!=(pqxx::internal::hstore_end e) const noexcept
+  {
+    return not(*this == e);
+  }
+
+  [[nodiscard]] auto operator<=>(hstore_iterator const &rhs) const noexcept
+  {
+    return m_offset <=> rhs.m_offset;
   }
 
 private:
@@ -117,9 +146,9 @@ private:
       return;
 
     // There is no further whitespace at m_offset.
-    assert(skip_ascii_whitespace(m_input, here) == here);
+    assert(pqxx::internal::skip_ascii_whitespace(m_input, here) == here);
 
-    if (m_input.at[here] == '"')
+    if (m_input.at(here) == '"')
       here = pqxx::internal::scan_double_quoted_string<ENC>(
         m_input, here, m_ctx.loc);
     else
@@ -133,18 +162,18 @@ private:
     // Scan "=>".
     if ((here + 2) >= sz)
       throw pqxx::conversion_error{
-        std::format("Truncated hstore value: '{}'", m_input)};
+        std::format("Truncated hstore value: '{}'", m_input), m_ctx.loc};
     if ((m_input.at(here) != '=') or (m_input.at(here + 1) != '>'))
       throw pqxx::conversion_error{
         std::format(
           "Expected '=>' in hstore at offset {}: '{}'", here, m_input),
-        m_ctx};
+        m_ctx.loc};
     here += 2;
 
     here = pqxx::internal::skip_ascii_whitespace(m_input, here);
     if (here >= sz)
       throw pqxx::conversion_error{
-        std::format("No value in hstore entry: '{}'", m_input)};
+        std::format("No value in hstore entry: '{}'", m_input), m_ctx.loc};
 
     auto const value_start{here};
     if (m_input.at(here) == '"')
@@ -240,7 +269,7 @@ private:
  * values, respectively.
  */
 template<typename KEY = std::string_view, typename VALUE = std::string_view>
-PQXX_LIBEXPORT class hstore_parse final
+class PQXX_LIBEXPORT hstore_parse final
 {
 public:
   /// Prepare to parse an hstore.
@@ -257,14 +286,17 @@ public:
   hstore_parse &operator=(hstore_parse const &) = default;
   hstore_parse &operator=(hstore_parse &&) = default;
 
-  [[nodiscard]] auto cbegin() const noexcept
+  [[nodiscard]] auto cbegin() const
   {
-    return hstore_iterator<KEY, VALUE>{m_input};
+    return hstore_iterator<KEY, VALUE>{m_input, m_ctx};
   }
 
-  [[nodiscard]] auto begin() const noexcept { return cbegin(); }
+  [[nodiscard]] auto begin() const { return cbegin(); }
 
-  [[nodiscard]] auto cend() const noexcept { return {}; }
+  [[nodiscard]] auto cend() const noexcept
+  {
+    return pqxx::internal::hstore_end{};
+  }
   [[nodiscard]] auto end() const noexcept { return cend(); }
 
 private:
