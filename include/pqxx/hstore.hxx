@@ -86,6 +86,7 @@ public:
   {
     // XXX: Check for nulls.
     // XXX: Unquote/unescape if necessary.
+    // XXX: Unquoting/unescaping would also help scan_unquoted_string etc.
     return {
       from_string<KEY>(m_key, m_ctx), from_string<VALUE>(m_value, m_ctx)};
   }
@@ -220,6 +221,7 @@ private:
    */
   void scan_entry()
   {
+    // Dynamic-to-static switch.
     switch (m_ctx.enc)
     {
     case encoding_group::unknown:
