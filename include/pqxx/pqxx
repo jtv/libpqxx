@@ -7,6 +7,7 @@
 #include "pqxx/cursor.hxx"
 #include "pqxx/errorhandler.hxx"
 #include "pqxx/except.hxx"
+#include "pqxx/hstore.hxx"
 #include "pqxx/largeobject.hxx"
 #include "pqxx/nontransaction.hxx"
 #include "pqxx/notification.hxx"
