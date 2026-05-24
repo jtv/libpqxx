@@ -48,7 +48,7 @@ namespace pqxx
 #if defined(__cpp_lib_unreachable) && __cpp_lib_unreachable
 #  define PQXX_UNREACHABLE std::unreachable()
 #else
-#  define PQXX_UNREACHABLE std::terminate()
+#  define PQXX_UNREACHABLE [[unlikely]] while (false)
 #endif
 
 

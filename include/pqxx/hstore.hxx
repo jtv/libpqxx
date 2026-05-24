@@ -248,12 +248,13 @@ private:
   /// Extract and return entry's value.
   [[nodiscard]] VALUE get_value() const
   {
-    // Awkwardly pbrased in hopes of getting mandatory return value
+    // Awkwardly phrased in hopes of getting mandatory return value
     // optimization.
     if constexpr (has_null<VALUE>())
     {
       // XXX: Or does from_string() already check for us?
-      return is_null() ? make_null<VALUE>() : from_string<VALUE>(m_value);
+      return is_null() ? make_null<VALUE>() :
+                         from_string<VALUE>(m_value, m_ctx);
     }
     else
     {
@@ -265,10 +266,10 @@ private:
         throw conversion_error{
           std::format(
             "Tried to read null hstore value with key '{}' as a {}, which "
-            "does not support nulls, .",
+            "does not support nulls.",
             m_key, name_type<VALUE>()),
           m_ctx.loc};
-      return from_string<VALUE>(m_value);
+      return from_string<VALUE>(m_value, m_ctx);
     }
   }
 

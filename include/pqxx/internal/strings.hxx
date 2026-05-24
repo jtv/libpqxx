@@ -1,14 +1,13 @@
-#include <iostream> // XXX:
 #ifndef PQXX_INTERNAL_STRINGS_HXX
-#  define PQXX_INTERNAL_STRINGS_HXX
+#define PQXX_INTERNAL_STRINGS_HXX
 
 /* Helpers for dealing with SQL strings.
  */
 
-#  include <cassert>
+#include <cassert>
 
-#  include "pqxx/internal/encodings.hxx"
-#  include "pqxx/util.hxx"
+#include "pqxx/internal/encodings.hxx"
+#include "pqxx/util.hxx"
 
 
 namespace pqxx::internal
@@ -99,7 +98,7 @@ scan_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
 }
 
 
-#  ifndef NDEBUG
+#ifndef NDEBUG
 static_assert(
   scan_double_quoted_string<encoding_group::ascii_safe, '"'>(
     "\"\"", 0u, sl::current()) == 2);
@@ -164,7 +163,7 @@ static_assert(
 static_assert(
   scan_double_quoted_string<encoding_group::ascii_safe, '"', '\\'>(
     "\"\\\\\"", 0u, sl::current()) == 4);
-#  endif // NDEBUG
+#endif // NDEBUG
 
 
 // TODO: Needs version with caller-supplied buffer.
