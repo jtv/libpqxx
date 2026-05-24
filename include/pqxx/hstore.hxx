@@ -67,7 +67,8 @@ template<typename KEY, typename VALUE>
 class PQXX_LIBEXPORT hstore_iterator final
 {
 public:
-  hstore_iterator(std::string_view input, ctx c) : m_input{input}, m_ctx{c}
+  hstore_iterator(std::string_view input, ctx c) :
+          m_input{input}, m_ctx{c}, m_offset{}
   {
     // As an invariant for scan_entry(), we must move past any leading
     // whitespace.  This is also how we can detect end(): m_offset will point
