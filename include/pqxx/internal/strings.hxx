@@ -16,6 +16,31 @@ namespace pqxx::internal
 constexpr std::size_t one_ascii_char{1u};
 
 
+/// Find the next double-quote or backslash.
+/** `ESC` is either one or two ASCII characters: double-quote (`"`) and/or
+ * backslash (`\\`).
+ */
+template<encoding_group ENC, char... ESC>
+[[nodiscard]] inline constexpr std::size_t
+find_dquote_or_backslash(std::string_view input, std::size_t pos, sl loc)
+{
+  static_assert(sizeof...(ESC) >= 1);
+  static_assert(sizeof...(ESC) <= 2);
+  static_assert((((ESC == '\\') or (ESC == '"')) and ...));
+
+  // Search for a double-quote character, or a backslash _if there is a
+  // backslasnh in ESC._
+  //
+  // It would be so, so nice to be able to pass both ESC and '"' as template
+  // arguments here..  The language is fine with it, but some tools and
+  // compilers warn when they see a redundant condition.
+  if constexpr (((ESC == '"') or ...))
+    return find_ascii_char<ENC, ESC...>(input, pos, loc);
+  else
+    return find_ascii_char<ENC, ESC..., '"'>(input, pos, loc);
+}
+
+
 // Find the end of a double-quoted SQL string.
 /** `input[pos]` must be the opening double quote.
  *
@@ -46,7 +71,8 @@ scan_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
   do {
     // Find the next "interesting" character: a double-quote or a backslash (if
     // backslashes act as escape characters here).
-    pos = find_ascii_char<ENC, ESC..., '"'>(input, pos, loc);
+    pos = find_dquote_or_backslash<ENC, ESC...>(input, pos, loc);
+
     if (pos == sz)
       throw argument_error{"Unterminated string.", loc};
     char const found{input[pos]};
@@ -216,7 +242,7 @@ parse_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
     // where the backslash acts as an escape character, look for that.  Look
     // for a double-quote character regardless.
     std::size_t const special{
-      find_ascii_char<ENC, ESC..., '"'>(input, pos, loc)};
+      find_dquote_or_backslash<ENC, ESC...>(input, pos, loc)};
     assert(special <= closing_quote);
 
     // The stretch that we've just skipped over is plain vanilla text, no
