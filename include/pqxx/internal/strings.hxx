@@ -50,7 +50,7 @@ scan_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
     if (pos == sz)
       throw argument_error{"Unterminated string.", loc};
     char const found{input[pos]};
-    // NOLINTNEXTLINE(redundant-expression)
+    // NOLINTNEXTLINE(misc-redundant-expression)
     assert((found == '"') or ((found == ESC) or ...));
 
     // Consume the character.

@@ -129,6 +129,8 @@ find_ascii_char(std::string_view haystack, std::size_t here, sl loc)
     // every byte in the text.  It's going to be faster than finding character
     // boundaries first.  In these encodings, a multichar byte never contains
     // any bytes in the ASCII range at all.
+
+    // NOLINTNEXTLINE(misc-redundant-expression)
     if (((data[here] == NEEDLE) or ...))
       return here;
 

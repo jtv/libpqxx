@@ -207,9 +207,9 @@ private:
   }
 
   /// Move ahead in the input buffer to the next entry.
-  /** Updates `m_position` to point to the next entry (if any), and sets
-   * `m_key` and `m_value` to refer to the current entry's key and value
-   * strings, respectively.
+  /** Updates `m_offset` to point to the next entry (if any), and sets `m_key`
+   * and `m_value` to refer to the current entry's key and value strings,
+   * respectively.
    *
    * This version resolves the encoding group at run time.  There is also a
    * version of this function that takes the encoding group as a template
