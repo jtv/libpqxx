@@ -78,6 +78,7 @@ public:
   hstore_iterator() = delete;
   hstore_iterator(hstore_iterator const &) = default;
   hstore_iterator(hstore_iterator &&) = default;
+  ~hstore_iterator() = default;
   hstore_iterator &operator=(hstore_iterator const &) = default;
   hstore_iterator &operator=(hstore_iterator &&) = default;
 
@@ -314,12 +315,14 @@ public:
    * duration of the parse.  The parse ends when the last iterator dereference
    * has completed (i.e. typically when your iteration hits `end()`).
    */
-  hstore_parse(std::string_view input, ctx c = {}) : m_input{input}, m_ctx{c}
+  explicit hstore_parse(std::string_view input, ctx c = {}) :
+          m_input{input}, m_ctx{c}
   {}
 
   hstore_parse() = default;
   hstore_parse(hstore_parse const &) = default;
   hstore_parse(hstore_parse &&) = default;
+  ~hstore_parse() = default;
   hstore_parse &operator=(hstore_parse const &) = default;
   hstore_parse &operator=(hstore_parse &&) = default;
 
