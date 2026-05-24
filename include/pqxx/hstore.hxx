@@ -159,10 +159,7 @@ private:
     here = pqxx::internal::skip_ascii_whitespace(m_input, here);
 
     // Scan "=>".
-    if ((here + 2) >= sz)
-      throw pqxx::conversion_error{
-        std::format("Truncated hstore value: '{}'", m_input), m_ctx.loc};
-    if ((m_input.at(here) != '=') or (m_input.at(here + 1) != '>'))
+    if (m_input.substr(here, 2u) != "=>")
       throw pqxx::conversion_error{
         std::format(
           "Expected '=>' in hstore at offset {}: '{}'", here, m_input),
@@ -319,7 +316,7 @@ public:
           m_input{input}, m_ctx{c}
   {}
 
-  hstore_parse() = default;
+  hstore_parse() = delete;
   hstore_parse(hstore_parse const &) = default;
   hstore_parse(hstore_parse &&) = default;
   ~hstore_parse() = default;
