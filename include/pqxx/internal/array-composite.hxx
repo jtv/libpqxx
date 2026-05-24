@@ -91,10 +91,11 @@ PQXX_INLINE_COV inline void parse_composite_field(
     break;
 
   case '"': {
-    auto const stop{scan_double_quoted_string<ENC>(input, pos, loc)};
+    auto const stop{
+      scan_double_quoted_string<ENC, '\\', '"'>(input, pos, loc)};
     PQXX_ASSUME(stop > pos);
-    auto const text{
-      parse_double_quoted_string<ENC>(input.substr(0, stop), pos, loc)};
+    auto const text{parse_double_quoted_string<ENC, '\\', '"'>(
+      input.substr(0, stop), pos, loc)};
     field = from_string<T>(text, c);
     pos = stop;
   }

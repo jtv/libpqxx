@@ -26,21 +26,23 @@ namespace pqxx
 {
 /// Find the end of a double-quoted SQL string in an SQL array.
 template<encoding_group ENC>
-std::size_t array_parser::scan_double_quoted_string(sl loc) const
+[[nodiscard]] inline std::size_t
+array_parser::scan_double_quoted_string(sl loc) const
 {
-  return pqxx::internal::scan_double_quoted_string<ENC>(m_input, m_pos, loc);
+  return pqxx::array_parser::scan_double_quoted_string<ENC>(
+    m_input, m_pos, loc);
 }
 
 
 /// Parse a double-quoted SQL string: un-quote it and un-escape it.
 template<encoding_group ENC>
-std::string
+[[nodiscard]] inline std::string
 array_parser::parse_double_quoted_string(std::size_t end, sl loc) const
 {
   // The only reason why we still let this substring start at the beginning
   // of the input is so that error messages can still provide a meaningful
   // offset.
-  return pqxx::internal::parse_double_quoted_string<ENC>(
+  return pqxx::array_parser::parse_double_quoted_string<ENC>(
     m_input.substr(0, end), m_pos, loc);
 }
 

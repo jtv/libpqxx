@@ -56,7 +56,6 @@ scan_unquoted_hstore_string(std::string_view input, std::size_t pos, sl loc)
 }
 } // namespace pqxx::internal
 
-// XXX: Hstore double-quoted strings don't support SQL-style '""' escaping!
 
 namespace pqxx
 {
@@ -84,11 +83,9 @@ public:
 
   [[nodiscard]] std::pair<KEY, VALUE> operator*() const
   {
-    // XXX: Check for nulls.
     // XXX: Unquote/unescape if necessary.
     // XXX: Unquoting/unescaping would also help scan_unquoted_string etc.
-    return {
-      from_string<KEY>(m_key, m_ctx), from_string<VALUE>(m_value, m_ctx)};
+    return {from_string<KEY>(m_key, m_ctx), get_value()};
   }
 
   /// Move ahead to the next item in the hstore.
@@ -150,7 +147,7 @@ private:
     assert(pqxx::internal::skip_ascii_whitespace(m_input, here) == here);
 
     if (m_input.at(here) == '"')
-      here = pqxx::internal::scan_double_quoted_string<ENC>(
+      here = pqxx::internal::scan_double_quoted_string<ENC, '\\'>(
         m_input, here, m_ctx.loc);
     else
       here = pqxx::internal::scan_unquoted_hstore_string<ENC>(
@@ -178,7 +175,7 @@ private:
 
     auto const value_start{here};
     if (m_input.at(here) == '"')
-      here = pqxx::internal::scan_double_quoted_string<ENC>(
+      here = pqxx::internal::scan_double_quoted_string<ENC, '\\'>(
         m_input, here, m_ctx.loc);
     else
       here = pqxx::internal::scan_unquoted_hstore_string<ENC>(
@@ -235,6 +232,43 @@ private:
       break;
     case encoding_group::gb18030: scan_entry<encoding_group::gb18030>(); break;
     case encoding_group::sjis: scan_entry<encoding_group::sjis>(); break;
+    }
+  }
+
+  /// Does this entry have a null value?
+  [[nodiscard]] bool is_null() const noexcept
+  {
+    return (m_value.size() == 4) and
+           ((m_value[0] == 'N') or (m_value[0] == 'n')) and
+           ((m_value[1] == 'U') or (m_value[1] == 'u')) and
+           ((m_value[2] == 'L') or (m_value[2] == 'l')) and
+           ((m_value[3] == 'L') or (m_value[3] == 'l'));
+  }
+
+  /// Extract and return entry's value.
+  [[nodiscard]] VALUE get_value() const
+  {
+    // Awkwardly pbrased in hopes of getting mandatory return value
+    // optimization.
+    if constexpr (has_null<VALUE>())
+    {
+      // XXX: Or does from_string() already check for us?
+      return is_null() ? make_null<VALUE>() : from_string<VALUE>(m_value);
+    }
+    else
+    {
+      // XXX: Or does from_string() already check for us?
+      // Arguably this should be a pqxx::unexpected_null, but that gets a bit
+      // weird when the target type does support nulls.  It's the hstore entry
+      // that's invalid, not the conversion per se.
+      if (is_null())
+        throw conversion_error{
+          std::format(
+            "Tried to read null hstore value with key '{}' as a {}, which "
+            "does not support nulls, .",
+            m_key, name_type<VALUE>()),
+          m_ctx.loc};
+      return from_string<VALUE>(m_value);
     }
   }
 
