@@ -69,8 +69,8 @@ class PQXX_LIBEXPORT hstore_iterator final
 public:
   hstore_iterator(std::string_view input, ctx c) :
           m_input{input},
-          m_offset{pqxx::internal::skip_ascii_whitespace(input, 0u)},
-          m_ctx{c}
+          m_ctx{c},
+          m_offset{pqxx::internal::skip_ascii_whitespace(input, 0u)}
   {
     // As an invariant for scan_entry(), we must move past any leading
     // whitespace.  Hence the skip_ascii_whitespace() in the initialisers.
