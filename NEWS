@@ -1,7 +1,8 @@
-8.0.2
+8.1.0
  - Simple benchmark tool for query performance.
  - Fix an apparent `memcpy()` overlap.
  - Rename `config-compiler.h` to just `internal/config.h`. (#1211)
+ - In double-quoted array strings, `""` is no longer an escape for `"`. (#1226)
  - Fix detection of supported compiler flags.
  - Fix `bool` conversion to string. (#1229)
  - Fix under-budgeting for arrays. (#1235)
