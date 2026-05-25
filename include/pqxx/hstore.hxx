@@ -87,7 +87,7 @@ public:
 
   [[nodiscard]] std::pair<KEY, VALUE> operator*() const
   {
-    // XXX: Unquote/unescape if necessary.
+    // XXX: Parse strings.
     // XXX: Unquoting/unescaping would also help scan_unquoted_string etc.
     return {from_string<KEY>(m_key, m_ctx), get_value()};
   }
@@ -222,9 +222,7 @@ private:
     // Dynamic-to-static switch.
     switch (m_ctx.enc)
     {
-    case encoding_group::unknown:
-      throw conversion_error{
-        "Can't parse hstore data: no encoding set.", m_ctx.loc};
+    case encoding_group::unknown: scan_entry<encoding_group::unknown>(); break;
     case encoding_group::ascii_safe:
       scan_entry<encoding_group::ascii_safe>();
       break;
@@ -246,6 +244,57 @@ private:
            ((m_value[3] == 'L') or (m_value[3] == 'l'));
   }
 
+  /// Parse a non-null hstore string, whether key or value.
+  /** Unquotes and unescapes as needed.
+   */
+  template<typename T, encoding_group ENC>
+  [[nodiscard]] T parse_string(std::string_view input) const
+  {
+    if ((std::size(input) >= 2u) and (input.at(0) == '"'))
+    {
+      return from_string<T>(
+        pqxx::internal::parse_double_quoted_string<ENC, '"'>(
+          input, 0, m_ctx.loc),
+        m_ctx);
+    }
+    else
+    {
+      // XXX: Escaping for unquoted strings.
+      return from_string<T>(
+        pqxx::internal::parse_unquoted_string<ENC>(m_input, 0, m_ctx.loc),
+        m_ctx);
+    }
+  }
+
+  /// Parse a non-null hstore string, whether key or value.
+  /** Unquotes and unescapes as needed.
+   *
+   * This version takes its encoding at run time.
+   */
+  template<typename T>
+  [[nodiscard]] T parse_string(std::string_view input) const
+  {
+    // Dynamic-to-static switch.
+    switch (m_ctx.enc)
+    {
+    case encoding_group::unknown:
+      throw conversion_error{
+        "Can't parse hstore data: no encoding set.", m_ctx.loc};
+    case encoding_group::ascii_safe:
+      return parse_string<T, encoding_group::ascii_safe>(input);
+    case encoding_group::two_tier:
+      return parse_string<T, encoding_group::two_tier>(input);
+    case encoding_group::gb18030:
+      return parse_string<T, encoding_group::gb18030>(input);
+    case encoding_group::sjis:
+      return parse_string<T, encoding_group::sjis>(input);
+    default: PQXX_UNREACHABLE;
+    }
+  }
+
+  /// Extract and return entry's key.
+  [[nodiscard]] KEY get_key() const { return parse_string<KEY>(m_key); }
+
   /// Extract and return entry's value.
   [[nodiscard]] VALUE get_value() const
   {
@@ -253,13 +302,10 @@ private:
     // optimization.
     if constexpr (has_null<VALUE>())
     {
-      // XXX: Or does from_string() already check for us?
-      return is_null() ? make_null<VALUE>() :
-                         from_string<VALUE>(m_value, m_ctx);
+      return is_null() ? make_null<VALUE>() : parse_string<VALUE>(m_value);
     }
     else
     {
-      // XXX: Or does from_string() already check for us?
       // Arguably this should be a pqxx::unexpected_null, but that gets a bit
       // weird when the target type does support nulls.  It's the hstore entry
       // that's invalid, not the conversion per se.
@@ -270,7 +316,7 @@ private:
             "does not support nulls.",
             m_key, name_type<VALUE>()),
           m_ctx.loc};
-      return from_string<VALUE>(m_value, m_ctx);
+      return parse_string<VALUE>(m_value);
     }
   }
 

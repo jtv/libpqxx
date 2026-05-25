@@ -223,6 +223,7 @@ parse_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
   std::string output;
   auto const end{std::size(input)};
   assert((end - pos) > 1);
+  assert(input.at(0) == '"');
 
   // Maximum output size is same as the input size, minus the opening and
   // closing quotes.  Or in the extreme opposite case, the real number could be
@@ -290,6 +291,38 @@ parse_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
   assert(pos == closing_quote);
 
   return output;
+}
+
+
+// XXX: Support escaping in unquoted strings.
+/// Find the end of an unquoted string in an array or composite-type value.
+/** Stops when it gets to the end of the input; or when it sees any of the
+ * characters in STOP which has not been escaped.
+ *
+ * For array values, STOP is an array element separator (typically comma, or
+ * semicolon), or a closing brace.  For a value of a composite type, STOP is a
+ * comma or a closing parenthesis.
+ */
+template<encoding_group ENC, char... STOP>
+PQXX_INLINE_COV inline constexpr std::size_t
+scan_unquoted_string(std::string_view input, std::size_t pos, sl loc)
+{
+  return find_ascii_char<ENC, STOP...>(input, pos, loc);
+}
+
+
+// XXX: Support escaping in unquoted strings.
+/// Parse an unquoted array entry or cfield of a composite-type field.
+/** @param input A view on the text, truncated at the end of the string.  So,
+ *     the end of `input` must coincide with the end of the string.  Truncate
+ *     before calling if necessary.
+ * @param pos The string's starting offset within `input`.
+ */
+template<encoding_group ENC>
+PQXX_INLINE_ONLY inline constexpr std::string_view
+parse_unquoted_string(std::string_view input, std::size_t pos, sl)
+{
+  return input.substr(pos);
 }
 } // namespace pqxx::internal
 #endif

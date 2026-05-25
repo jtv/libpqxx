@@ -41,7 +41,9 @@ void test_hstore(pqxx::test::context &ctx)
     parse_hstore<std::string, std::string>("", make_context(cx))};
   PQXX_CHECK(empty_data.empty());
 
-  // XXX: Test!
+  // XXX: Test empty hstore.
+  // XXX: Test tolerance for trailing comma.
+  // XXX: Test more!
 }
 } // namespace
 

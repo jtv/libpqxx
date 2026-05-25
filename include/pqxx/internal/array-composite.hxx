@@ -10,36 +10,6 @@
 
 namespace pqxx::internal
 {
-/// Find the end of an unquoted string in an array or composite-type value.
-/** Stops when it gets to the end of the input; or when it sees any of the
- * characters in STOP which has not been escaped.
- *
- * For array values, STOP is an array element separator (typically comma, or
- * semicolon), or a closing brace.  For a value of a composite type, STOP is a
- * comma or a closing parenthesis.
- */
-template<encoding_group ENC, char... STOP>
-PQXX_INLINE_COV inline constexpr std::size_t
-scan_unquoted_string(std::string_view input, std::size_t pos, sl loc)
-{
-  return find_ascii_char<ENC, STOP...>(input, pos, loc);
-}
-
-
-/// Parse an unquoted array entry or cfield of a composite-type field.
-/** @param input A view on the text, truncated at the end of the string.  So,
- *     the end of `input` must coincide with the end of the string.  Truncate
- *     before calling if necessary.
- * @param pos The string's starting offset within `input`.
- */
-template<encoding_group ENC>
-PQXX_INLINE_ONLY inline constexpr std::string_view
-parse_unquoted_string(std::string_view input, std::size_t pos, sl)
-{
-  return input.substr(pos);
-}
-
-
 /// Parse a field of a composite-type value.
 /** `T` is the C++ type of the field we're parsing, and `index` is its
  * zero-based number.
