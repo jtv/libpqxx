@@ -37,7 +37,7 @@ find_dquote_or_backslash(std::string_view input, std::size_t pos, sl loc)
   static_assert((((ESC == '\\') or (ESC == '"')) and ...));
 
   // Search for a double-quote character, or a backslash _if there is a
-  // backslasnh in ESC._
+  // backslash in ESC._
   //
   // It would be so, so nice to be able to pass both ESC and '"' as template
   // arguments here..  The language is fine with it, but some tools and
@@ -284,7 +284,7 @@ parse_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
     else
     {
       // This could be a multibyte character.  But no matter: it's not special
-      // wo we can let the next iteration handle it.
+      // so we can let the next iteration handle it.
     }
   }
   assert(pos == closing_quote);
