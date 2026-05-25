@@ -223,7 +223,7 @@ parse_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
   std::string output;
   auto const end{std::size(input)};
   assert((end - pos) > 1);
-  assert(input.at(0) == '"');
+  assert(pos < end);
 
   // Maximum output size is same as the input size, minus the opening and
   // closing quotes.  Or in the extreme opposite case, the real number could be

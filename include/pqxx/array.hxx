@@ -487,7 +487,7 @@ private:
           // In a double-quoted array entry, only the backslash acts as an
           // escape character.
           end = scan_double_quoted_string<ENC>(data, here, loc);
-          // TODO: scan_double_quoted_string() with reusable buffer.
+          // TODO: parse_double_quoted_string() with reusable buffer.
           std::string const buf{
             pqxx::internal::parse_double_quoted_string<ENC, '\\'>(
               data.substr(0, end), here, loc)};

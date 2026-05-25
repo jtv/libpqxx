@@ -222,7 +222,9 @@ private:
     // Dynamic-to-static switch.
     switch (m_ctx.enc)
     {
-    case encoding_group::unknown: scan_entry<encoding_group::unknown>(); break;
+    case encoding_group::unknown:
+      throw conversion_error{
+        "Can't parse hstore data: no encoding set.", m_ctx.loc};
     case encoding_group::ascii_safe:
       scan_entry<encoding_group::ascii_safe>();
       break;
