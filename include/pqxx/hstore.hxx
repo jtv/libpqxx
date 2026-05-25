@@ -75,7 +75,7 @@ public:
     // As an invariant for scan_entry(), we must move past any leading
     // whitespace.  Hence the skip_ascii_whitespace() in the initialisers.
     // This is also how we can detect end(): m_offset will point to the end of
-    // m_buffer.
+    // m_input.
     scan_entry();
   }
   hstore_iterator() = delete;

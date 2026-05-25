@@ -12,8 +12,16 @@
 
 namespace pqxx::internal
 {
-// The width in bytes of a single ASCII character.  In other words, one.
+/// The width in bytes of a single ASCII character.  In other words, one.
 constexpr std::size_t one_ascii_char{1u};
+
+
+/// Does `HAYSTACK...` contain `needle`?
+template<auto... HAYSTACK>
+[[nodiscard]] inline constexpr bool pack_contains(auto const &needle) noexcept
+{
+  return ((HAYSTACK == needle) or ...);
+}
 
 
 /// Find the next double-quote or backslash.
@@ -34,7 +42,7 @@ find_dquote_or_backslash(std::string_view input, std::size_t pos, sl loc)
   // It would be so, so nice to be able to pass both ESC and '"' as template
   // arguments here..  The language is fine with it, but some tools and
   // compilers warn when they see a redundant condition.
-  if constexpr (((ESC == '"') or ...))
+  if constexpr (pack_contains<ESC...>('"'))
     return find_ascii_char<ENC, ESC...>(input, pos, loc);
   else
     return find_ascii_char<ENC, ESC..., '"'>(input, pos, loc);
@@ -76,8 +84,8 @@ scan_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
     if (pos == sz)
       throw argument_error{"Unterminated string.", loc};
     char const found{input[pos]};
-    // NOLINTNEXTLINE(misc-redundant-expression)
-    assert((found == '"') or ((found == ESC) or ...));
+
+    assert((found == '"') or pack_contains<ESC...>(found));
 
     // Consume the character.
     pos += one_ascii_char;
@@ -85,7 +93,7 @@ scan_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
     switch (found)
     {
     case '"':
-      if (((ESC == '"') or ...) and (pos < sz) and (input[pos] == '"'))
+      if (pack_contains<ESC...>('"') and (pos < sz) and (input[pos] == '"'))
         // Doubled-double-quote escape.
         pos += one_ascii_char;
       else
@@ -96,7 +104,7 @@ scan_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
     case '\\':
       // Backslash escape.
       // We won't get here unless the backslash acts as an escape character.
-      assert(((ESC == '\\') or ...));
+      assert(pack_contains<ESC...>('\\'));
       if (pos == sz)
         throw argument_error{"String unexpectedly ends in backslash.", loc};
       if (static_cast<unsigned char>(input[pos]) < 127)
@@ -252,20 +260,20 @@ parse_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
     char const found{input[pos]};
 
     // We're at either the closing quote or an escape character.
-    assert((found == '"') or ((found == ESC) or ...));
+    assert((found == '"') or pack_contains<ESC...>(found));
     // TODO: Isn't this the only way out of this loop?  Try to restructure.
     if (pos == closing_quote)
       return output;
 
     // We're at an escape character.
-    assert(((found == ESC) or ...));
+    assert(pack_contains<ESC...>(found));
     pos += one_ascii_char;
 
     // We're at the escaped character.
     //
     // If the input has been scanned correctly, the string can't end here.
     assert(pos < closing_quote);
-    if (((input[pos] == ESC) or ...) or (input[pos] == '"'))
+    if ((input[pos] == '"') or pack_contains<ESC...>(input[pos]))
     {
       // We know that the escaped character is a single-byte one.  And it's one
       // we have to consume right now; if we left it to the next iteration it
