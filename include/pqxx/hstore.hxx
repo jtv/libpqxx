@@ -21,7 +21,7 @@
 namespace pqxx::internal
 {
 /// The `end()` of a @ref hstore_parse.
-struct PQXX_LIBEXPORT hstore_end final
+struct hstore_end final
 {
   [[nodiscard]] auto operator<=>(hstore_end const &) const noexcept
   {
@@ -66,7 +66,7 @@ namespace pqxx
  * objects.  They are not trivial to create, copy, or move.
  */
 template<typename KEY, typename VALUE>
-class PQXX_LIBEXPORT hstore_iterator final
+class hstore_iterator final
 {
 public:
   hstore_iterator(std::string_view input, ctx c) :
@@ -356,7 +356,7 @@ private:
  * values, respectively.
  */
 template<typename KEY = std::string_view, typename VALUE = std::string_view>
-class PQXX_LIBEXPORT hstore_parse final
+class hstore_parse final
 {
 public:
   /// Prepare to parse an hstore.
