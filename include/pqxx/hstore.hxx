@@ -49,8 +49,10 @@ inline constexpr std::size_t
 scan_unquoted_hstore_string(std::string_view input, std::size_t pos, sl loc)
 {
   // This is where unquoted strings in hstore differ from unquoted strings in
-  // arrays or composite types.  Any whitespace will terminate the string.
-  // XXX: Support backslash escapes in unquoted strings!  (Especially commas.)
+  // arrays or composite types.  Any un-escaped whitespace will terminate the
+  // string.
+  // XXX: Check for escapes.
+  // XXX: Parameterise for the various terminating characters.
   return find_ascii_char<ENC, ',', ' ', '\f', '\t', '\n', '\r', '\v'>(
     input, pos, loc);
 }
@@ -87,9 +89,9 @@ public:
 
   [[nodiscard]] std::pair<KEY, VALUE> operator*() const
   {
-    // XXX: Parse strings.
-    // XXX: Unquoting/unescaping would also help scan_unquoted_string etc.
-    return {from_string<KEY>(m_key, m_ctx), get_value()};
+    // XXX: Parse into m_buffer!
+    // XXX: Dynamic-to-static switch here so we only switch once.
+    return {get_key(), get_value()};
   }
 
   /// Move ahead to the next item in the hstore.
@@ -261,7 +263,6 @@ private:
     }
     else
     {
-      // XXX: Escaping for unquoted strings.
       return from_string<T>(
         pqxx::internal::parse_unquoted_string<ENC>(m_input, 0, m_ctx.loc),
         m_ctx);
