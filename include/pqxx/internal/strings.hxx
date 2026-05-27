@@ -201,34 +201,29 @@ static_assert(
 #endif // NDEBUG
 
 
-// TODO: Needs version with caller-supplied buffer.
-/// Un-quote and un-escape a double-quoted SQL string.
+/// Un-quote and un-escape a double-quoted SQL string into an output buffer.
 /** `ESC` are the escape characters.  I've found 3 kinds of double-quoted
  * strings in various SQL situations: ones that use the backslash as an escape
  * character, ones that escape a nested quote by repeating it, and ones that
  * accept both.  So for `ESC` fill in a double-quote, a backslash, or both.
  *
+ * @param output Buffer for results.
  * @param input Text.  The double-quoted string must start at offset `pos`,
  * and must end at the end of `input`.  So, truncate `input` before calling if
+ * @return Number of bytes written to `output`.
  * necessary.
  */
 template<encoding_group ENC, char... ESC>
-PQXX_INLINE_COV inline constexpr std::string
-parse_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
+PQXX_INLINE_COV inline constexpr std::size_t parse_double_quoted_string(
+  std::span<char> output, std::string_view input, std::size_t pos, sl loc)
 {
   static_assert(sizeof...(ESC) >= 1);
   static_assert(sizeof...(ESC) <= 2);
   static_assert((((ESC == '\\') or (ESC == '"')) and ...));
 
-  std::string output;
   auto const end{std::size(input)};
   assert((end - pos) > 1);
   assert(pos < end);
-
-  // Maximum output size is same as the input size, minus the opening and
-  // closing quotes.  Or in the extreme opposite case, the real number could be
-  // half that.  Usually it'll be a pretty close estimate.
-  output.reserve(std::size_t(end - pos - 2));
 
   auto const closing_quote{end - 1};
   assert(closing_quote < end);
@@ -237,6 +232,16 @@ parse_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
   // We're at the starting quote.  Skip it.
   assert(pos < closing_quote);
   assert(input[pos] == '"');
+
+  // How much room do we have?
+  auto const budget{std::size(output)};
+  if (std::size(input) > (budget + 2))
+    throw conversion_overrun{
+      "Not enough buffer space to parse double-quoted string.", loc};
+
+  // Writing position.
+  std::size_t write{0u};
+
   pos += one_ascii_char;
   assert(pos <= closing_quote);
 
@@ -256,7 +261,9 @@ parse_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
 
     // The stretch that we've just skipped over is plain vanilla text, no
     // nasty escapes.  Copy it unchanged.
-    output.append(input.substr(pos, special - pos));
+    write =
+      copy_chars<false>(input.substr(pos, special - pos), output, write, loc);
+    assert(write < budget);
     pos = special;
     char const found{input[pos]};
 
@@ -264,7 +271,7 @@ parse_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
     assert((found == '"') or pack_contains<ESC...>(found));
     // TODO: Isn't this the only way out of this loop?  Try to restructure.
     if (pos == closing_quote)
-      return output;
+      return write;
 
     // We're at an escape character.
     assert(pack_contains<ESC...>(found));
@@ -279,7 +286,10 @@ parse_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
       // We know that the escaped character is a single-byte one.  And it's one
       // we have to consume right now; if we left it to the next iteration it
       // would confuse the next find_ascii_char() call.
-      output.push_back(input[pos]);
+      assert(write < budget);
+      output[write] = input[pos];
+      write += one_ascii_char;
+      ;
       pos += one_ascii_char;
     }
     else
@@ -290,6 +300,31 @@ parse_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
   }
   assert(pos == closing_quote);
 
+  return write;
+}
+
+
+/// Un-quote and un-escape a double-quoted SQL string.
+/** `ESC` are the escape characters.  I've found 3 kinds of double-quoted
+ * strings in various SQL situations: ones that use the backslash as an escape
+ * character, ones that escape a nested quote by repeating it, and ones that
+ * accept both.  So for `ESC` fill in a double-quote, a backslash, or both.
+ *
+ * @param input Text.  The double-quoted string must start at offset `pos`,
+ * and must end at the end of `input`.  So, truncate `input` before calling if
+ * necessary.
+ * @return Parsed string.
+ */
+template<encoding_group ENC, char... ESC>
+PQXX_INLINE_COV inline constexpr std::string
+parse_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
+{
+  std::string output;
+  // Unescaping can shrink a string, but never grow it, so this is enough
+  // room for the output.
+  output.resize(std::size(input));
+  output.resize(
+    parse_double_quoted_string<ENC, ESC...>(output, input, pos, loc));
   return output;
 }
 

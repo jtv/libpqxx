@@ -51,8 +51,7 @@ scan_unquoted_hstore_string(std::string_view input, std::size_t pos, sl loc)
   // This is where unquoted strings in hstore differ from unquoted strings in
   // arrays or composite types.  Any un-escaped whitespace will terminate the
   // string.
-  // XXX: Check for escapes.
-  // XXX: Parameterise for the various terminating characters.
+  // XXX: Integrate with `scan_unquoted_string()`, support escaping.
   return find_ascii_char<ENC, ',', ' ', '\f', '\t', '\n', '\r', '\v'>(
     input, pos, loc);
 }
@@ -65,8 +64,7 @@ namespace pqxx
 /** This class does all the heavy lifting, so these are not lightweight
  * objects.  They are not trivial to create, copy, or move.
  */
-template<typename KEY, typename VALUE>
-class hstore_iterator final
+template<typename KEY, typename VALUE> class hstore_iterator final
 {
 public:
   hstore_iterator(std::string_view input, ctx c) :
@@ -90,7 +88,6 @@ public:
   [[nodiscard]] std::pair<KEY, VALUE> operator*() const
   {
     // XXX: Parse into m_buffer!
-    // XXX: Dynamic-to-static switch here so we only switch once.
     return {get_key(), get_value()};
   }
 
