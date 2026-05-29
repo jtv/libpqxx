@@ -214,7 +214,7 @@ private:
     auto const sep{parse_string<ENC>(key_input, 0u)};
     m_key = std::string_view{std::data(m_buffer), sep};
     m_value = std::string_view{
-      std::data(m_buffer) + sep, parse_string<ENC>(value_input, sep)};
+      std::data(m_buffer) + sep, parse_string<ENC>(value_input, sep) - sep};
   }
 
   /// Move ahead in the input buffer to the next entry.
