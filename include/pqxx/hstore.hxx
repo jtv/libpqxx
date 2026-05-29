@@ -123,6 +123,18 @@ public:
   }
 
 private:
+  /// Find the extent of the key or value string at `offset` in `m_input`.
+  template<encoding_group ENC>
+  [[nodiscard]] std::size_t scan_string(std::size_t offset) const
+  {
+    if (m_input.at(offset == '"'))
+      return pqxx::internal::scan_double_quoted_string<ENC, '\\'>(
+        m_input, offset, m_ctx.loc);
+    else
+      return pqxx::internal::scan_unquoted_hstore_string<ENC>(
+        m_input, offset, m_ctx.loc);
+  }
+
   /// Move ahead in the input buffer to the next entry.
   /** Updates `m_offset`.  Caches the locations of the key and value fields in
    * `m_key` and `m_value` respectively.
@@ -147,12 +159,8 @@ private:
     // There is no further whitespace at m_offset.
     assert(pqxx::internal::skip_ascii_whitespace(m_input, here) == here);
 
-    if (m_input.at(here) == '"')
-      here = pqxx::internal::scan_double_quoted_string<ENC, '\\'>(
-        m_input, here, m_ctx.loc);
-    else
-      here = pqxx::internal::scan_unquoted_hstore_string<ENC>(
-        m_input, here, m_ctx.loc);
+    // Scan the key string.
+    here = scan_string<ENC>(here);
 
     auto const key_input = m_input.substr(m_offset, here - m_offset);
 
@@ -172,12 +180,7 @@ private:
         std::format("No value in hstore entry: '{}'", m_input), m_ctx.loc};
 
     auto const value_start{here};
-    if (m_input.at(here) == '"')
-      here = pqxx::internal::scan_double_quoted_string<ENC, '\\'>(
-        m_input, here, m_ctx.loc);
-    else
-      here = pqxx::internal::scan_unquoted_hstore_string<ENC>(
-        m_input, here, m_ctx.loc);
+    here = scan_string<ENC>(here);
 
     // The value can be null, but we can detect that later, during operator*(),
     // since m_value includes any quotes around the value.  So we'll be able to
@@ -266,13 +269,13 @@ private:
     auto const buffer{std::span<char>{m_buffer}.subspan(offset)};
     if ((std::size(input) >= 2u) and (input.at(0) == '"'))
     {
-      return offset + pqxx::internal::parse_double_quoted_string<ENC, '"'>(
+      return offset + pqxx::internal::parse_double_quoted_string<ENC, '\\'>(
                         buffer, input, 0, m_ctx.loc);
     }
     else
     {
       return offset + pqxx::internal::parse_unquoted_string<ENC>(
-                        buffer, m_input, 0, m_ctx.loc);
+                        buffer, input, 0, m_ctx.loc);
     }
   }
 
