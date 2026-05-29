@@ -252,6 +252,7 @@ PQXX_INLINE_COV inline constexpr std::size_t parse_double_quoted_string(
 
   while (pos < closing_quote)
   {
+    // XXX: Actually we don't need to look for '"' if it's not an escape!
     // Race straight to the first special character.  If we're in a context
     // where the backslash acts as an escape character, look for that.  Look
     // for a double-quote character regardless.
@@ -299,7 +300,7 @@ PQXX_INLINE_COV inline constexpr std::size_t parse_double_quoted_string(
     }
   }
   assert(pos == closing_quote);
-
+  assert(write <= end);
   return write;
 }
 
@@ -329,7 +330,6 @@ parse_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
 }
 
 
-// XXX: Support escaping in unquoted strings.
 /// Find the end of an unquoted string in an array or composite-type value.
 /** Stops when it gets to the end of the input; or when it sees any of the
  * characters in STOP which has not been escaped.
@@ -342,22 +342,105 @@ template<encoding_group ENC, char... STOP>
 PQXX_INLINE_COV inline constexpr std::size_t
 scan_unquoted_string(std::string_view input, std::size_t pos, sl loc)
 {
-  return find_ascii_char<ENC, STOP...>(input, pos, loc);
+  // Backslash is the escape character.  It can't also be a string terminator.
+  assert(not((STOP == '\\') or ...));
+  auto const sz{std::size(input)};
+
+  while (pos < sz)
+  {
+    pos = find_ascii_char<ENC, '\\', STOP...>(input, pos, loc);
+    if (input.at(pos) == '\\')
+    {
+      pos += one_ascii_char;
+      if (pos == sz)
+        throw argument_error{
+          "Unquoted string unexpectedly ended in backslash.", loc};
+    }
+    else
+    {
+      // We hit a character that implicitly terminates the string.  This
+      // character itself is not part of the string.
+      assert(((input.at(pos) == STOP) or ...));
+      return pos;
+    }
+  }
+
+  // We hit the end of our input.  The string must end here.
+  return pos;
 }
 
 
-// XXX: Support escaping in unquoted strings.
-/// Parse an unquoted array entry or cfield of a composite-type field.
+/// Parse an unquoted array entry or field of a composite-type value.
 /** @param input A view on the text, truncated at the end of the string.  So,
  *     the end of `input` must coincide with the end of the string.  Truncate
  *     before calling if necessary.
  * @param pos The string's starting offset within `input`.
  */
 template<encoding_group ENC>
-PQXX_INLINE_ONLY inline constexpr std::string_view
-parse_unquoted_string(std::string_view input, std::size_t pos, sl)
+PQXX_INLINE_ONLY inline constexpr std::size_t parse_unquoted_string(
+  std::span<char> output, std::string_view input, std::size_t pos, sl loc)
 {
-  return input.substr(pos);
+  auto const sz{std::size(input)};
+  std::size_t write{0u};
+
+  // Unquoted strings always ignore leading & trailing whitespace.  Even when
+  // whitespace would normally terminate the string.
+  pos = skip_ascii_whitespace(input, pos);
+
+  while (pos < sz)
+  {
+    auto const next{find_ascii_char<ENC, '\\'>(input, pos, loc)};
+    write =
+      copy_chars<false>(input.substr(pos, next - pos), output, write, loc);
+    pos = next;
+    if ((pos < sz) and (input.at(pos) == '\\'))
+    {
+      pos += one_ascii_char;
+      assert(pos < sz);
+      if (static_cast<unsigned char>(input.at(pos)) < 127)
+      {
+        // The good news: the escaped character is an ASCII character and
+        // therefore single-byte.
+        //
+        // The bad news: we can't leave it for the next iteration to handle,
+        // because it may be another backslash.
+        output[write] = input.at(pos);
+        write += one_ascii_char;
+      }
+      else
+      {
+        // The bad news: we may be at the beginning of a multibyte character.
+        //
+        // The good news: it's not special to the parser, so we can just leave
+        // it for the next iteration to copy into the output.  This saves us
+        // having to find the next character boundary.  Pretend that the
+        // character wasn't escaped at all.
+      }
+    }
+  }
+
+  assert(write <= sz);
+  // XXX: Skip trailing whitespace...  How do we do that efficiently?
+  return write;
 }
+
+
+/// Parse an unquoted array entry or field of a composite-type value.
+/** @param output Buffer for results.
+ * @param input A view on the text, truncated at the end of the string.  So,
+ *     the end of `input` must coincide with the end of the string.  Truncate
+ *     before calling if necessary.
+ * @param pos The string's starting offset within `input`.
+ */
+template<encoding_group ENC>
+PQXX_INLINE_ONLY inline constexpr std::string
+parse_unquoted_string(std::string_view input, std::size_t pos, sl loc)
+{
+  std::string output;
+  output.resize(std::size(input));
+  output.resize(parse_unquoted_string<ENC>(output, input, pos, loc));
+  return output;
+}
+
 } // namespace pqxx::internal
 #endif

@@ -51,8 +51,7 @@ scan_unquoted_hstore_string(std::string_view input, std::size_t pos, sl loc)
   // This is where unquoted strings in hstore differ from unquoted strings in
   // arrays or composite types.  Any un-escaped whitespace will terminate the
   // string.
-  // XXX: Integrate with `scan_unquoted_string()`, support escaping.
-  return find_ascii_char<ENC, ',', ' ', '\f', '\t', '\n', '\r', '\v'>(
+  return scan_unquoted_string<ENC, ',', ' ', '\f', '\t', '\n', '\r', '\v'>(
     input, pos, loc);
 }
 } // namespace pqxx::internal
@@ -87,7 +86,6 @@ public:
 
   [[nodiscard]] std::pair<KEY, VALUE> operator*() const
   {
-    // XXX: Parse into m_buffer!
     return {get_key(), get_value()};
   }
 
@@ -156,7 +154,7 @@ private:
       here = pqxx::internal::scan_unquoted_hstore_string<ENC>(
         m_input, here, m_ctx.loc);
 
-    m_key = m_input.substr(m_offset, here - m_offset);
+    auto const key_input = m_input.substr(m_offset, here - m_offset);
 
     here = pqxx::internal::skip_ascii_whitespace(m_input, here);
 
@@ -184,7 +182,7 @@ private:
     // The value can be null, but we can detect that later, during operator*(),
     // since m_value includes any quotes around the value.  So we'll be able to
     // distinguish `NULL` from `"NULL"` at that time.
-    m_value = m_input.substr(value_start, here - value_start);
+    auto const value_input = m_input.substr(value_start, here - value_start);
 
     here = pqxx::internal::skip_ascii_whitespace(m_input, here);
 
@@ -205,12 +203,21 @@ private:
     }
 
     m_offset = here;
+
+    // Parse key & value into m_buffer, and update m_key/m_value accordingly.
+    // We're sizing m_buffer pessimistically.  The parsed key and value strings
+    // will be able to fit in this space.
+    m_buffer.resize(std::size(key_input) + std::size(value_input));
+    auto const sep{parse_string<ENC>(key_input, 0u)};
+    m_key = std::string_view{std::data(m_buffer), sep};
+    m_value = std::string_view{
+      std::data(m_buffer) + sep, parse_string<ENC>(value_input, sep)};
   }
 
   /// Move ahead in the input buffer to the next entry.
   /** Updates `m_offset` to point to the next entry (if any), and sets `m_key`
-   * and `m_value` to refer to the current entry's key and value strings,
-   * respectively.
+   * and `m_value` to refer to the current entry's parsed key and value
+   * strings, respectively.
    *
    * This version resolves the encoding group at run time.  There is also a
    * version of this function that takes the encoding group as a template
@@ -245,24 +252,27 @@ private:
            ((m_value[3] == 'L') or (m_value[3] == 'l'));
   }
 
-  /// Parse a non-null hstore string, whether key or value.
+  /// Parse a non-null hstore string, whether key or value, into `m_buffer`.
   /** Unquotes and unescapes as needed.
+   *
+   * @param input Input string: either key or value string.
+   * @param offset Starting offset of free space in `m_buffer`.
+   * @return One-past-end offset of data written into `m_buffer`.
    */
-  template<typename T, encoding_group ENC>
-  [[nodiscard]] T parse_string(std::string_view input) const
+  template<encoding_group ENC>
+  [[nodiscard]] std::size_t
+  parse_string(std::string_view input, std::size_t offset)
   {
+    auto const buffer{std::span<char>{m_buffer}.subspan(offset)};
     if ((std::size(input) >= 2u) and (input.at(0) == '"'))
     {
-      return from_string<T>(
-        pqxx::internal::parse_double_quoted_string<ENC, '"'>(
-          input, 0, m_ctx.loc),
-        m_ctx);
+      return offset + pqxx::internal::parse_double_quoted_string<ENC, '"'>(
+                        buffer, input, 0, m_ctx.loc);
     }
     else
     {
-      return from_string<T>(
-        pqxx::internal::parse_unquoted_string<ENC>(m_input, 0, m_ctx.loc),
-        m_ctx);
+      return offset + pqxx::internal::parse_unquoted_string<ENC>(
+                        buffer, m_input, 0, m_ctx.loc);
     }
   }
 
@@ -271,8 +281,8 @@ private:
    *
    * This version takes its encoding at run time.
    */
-  template<typename T>
-  [[nodiscard]] T parse_string(std::string_view input) const
+  [[nodiscard]] std::size_t
+  parse_string(std::string_view input, std::size_t offset)
   {
     // Dynamic-to-static switch.
     switch (m_ctx.enc)
@@ -281,19 +291,19 @@ private:
       throw conversion_error{
         "Can't parse hstore data: no encoding set.", m_ctx.loc};
     case encoding_group::ascii_safe:
-      return parse_string<T, encoding_group::ascii_safe>(input);
+      return parse_string<encoding_group::ascii_safe>(input, offset);
     case encoding_group::two_tier:
-      return parse_string<T, encoding_group::two_tier>(input);
+      return parse_string<encoding_group::two_tier>(input, offset);
     case encoding_group::gb18030:
-      return parse_string<T, encoding_group::gb18030>(input);
+      return parse_string<encoding_group::gb18030>(input, offset);
     case encoding_group::sjis:
-      return parse_string<T, encoding_group::sjis>(input);
+      return parse_string<encoding_group::sjis>(input, offset);
     default: PQXX_UNREACHABLE;
     }
   }
 
   /// Extract and return entry's key.
-  [[nodiscard]] KEY get_key() const { return parse_string<KEY>(m_key); }
+  [[nodiscard]] KEY get_key() const { return from_string<KEY>(m_key, m_ctx); }
 
   /// Extract and return entry's value.
   [[nodiscard]] VALUE get_value() const
@@ -302,7 +312,8 @@ private:
     // optimization.
     if constexpr (has_null<VALUE>())
     {
-      return is_null() ? make_null<VALUE>() : parse_string<VALUE>(m_value);
+      return is_null() ? make_null<VALUE>() :
+                         from_string<VALUE>(m_value, m_ctx);
     }
     else
     {
@@ -316,7 +327,7 @@ private:
             "does not support nulls.",
             m_key, name_type<VALUE>()),
           m_ctx.loc};
-      return parse_string<VALUE>(m_value);
+      return from_string<VALUE>(m_value, m_ctx);
     }
   }
 

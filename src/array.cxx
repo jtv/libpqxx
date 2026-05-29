@@ -63,8 +63,7 @@ std::size_t array_parser::scan_unquoted_string(sl loc) const
  * that happens to spell "NULL".
  */
 template<encoding_group ENC>
-std::string_view
-array_parser::parse_unquoted_string(std::size_t end, sl loc) const
+std::string array_parser::parse_unquoted_string(std::size_t end, sl loc) const
 {
   return pqxx::internal::parse_unquoted_string<ENC>(
     m_input.substr(0, end), m_pos, loc);
@@ -89,7 +88,7 @@ array_parser::parse_array_step(sl loc)
     // We don't need to do any actual scanning yet, because we're looking for
     // specific ASCII characters and we're at the beginning of a character.
     // The first byte in a multibyte character will not be in the ASCII range.
-    switch (m_input[m_pos])
+    switch (m_input.at(m_pos))
     {
     case '\0': throw failure{"Unexpected zero byte in array.", loc};
     case '{': return std::tuple{juncture::row_start, m_pos + 1};

@@ -844,7 +844,7 @@ private:
   template<encoding_group>
   [[nodiscard]] std::size_t scan_unquoted_string(sl loc) const;
   template<encoding_group>
-  [[nodiscard]] std::string_view
+  [[nodiscard]] std::string
   parse_unquoted_string(std::size_t end, sl loc) const;
 };
 } // namespace pqxx
