@@ -284,16 +284,16 @@ template<> struct string_traits<bool> final
   PQXX_LIBEXPORT PQXX_HOT static bool
   from_string(std::string_view text, ctx c = {});
 
-  PQXX_PURE PQXX_HOT static constexpr zview
+  PQXX_PURE PQXX_HOT static constexpr std::string_view
   to_buf(std::span<char>, bool const &value, ctx = {}) noexcept
   {
-    return value ? "true"_zv : "false"_zv;
+    return value ? "true": "false";
   }
 
   PQXX_PURE PQXX_HOT static constexpr std::size_t
   size_buffer(bool const &) noexcept
   {
-    return 5;
+    return 6;
   }
 };
 

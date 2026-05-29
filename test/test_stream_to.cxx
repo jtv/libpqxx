@@ -729,6 +729,8 @@ void test_stream_to_bool(pqxx::test::context &tctx)
 
   // In #1203, this triggered an assertion failure.
   stream.write_values("2026", true);
+  // And in #1229, this one did (because "false" is 1 byte longer).
+  stream.write_values("2026", false);
   stream.complete();
 }
 
