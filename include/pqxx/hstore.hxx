@@ -127,7 +127,7 @@ private:
   template<encoding_group ENC>
   [[nodiscard]] std::size_t scan_string(std::size_t offset) const
   {
-    if (m_input.at(offset == '"'))
+    if (m_input.at(offset) == '"')
       return pqxx::internal::scan_double_quoted_string<ENC, '\\'>(
         m_input, offset, m_ctx.loc);
     else

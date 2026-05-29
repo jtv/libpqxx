@@ -209,9 +209,8 @@ static_assert(
  *
  * @param output Buffer for results.
  * @param input Text.  The double-quoted string must start at offset `pos`,
- * and must end at the end of `input`.  So, truncate `input` before calling if
+ * and must end at the end of `input`.
  * @return Number of bytes written to `output`.
- * necessary.
  */
 template<encoding_group ENC, char... ESC>
 PQXX_INLINE_COV inline constexpr std::size_t parse_double_quoted_string(
@@ -349,7 +348,7 @@ scan_unquoted_string(std::string_view input, std::size_t pos, sl loc)
   while (pos < sz)
   {
     pos = find_ascii_char<ENC, '\\', STOP...>(input, pos, loc);
-    if (input.at(pos) == '\\')
+    if ((pos < sz) and (input.at(pos) == '\\'))
     {
       pos += one_ascii_char;
       if (pos == sz)
@@ -358,8 +357,7 @@ scan_unquoted_string(std::string_view input, std::size_t pos, sl loc)
     }
     else
     {
-      // We hit a character that implicitly terminates the string.  This
-      // character itself is not part of the string.
+      // We hit the end of the string.
       assert(((input.at(pos) == STOP) or ...));
       return pos;
     }
