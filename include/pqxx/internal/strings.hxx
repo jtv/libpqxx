@@ -358,7 +358,7 @@ scan_unquoted_string(std::string_view input, std::size_t pos, sl loc)
     else
     {
       // We hit the end of the string.
-      assert(((input.at(pos) == STOP) or ...));
+      assert((pos == sz) or (((input.at(pos) == STOP) or ...)));
       return pos;
     }
   }

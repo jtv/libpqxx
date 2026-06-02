@@ -127,7 +127,7 @@ private:
   template<encoding_group ENC>
   [[nodiscard]] std::size_t scan_string(std::size_t offset) const
   {
-    if (m_input.at(offset) == '"')
+    if ((std::size(m_input) > offset) and (m_input.at(offset) == '"'))
       return pqxx::internal::scan_double_quoted_string<ENC, '\\'>(
         m_input, offset, m_ctx.loc);
     else
@@ -267,7 +267,7 @@ private:
   parse_string(std::string_view input, std::size_t offset)
   {
     auto const buffer{std::span<char>{m_buffer}.subspan(offset)};
-    if ((std::size(input) >= 2u) and (input.at(0) == '"'))
+    if ((std::size(input) > 0u) and (input.at(0) == '"'))
     {
       return offset + pqxx::internal::parse_double_quoted_string<ENC, '\\'>(
                         buffer, input, 0, m_ctx.loc);

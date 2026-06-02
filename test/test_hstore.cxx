@@ -23,29 +23,59 @@ parse_hstore(std::string_view input, pqxx::ctx c)
   return data;
 }
 
-void test_hstore(pqxx::test::context &ctx)
+
+template<typename KEY, typename VALUE>
+void check_empty_parse(pqxx::connection const &cx)
+{
+  auto const c{make_context(cx)};
+  pqxx::hstore_parse<KEY, VALUE> const blank{"", c};
+  PQXX_CHECK(blank.begin() == blank.end());
+  PQXX_CHECK(blank.cbegin() == blank.cend());
+
+  pqxx::hstore_parse<KEY, VALUE> const spaces{" \n \t ", c};
+  PQXX_CHECK(spaces.begin() == spaces.end());
+  PQXX_CHECK(spaces.cbegin() == spaces.cend());
+}
+
+
+void test_hstore_parse_parses_hstore(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
   if (not pqxx::test::have_extension(tx, "hstore"))
     return;
 
-  auto const key{ctx.make_name("k")}, value{ctx.make_name("v")};
-  PQXX_CHECK_EQUAL(
-    tx.query_value<std::string>(
-      "SELECT ($1::hstore)[$2]",
-      pqxx::params{std::format("{}=>{}", key, value), key}),
-    value);
+  check_empty_parse<std::string, std::string>(cx);
+  check_empty_parse<std::string_view, int>(cx);
+  check_empty_parse<int, std::string_view>(cx);
+  check_empty_parse<bool, double>(cx);
+
+  auto const c{make_context(cx)};
+
+  // XXX: Expecting "=>" at the end!?
+  auto const basic_ints{parse_hstore<int, int>("1=>2", c)};
+  PQXX_CHECK_EQUAL(std::size(basic_ints), 1u);
+  PQXX_CHECK_EQUAL(basic_ints.at(0).first, 1);
+  PQXX_CHECK_EQUAL(basic_ints.at(0).second, 2);
+}
+
+
+void test_simple_hstore(pqxx::test::context &)
+{
+  pqxx::connection cx;
+  pqxx::work tx{cx};
+  if (not pqxx::test::have_extension(tx, "hstore"))
+    return;
 
   auto const empty_data{
     parse_hstore<std::string, std::string>("", make_context(cx))};
   PQXX_CHECK(empty_data.empty());
-
-  // XXX: Test empty hstore.
-  // XXX: Test tolerance for trailing comma.
-  // XXX: Test more!
 }
+
+// XXX: Test parsing of single-entry hstores.
+// XXX: Test escaping of multibyte chars.
 } // namespace
 
 
-PQXX_REGISTER_TEST(test_hstore);
+PQXX_REGISTER_TEST(test_simple_hstore);
+PQXX_REGISTER_TEST(test_hstore_parse_parses_hstore);
