@@ -57,6 +57,8 @@ void test_hstore_parse_parses_hstore(pqxx::test::context &)
   PQXX_CHECK_EQUAL(std::size(basic_ints), 1u);
   PQXX_CHECK_EQUAL(basic_ints.at(0).first, 1);
   PQXX_CHECK_EQUAL(basic_ints.at(0).second, 2);
+
+  // XXX: Test "1=>2" (without space after the unquoted key).
 }
 
 
@@ -74,6 +76,7 @@ void test_simple_hstore(pqxx::test::context &)
 
 // XXX: Test parsing of single-entry hstores.
 // XXX: Test escaping of multibyte chars.
+// XXX: Test parsing of null value and "NULL" string.
 } // namespace
 
 

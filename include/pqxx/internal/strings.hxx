@@ -263,7 +263,7 @@ PQXX_INLINE_COV inline constexpr std::size_t parse_double_quoted_string(
     // nasty escapes.  Copy it unchanged.
     write =
       copy_chars<false>(input.substr(pos, special - pos), output, write, loc);
-    assert(write < budget);
+    assert(write <= budget);
     pos = special;
     char const found{input[pos]};
 
@@ -354,6 +354,17 @@ scan_unquoted_string(std::string_view input, std::size_t pos, sl loc)
       if (pos == sz)
         throw argument_error{
           "Unquoted string unexpectedly ended in backslash.", loc};
+      if (input.at(pos) == '\\')
+      {
+        // The escaped character is a backslash.  Consume it now.  Leaving it
+	// to the next iteration would confuse the loop.
+	pos += one_ascii_char;
+      }
+      else
+      {
+        // Just leave the escaped character as a normal character for the next
+	// iteration to process.
+      }
     }
     else
     {
@@ -403,6 +414,7 @@ PQXX_INLINE_ONLY inline constexpr std::size_t parse_unquoted_string(
         // The bad news: we can't leave it for the next iteration to handle,
         // because it may be another backslash.
         output[write] = input.at(pos);
+	pos += one_ascii_char;
         write += one_ascii_char;
       }
       else

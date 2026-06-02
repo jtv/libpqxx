@@ -159,6 +159,8 @@ private:
     // There is no further whitespace at m_offset.
     assert(pqxx::internal::skip_ascii_whitespace(m_input, here) == here);
 
+    // XXX: Also stop at "=>".
+    // XXX: Backend parses "1=>,2" as "1" => ",2".
     // Scan the key string.
     here = scan_string<ENC>(here);
 
@@ -248,6 +250,7 @@ private:
   /// Does this entry have a null value?
   [[nodiscard]] bool is_null() const noexcept
   {
+// XXX: No!  Should check the unparsed string!
     return (m_value.size() == 4) and
            ((m_value[0] == 'N') or (m_value[0] == 'n')) and
            ((m_value[1] == 'U') or (m_value[1] == 'u')) and
