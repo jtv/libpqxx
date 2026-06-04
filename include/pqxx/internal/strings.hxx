@@ -70,20 +70,23 @@ scan_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
   static_assert(sizeof...(ESC) <= 2);
   static_assert((((ESC == '\\') or (ESC == '"')) and ...));
 
-  assert(input[pos] == '"');
   auto const sz{std::size(input)};
+  assert(pos < sz);
+  assert(input.at(pos) == '"');
 
   // Skip over the opening double-quote.
   pos += one_ascii_char;
 
-  do {
+  while (pos < sz)
+  {
     // Find the next "interesting" character: a double-quote or a backslash (if
     // backslashes act as escape characters here).
     pos = find_dquote_or_backslash<ENC, ESC...>(input, pos, loc);
 
+    assert(pos <= sz);
     if (pos == sz)
       throw argument_error{"Unterminated string.", loc};
-    char const found{input[pos]};
+    char const found{input.at(pos)};
 
     assert((found == '"') or pack_contains<ESC...>(found));
 
@@ -126,7 +129,7 @@ scan_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
 
     default: PQXX_UNREACHABLE;
     }
-  } while (pos < sz);
+  }
 
   // If we got here, we never found the closing double-quote.
   throw argument_error{"Unterminated string: " + std::string{input}, loc};
@@ -244,6 +247,10 @@ PQXX_INLINE_COV inline constexpr std::size_t parse_double_quoted_string(
   pos += one_ascii_char;
   assert(pos <= closing_quote);
 
+  // Subset of input, but ending at the closing quote.  The quote itself is not
+  // part of it.
+  auto const instr{input.substr(0u, closing_quote)};
+
   // In theory, our knowledge of the closing quote's offset should mean that
   // there's no need for the find_ascii_char() call to check for end-of-string
   // inside its loop.  Not sure whether the compiler will be smart enough to
@@ -251,21 +258,23 @@ PQXX_INLINE_COV inline constexpr std::size_t parse_double_quoted_string(
 
   while (pos < closing_quote)
   {
-    // XXX: Actually we don't need to look for '"' if it's not an escape!
     // Race straight to the first special character.  If we're in a context
     // where the backslash acts as an escape character, look for that.  Look
     // for a double-quote character regardless.
-    std::size_t const special{
-      find_dquote_or_backslash<ENC, ESC...>(input, pos, loc)};
+    //
+    // If the double-quote symbol is not an escape character in this context,
+    // we don't need to look for it.  The search loop will terminate when it
+    // hits the end of the string anyway.
+    std::size_t const special{find_ascii_char<ENC, ESC...>(instr, pos, loc)};
     assert(special <= closing_quote);
 
     // The stretch that we've just skipped over is plain vanilla text, no
     // nasty escapes.  Copy it unchanged.
     write =
-      copy_chars<false>(input.substr(pos, special - pos), output, write, loc);
+      copy_chars<false>(instr.substr(pos, special - pos), output, write, loc);
     assert(write <= budget);
     pos = special;
-    char const found{input[pos]};
+    char const found{instr[pos]};
 
     // We're at either the closing quote or an escape character.
     assert((found == '"') or pack_contains<ESC...>(found));
@@ -281,13 +290,13 @@ PQXX_INLINE_COV inline constexpr std::size_t parse_double_quoted_string(
     //
     // If the input has been scanned correctly, the string can't end here.
     assert(pos < closing_quote);
-    if ((input[pos] == '"') or pack_contains<ESC...>(input[pos]))
+    if ((instr.at(pos) == '"') or pack_contains<ESC...>(instr.at(pos)))
     {
       // We know that the escaped character is a single-byte one.  And it's one
       // we have to consume right now; if we left it to the next iteration it
       // would confuse the next find_ascii_char() call.
       assert(write < budget);
-      output[write] = input[pos];
+      output[write] = instr.at(pos);
       write += one_ascii_char;
       ;
       pos += one_ascii_char;
@@ -354,6 +363,7 @@ scan_unquoted_string(std::string_view input, std::size_t pos, sl loc)
       if (pos == sz)
         throw argument_error{
           "Unquoted string unexpectedly ended in backslash.", loc};
+      assert(pos < sz);
       if (input.at(pos) == '\\')
       {
         // The escaped character is a backslash.  Consume it now.  Leaving it
@@ -369,6 +379,7 @@ scan_unquoted_string(std::string_view input, std::size_t pos, sl loc)
     else
     {
       // We hit the end of the string.
+      assert(pos <= sz);
       assert((pos == sz) or (((input.at(pos) == STOP) or ...)));
       return pos;
     }
@@ -413,6 +424,7 @@ PQXX_INLINE_ONLY inline constexpr std::size_t parse_unquoted_string(
         //
         // The bad news: we can't leave it for the next iteration to handle,
         // because it may be another backslash.
+	assert(write < std::size(output));
         output[write] = input.at(pos);
 	pos += one_ascii_char;
         write += one_ascii_char;
