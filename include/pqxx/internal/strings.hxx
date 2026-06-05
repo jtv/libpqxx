@@ -109,7 +109,7 @@ scan_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
       // Backslash escape.
       // We won't get here unless the backslash acts as an escape character.
       assert(pack_contains<ESC...>('\\'));
-      if (pos == sz)
+      if ((pos + 1) >= sz)
         throw argument_error{"String unexpectedly ends in backslash.", loc};
       if (static_cast<unsigned char>(input[pos]) < 127)
       {
@@ -117,9 +117,7 @@ scan_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
         // backslash or an escaped double-quote (which would confuse the next
         // iteration otherwise).
         pos += one_ascii_char;
-        if (pos == sz)
-          throw argument_error{
-            "Unexpected end of string: escape sequence.", loc};
+        assert(pos < sz);
       }
       else
       {
@@ -275,7 +273,6 @@ PQXX_INLINE_COV inline constexpr std::size_t parse_double_quoted_string(
       copy_chars<false>(instr.substr(pos, special - pos), output, write, loc);
     assert(write <= budget);
 
-    // TODO: Isn't this the only way out of this loop?  Try to restructure.
     if (special == closing_quote)
     {
       // (Can't use instr for this check, since it doesn't quite include the
@@ -303,15 +300,15 @@ PQXX_INLINE_COV inline constexpr std::size_t parse_double_quoted_string(
       assert(write < budget);
       output[write] = instr.at(pos);
       write += one_ascii_char;
-      ;
       pos += one_ascii_char;
     }
     else
     {
       // This could be a multibyte character.  But no matter: it's not special
-      // so we can let the next iteration handle it.  Treat it as if it waasn't
+      // so we can let the next iteration handle it.  Treat it as if it wasn't
       // escaped at all.
     }
+    assert(pos <= closing_quote);
   }
   assert(pos == closing_quote);
   assert(write <= end);
@@ -363,31 +360,43 @@ scan_unquoted_string(std::string_view input, std::size_t pos, sl loc)
   while (pos < sz)
   {
     pos = find_ascii_char<ENC, '\\', STOP...>(input, pos, loc);
-    if ((pos < sz) and (input.at(pos) == '\\'))
+    assert(pos <= sz);
+    if (pos == sz)
     {
-      pos += one_ascii_char;
-      if (pos == sz)
-        throw argument_error{
-          "Unquoted string unexpectedly ended in backslash.", loc};
+      // End of input.
+      return pos;
+    }
+    if (input.at(pos) != '\\')
+    {
+      // Stop character.
       assert(pos < sz);
-      if (input.at(pos) == '\\')
-      {
-        // The escaped character is a backslash.  Consume it now.  Leaving it
-	// to the next iteration would confuse the loop.
-	pos += one_ascii_char;
-      }
-      else
-      {
-        // Just leave the escaped character as a normal character for the next
-	// iteration to process.
-      }
+      assert(((input.at(pos) == STOP) or ...));
+      return pos;
+    }
+
+    // Backslash.  Should be an escape sequence.
+    assert(pos < sz);
+    assert(input.at(pos) == '\\');
+
+    // Skip past the backslash.
+    pos += one_ascii_char;
+
+    // However there also needs to be room for an escaped character.
+    if ((pos + one_ascii_char) >= sz)
+      throw argument_error{
+        "Unquoted string unexpectedly ended in backslash.", loc};
+
+    assert(pos < sz);
+    if (static_cast<unsigned char>(input.at(pos)) < 127)
+    {
+      // The escaped character is an ASCII one.  Consume it now, or it may
+      // confuse the next iteration.
+      pos += one_ascii_char;
     }
     else
     {
-      // We hit the end of the string.
-      assert(pos <= sz);
-      assert((pos == sz) or (((input.at(pos) == STOP) or ...)));
-      return pos;
+      // Escaped character could be multibyte.  Leave it for the next
+      // iteration.
     }
   }
 
@@ -433,9 +442,9 @@ PQXX_INLINE_ONLY inline constexpr std::size_t parse_unquoted_string(
         //
         // The bad news: we can't leave it for the next iteration to handle,
         // because it may be another backslash.
-	assert(write < std::size(output));
+        assert(write < std::size(output));
         output[write] = input.at(pos);
-	pos += one_ascii_char;
+        pos += one_ascii_char;
         write += one_ascii_char;
       }
       else
