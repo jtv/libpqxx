@@ -86,6 +86,7 @@ scan_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
     assert(pos <= sz);
     if (pos == sz)
       throw argument_error{"Unterminated string.", loc};
+    assert(pos < sz);
     char const found{input.at(pos)};
 
     assert((found == '"') or pack_contains<ESC...>(found));
@@ -273,28 +274,32 @@ PQXX_INLINE_COV inline constexpr std::size_t parse_double_quoted_string(
     write =
       copy_chars<false>(instr.substr(pos, special - pos), output, write, loc);
     assert(write <= budget);
-    pos = special;
-    char const found{instr[pos]};
 
-    // We're at either the closing quote or an escape character.
-    assert((found == '"') or pack_contains<ESC...>(found));
     // TODO: Isn't this the only way out of this loop?  Try to restructure.
-    if (pos == closing_quote)
+    if (special == closing_quote)
+    {
+      // (Can't use instr for this check, since it doesn't quite include the
+      // quote itself.)
+      assert(input.at(special) == '"');
       return write;
+    }
+
+    pos = special;
+    assert(pos < closing_quote);
+    char const found{instr.at(pos)};
 
     // We're at an escape character.
     assert(pack_contains<ESC...>(found));
-    pos += one_ascii_char;
 
-    // We're at the escaped character.
-    //
-    // If the input has been scanned correctly, the string can't end here.
+    // Move on to the escaped character.  This won't take us to the end, or
+    // the earlier scan call would have complained.
+    pos += one_ascii_char;
     assert(pos < closing_quote);
-    if ((instr.at(pos) == '"') or pack_contains<ESC...>(instr.at(pos)))
+    if (static_cast<unsigned char>(instr.at(pos)) < 127)
     {
-      // We know that the escaped character is a single-byte one.  And it's one
-      // we have to consume right now; if we left it to the next iteration it
-      // would confuse the next find_ascii_char() call.
+      // We know that the escaped character is a single-byte one.  Process it
+      // right now; it may be a special character that would otherwise confuse
+      // the next iteration.
       assert(write < budget);
       output[write] = instr.at(pos);
       write += one_ascii_char;
@@ -304,7 +309,8 @@ PQXX_INLINE_COV inline constexpr std::size_t parse_double_quoted_string(
     else
     {
       // This could be a multibyte character.  But no matter: it's not special
-      // so we can let the next iteration handle it.
+      // so we can let the next iteration handle it.  Treat it as if it waasn't
+      // escaped at all.
     }
   }
   assert(pos == closing_quote);
@@ -413,14 +419,17 @@ PQXX_INLINE_ONLY inline constexpr std::size_t parse_unquoted_string(
     write =
       copy_chars<false>(input.substr(pos, next - pos), output, write, loc);
     pos = next;
+    assert(pos <= sz);
     if ((pos < sz) and (input.at(pos) == '\\'))
     {
+      // This doesn't take us to the end, or the matching scan call would have
+      // noticed.
       pos += one_ascii_char;
       assert(pos < sz);
       if (static_cast<unsigned char>(input.at(pos)) < 127)
       {
         // The good news: the escaped character is an ASCII character and
-        // therefore single-byte.
+        // therefore single-byte.  We know where it begins and ends.
         //
         // The bad news: we can't leave it for the next iteration to handle,
         // because it may be another backslash.
