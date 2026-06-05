@@ -52,13 +52,16 @@ void test_hstore_parse_parses_hstore(pqxx::test::context &)
 
   auto const c{make_context(cx)};
 
-  // XXX: Expecting "=>" at the end!?
   auto const basic_ints{parse_hstore<int, int>("1=>2", c)};
   PQXX_CHECK_EQUAL(std::size(basic_ints), 1u);
   PQXX_CHECK_EQUAL(basic_ints.at(0).first, 1);
   PQXX_CHECK_EQUAL(basic_ints.at(0).second, 2);
 
   // XXX: Test "1=>2" (without space after the unquoted key).
+  // XXX: Test escaped equals sign in key
+  // XXX: Test quoted equals sign in key
+  // XXX: Test unescaped equals sign in key (should fail)
+  // XXX: Test unescaped equals sign in value (should work)
 }
 
 
