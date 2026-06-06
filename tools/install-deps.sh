@@ -99,7 +99,7 @@ install_alpine() {
         apk upgrade
         apk add \
             "${PKGS_ALPINE_BASE[@]}" "${PKGS_ALL_AUTOTOOLS[@]}" \
-            "$(compiler_pkg "$1")" "${EXTRA_PACKAGES[@]}" \
+            "$(compiler_pkg "$1" clang g++)" "${EXTRA_PACKAGES[@]}" \
     ) >>/tmp/install.log
     echo "export PGHOST=/run/postgresql"
 }
