@@ -106,10 +106,20 @@ install_alpine() {
 
 
 install_archlinux() {
+    local compiler="$1"
+    local sanitizer
+
+    if [ "$compiler" = "gcc" ]
+    then
+        sanitizer="libsanitizer"
+    else
+        sanitizer="compiler-rt"
+    fi
+
     pacman_install \
         "${PKGS_ARCHLINUX_BASE[@]}" "${PKGS_ARCHLINUX_AUTOTOOLS[@]}" \
         postgresql which \
-        "$(compiler_pkg "$1")" "${EXTRA_PACKAGES[@]}"
+        "$(compiler_pkg "$1")" "${EXTRA_PACKAGES[@]}" "$sanitizer"
 
     echo "export PGHOST=/run/postgresql"
 }
