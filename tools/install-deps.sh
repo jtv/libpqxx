@@ -86,7 +86,7 @@ pacman_install() {
 
 
 PKGS_ALL_AUTOTOOLS=(autoconf autoconf-archive automake libtool)
-PKGS_ALPINE_BASE=(postgresql python3 which)
+PKGS_ALPINE_BASE=(libpq-dev postgresql python3 which)
 PKGS_ARCHLINUX_BASE=(diffutils postgresql-libs python3 uv)
 PKGS_ARCHLINUX_AUTOTOOLS=("${PKGS_ALL_AUTOTOOLS[@]}" make)
 PKGS_DEBIAN_BASE=(libpq-dev postgresql-server-dev-all python3)
