@@ -86,7 +86,7 @@ pacman_install() {
 
 
 PKGS_ALL_AUTOTOOLS=(autoconf autoconf-archive automake libtool)
-PKGS_ALPINE_BASE=(bash)
+PKGS_ALPINE_BASE=(postgresql which)
 PKGS_ARCHLINUX_BASE=(diffutils postgresql-libs python3 uv)
 PKGS_ARCHLINUX_AUTOTOOLS=("${PKGS_ALL_AUTOTOOLS[@]}" make)
 PKGS_DEBIAN_BASE=(libpq-dev postgresql-server-dev-all python3)
@@ -94,11 +94,13 @@ PKGS_DEBIAN_AUTOTOOLS=("${PKGS_ALL_AUTOTOOLS[@]}" make)
 
 
 install_alpine() {
-    apk update >>/tmp/install.log
-    apk upgrade >>/tmp/install.log
-    apk install \
-        "${PKGS_ALPINE[0]}" "${PKGS_ALL_AUTOTOOLS[0]}"
-        >>/tmp/install.log
+    (
+        apk update
+        apk upgrade
+        apk add \
+            "${PKGS_ALPINE_BASE[@]}" "${PKGS_ALL_AUTOTOOLS[@]}" \
+            "$(compiler_pkg "$1")" "${EXTRA_PACKAGES[@]}" \
+    ) >>/tmp/install.log
     echo "export PGHOST=/run/postgresql"
 }
 
