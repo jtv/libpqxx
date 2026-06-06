@@ -655,7 +655,7 @@ workflows:
       - test-linux:
           matrix:
             parameters:
-              os: ["archlinux", "debian", "fedora", "ubuntu"]
+              os: ["alpine", "archlinux", "debian", "fedora", "ubuntu"]
               compiler: ["clang++", "g++"]
               cxx_ver: ["c++20", "c++23", "c++26"]
             exclude:
