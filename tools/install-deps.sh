@@ -8,6 +8,7 @@
 # Usage: install-deps.sh <system> <compiler> [extra OS packages...]
 #
 # Where <system> is one of the environments for which this script works:
+# * alpine
 # * archlinux
 # * archlinux-coverage (for running test coverage analysis)
 # * archlinux-lint (for running full lint)
@@ -85,10 +86,21 @@ pacman_install() {
 
 
 PKGS_ALL_AUTOTOOLS=(autoconf autoconf-archive automake libtool)
+PKGS_ALPINE_BASE=(bash)
 PKGS_ARCHLINUX_BASE=(diffutils postgresql-libs python3 uv)
 PKGS_ARCHLINUX_AUTOTOOLS=("${PKGS_ALL_AUTOTOOLS[@]}" make)
 PKGS_DEBIAN_BASE=(libpq-dev postgresql-server-dev-all python3)
 PKGS_DEBIAN_AUTOTOOLS=("${PKGS_ALL_AUTOTOOLS[@]}" make)
+
+
+install_alpine() {
+    apk update >>/tmp/install.log
+    apk upgrade >>/tmp/install.log
+    apk install \
+        "${PKGS_ALPINE[0]}" "${PKGS_ALL_AUTOTOOLS[0]}"
+        >>/tmp/install.log
+    echo "export PGHOST=/run/postgresql"
+}
 
 
 install_archlinux() {
@@ -206,7 +218,7 @@ install_ubuntu() {
 install_ubuntu_valgrind() {
     apt_install \
         "${PKGS_DEBIAN_BASE[@]}" \
-	cmake ninja-build postgresql valgrind \
+        cmake ninja-build postgresql valgrind \
         "$(compiler_pkg "$1" clang g++)" "${EXTRA_PACKAGES[@]}"
 
     echo "export PGHOST=/tmp"
@@ -286,6 +298,9 @@ fi
 
 
 case "$PROFILE" in
+    alpine)
+        install_alpine "$COMPILER"
+        ;;
     archlinux)
         install_archlinux "$COMPILER"
         ;;

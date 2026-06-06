@@ -32,6 +32,14 @@ jobs:
       - checkout
 
       - run:
+          name: If Alpine, install bash
+          # The install script requires bash, which on Alpine is not installed
+          # in the initial system.
+          command: "if [ '<< parameters.os>>' = 'alpine' ]; \
+              then ; \
+                apk add bash ; \
+              fi"
+      - run:
           name: Install
           command: "./tools/install-deps.sh \
               << parameters.os >> << parameters.compiler >> >/tmp/vars.sh"
