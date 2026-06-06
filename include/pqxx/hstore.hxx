@@ -99,6 +99,7 @@ public:
 
   [[nodiscard]] std::pair<KEY, VALUE> operator*() const
   {
+    assert(m_offset < std::size(m_input));
     return {get_key(), get_value()};
   }
 
@@ -207,24 +208,26 @@ private:
 
     here = pqxx::internal::skip_ascii_whitespace(m_input, here);
 
-    // If there's a trailing comma, position us right behind it so we can parse
-    // the next step.
-    //
-    // (There may be whitespace after the comma, but there's no point scanning
-    // that yet; the next invocation will have to scan leading whitespace
-    // anyway.)
+    // If there's a trailing comma, position us right behind it (and any
+    // following whitespace) so we can parse the next step.
     //
     // We don't care about encoding here.  In every supported encoding, any
     // character starting with an ASCII-range byte is a single-byte ASCII
     // character.
-    if ((here < std::size(m_input)) and (m_input.at(here) == ','))
+    if (here < std::size(m_input)
     {
+      if (m_input.at(here) != ','))
+        throw pqxx::conversion_error{std::format("Expected comma in hstore at offset {}: {}", here, m_input), m_ctx.loc};
+      // Position for the next scan: skip comma and whitespace.
       ++here;
       here = pqxx::internal::skip_ascii_whitespace(m_input, here);
     }
 
+    // We're in place for the next invocation, or at the end.
     m_offset = here;
 
+    // XXX: Leave parsing into m_buffer to operator* so we can check for null!
+    // XXX: Needs extra storage though, and complicates string_view pointers.
     // Parse key & value into m_buffer, and update m_key/m_value accordingly.
     // We're sizing m_buffer pessimistically.  The parsed key and value strings
     // will be able to fit in this space.
