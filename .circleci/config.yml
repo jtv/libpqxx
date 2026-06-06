@@ -58,7 +58,9 @@ jobs:
                 --enable-maintainer-mode --enable-audit \
                 --enable-shared --disable-static \
                 CXX=<< parameters.compiler >> \
-                CXXFLAGS=\"-O1 -std=<< parameters.cxx_ver >>\""
+                CXXFLAGS=\"\
+                    -O1 -DLLVM_ENABLE_RUNTIMES=all \
+                    -std=<< parameters.cxx_ver >>\""
       - store_artifacts:
           path: config.log
       - store_artifacts:
