@@ -103,7 +103,7 @@ install_archlinux() {
 
 # Install Facebook's Infer static analysis tool.
 install_archlinux_infer() {
-    local infer_ver="1.2.0"
+    local infer_ver="1.3.0"
     local downloads="https://github.com/facebook/infer/releases/download"
     local tarball="infer-linux-x86_64-v$infer_ver.tar.xz"
     local url="$downloads/v$infer_ver/$tarball"
