@@ -375,6 +375,12 @@ occurring in the file.
 	${with_postgres_libpath})
 
 
+# Some compiler options also need to be on the linker command line.
+#
+# In particular, -fsanitize=address _usually_ works fine if it's only in
+# CXXFLAGS, but on Alpine Linux it really needs to be in LDFLAGS as well.
+LDFLAGS="$CXXFLAGS $LDFLAGS"
+
 # Remove redundant occurrances of -lpq
 LIBS=[$(echo "$LIBS" | sed -e 's/-lpq * -lpq\>/-lpq/g')]
 
