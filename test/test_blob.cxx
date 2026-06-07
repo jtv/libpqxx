@@ -459,6 +459,8 @@ my_fopen(char const *path, char const *mode)
     throw std::runtime_error{
       std::format("Failed to open '{}' ({}): {}.", path, mode, message)};
   }
+  // Infer 1.3.0 issues a warning here that looks trivially spurious to me.
+  // @infer-ignore PULSE_RESOURCE_LEAK
   return handle;
 #if defined(_MSC_VER)
 #  pragma warning(pop)
