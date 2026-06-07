@@ -266,4 +266,4 @@ Checks: >
     readability-use-anyofallof,
     zircon-temporary-objects
 
-#ExcludeHeaderFilter: config.h
+ExcludeHeaderFilter: config.h
