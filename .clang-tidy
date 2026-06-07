@@ -265,3 +265,5 @@ Checks: >
     readability-uniqueptr-delete-release,
     readability-use-anyofallof,
     zircon-temporary-objects
+
+ExcludeHeaderFilterRegex: config.h
