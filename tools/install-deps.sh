@@ -97,7 +97,7 @@ install_alpine() {
     local compiler="$1"
     local sanitizer
 
-    if [ "$compiler" = "gcc" ]
+    if [ "$compiler" = "g++" ]
     then
         sanitizer="libsanitizer"
     else
