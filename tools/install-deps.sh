@@ -94,19 +94,6 @@ PKGS_DEBIAN_AUTOTOOLS=("${PKGS_ALL_AUTOTOOLS[@]}" make)
 
 
 install_alpine() {
-    (
-        apk update
-        apk upgrade
-        apk add \
-            "${PKGS_ALPINE_BASE[@]}" "${PKGS_ALL_AUTOTOOLS[@]}" \
-            "$(compiler_pkg "$1" clang g++)" "${EXTRA_PACKAGES[@]}" \
-    ) >>/tmp/install.log
-    echo "export PGHOST=/run/postgresql"
-}
-
-
-install_archlinux() {
-    local compiler="$1"
     local sanitizer
 
     if [ "$compiler" = "gcc" ]
@@ -116,10 +103,25 @@ install_archlinux() {
         sanitizer="compiler-rt"
     fi
 
+    (
+        apk update
+        apk upgrade
+        apk add \
+            "${PKGS_ALPINE_BASE[@]}" "${PKGS_ALL_AUTOTOOLS[@]}" \
+            "$(compiler_pkg "$1" clang g++)" "${EXTRA_PACKAGES[@]}" \
+	    "$sanitizer"
+    ) >>/tmp/install.log
+    echo "export PGHOST=/run/postgresql"
+}
+
+
+install_archlinux() {
+    local compiler="$1"
+
     pacman_install \
         "${PKGS_ARCHLINUX_BASE[@]}" "${PKGS_ARCHLINUX_AUTOTOOLS[@]}" \
         postgresql which \
-        "$(compiler_pkg "$1")" "${EXTRA_PACKAGES[@]}" "$sanitizer"
+        "$(compiler_pkg "$1")" "${EXTRA_PACKAGES[@]}"
 
     echo "export PGHOST=/run/postgresql"
 }

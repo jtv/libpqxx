@@ -35,7 +35,7 @@ jobs:
           name: If Alpine, install bash
           # The install script requires bash, which on Alpine is not installed
           # in the initial system.
-          command: "if [ '<< parameters.os>>' = 'alpine' ]; \
+          command: "if [ '<< parameters.os >>' = 'alpine' ]; \
               then  \
                 apk add bash ; \
               fi"
