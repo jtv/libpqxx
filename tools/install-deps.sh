@@ -94,6 +94,7 @@ PKGS_DEBIAN_AUTOTOOLS=("${PKGS_ALL_AUTOTOOLS[@]}" make)
 
 
 install_alpine() {
+    local compiler="$1"
     local sanitizer
 
     if [ "$compiler" = "gcc" ]
@@ -116,8 +117,6 @@ install_alpine() {
 
 
 install_archlinux() {
-    local compiler="$1"
-
     pacman_install \
         "${PKGS_ARCHLINUX_BASE[@]}" "${PKGS_ARCHLINUX_AUTOTOOLS[@]}" \
         postgresql which \
