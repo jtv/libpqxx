@@ -81,7 +81,7 @@ def compiler_accepts(
 
     # I'd love to pass -c to prevent linking, but unfortunately gcc on Alpine
     # it accepts various sanitizer options for which it does not actually have
-    * link-time support.
+    # link-time support.
     return run_quietly(f"{command} {prev} {flag} {src} -o {devnull}")
 
 
