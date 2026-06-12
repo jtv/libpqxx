@@ -37,7 +37,7 @@ jobs:
           # in the initial system.
           command: "if [ '<< parameters.os >>' = 'alpine' ]; \
               then  \
-                apk add bash ; \
+                apk update && apk upgrade && apk add bash ; \
               fi"
       - run:
           name: Install
