@@ -99,7 +99,8 @@ install_alpine() {
 
     if [ "$compiler" = "g++" ]
     then
-        sanitizer="libsanitizer"
+        # On Alpine, there's no sanitizer support for g++.
+        sanitizer=""
     else
         sanitizer="compiler-rt"
     fi
