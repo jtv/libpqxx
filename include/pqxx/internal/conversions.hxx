@@ -287,7 +287,7 @@ template<> struct string_traits<bool> final
   PQXX_PURE PQXX_HOT static constexpr std::string_view
   to_buf(std::span<char>, bool const &value, ctx = {}) noexcept
   {
-    return value ? "true": "false";
+    return value ? "true" : "false";
   }
 
   PQXX_PURE PQXX_HOT static constexpr std::size_t

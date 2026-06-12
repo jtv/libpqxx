@@ -95,13 +95,15 @@ PKGS_DEBIAN_AUTOTOOLS=("${PKGS_ALL_AUTOTOOLS[@]}" make)
 
 install_alpine() {
     local compiler="$1"
-    local sanitizer
+    local linker sanitizer
 
     if [ "$compiler" = "g++" ]
     then
+        linker=lld
         # On Alpine, there's no sanitizer support for g++.
         sanitizer=""
     else
+        linker="binutils"
         sanitizer="compiler-rt"
     fi
 
@@ -111,7 +113,7 @@ install_alpine() {
         apk add \
             "${PKGS_ALPINE_BASE[@]}" "${PKGS_ALL_AUTOTOOLS[@]}" \
             "$(compiler_pkg "$1" clang g++)" "${EXTRA_PACKAGES[@]}" \
-	    "$sanitizer"
+            "$linker" "$sanitizer"
     ) >>/tmp/install.log
     echo "export PGHOST=/run/postgresql"
 }
