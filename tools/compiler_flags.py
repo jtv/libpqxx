@@ -79,9 +79,9 @@ def compiler_accepts(
     # would run the configure script there?
     src = shlex.quote(str(source))
 
-    # We don't pass -c to prevent linking, just so that we can detect a problem
-    # with gcc on Alpine Linux: it accepts various sanitizer options for which
-    # it does not actually have link-time support.
+    # I'd love to pass -c to prevent linking, but unfortunately gcc on Alpine
+    # it accepts various sanitizer options for which it does not actually have
+    * link-time support.
     return run_quietly(f"{command} {prev} {flag} {src} -o {devnull}")
 
 
