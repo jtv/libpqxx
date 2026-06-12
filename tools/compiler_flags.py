@@ -78,7 +78,11 @@ def compiler_accepts(
     # This won't work with the default shell in Windows.  But then again who
     # would run the configure script there?
     src = shlex.quote(str(source))
-    return run_quietly(f"{command} {prev} {flag} -c {src} -o {devnull}")
+
+    # We don't pass -c to prevent linking, just so that we can detect a problem
+    # with gcc on Alpine Linux: it accepts various sanitizer options for which
+    # it does not actually have link-time support.
+    return run_quietly(f"{command} {prev} {flag} {src} -o {devnull}")
 
 
 def open_in(path: str):
