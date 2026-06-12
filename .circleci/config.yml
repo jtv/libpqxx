@@ -32,6 +32,17 @@ jobs:
       - checkout
 
       - run:
+          name: If Alpine, install bash
+          # The install script requires bash, which on Alpine is not installed
+          # in the initial system.
+          command: "if [ '<< parameters.os >>' = 'alpine' ]; \
+              then \
+                apk update && apk upgrade && apk add bash ; \
+              fi"
+          # If CircleCI defaults to bash, don't let it do that before we can
+          # actually install bash.
+          shell: /bin/sh
+      - run:
           name: Install
           command: "./tools/install-deps.sh \
               << parameters.os >> << parameters.compiler >> >/tmp/vars.sh"
@@ -655,7 +666,7 @@ workflows:
       - test-linux:
           matrix:
             parameters:
-              os: ["archlinux", "debian", "fedora", "ubuntu"]
+              os: ["alpine", "archlinux", "debian", "fedora", "ubuntu"]
               compiler: ["clang++", "g++"]
               cxx_ver: ["c++20", "c++23", "c++26"]
             exclude:
