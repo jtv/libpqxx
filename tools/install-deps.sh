@@ -99,7 +99,7 @@ install_alpine() {
 
     if [ "$compiler" = "g++" ]
     then
-        extra=(gcc lld)
+        extra=(gcc g++ lld)
     else
         # Alpine supports the sanitizers only with clang, and it requires
         # compiler-rt installed.  Some of the compiler runtime libraries are
