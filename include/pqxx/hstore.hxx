@@ -217,7 +217,10 @@ private:
     if (here < std::size(m_input)
     {
       if (m_input.at(here) != ','))
-        throw pqxx::conversion_error{std::format("Expected comma in hstore at offset {}: {}", here, m_input), m_ctx.loc};
+        throw pqxx::conversion_error{
+	  std::format(
+	    "Expected comma in hstore at offset {}: {}", here, m_input),
+	    m_ctx.loc};
       // Position for the next scan: skip comma and whitespace.
       ++here;
       here = pqxx::internal::skip_ascii_whitespace(m_input, here);
