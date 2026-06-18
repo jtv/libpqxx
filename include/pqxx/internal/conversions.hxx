@@ -912,15 +912,10 @@ template<typename T> struct nonbinary_range_traits
       return 3 + std::accumulate(
                    std::begin(value), std::end(value), std::size_t{},
                    [](std::size_t acc, elt_type const &elt) {
-                     // Budget for each element includes a terminating zero.
-                     // We won't actually be wanting those, but don't subtract
-                     // that one byte: we want room for a separator instead.
-                     // However, std::size(s_null) doesn't account for the
-                     // terminating zero, so add one to make s_null pay for its
-                     // own separator.
+                     // Add one extra byte for the separator
                      return acc + (pqxx::is_null(elt) ?
-                                     (std::size(s_null) + 1) :
-                                     elt_traits::size_buffer(elt));
+                                     std::size(s_null) :
+                                     elt_traits::size_buffer(elt)) + 1;
                    });
     else
       return 3 + std::accumulate(
