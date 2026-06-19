@@ -83,7 +83,7 @@ public:
   params(First &&first, Args &&...args)
   {
     sl loc;
-    if constexpr (std::is_same_v<std::remove_cvref<First>, conversion_context>)
+    if constexpr (std::is_same_v<std::remove_cvref_t<First>, conversion_context>)
       loc = first.loc;
     else
       loc = sl::current();
