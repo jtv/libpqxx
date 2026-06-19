@@ -333,6 +333,23 @@ void test_generate_multiple_items(pqxx::test::context &)
   PQXX_CHECK_EQUAL(
     pqxx::to_string(std::vector<std::string>{"foo", "bar"}, make_context()),
     "{\"foo\",\"bar\"}");
+
+  // Reproduce #1235: Under-budgeted conversion of unquoted-safe elements in arrays
+  PQXX_CHECK_GREATER_EQUAL(
+    pqxx::size_buffer(std::vector<unsigned int>{1073741823, 1789569706, 2505397589}), 34U,
+    "Buffer size allocated for an array of 3 unsigned int was too small.");
+
+  PQXX_CHECK_GREATER_EQUAL(
+    pqxx::size_buffer(std::vector<unsigned int>{1073741823, 1789569706, 2505397589, 3221225472}), 45U,
+    "Buffer size allocated for an array of 4 unsigned int was too small.");
+
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(std::vector<unsigned int>{1073741823, 1789569706, 2505397589}, make_context()),
+    "{1073741823,1789569706,2505397589}");
+
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(std::vector<unsigned int>{1073741823, 1789569706, 2505397589, 3221225472}, make_context()),
+    "{1073741823,1789569706,2505397589,3221225472}");
 }
 
 
