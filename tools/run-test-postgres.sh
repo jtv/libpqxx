@@ -13,9 +13,6 @@
 #
 # If the PostgreSQL binaries (initdb, createdb etc.) are not in the command
 # path, set PGBIN to their location, ending in a trailing slash.
-#
-# If pg_ctl and pg_isready have a release suffix (e.g. pg_ctl-18) as is the
-# case with Homebrew, set PGVER to the release number (e.g. "18").
 
 set -Cue -o pipefail
 
@@ -60,26 +57,9 @@ then
 fi
 
 
-# If PGVER is set, append it to $1.
-#
-# This is something annoying that the Homebrew postgres package does.
-add_version_suffix() {
-    local ver="${PGVER:-}"
-    local executable="$1"
-    local suffixed="$executable-$ver"
-
-    if [ -n "$ver" ] && [ -x "$suffixed" ]
-    then
-        echo "$suffixed"
-    else
-        echo "$executable"
-    fi
-}
-
-
 # Add optional path & release suffix to a postgres binary's name.
 adorn_bin() {
-    add_version_suffix "${PGBIN:-}$1"
+    echo "${PGBIN:-}$1"
 }
 
 
