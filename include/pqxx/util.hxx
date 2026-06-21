@@ -48,7 +48,7 @@ namespace pqxx
 #if defined(__cpp_lib_unreachable) && __cpp_lib_unreachable
 #  define PQXX_UNREACHABLE std::unreachable()
 #else
-#  define PQXX_UNREACHABLE [[unlikely]] while (false)
+#  define PQXX_UNREACHABLE throw pqxx::internal_error{"Unreachable code."};
 #endif
 
 
@@ -745,6 +745,58 @@ inline std::size_t copy_chars(
     dst[at++] = '\0';
   return at;
 }
+
+
+/// Return the first position of `input` _after_ any whitespace at `here`.
+/** If the search hits the end of `input`, return value will equal
+ * `input.size()`.
+ *
+ * This needs no encoding information: whenever we encounter a non-ASCII
+ * character, we also know that it's not ASCII whitespace.  We can tell from
+ * the first byte in the character.
+ */
+[[nodiscard]] inline constexpr std::size_t
+skip_ascii_whitespace(std::string_view input, std::size_t here = 0) noexcept
+{
+  for (auto const sz{std::size(input)}; here < sz; ++here)
+  {
+    switch (input.at(here))
+    {
+    case '\f':
+    case '\t':
+    case '\n':
+    case '\r':
+    case '\v':
+    case ' ':
+      // Still eating whitespace.  Keep going.
+      continue;
+    }
+    // Break out of the "for".  Not the "switch."
+    break;
+  }
+
+  return here;
+}
+
+
+#ifndef NDEBUG
+static_assert(skip_ascii_whitespace("") == 0);
+static_assert(skip_ascii_whitespace("x") == 0);
+static_assert(skip_ascii_whitespace(" ") == 1);
+static_assert(skip_ascii_whitespace(" x") == 1);
+static_assert(skip_ascii_whitespace(" x ") == 1);
+static_assert(skip_ascii_whitespace(" \n\r\t\v\f") == 6);
+static_assert(skip_ascii_whitespace(" \n\r\t\v\fx") == 6);
+static_assert(skip_ascii_whitespace("", 0u) == 0);
+static_assert(skip_ascii_whitespace(" ", 0u) == 1);
+static_assert(skip_ascii_whitespace(" ", 1u) == 1);
+static_assert(skip_ascii_whitespace("  ", 1u) == 2);
+static_assert(skip_ascii_whitespace("x ", 1u) == 2);
+static_assert(skip_ascii_whitespace("\t\xe0\xb8\x81") == 1);
+// Doesn't skip non-ASCII whitespace.
+static_assert(skip_ascii_whitespace("\x85") == 0);
+static_assert(skip_ascii_whitespace("\xe2\x80\x81") == 0);
+#endif // NDEBUG
 } // namespace pqxx::internal
 
 

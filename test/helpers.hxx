@@ -10,6 +10,7 @@
 
 #include <pqxx/result>
 #include <pqxx/row>
+#include <pqxx/transaction_base>
 
 namespace pqxx::test
 {
@@ -547,6 +548,16 @@ inline void check_bounds(
       "{} ({} is not below upper bound {}: {} > {})", desc, text, upper_text,
       value, upper),
     loc);
+}
+
+
+/// Is `extension` installed on the database?
+[[nodiscard]] inline bool
+have_extension(pqxx::transaction_base &tx, std::string_view name)
+{
+  return tx.query_value<bool>(
+    "SELECT EXISTS ( SELECT * FROM pg_extension WHERE extname = $1 )",
+    params{name});
 }
 
 

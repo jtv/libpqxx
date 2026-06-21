@@ -252,6 +252,22 @@ public:
   }
 
 private:
+  template<encoding_group ENC>
+  [[nodiscard]] static std::size_t
+  scan_double_quoted_string(std::string_view data, std::size_t pos, sl loc)
+  {
+    return pqxx::internal::scan_double_quoted_string<ENC, '\\'>(
+      data, pos, loc);
+  }
+
+  template<encoding_group ENC>
+  [[nodiscard]] static std::string
+  parse_double_quoted_string(std::string_view data, std::size_t pos, sl loc)
+  {
+    return pqxx::internal::parse_double_quoted_string<ENC, '\\'>(
+      data, pos, loc);
+  }
+
   /// Throw an error if `data` is not a `DIMENSIONS`-dimensional SQL array.
   /** Sanity-checks two aspects of the array syntax: the opening braces at the
    * beginning, and the closing braces at the end.
@@ -329,7 +345,7 @@ private:
       default:
         throw conversion_error{
           std::format(
-            "Unexpected character in array: {} where separator or closing "
+            "Unexpected character in array: {:#x} where separator or closing "
             "brace expected.",
             static_cast<unsigned>(static_cast<unsigned char>(data.at(here)))),
           loc};
@@ -467,11 +483,13 @@ private:
           // indicates that there is some kind of special character in there.
           // So in practice, this optimisation would only apply if the only
           // special characters in the string were commas.
-          end =
-            pqxx::internal::scan_double_quoted_string<ENC>(data, here, loc);
-          // TODO: scan_double_quoted_string() with reusable buffer.
+          //
+          // In a double-quoted array entry, only the backslash acts as an
+          // escape character.
+          end = scan_double_quoted_string<ENC>(data, here, loc);
+          // TODO: parse_double_quoted_string() with reusable buffer.
           std::string const buf{
-            pqxx::internal::parse_double_quoted_string<ENC>(
+            pqxx::internal::parse_double_quoted_string<ENC, '\\'>(
               data.substr(0, end), here, loc)};
           m_elts.emplace_back(from_string<ELEMENT>(buf, c));
         }
@@ -798,15 +816,35 @@ private:
   template<encoding_group>
   std::pair<juncture, std::string> parse_array_step(sl loc);
 
+  /// Shorthand for scan with array-appropriate template args.
+  template<encoding_group ENC>
+  [[nodiscard]] static std::size_t
+  scan_double_quoted_string(std::string_view data, std::size_t pos, sl loc)
+  {
+    return pqxx::internal::scan_double_quoted_string<ENC, '\\'>(
+      data, pos, loc);
+  }
+
+  /// Call @ref scan_double_quoted_string() on current buffer & position.
   template<encoding_group>
   [[nodiscard]] std::size_t scan_double_quoted_string(sl loc) const;
+
+  /// Shorthand for parse with array-specific template args.
+  template<encoding_group ENC>
+  [[nodiscard]] static std::string
+  parse_double_quoted_string(std::string_view data, std::size_t pos, sl loc)
+  {
+    return pqxx::internal::parse_double_quoted_string<ENC, '\\'>(
+      data, pos, loc);
+  }
+
   template<encoding_group>
   [[nodiscard]] std::string
   parse_double_quoted_string(std::size_t end, sl loc) const;
   template<encoding_group>
   [[nodiscard]] std::size_t scan_unquoted_string(sl loc) const;
   template<encoding_group>
-  [[nodiscard]] std::string_view
+  [[nodiscard]] std::string
   parse_unquoted_string(std::size_t end, sl loc) const;
 };
 } // namespace pqxx

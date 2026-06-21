@@ -1,3 +1,6 @@
+8.1.0
+ - In double-quoted array strings, `""` is no longer an escape for `"`. (#1226)
+ - Support hstore. (#1034)
 8.0.2
  - Simple benchmark tool for query performance.
  - Fix an apparent `memcpy()` overlap.

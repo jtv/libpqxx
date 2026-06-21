@@ -21,7 +21,7 @@
 namespace pqxx
 {
 /// Full libpqxx version string.
-constexpr inline std::string_view const version{"8.0.2"};
+constexpr inline std::string_view const version{"8.1.0"};
 
 
 /// Libpqxx ABI version string: major and minor version, but no patch.
@@ -31,7 +31,7 @@ constexpr inline std::string_view const version{"8.0.2"};
  * compiler version, and compilation options.  An ABI can also change radically
  * during release candidate development.  So don't count fully on it.
  */
-constexpr inline std::string_view const abi_version{"8.0"};
+constexpr inline std::string_view const abi_version{"8.1"};
 
 
 /// Major libpqxx version number.  (E.g. for libpqxx 9.3.1, this will be 9.)
@@ -39,27 +39,27 @@ constexpr inline int const version_major{8};
 
 
 /// Minor libpqxx version number.  (E.g. for libpqxx 9.3.1, this will be 3.)
-constexpr inline int const version_minor{0};
+constexpr inline int const version_minor{1};
 
 
 /// Libpqxx patch version number.  (E.g. for libpqxx 9.3.1, this will be 1.)
 /** For "special" versions such as pre-releases, the last component of the
  * version string is not a simple number, and `version_patch` will be -1.
  */
-constexpr inline int const version_patch{2};
+constexpr inline int const version_patch{0};
 } // namespace pqxx
 
 
 // NOLINTBEGIN(modernize-macro-to-enum)
 
 /// Full libpqxx version string.  @deprecated Use @ref pqxx::version instead.
-#define PQXX_VERSION "8.0.2"
+#define PQXX_VERSION "8.1.0"
 /// Library ABI version.  @deprecated Use @ref pqxx::abi_version instead.
-#define PQXX_ABI "8.0"
+#define PQXX_ABI "8.1"
 /// Major version number.  @deprecated Use @ref pqxx::version_major instead.
 #define PQXX_VERSION_MAJOR 8
 /// Minor version number.  @deprecated Use @ref pqxx::version_minor instead.
-#define PQXX_VERSION_MINOR 0
+#define PQXX_VERSION_MINOR 1
 
 // NOLINTEND(modernize-macro-to-enum)
 
