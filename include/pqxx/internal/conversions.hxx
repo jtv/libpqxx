@@ -908,11 +908,6 @@ template<typename T> struct nonbinary_range_traits
 
   static std::size_t size_buffer(T const &value) noexcept
   {
-    constexpr bool need_quotes{not is_unquoted_safe<elt_type>};
-    // Budget required for quotes around each element (if needed).
-    constexpr std::size_t const quotes{need_quotes ? 2u : 0u};
-    // Double budget if each byte in a value *may* need escaping.
-    constexpr std::size_t const escape_factor{need_quotes ? 2u : 1u};
     return (
       // Opening brace.
       1u +
@@ -920,6 +915,12 @@ template<typename T> struct nonbinary_range_traits
       std::accumulate(
         std::begin(value), std::end(value), std::size_t{},
         [](std::size_t acc, elt_type const &elt) {
+          static constexpr bool need_quotes{not is_unquoted_safe<elt_type>};
+          // Budget required for quotes around each element (if needed).
+          static constexpr std::size_t const quotes{need_quotes ? 2u : 0u};
+          // Double budget if each byte in a value *may* need escaping.
+          static constexpr std::size_t const escape_factor{
+            need_quotes ? 2u : 1u};
           return (
             acc +
             (pqxx::is_null(elt) ?
