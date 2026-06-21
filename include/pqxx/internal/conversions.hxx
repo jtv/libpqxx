@@ -908,28 +908,29 @@ template<typename T> struct nonbinary_range_traits
 
   static std::size_t size_buffer(T const &value) noexcept
   {
-    if constexpr (is_unquoted_safe<elt_type>)
-      return 3 + std::accumulate(
-                   std::begin(value), std::end(value), std::size_t{},
-                   [](std::size_t acc, elt_type const &elt) {
-                     // Add element budget, plus one byte for separator.
-                     return acc +
-                            (pqxx::is_null(elt) ?
-                               std::size(s_null) :
-                               elt_traits::size_buffer(elt)) +
-                            1;
-                   });
-    else
-      return 3 + std::accumulate(
-                   std::begin(value), std::end(value), std::size_t{},
-                   [](std::size_t acc, elt_type const &elt) {
-                     // Opening and closing quotes, plus worst-case escaping,
-                     // plus one byte for the separator.
-                     std::size_t const elt_size{
-                       pqxx::is_null(elt) ? std::size(s_null) :
-                                            elt_traits::size_buffer(elt)};
-                     return acc + 2 * elt_size + 3;
-                   });
+    constexpr bool need_quotes{is_unquoted_safe<elt_type>};
+    // Budget required for quotes around each element (if needed).
+    constexpr std::size_t const quotes{need_quotes ? 2u : 0u};
+    // Double budget if each byte in a value *may* need escaping.
+    constexpr std::size_t const escape_factor{need_quotes ? 2u : 1u};
+    return (
+      // Opening brace.
+      1u +
+      // Combined budgets for all elements.
+      std::accumulate(
+        std::begin(value), std::end(value), std::size_t{},
+        [](std::size_t acc, elt_type const &elt) {
+          return (
+            acc +
+            (pqxx::is_null(elt) ?
+               std::size(s_null) :
+               (escape_factor * elt_traits::size_buffer(elt))) +
+            quotes +
+            // Separator.
+            1u);
+        }) +
+      // Closing brace.
+      1u);
   }
 
   static std::string_view
