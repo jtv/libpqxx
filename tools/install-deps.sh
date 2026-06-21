@@ -198,6 +198,7 @@ install_macos() {
     # means "if A is set, use B, otherwise use an empty value."
     local extra=("${EXTRA_PACKAGES[@]+"${EXTRA_PACKAGES[@]}"}")
 
+    brew update  >>/tmp/install.log
     brew_install \
         "${PKGS_ALL_AUTOTOOLS[@]}" \
         postgresql uv libpq "${extra[@]+"${extra[@]}"}"
