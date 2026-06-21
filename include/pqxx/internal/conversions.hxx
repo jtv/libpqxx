@@ -908,7 +908,7 @@ template<typename T> struct nonbinary_range_traits
 
   static std::size_t size_buffer(T const &value) noexcept
   {
-    constexpr bool need_quotes{is_unquoted_safe<elt_type>};
+    constexpr bool need_quotes{not is_unquoted_safe<elt_type>};
     // Budget required for quotes around each element (if needed).
     constexpr std::size_t const quotes{need_quotes ? 2u : 0u};
     // Double budget if each byte in a value *may* need escaping.
@@ -924,8 +924,7 @@ template<typename T> struct nonbinary_range_traits
             acc +
             (pqxx::is_null(elt) ?
                std::size(s_null) :
-               (escape_factor * elt_traits::size_buffer(elt))) +
-            quotes +
+               (escape_factor * elt_traits::size_buffer(elt) + quotes)) +
             // Separator.
             1u);
         }) +
