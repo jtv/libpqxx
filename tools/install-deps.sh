@@ -197,13 +197,13 @@ install_macos() {
     # We need a bit of extra syntax to work around this.  This "${A+B}" syntax
     # means "if A is set, use B, otherwise use an empty value."
     local extra=("${EXTRA_PACKAGES[@]+"${EXTRA_PACKAGES[@]}"}")
-    local pg_ver=18
 
+    brew update  >>/tmp/install.log
     brew_install \
         "${PKGS_ALL_AUTOTOOLS[@]}" \
-        postgresql@$pg_ver uv libpq "${extra[@]+"${extra[@]}"}"
+        postgresql uv libpq "${extra[@]+"${extra[@]}"}"
 
-    echo "export PGHOST=/tmp PGBIN=/opt/homebrew/bin/ PGVER=$pg_ver"
+    echo "export PGHOST=/tmp PGBIN=/opt/homebrew/bin/"
 }
 
 
