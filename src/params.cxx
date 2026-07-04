@@ -114,7 +114,7 @@ pqxx::internal::c_params pqxx::params::make_c_params(sl loc) const
         }
         else
         {
-          static constexpr char empty_value[] = "";
+          static constexpr char const * const empty_value = "";
           auto const data{std::empty(value) 
             ? empty_value
             : reinterpret_cast<char const *>(std::data(value))

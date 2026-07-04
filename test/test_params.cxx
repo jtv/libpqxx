@@ -19,11 +19,15 @@ void test_statement_params(pqxx::test::context &)
   p.append();
   p.append("zview"_zv);
   q.append(bin);
+  q.append(pqxx::bytes{});
   p.append(q);
-  auto const res{tx.exec("SELECT $1, $2, $3", p)};
+
+  auto const res{tx.exec("SELECT $1, $2, $3, $4", p)};
   PQXX_CHECK(res.at(0).at(0).is_null());
   PQXX_CHECK_EQUAL(res.at(0).at(1).view(), "zview");
   PQXX_CHECK_EQUAL(res.at(0).at(2).view(), "ab");
+  PQXX_CHECK(not res.at(0).at(3).is_null());
+  PQXX_CHECK_EQUAL(res.at(0).at(3).view(), "");
 }
 
 
