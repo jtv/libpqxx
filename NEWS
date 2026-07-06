@@ -6,6 +6,7 @@
  - Fix `bool` conversion to string. (#1229)
  - Fix under-budgeting for arrays. (#1235)
  - Fix check for passing `conversion_context` to `params` constructor. (#1237)
+ - Binary data with null pointer is now an empty blob, not a null. (#1242)
 8.0.1
  - A lot more constructors are now `explicit`.
  - Update GNU attributes to use standard `[[attribute]]` syntax. (#1199)

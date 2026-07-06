@@ -114,12 +114,12 @@ pqxx::internal::c_params pqxx::params::make_c_params(sl loc) const
         }
         else
         {
-          static constexpr char const * const empty_value = "";
-          auto const data{std::empty(value) 
-            ? empty_value
-            : reinterpret_cast<char const *>(std::data(value))
-          };
-        
+          static constexpr char const *const empty_value = "";
+          auto const data{
+            std::empty(value) ?
+              empty_value :
+              reinterpret_cast<char const *>(std::data(value))};
+
           p.values.push_back(data);
           p.lengths.push_back(
             check_cast<int>(std::ssize(value), s_overflow, loc));
