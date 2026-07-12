@@ -138,24 +138,6 @@ void test_array_double_quoted_escaping(pqxx::test::context &)
 }
 
 
-// A pair of double quotes in a double-quoted string is an escaped quote.
-void test_array_double_double_quoted_string(pqxx::test::context &)
-{
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-  std::pair<pqxx::array_parser::juncture, std::string> output;
-  pqxx::array_parser parser{R"--({"3"" steel"})--"};
-
-  output = parser.get_next();
-  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::row_start);
-
-  output = parser.get_next();
-  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::string_value);
-
-  PQXX_CHECK_EQUAL(output.second, "3\" steel");
-#include "pqxx/internal/ignore-deprecated-post.hxx"
-}
-
-
 void test_array_unquoted_string(pqxx::test::context &)
 {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
@@ -483,8 +465,8 @@ void test_array_strings(pqxx::test::context &)
 {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   std::vector<std::string_view> const inputs{
-    "",    "null", "NULL", "\\N", "'",    "''", "\\", "\n\t",
-    "\\n", "\"",   "\"\"", "a b", "a<>b", "{",  "}",  "{}",
+    "",    "null", "NULL", "\\N",  "'", "''", "\\", "\n\t",
+    "\\n", "\"",   "a b",  "a<>b", "{", "}",  "{}",
   };
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -606,17 +588,13 @@ void test_array_rejects_malformed_twodimensional_arrays(pqxx::test::context &)
 void test_array_parses_quoted_strings(pqxx::test::context &)
 {
   pqxx::connection const cx;
-  pqxx::array<std::string> const a{
-    R"x({"","n","nnn","\"'","""","\\","\"","a""","""z"})x", cx};
+  pqxx::array<std::string> const a{R"x({"","n","nnn","\"'","\\","\""})x", cx};
   PQXX_CHECK_EQUAL(a.at(0), "");
   PQXX_CHECK_EQUAL(a.at(1), "n");
   PQXX_CHECK_EQUAL(a.at(2), "nnn");
   PQXX_CHECK_EQUAL(a.at(3), R"x("')x");
-  PQXX_CHECK_EQUAL(a.at(4), R"x(")x");
-  PQXX_CHECK_EQUAL(a.at(5), "\\");
-  PQXX_CHECK_EQUAL(a.at(6), "\"");
-  PQXX_CHECK_EQUAL(a.at(7), "a\"");
-  PQXX_CHECK_EQUAL(a.at(8), "\"z");
+  PQXX_CHECK_EQUAL(a.at(4), "\\");
+  PQXX_CHECK_EQUAL(a.at(5), "\"");
 
   // A byte value that looks like an ASCII backslash but inside a multibyte
   // character does not count as a backslash.
@@ -770,51 +748,70 @@ template<pqxx::encoding_group ENC> void check_scan_double_quoted_ascii()
 {
   // TODO: Do this with static_assert() once Visual Studio handles it.
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<ENC>(R"("")", 0u, here()), 2u);
+    (pqxx::internal::scan_double_quoted_string<ENC, '\\'>(
+      R"("")", 0u, here())),
+    2u);
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<ENC>(R"(""z)", 0u, here()), 2u);
+    (pqxx::internal::scan_double_quoted_string<ENC, '\\'>(
+      R"(""z)", 0u, here())),
+    2u);
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<ENC>(R"(x="")", 2u, here()), 4u);
-  PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<ENC>(R"(x=""z)", 2u, here()),
+    (pqxx::internal::scan_double_quoted_string<ENC, '\\'>(
+      R"(x="")", 2u, here())),
     4u);
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<ENC>(R"("x")", 0u, here()), 3u);
+    (pqxx::internal::scan_double_quoted_string<ENC, '\\'>(
+      R"(x=""z)", 2u, here())),
+    4u);
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<ENC>(R"("x"z)", 0u, here()), 3u);
+    (pqxx::internal::scan_double_quoted_string<ENC, '\\'>(
+      R"("x")", 0u, here())),
+    3u);
+  PQXX_CHECK_EQUAL(
+    (pqxx::internal::scan_double_quoted_string<ENC, '\\'>(
+      R"("x"z)", 0u, here())),
+    3u);
   PQXX_CHECK_THROWS(
-    (pqxx::internal::scan_double_quoted_string<ENC>(R"("foo)", 0u, here())),
+    (pqxx::internal::scan_double_quoted_string<ENC, '\\'>(
+      R"("foo)", 0u, here())),
     pqxx::argument_error,
     "Double-quoted string scan did not detect missing closing quote.");
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<ENC>("\"x\\\"y\"", 0u, here()),
+    (pqxx::internal::scan_double_quoted_string<ENC, '\\'>(
+      "\"x\\\"y\"", 0u, here())),
     6u);
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<ENC>(
-      "\"x\\\"y\"z\"", 0u, here()),
+    (pqxx::internal::scan_double_quoted_string<ENC, '\\'>(
+      "\"x\\\"y\"z\"", 0u, here())),
     6u);
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<ENC>(R"("x\\y")", 0u, here()),
+    (pqxx::internal::scan_double_quoted_string<ENC, '\\'>(
+      R"("x\\y")", 0u, here())),
     6u);
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<ENC>(R"("x""y")", 0u, here()),
+    (pqxx::internal::scan_double_quoted_string<ENC, '\\'>(
+      R"("x""y")", 0u, here())),
+    3u);
+  PQXX_CHECK_EQUAL(
+    (pqxx::internal::scan_double_quoted_string<ENC, '\\'>(
+      R"("x""y"z)", 0u, here())),
+    3u);
+  PQXX_CHECK_EQUAL(
+    (pqxx::internal::scan_double_quoted_string<ENC, '\\'>(
+      "\"\\\\\\\"\"\"\"", 0u, here())),
     6u);
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<ENC>(R"("x""y"z)", 0u, here()),
-    6u);
+    (pqxx::internal::scan_double_quoted_string<ENC, '\\'>(
+      "a\"\\\\\\\"\"\"\"", 1u, here())),
+    7u);
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<ENC>(
-      "\"\\\\\\\"\"\"\"", 0u, here()),
-    8u);
+    (pqxx::internal::scan_double_quoted_string<ENC, '\\'>(
+      R"("""")", 0u, here())),
+    2u);
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<ENC>(
-      "a\"\\\\\\\"\"\"\"", 1u, here()),
-    9u);
-  PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<ENC>(R"("""")", 0u, here()), 4u);
-  PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<ENC>(R"(""""z)", 0u, here()),
-    4u);
+    (pqxx::internal::scan_double_quoted_string<ENC, '\\'>(
+      R"(""""z)", 0u, here())),
+    2u);
 }
 
 
@@ -833,8 +830,8 @@ void test_scan_double_quoted_string(pqxx::test::context &)
   // but is actually just one byte in a multibyte character.
   // (I believe these two SJIS bytes form the Katakana letter "so".)
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::sjis>(
-      "\"\203\\\"suffix", 0u, here()),
+    (pqxx::internal::scan_double_quoted_string<enc::sjis, '\\'>(
+      "\"\203\\\"suffix", 0u, here())),
     4u, "Fell for embedded ASCII-like byte in multibyte char.");
 }
 
@@ -882,7 +879,6 @@ PQXX_REGISTER_TEST(test_empty_arrays);
 PQXX_REGISTER_TEST(test_array_null_value);
 PQXX_REGISTER_TEST(test_array_double_quoted_string);
 PQXX_REGISTER_TEST(test_array_double_quoted_escaping);
-PQXX_REGISTER_TEST(test_array_double_double_quoted_string);
 PQXX_REGISTER_TEST(test_array_unquoted_string);
 PQXX_REGISTER_TEST(test_array_multiple_values);
 PQXX_REGISTER_TEST(test_nested_array);

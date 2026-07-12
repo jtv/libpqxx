@@ -186,6 +186,7 @@ test_runner_SOURCES = \
   test/test_field.cxx \
   test/test_float.cxx \
   test/test_helpers.cxx \
+  test/test_hstore.cxx \
   test/test_largeobject.cxx \
   test/test_nonblocking_connect.cxx \
   test/test_notice_handler.cxx \

@@ -25,9 +25,12 @@ a constant you need to define.
 Converting types
 ----------------
 
-In your application, a conversion is driven entirely by a C++ type you specify.
-The value's SQL type on the database side has nothing to do with it.  Nor is
-there anything in the string that would identify its type.  Your code says
+Whenever you convert data between the SQL representation and a C++ data type in
+your application, it is the C++ data type which drives the choice of how that
+happens.  There are many possible conversions, but there's only one pair (in
+the two directions) per C++ data type.  The value's _SQL_ type, inside the
+database, has nothing to do with it.  Nor does libpqxx check what the SQL
+representation looks like before choosing a conversion.  Your code says
 "convert to this type" and libpqxx does it.
 
 So, if you've SELECTed a 64-bit integer from the database, and you try to
@@ -54,6 +57,9 @@ template explicitly:
 ```cxx
     auto y = from_string<int>("99");
 ```
+
+This also means that you could define more than one pair of conversions for a
+given SQL type.  You just can't define more than one pair for one C++ type.
 
 
 Supporting a new type
@@ -335,14 +341,29 @@ the string, so be sure to have your tests cover cases where there's a non-zero
 byte behind the string!
 
 It's always possible that the string doesn't actually represent a `T` value.
-Mistakes happen.  There can be corner cases.  Maybe a value is outside the
-range you can reasonably support, such as when you're trying to read an SQL
-`integer` into an `unsigned int` and it happens to be negative.  When you run
-into that kind of thing, throw a `pqxx::conversion_error`.
+Mistakes happen.  There can be corner cases or unexpected forms.  Maybe a value
+is outside the range you can reasonably support, such as when you're trying to
+read an SQL `integer` into an `unsigned int` and it happens to be negative.
+When you run into that kind of thing, throw a `pqxx::conversion_error`.
 
 (Of course it's also possible that you run into some other error, so it's fine
 to throw different exceptions as well.  But when it's definitely "this is not
 the right format for a `T`," throw `conversion_error`.)
+
+It's not absolutely necessary for your `from_string()` function to support
+every possible valid input.  You only need to handle outputs that the database
+will produce when passing values to the client.
+
+The PostgreSQL manual documents separate _input_ formats and _output_ formats
+for every data type.  These are, respectively, the format the database will
+accept when you give it input of this type; and the format in which the
+database will show you values of the type.  For example, you could type an
+integer zero in SQL as `-0`, and that's fine because the input format says so.
+But there's no need for your `from_string()` to handle that case, because the
+database won't ever return an integer zero in that form.  (There is actually
+such a thing as a negative zero in floating-point arithmetic, but we're talking
+about integers now.)  Your `from_string()` only needs to support the type's
+output format, not its input format.
 
 
 ### `to_buf`

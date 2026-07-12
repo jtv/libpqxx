@@ -28,6 +28,7 @@ install(
     PATTERN errorhandler
     PATTERN except
     PATTERN field
+    PATTERN hstore
     PATTERN isolation
     PATTERN largeobject
     PATTERN nontransaction
