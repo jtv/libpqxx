@@ -134,7 +134,7 @@ When you index a `result` or dereference a `result` iterator, you get a
 `row_ref`.  When you index a `row_ref` or `row` or dereference an iterator of
 either, you get a `field_ref`.
 
-Usually you'll deal with `row_ref` and `field_ref`.  These are effficient,
+Usually you'll deal with `row_ref` and `field_ref`.  These are efficient,
 cheap to copy, and straightforward.  All you really need to do is ensure that
 the `result` object does not move in memory, or get destroyed.
 
