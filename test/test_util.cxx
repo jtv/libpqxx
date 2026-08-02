@@ -272,6 +272,9 @@ std::string make_filename(pqxx::test::context &tctx)
   case 5: suffix = "hpp"; break;
   case 6: suffix = "h"; break;
   }
+
+  // clang-tidy rule bug:
+  // NOLINTNEXTLINE(cert-dcl03-c)
   assert(suffix != nullptr);
 
   return std::format("{}.{}", tctx.make_name("source"), suffix);
