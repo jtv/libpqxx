@@ -306,6 +306,8 @@ public:
       auto const written{pqxx::into_buf<COUNTER>(
         {data + 1, data + std::size(m_buf) - 1}, m_current, c)};
       std::size_t const end{1 + written};
+      // clang-tidy rule bug:
+      // NOLINTNEXTLINE(cert-dcl03-c)
       assert(end < std::size(m_buf));
       data[end] = '\0';
       m_len = check_cast<COUNTER>(end, "placeholders counter", loc);

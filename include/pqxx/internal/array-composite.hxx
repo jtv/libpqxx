@@ -26,6 +26,8 @@ template<encoding_group ENC>
 PQXX_INLINE_COV inline constexpr std::size_t
 scan_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
 {
+  // clang-tidy rule bug:
+  // NOLINTNEXTLINE(cert-dcl03-c)
   assert(input[pos] == '"');
   auto const sz{std::size(input)};
 
@@ -107,8 +109,11 @@ parse_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
 {
   std::string output;
   auto const end{std::size(input)};
+  // clang-tidy rule bug:
+  // NOLINTBEGIN(cert-dcl03-c)
   assert((end - pos) > 1);
   assert(input[end - 1] == '"');
+  // NOLINTEND(cert-dcl03-c)
 
   // Maximum output size is same as the input size, minus the opening and
   // closing quotes.  Or in the extreme opposite case, the real number could be
@@ -117,15 +122,23 @@ parse_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
 
   auto const closing_quote{end - 1};
 
+  // clang-tidy rule bug:
+  // NOLINTBEGIN(cert-dcl03-c)
+
   // We're at the starting quote.  Skip it.
   assert(pos < closing_quote);
   assert(input[pos] == '"');
   pos += one_ascii_char;
+
   assert(pos <= closing_quote);
+
+  // NOLINTEND(cert-dcl03-c)
 
   // In theory, the closing quote should mean that there's no need for the
   // find_ascii_char() call to check for end-of-string inside its loop.  Not
   // sure whether the compiler will be smart enough to see that though.
+  // clang-tidy rule bug:
+  // NOLINTNEXTLINE(cert-dcl03-c)
   assert(input[closing_quote] == '"');
 
   while (pos < closing_quote)
@@ -133,8 +146,11 @@ parse_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
     auto const next{find_ascii_char<ENC, '"', '\\'>(input, pos, loc)};
     output.append(input.substr(pos, next - pos));
     pos = next;
+    // clang-tidy rule bug:
+    // NOLINTBEGIN(cert-dcl03-c)
     assert(pos <= closing_quote);
     assert((input[pos] == '"') or (input[pos] == '\\'));
+    // NOLINTEND(cert-dcl03-c)
 
     if (pos >= closing_quote)
       return output;
@@ -145,6 +161,8 @@ parse_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
 
     // We are now at the escaped character.
     // If the input has been scanned correctly, the string can't end here.
+    // clang-tidy rule bug:
+    // NOLINTNEXTLINE(cert-dcl03-c)
     assert(pos < closing_quote);
 
     if ((input[pos] == '"') or (input[pos] == '\\'))
@@ -160,6 +178,8 @@ parse_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
       // next iteration handle it like any run-of-the-mill character.
     }
   }
+  // clang-tidy rule bug:
+  // NOLINTNEXTLINE(cert-dcl03-c)
   assert(pos == closing_quote);
 
   return output;
@@ -225,8 +245,11 @@ PQXX_INLINE_COV inline void parse_composite_field(
   std::size_t &index, std::string_view input, std::size_t &pos, T &field,
   std::size_t last_field, sl loc)
 {
+  // clang-tidy rule bug:
+  // NOLINTBEGIN(cert-dcl03-c)
   assert(index <= last_field);
   assert(pos < std::size(input));
+  // NOLINTEND(cert-dcl03-c)
   conversion_context const c{ENC, loc};
 
   // Expect a field.
@@ -387,6 +410,8 @@ PQXX_INLINE_ONLY inline void write_composite_field(
     // To avoid allocating that at run time, we use the end of the buffer that
     // we have.
     auto const budget{size_buffer(field)};
+    // clang-tidy rule bug:
+    // NOLINTNEXTLINE(cert-dcl03-c)
     assert(budget < std::size(buf));
     // C++26: Use buf.at().
     buf[pos++] = '"';
@@ -458,6 +483,8 @@ template<nonbinary_range TYPE>
       auto const elt_budget{pqxx::size_buffer(elt)};
       // Use the tail end of the destination buffer as an intermediate
       // buffer.
+      // clang-tidy rule bug:
+      // NOLINTNEXTLINE(cert-dcl03-c)
       assert(std::cmp_less(elt_budget, std::size(buf) - here));
       auto const from{pqxx::to_buf(buf.last(elt_budget), elt, c)};
       auto const end{std::size(from)};

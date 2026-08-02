@@ -642,6 +642,8 @@ template<typename... TYPE>
 inline std::vector<std::string_view>
 to_buf(char *begin, char const *end, TYPE... value)
 {
+  // clang-tidy rule bug:
+  // NOLINTNEXTLINE(cert-dcl03-c)
   assert(begin <= end);
 
   // We can't construct the span as {begin, end} because end points to const.
@@ -656,10 +658,17 @@ to_buf(char *begin, char const *end, TYPE... value)
   return {[&here, buf](auto v) {
     auto start{here};
     here += pqxx::into_buf(buf.subspan(start), v);
+
+    // clang-tidy rule bug:
+    // NOLINTBEGIN(cert-dcl03-c)
+
     assert(start < here);
     assert(here <= std::size(buf));
     // C++26: Use buf.at().
     assert(buf[here - 1] == '\0');
+
+    // NOLINTEND(cert-dcl03-c)
+
     // Exclude the trailing zero out of the string_view.
     auto len{here - start - 1};
     return std::string_view{std::data(buf) + start, len};
@@ -684,8 +693,12 @@ to_buf_multi(ctx c, std::span<char> buf, TYPE... value)
   return {[&here, buf, &c](auto v) {
     auto start{here};
     here += pqxx::into_buf(buf.subspan(start), v, c);
+    // clang-tidy rule bug:
+    // NOLINTBEGIN(cert-dcl03-c)
     assert(start < here);
     assert(here <= std::size(buf));
+    // NOLINTEND(cert-dcl03-c)
+
     // C++26: Use buf.at().
     auto const len{here - start};
     return std::string_view{std::data(buf) + start, len};
@@ -713,6 +726,8 @@ to_buf_multi(std::span<char> buf, TYPE... value)
   // TODO: Would it be worth merging consecutive identical strings?
   std::size_t here{0u};
   conversion_context c{};
+  // clang-tidy rule bug:
+  // NOLINTBEGIN(cert-dcl03-c)
   return {[&here, buf, &c](auto v) {
     auto start{here};
     here += pqxx::into_buf(buf.subspan(start), v, c);
@@ -722,6 +737,7 @@ to_buf_multi(std::span<char> buf, TYPE... value)
     auto const len{here - start};
     return std::string_view{std::data(buf) + start, len};
   }(value)...};
+  // NOLINTEND(cert-dcl03-c)
 }
 
 

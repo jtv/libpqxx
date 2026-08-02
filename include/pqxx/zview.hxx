@@ -172,8 +172,11 @@ private:
   /// Check invariant: `data()` must be non-null and zero-terminated.
   [[maybe_unused]] constexpr void invariant() const noexcept
   {
+    // clang-tidy rule bug:
+    // NOLINTBEGIN(cert-dcl03-c)
     assert(std::data(*this) != nullptr);
     assert(std::data(*this)[std::size(*this)] == '\0');
+    // NOLINTEND(cert-dcl03-c)
   }
 };
 

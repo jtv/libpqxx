@@ -449,6 +449,8 @@ private:
           throw conversion_error{
             "Malformed array: found element where sub-array was expected.",
             loc};
+        // clang-tidy rule bug:
+        // NOLINTNEXTLINE(cert-dcl03-c)
         assert(dim != outer);
         ++extents.at(dim);
         std::size_t end{};
@@ -508,6 +510,8 @@ private:
 
     if (dim != outer)
       throw conversion_error{"Malformed array; may be truncated.", loc};
+    // clang-tidy rule bug:
+    // NOLINTNEXTLINE(cert-dcl03-c)
     assert(know_extents_from == 0);
     PQXX_ASSUME(know_extents_from == 0);
 
@@ -624,8 +628,11 @@ public:
   to_buf(std::span<char> buf, array_type const &value, ctx c = {})
   {
     auto const len{pqxx::internal::array_into_buf(buf, value, c)};
+    // clang-tidy rule bug:
+    // NOLINTBEGIN(cert-dcl03-c)
     assert(len > 0);
     assert(buf[len - 1] == '\0');
+    // NOLINTEND(cert-dcl03-c)
     return {std::data(buf), len - 1};
   }
 

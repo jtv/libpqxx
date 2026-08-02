@@ -492,8 +492,11 @@ void check_unique_unregister(
 PQXX_PURE inline constexpr std::size_t
 size_esc_bin(std::size_t binary_bytes) noexcept
 {
+  // clang-tidy rule bug:
+  // NOLINTBEGIN(cert-dcl03-c)
   assert(std::cmp_less(
     binary_bytes, (std::numeric_limits<std::size_t>::max)() / 2u));
+  // NOLINTEND(cert-dcl03-c)
   return 2 + (2 * binary_bytes) + 1;
 }
 

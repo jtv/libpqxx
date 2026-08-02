@@ -33,6 +33,8 @@ enc_group(int /* libpq encoding ID */, sl);
 PQXX_PURE PQXX_INLINE_ONLY PQXX_HOT constexpr inline unsigned char
 get_byte(std::string_view buffer, std::size_t offset) noexcept
 {
+  // clang-tidy rule bug:
+  // NOLINTNEXTLINE(cert-dcl03-c)
   assert(offset < std::size(buffer));
   return static_cast<unsigned char>(buffer[offset]);
 }

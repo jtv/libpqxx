@@ -71,6 +71,8 @@ public:
    */
   stream_query_iterator &operator++() &
   {
+    // clang-tidy rule bug:
+    // NOLINTNEXTLINE(cert-dcl03-c)
     assert(not done());
     consume_line(m_created_loc);
     return *this;
@@ -122,6 +124,8 @@ private:
       // with the field separator, so the parsing loop only needs to scan for a
       // tab, not a tab or a newline.
       char *const ptr{m_line.get()};
+      // clang-tidy rule bug:
+      // NOLINTNEXTLINE(cert-dcl03-c)
       assert(ptr[size] == '\n');
       ptr[size] = '\t';
     }
@@ -150,6 +154,8 @@ template<typename... TYPE>
 inline std::pair<typename stream_query<TYPE...>::line_handle, std::size_t>
 stream_query<TYPE...>::read_line(sl loc) &
 {
+  // clang-tidy rule bug:
+  // NOLINTNEXTLINE(cert-dcl03-c)
   assert(not done());
 
   internal::gate::connection_stream_from gate{trans().conn()};
