@@ -47,6 +47,8 @@ constexpr T top{std::numeric_limits<T>::max()};
 template<pqxx::internal::integer T>
 constexpr inline char *nonneg_to_buf(char *end, T value)
 {
+  // clang-tidy rule bug:
+  // NOLINTNEXTLINE(cert-dcl03-c)
   assert(std::cmp_greater_equal(value, 0));
   constexpr int ten{10};
   // Seeming bug in clang-tidy rule: it thinks we can make pos a "char const *"
@@ -67,6 +69,8 @@ constexpr inline char *nonneg_to_buf(char *end, T value)
 template<pqxx::internal::integer T>
 constexpr inline char *neg_to_buf(char *end, T value)
 {
+  // clang-tidy rule bug:
+  // NOLINTNEXTLINE(cert-dcl03-c)
   assert(std::cmp_greater_equal(value, 0));
   // Seeming bug in clang-tidy rule: it thinks we can make pos a "char const *"
   // instead of a plain "char *".  I don't see how.

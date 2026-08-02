@@ -160,6 +160,8 @@ void test_string_view_conversion(pqxx::test::context &)
   // NOLINTNEXTLINE(cppcoreguidelines-init-variables)
   std::size_t const stop{pqxx::into_buf(buf, "more view"sv)};
   PQXX_CHECK_LESS(stop, std::size(buf));
+  // clang-tidy rule bug:
+  // NOLINTNEXTLINE(cert-dcl03-c)
   assert(stop > 0);
   PQXX_CHECK_EQUAL(
     (std::string{std::data(buf), static_cast<std::size_t>(stop)}),

@@ -1232,6 +1232,8 @@ std::string pqxx::connection::esc_like(
   for (std::size_t here{next}; here < sz; here = next)
   {
     // So we found a special character.  It's exactly 1 byte long.
+    // clang-tidy rule bug:
+    // NOLINTNEXTLINE(cert-dcl03-c)
     assert((data[here] == '%') or (data[here] == '_'));
 
     // Look for the next stopping point after that, whether another special

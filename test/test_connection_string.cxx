@@ -40,8 +40,13 @@ std::string app_name(pqxx::connection const &cx)
     for (bool esc{false};
          (here < std::size(all)) and ((all.at(here) != '\'') or esc); ++here)
       esc = (all.at(here) == '\\' and not esc);
+
+    // clang-tidy rule bug:
+    // NOLINTBEGIN(cert-dcl03-c)
     assert(here < std::size(all));
     assert(all.at(here) == '\'');
+    // NOLINTEND(cert-dcl03-c)
+
     // Skip closing quote.
     end = here + 1;
   }

@@ -69,6 +69,8 @@ int main()
         process_row(row.at(0).as<std::string_view>(), row.at(1).as<int>());
 
     // This produces the exact same results.
+    // clang-tidy rule bug:
+    // NOLINTNEXTLINE(cert-dcl03-c)
     assert(sum1b == sum1a);
 
     // If you prefer a declarative style with callbacks, you can also use the
@@ -86,6 +88,8 @@ int main()
     });
 
     // This again produces the same results.
+    // clang-tidy rule bug:
+    // NOLINTNEXTLINE(cert-dcl03-c)
     assert(sum1c == sum1a);
 
     // But all these are just the first way of querying data.  It reads all the
@@ -122,6 +126,8 @@ int main()
         sum2b += process_row(name, number);
       });
 
+    // clang-tidy rule bug:
+    // NOLINTNEXTLINE(cert-dcl03-c)
     assert(sum2b == sum2a);
   }
   catch (std::exception const &e)

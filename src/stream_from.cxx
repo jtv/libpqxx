@@ -218,6 +218,9 @@ void pqxx::stream_from::parse_line(sl loc)
   //
   // This assertion tells clang-tidy just what it needs in order to deduce
   // that *write never dereferences a null pointer.
+
+  // clang-tidy rule bug:
+  // NOLINTNEXTLINE(cert-dcl03-c)
   assert(write != nullptr);
 
   // Beginning of current field in m_row, or nullptr for null fields.
@@ -227,6 +230,8 @@ void pqxx::stream_from::parse_line(sl loc)
   while (offset < line_size)
   {
     auto const stop_char{m_char_finder(line_view, offset, loc)};
+    // clang-tidy rule bug:
+    // NOLINTNEXTLINE(cert-dcl03-c)
     assert(stop_char <= line_size);
     // Copy the text we have so far.  It's got no special characters in it.
     std::memcpy(write, &line_begin[offset], stop_char - offset);
@@ -252,6 +257,9 @@ void pqxx::stream_from::parse_line(sl loc)
     else
     {
       // Escape sequence.
+
+      // clang-tidy rule bug:
+      // NOLINTNEXTLINE(cert-dcl03-c)
       assert(special == '\\');
       if ((offset) >= line_size)
         throw failure{"Row ends in backslash", loc};

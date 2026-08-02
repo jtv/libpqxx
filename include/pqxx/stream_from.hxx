@@ -348,6 +348,8 @@ template<typename Tuple, std::size_t index>
 inline void stream_from::extract_value(Tuple &t, sl loc) const
 {
   using field_type = std::remove_cvref_t<decltype(std::get<index>(t))>;
+  // clang-tidy rule bug:
+  // NOLINTNEXTLINE(cert-dcl03-c)
   assert(index < std::size(m_fields));
   if constexpr (always_null<field_type>())
   {

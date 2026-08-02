@@ -216,6 +216,8 @@ void unesc_bin(
       throw pqxx::failure{"Invalid hex-escaped data.", loc};
     buffer[out++] = static_cast<std::byte>((hi << 4) | lo);
   }
+  // clang-tidy rule bug:
+  // NOLINTNEXTLINE(cert-dcl03-c)
   assert(out <= std::size(buffer));
 }
 

@@ -247,6 +247,8 @@ PQXX_PURE encoding_group enc_group(int libpq_enc_id, sl loc)
 /// Represent a short stretch of binary data (at most 3) for human readers.
 PQXX_PURE std::string list_bytes(std::string_view data)
 {
+  // clang-tidy rule bug:
+  // NOLINTNEXTLINE(cert-dcl03-c)
   assert(not std::empty(data));
   // C++23: Use std::ranges::views::join_with(), std::format()?
   std::stringstream s;

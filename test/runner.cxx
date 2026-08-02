@@ -143,17 +143,22 @@ void suite::register_test(std::string_view name, testfunc func) noexcept
   ++s_num_tests;
 }
 
+
 std::map<std::string_view, testfunc> suite::gather()
 {
   std::map<std::string_view, testfunc> all_tests;
   for (std::size_t idx{0}; idx < s_num_tests; ++idx)
   {
     auto const name{s_names.at(idx)};
+    // clang-tidy rule bug:
+    // NOLINTNEXTLINE(cert-dcl03-c)
     assert(not all_tests.contains(name));
     auto const func{s_funcs.at(idx)};
 
     // This could happen if the internal arrays get constructed after we've
     // already written tests into them.
+    // clang-tidy rule bug:
+    // NOLINTNEXTLINE(cert-dcl03-c)
     assert(func != nullptr);
     all_tests.emplace(name, func);
   }
@@ -287,6 +292,8 @@ public:
           m_here{m_tests.begin()},
           m_capacity{jobs}
   {
+    // clang-tidy rule bug:
+    // NOLINTNEXTLINE(cert-dcl03-c)
     assert(m_jobs <= max_jobs);
   }
 
