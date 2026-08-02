@@ -403,6 +403,8 @@ private:
               "Array text representation closed and reopened its outside "
               "brace pair.",
               loc};
+          // clang-tidy rule bug:
+          // NOLINTNEXTLINE(cert-dcl03-c)
           assert(here == 0);
           PQXX_ASSUME(here == 0);
         }

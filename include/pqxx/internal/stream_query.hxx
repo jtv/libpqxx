@@ -109,6 +109,8 @@ public:
   /// Parse and convert the latest line of data we received.
   std::tuple<TYPE...> parse_line(std::string_view line) &
   {
+    // clang-tidy rule bug:
+    // NOLINTNEXTLINE(cert-dcl03-c)
     assert(not done());
 
     auto const line_size{std::size(line)};

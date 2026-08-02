@@ -339,6 +339,9 @@ template<c_source_location LOC>
 PQXX_PURE inline std::string source_loc(LOC const &loc)
 {
   char const *const file{loc.file_name()};
+
+  // clang-tidy rule bug:
+  // NOLINTNEXTLINE(cert-dcl03-c)
   assert(file != nullptr);
 
   char const *const func{loc.function_name()};
