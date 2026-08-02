@@ -137,6 +137,8 @@ namespace pqxx::test
 {
 void suite::register_test(std::string_view name, testfunc func) noexcept
 {
+  // clang-tidy rule bug:
+  // NOLINTNEXTLINE(cert-dcl03-c)
   assert(s_num_tests < max_tests);
   s_names.at(s_num_tests) = name;
   s_funcs.at(s_num_tests) = func;
