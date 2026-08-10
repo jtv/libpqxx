@@ -21,3 +21,6 @@ win32/common
 **/*~
 **/lint.log
 **/lint.trs
+build/
+.vscode/
+.clangd

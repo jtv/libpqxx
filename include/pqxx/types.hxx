@@ -16,12 +16,15 @@
 #include <cstddef>
 #include <cstdint>
 #include <iterator>
+#include <memory>
+#include <optional>
 #include <ranges>
 #include <source_location>
 #include <string>
 #include <string_view>
 #include <type_traits>
 #include <typeinfo>
+#include <variant>
 
 #if defined(PQXX_HAVE_STACKTRACE)
 #  include <stacktrace>
@@ -212,7 +215,6 @@ concept not_borrowed =
 template<typename E>
 concept enum_type = std::is_enum_v<E>;
 
-
 /// Marker for @ref stream_from constructors: "stream from table."
 /** @deprecated Use @ref stream_from::table() instead.
  */
@@ -224,6 +226,54 @@ struct from_table_t final
  */
 struct from_query_t final
 {};
+} // namespace pqxx
+
+namespace pqxx::detail
+{
+template<typename E> inline constexpr bool is_optional_v = false;
+template<typename E>
+inline constexpr bool is_optional_v<::std::optional<E>> = true;
+
+template<typename E> inline constexpr bool is_unique_ptr_v = false;
+// some compilers don't allow default arguments in specialization
+template<typename Tp>
+inline constexpr bool is_unique_ptr_v<::std::unique_ptr<Tp>> = true;
+template<typename Tp, typename Dp>
+inline constexpr bool is_unique_ptr_v<::std::unique_ptr<Tp, Dp>> = true;
+
+template<typename E> inline constexpr bool is_shared_ptr_v = false;
+template<typename E>
+inline constexpr bool is_shared_ptr_v<::std::shared_ptr<E>> = true;
+
+template<typename E> inline constexpr bool is_variant_v = false;
+template<typename... E>
+inline constexpr bool is_variant_v<::std::variant<E...>> = true;
+
+template<typename E>
+using remove_cr = std::remove_const_t<std::remove_reference_t<E>>;
+} // namespace pqxx::detail
+
+namespace pqxx
+{
+/// extract value from user container
+/**  specify this value as:
+ * inline constexpr bool user_container_v<user_type> = true;
+ * user_type has to have operator*()
+ */
+template<typename E> inline constexpr bool user_container_v = false;
+
+/// Concept: A C++ type that can be dereferenced
+template<typename E>
+concept dereferenceable_type =
+  requires(E e) { *e; } && (detail::is_optional_v<detail::remove_cr<E>> ||
+                            detail::is_unique_ptr_v<detail::remove_cr<E>> ||
+                            detail::is_shared_ptr_v<detail::remove_cr<E>> ||
+                            user_container_v<detail::remove_cr<E>>);
+
+/// Concept: A C++ `std::variant` type.
+template<typename E>
+concept variant_type = detail::is_variant_v<detail::remove_cr<E>>;
+
 } // namespace pqxx
 
 

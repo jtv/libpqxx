@@ -275,7 +275,9 @@ template<potential_binary TYPE> inline bytes_view binary_cast(TYPE const &data)
 template<char_sized CHAR, typename SIZE>
 bytes_view binary_cast(CHAR const *data, SIZE size)
 {
-  return binary_cast(std::span<CHAR>{data, check_cast<std::size_t>(size)});
+  return binary_cast(
+    std::span<CHAR const>{
+      data, check_cast<std::size_t>(size, "binary range size"sv)});
 }
 
 
