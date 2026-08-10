@@ -97,7 +97,7 @@ class PQXX_LIBEXPORT params final
      * remains active.
      */
     [[nodiscard]] entry convert(bytes_view value) const
-    { return m_copy ? entry{bytes{std::from_range, value}} : entry{value}; }
+    { return m_copy ? entry{bytes{value.begin(), value.end()}} : entry{value}; }
 
 
     /// Make a non-null binary parameter.
