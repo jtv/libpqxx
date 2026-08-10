@@ -17,6 +17,7 @@
 #include <cstdint>
 #include <iterator>
 #include <memory>
+#include <optional>
 #include <ranges>
 #include <source_location>
 #include <string>
