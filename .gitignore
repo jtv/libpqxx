@@ -23,3 +23,4 @@ win32/common
 **/lint.trs
 build/
 .vscode/
+.clangd
