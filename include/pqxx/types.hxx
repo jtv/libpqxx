@@ -23,6 +23,7 @@
 #include <string_view>
 #include <type_traits>
 #include <typeinfo>
+#include <variant>
 
 #if defined(PQXX_HAVE_STACKTRACE)
 #  include <stacktrace>
@@ -233,7 +234,10 @@ template<typename E>
 inline constexpr bool is_optional_v<::std::optional<E>> = true;
 
 template<typename E> inline constexpr bool is_unique_ptr_v = false;
-template<typename Tp, typename Dp = std::default_delete<Tp>>
+// some compilers don't allow default arguments in specialization
+template<typename Tp>
+inline constexpr bool is_unique_ptr_v<::std::unique_ptr<Tp>> = true;
+template<typename Tp, typename Dp>
 inline constexpr bool is_unique_ptr_v<::std::unique_ptr<Tp, Dp>> = true;
 
 template<typename E> inline constexpr bool is_shared_ptr_v = false;
@@ -255,15 +259,15 @@ namespace pqxx
  * inline constexpr bool user_container_v<user_type> = true;
  * user_type has to have operator*()
  */
-template<typename E>
-inline constexpr bool user_container_v = false;
+template<typename E> inline constexpr bool user_container_v = false;
 
 /// Concept: A C++ type that can be dereferenced
 template<typename E>
 concept dereferenceable_type =
-  requires(E e) { *e; } &&
-  (detail::is_optional_v<detail::remove_cr<E>> || detail::is_unique_ptr_v<detail::remove_cr<E>> ||
-   detail::is_shared_ptr_v<detail::remove_cr<E>> || user_container_v<detail::remove_cr<E>>);
+  requires(E e) { *e; } && (detail::is_optional_v<detail::remove_cr<E>> ||
+                            detail::is_unique_ptr_v<detail::remove_cr<E>> ||
+                            detail::is_shared_ptr_v<detail::remove_cr<E>> ||
+                            user_container_v<detail::remove_cr<E>>);
 
 /// Concept: A C++ `std::variant` type.
 template<typename E>

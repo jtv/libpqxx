@@ -148,8 +148,11 @@ class PQXX_LIBEXPORT params final
     /// Extract a value from variant
     template<variant_type T> [[nodiscard]] entry extract(T &&value) const
     {
+      // some compilers complain about 'this' not being used
       return std::visit(
-        [this](auto &&v) { return extract(std::forward<decltype(v)>(v)); },
+        [this](auto &&v) {
+          return this->extract(std::forward<decltype(v)>(v));
+        },
         std::forward<T>(value));
     }
 
