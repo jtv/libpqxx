@@ -63,33 +63,34 @@ void test_statement_params(pqxx::test::context &)
     const auto c_params = p.make_c_params({});
     constexpr auto binary = static_cast<int>(pqxx::format::binary);
     constexpr auto text = static_cast<int>(pqxx::format::text);
+    constexpr size_t size{0};
 
     PQXX_CHECK_EQUAL(c_params.formats[2], binary);
     PQXX_CHECK(c_params.values[4] == nullptr);
     PQXX_CHECK_EQUAL(c_params.formats[5], binary);
     // pointer is the same, bytes are stored by view
     PQXX_CHECK(
-      pqxx::binary_cast(c_params.values[5], 0uz).data() == bin2.data());
+      pqxx::binary_cast(c_params.values[5], size).data() == bin2.data());
     PQXX_CHECK_EQUAL(c_params.formats[6], binary);
     PQXX_CHECK(
-      pqxx::binary_cast(c_params.values[6], 0uz).data() == bin2.data());
+      pqxx::binary_cast(c_params.values[6], size).data() == bin2.data());
     PQXX_CHECK_EQUAL(c_params.formats[7], binary);
     PQXX_CHECK(
-      pqxx::binary_cast(c_params.values[7], 0uz).data() == bin2.data());
+      pqxx::binary_cast(c_params.values[7], size).data() == bin2.data());
     PQXX_CHECK_EQUAL(c_params.formats[8], binary);
     // copy has been created
     PQXX_CHECK(
-      pqxx::binary_cast(c_params.values[8], 0uz).data() != bin2.data());
+      pqxx::binary_cast(c_params.values[8], size).data() != bin2.data());
     PQXX_CHECK_EQUAL(c_params.formats[9], binary);
     PQXX_CHECK(
-      pqxx::binary_cast(c_params.values[9], 0uz).data() != bin2.data());
+      pqxx::binary_cast(c_params.values[9], size).data() != bin2.data());
 
     PQXX_CHECK_EQUAL(c_params.formats[10], binary);
     PQXX_CHECK(
-      pqxx::binary_cast(c_params.values[10], 0uz).data() == bin2.data());
+      pqxx::binary_cast(c_params.values[10], size).data() == bin2.data());
     PQXX_CHECK_EQUAL(c_params.formats[11], binary);
     PQXX_CHECK(
-      pqxx::binary_cast(c_params.values[11], 0uz).data() == bin2.data());
+      pqxx::binary_cast(c_params.values[11], size).data() == bin2.data());
 
     PQXX_CHECK_EQUAL(c_params.formats[12], text);
   }

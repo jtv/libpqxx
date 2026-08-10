@@ -142,7 +142,9 @@ class PQXX_LIBEXPORT params final
 
   private:
     /// Extract a value from ptr-like type (e.g. unique_ptr or optional)
-    template<dereferenceable_type T> [[nodiscard]] entry extract(T &&value) const
+    template<dereferenceable_type T>
+    [[nodiscard]] entry extract(T &&value) const
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access) checked with is_null
     { return extract(*std::forward<T>(value)); }
 
     /// Extract a value from variant
