@@ -212,6 +212,14 @@ concept not_borrowed =
 template<typename E>
 concept enum_type = std::is_enum_v<E>;
 
+namespace detail {
+template<typename E> inline constexpr bool is_optional_v = false;
+template<typename E> inline constexpr bool is_optional_v<::std::optional<E>> = true;
+}
+
+/// Concept: A C++ `std::optional` type.
+template<typename E>
+concept optional_type = detail::is_optional_v<E>;
 
 /// Marker for @ref stream_from constructors: "stream from table."
 /** @deprecated Use @ref stream_from::table() instead.

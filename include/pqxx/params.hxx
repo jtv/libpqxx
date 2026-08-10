@@ -188,6 +188,7 @@ public:
     }
     else
     {
+      if constexpr (optional_type<TYPE>) return append(*value, loc); 
       // TODO: Block-allocate storage for parameters.
       m_params.emplace_back(to_string(value, conversion_context{m_enc, loc}));
     }
