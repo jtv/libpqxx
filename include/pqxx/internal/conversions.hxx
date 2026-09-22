@@ -46,12 +46,12 @@ PQXX_PURE PQXX_HOT inline constexpr int digit_to_number(char c) noexcept
 /** Don't worry about the exact parameter types: the sizes will be reasonably
  * small, and nonnegative.
  */
-PQXX_LIBEXPORT PQXX_COLD std::string
+PQXX_COLD PQXX_LIBEXPORT std::string
 state_buffer_overrun(int have_bytes, int need_bytes);
 
 
 template<typename HAVE, typename NEED>
-PQXX_INLINE_COV PQXX_COLD inline std::string
+PQXX_COLD PQXX_INLINE_COV inline std::string
 state_buffer_overrun(HAVE have_bytes, NEED need_bytes)
 {
   return state_buffer_overrun(
