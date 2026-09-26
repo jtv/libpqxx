@@ -1,4 +1,5 @@
 8.0.3
+ - Fix attribute ordering for Windows clang build. (#1252)
 8.0.2
  - Simple benchmark tool for query performance.
  - Fix an apparent `memcpy()` overlap.
