@@ -266,7 +266,7 @@ void test_parse_range(pqxx::test::context &)
   PQXX_CHECK_EQUAL(
     *traits::from_string("(\"0\",\"10\")").upper_bound().value(), 10);
 
-  auto floats{
+  auto const floats{
     pqxx::string_traits<pqxx::range<double>>::from_string("(0,1.0)")};
   PQXX_CHECK_GREATER(*floats.lower_bound().value(), -0.001);
   PQXX_CHECK_LESS(*floats.lower_bound().value(), 0.001);
@@ -354,7 +354,7 @@ void test_range_conversion(pqxx::test::context &)
     "empty", "(,)", "(,10)", "(0,)", "[0,10]", "[0,10)", "(0,10]", "(0,10)",
   };
 
-  for (auto r : ranges)
+  for (auto const r : ranges)
   {
     auto const shortr{pqxx::from_string<pqxx::range<short>>(r)};
     pqxx::range<int> const intr{shortr};

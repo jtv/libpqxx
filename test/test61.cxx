@@ -12,7 +12,8 @@ std::string GetDatestyle(pqxx::transaction_base const &T)
 }
 
 
-std::string SetDatestyle(pqxx::transaction_base &T, std::string const &style)
+std::string
+SetDatestyle(pqxx::transaction_base const &T, std::string const &style)
 {
   T.conn().set_session_var("DATESTYLE", style);
   std::string const fullname{GetDatestyle(T)};

@@ -115,7 +115,7 @@ pqxx::result pqxx::icursorstream::fetchblock(sl loc)
 
 pqxx::icursorstream &pqxx::icursorstream::ignore(std::streamsize n, sl loc) &
 {
-  auto offset{m_cur.move(difference_type(n), loc)};
+  auto const offset{m_cur.move(difference_type(n), loc)};
   m_realpos += offset;
   if (offset < n)
     m_done = true;

@@ -8,7 +8,7 @@ using namespace std::literals;
 using pqxx::operator""_zv;
 
 void compare_esc(
-  pqxx::connection &cx, pqxx::transaction_base &t, char const text[])
+  pqxx::connection const &cx, pqxx::transaction_base &t, char const text[])
 {
   std::size_t const len{std::size(std::string{text})};
   PQXX_CHECK_EQUAL(

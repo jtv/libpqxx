@@ -203,7 +203,7 @@ void pqxx::pipeline::issue(sl loc)
     return;
 
   // Start with oldest query (lowest id) not in previous issue range.
-  auto oldest{m_issuedrange.second};
+  auto const oldest{m_issuedrange.second};
 
   // Construct cumulative query string for entire batch.
   auto cum{separated_list(
@@ -358,7 +358,7 @@ void pqxx::pipeline::obtain_dummy(sl loc)
     auto const thud{m_issuedrange.first->first};
     ++m_issuedrange.first;
     m_issuedrange.second = m_issuedrange.first;
-    auto q{m_issuedrange.first};
+    auto const q{m_issuedrange.first};
     set_error_at((q == std::end(m_queries)) ? thud + 1 : q->first);
   }
 }

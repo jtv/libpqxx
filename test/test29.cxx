@@ -79,7 +79,7 @@ void check(pqxx::connection &cx, bool explicit_abort)
   // transactions.
   pqxx::work checkup{cx, "checkup"};
 
-  auto new_events{count_events(checkup)};
+  auto const new_events{count_events(checkup)};
   PQXX_CHECK_EQUAL(new_events.first, event_counts.first);
 
   PQXX_CHECK_EQUAL(new_events.second, 0);

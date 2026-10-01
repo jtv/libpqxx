@@ -47,7 +47,7 @@ void test_blob_create_with_oid_obeys_oid(pqxx::test::context &)
   auto const id{pqxx::blob::create(tx)};
   pqxx::blob::remove(tx, id);
 
-  auto actual_id{pqxx::blob::create(tx, id)};
+  auto const actual_id{pqxx::blob::create(tx, id)};
   pqxx::blob::remove(tx, actual_id);
   PQXX_CHECK_EQUAL(actual_id, id);
 }
