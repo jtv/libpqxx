@@ -204,6 +204,10 @@ install_macos() {
         postgresql uv libpq "${extra[@]+"${extra[@]}"}"
 
     echo "export PGHOST=/tmp PGBIN=/opt/homebrew/bin/"
+
+    # Work around "malloc: nano zone abandoned due to inability to reserve vm
+    # space."  Disable "nanozone" pre-allocation.
+    echo "export MallocNanoZone=0"
 }
 
 
