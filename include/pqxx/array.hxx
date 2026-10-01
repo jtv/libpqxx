@@ -67,7 +67,10 @@ public:
   /// Create an empty array.
   array(encoding_group enc = encoding_group::unknown, sl loc = sl::current()) :
           m_ctx{enc, loc}
-  {}
+  {
+    m_extents.fill(0u);
+    m_factors.fill(0u);
+  }
 
   /// Copying array objects is not supported.
   /** It would be technically _possible_ to support copying, but probably not
