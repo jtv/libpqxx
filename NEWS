@@ -1,6 +1,6 @@
 8.0.3
  - Fix attribute ordering for Windows clang build. (#1252)
- - `pqxx::array` now has move assignment/constructor. (#1245)
+ - `pqxx::array` now supports default construction and move. (#1245)
 8.0.2
  - Simple benchmark tool for query performance.
  - Fix an apparent `memcpy()` overlap.
