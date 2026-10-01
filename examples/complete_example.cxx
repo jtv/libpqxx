@@ -38,7 +38,7 @@ pqxx::result query()
 
   // Execute and process some data.
   pqxx::result r{tx.exec("SELECT name, salary FROM Employee")};
-  for (auto row : r)
+  for (auto const row : r)
     std::cout
       // Address column by name.  Use c_str() to get C-style string.
       << row["name"].c_str()

@@ -6,7 +6,7 @@
 // Example program for libpqxx.  Test local variable functionality.
 namespace
 {
-std::string GetDatestyle(pqxx::transaction_base &T)
+std::string GetDatestyle(pqxx::transaction_base const &T)
 {
   return T.conn().get_var("DATESTYLE");
 }

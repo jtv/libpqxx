@@ -325,7 +325,7 @@ std::size_t pqxx::blob::append_to_buf(
   try
   {
     auto here{reinterpret_cast<char *>(std::data(buf) + org_size)};
-    auto chunk{static_cast<std::size_t>(
+    auto const chunk{static_cast<std::size_t>(
       lo_read(real_conn(raw_conn(b.m_conn)), b.m_fd, here, append_max))};
     buf.resize(org_size + chunk);
     return chunk;
@@ -340,7 +340,7 @@ std::size_t pqxx::blob::append_to_buf(
 
 pqxx::oid pqxx::blob::from_file(dbtransaction &tx, zview path, sl loc)
 {
-  auto id{lo_import(real_conn(raw_conn(tx)), path.c_str())};
+  auto const id{lo_import(real_conn(raw_conn(tx)), path.c_str())};
   if (id == 0)
     throw failure{
       std::format(
@@ -353,7 +353,7 @@ pqxx::oid pqxx::blob::from_file(dbtransaction &tx, zview path, sl loc)
 
 pqxx::oid pqxx::blob::from_file(dbtransaction &tx, zview path, oid id, sl loc)
 {
-  auto actual_id{
+  auto const actual_id{
     lo_import_with_oid(real_conn(raw_conn(tx)), path.c_str(), id)};
   if (actual_id == 0)
     throw failure{

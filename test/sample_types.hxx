@@ -104,9 +104,9 @@ template<> struct string_traits<ipv4> final
     std::size_t start{0};
     for (int i{0}; i < 4; ++i)
     {
-      auto idx{static_cast<std::size_t>(i)};
+      auto const idx{static_cast<std::size_t>(i)};
       std::string_view const digits{&text[start], ends.at(idx) - start};
-      auto value{pqxx::from_string<uint32_t>(digits)};
+      auto const value{pqxx::from_string<uint32_t>(digits)};
       ts.set_byte(i, value);
       start = ends.at(idx) + 1;
     }
@@ -156,7 +156,7 @@ inline char nibble_to_hex(unsigned nibble)
 
 inline unsigned hex_to_digit(char hex)
 {
-  auto x = static_cast<unsigned char>(hex);
+  auto const x = static_cast<unsigned char>(hex);
   if (x >= '0' and x <= '9')
     return static_cast<unsigned>(x - '0');
   else if (x >= 'a' and x <= 'f')
@@ -185,8 +185,8 @@ template<> struct string_traits<bytea> final
     value.reserve((std::size(text) - 2) / 2);
     for (std::size_t i = 2; i < std::size(text); i += 2)
     {
-      auto hi = pqxx::test::internal::hex_to_digit(text[i]),
-           lo = pqxx::test::internal::hex_to_digit(text[i + 1]);
+      auto const hi = pqxx::test::internal::hex_to_digit(text[i]),
+                 lo = pqxx::test::internal::hex_to_digit(text[i + 1]);
       value.push_back(static_cast<unsigned char>((hi << 4) | lo));
     }
     return value;

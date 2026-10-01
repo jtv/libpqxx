@@ -62,7 +62,7 @@ void check(pqxx::connection &cx, bool explicit_abort)
         pqxx::to_string(boring_year_29) + ", 'yawn')")
       .no_rows();
 
-    auto recount{count_events(doomed)};
+    auto const recount{count_events(doomed)};
     PQXX_CHECK_EQUAL(recount.second, 1);
     PQXX_CHECK_EQUAL(recount.first, event_counts.first + 1);
 

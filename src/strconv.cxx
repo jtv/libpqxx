@@ -124,7 +124,7 @@ template<arith T>
 inline char *wrap_to_chars(std::span<char> buf, T const &value, pqxx::sl loc)
 {
   auto const begin{std::data(buf)}, end{begin + std::size(buf)};
-  auto res{std::to_chars(begin, end, value)};
+  auto const res{std::to_chars(begin, end, value)};
   if (res.ec == std::errc()) [[likely]]
     return res.ptr;
   else if (res.ec == std::errc::value_too_large)
