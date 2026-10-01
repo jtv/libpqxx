@@ -746,6 +746,8 @@ inline std::size_t copy_chars(
         "buffer of {} bytes, at offset {}.",
         sz, src, std::size(dst), dst_offset),
       loc};
+  // clang-tidy rule bug:
+  // NOLINTNEXTLINE(misc-const-correctness)
   auto at{dst_offset + src.copy(std::data(dst) + dst_offset, sz)};
   if constexpr (terminate)
     dst[at++] = '\0';

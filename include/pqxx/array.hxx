@@ -65,7 +65,8 @@ class array final
 {
 public:
   /// Create an empty array.
-  array(encoding_group enc = encoding_group::unknown, sl loc = sl::current()) :
+  explicit array(
+    encoding_group enc = encoding_group::unknown, sl loc = sl::current()) :
           m_ctx{enc, loc}
   {
     m_extents.fill(0u);
@@ -116,6 +117,8 @@ public:
     default: PQXX_UNREACHABLE; break;
     }
   }
+
+  ~array() = default;
 
   /// The element type of values in this array
   using value_type = ELEMENT;
@@ -301,7 +304,7 @@ private:
    */
   void check_dims(std::string_view data, sl loc)
   {
-    auto sz{std::size(data)};
+    auto const sz{std::size(data)};
     if (sz < DIMENSIONS * 2)
       throw conversion_error{
         std::format(

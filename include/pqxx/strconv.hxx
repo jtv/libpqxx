@@ -656,7 +656,7 @@ to_buf(char *begin, char const *end, TYPE... value)
              end - begin, "string_view too large.", sl::current())};
   std::size_t here{0u};
   return {[&here, buf](auto v) {
-    auto start{here};
+    auto const start{here};
     here += pqxx::into_buf(buf.subspan(start), v);
 
     // clang-tidy rule bug:
@@ -670,7 +670,7 @@ to_buf(char *begin, char const *end, TYPE... value)
     // NOLINTEND(cert-dcl03-c)
 
     // Exclude the trailing zero out of the string_view.
-    auto len{here - start - 1};
+    auto const len{here - start - 1};
     return std::string_view{std::data(buf) + start, len};
   }(value)...};
 }
@@ -691,7 +691,7 @@ to_buf_multi(ctx c, std::span<char> buf, TYPE... value)
   // TODO: Would it be worth merging consecutive identical strings?
   std::size_t here{0u};
   return {[&here, buf, &c](auto v) {
-    auto start{here};
+    auto const start{here};
     here += pqxx::into_buf(buf.subspan(start), v, c);
     // clang-tidy rule bug:
     // NOLINTBEGIN(cert-dcl03-c)
@@ -729,7 +729,7 @@ to_buf_multi(std::span<char> buf, TYPE... value)
   // clang-tidy rule bug:
   // NOLINTBEGIN(cert-dcl03-c)
   return {[&here, buf, &c](auto v) {
-    auto start{here};
+    auto const start{here};
     here += pqxx::into_buf(buf.subspan(start), v, c);
     assert(start < here);
     assert(here <= std::size(buf));
