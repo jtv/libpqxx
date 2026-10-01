@@ -26,7 +26,7 @@ SetDatestyle(pqxx::transaction_base const &T, std::string const &style)
 
 
 void RedoDatestyle(
-  pqxx::transaction_base &T, std::string const &style,
+  pqxx::transaction_base const &T, std::string const &style,
   std::string const &expected)
 {
   PQXX_CHECK_EQUAL(SetDatestyle(T, style), expected);
