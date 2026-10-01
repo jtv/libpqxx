@@ -23,7 +23,7 @@ void test_forward_sql_cursor(pqxx::test::context &)
   PQXX_CHECK_EQUAL(std::size(empty_result), 0);
 
   auto displacement{0};
-  auto one{forward.fetch(1, displacement, pqxx::sl::current())};
+  auto const one{forward.fetch(1, displacement, pqxx::sl::current())};
   PQXX_CHECK_EQUAL(std::size(one), 1);
   PQXX_CHECK_EQUAL(one[0][0].as<std::string>(), "1");
   PQXX_CHECK_EQUAL(displacement, 1);
@@ -86,7 +86,7 @@ void test_forward_sql_cursor(pqxx::test::context &)
     pqxx::cursor_base::owned, false);
 
   // Fetch entire result set at once.
-  auto rows{forward3.fetch(
+  auto const rows{forward3.fetch(
     pqxx::cursor_base::all(), displacement, pqxx::sl::current())};
   PQXX_CHECK_EQUAL(std::size(rows), 4);
   PQXX_CHECK_EQUAL(displacement, 5);
@@ -246,7 +246,7 @@ void test_hold_cursor(pqxx::test::context &)
     pqxx::cursor_base::owned, true);
   tx.commit();
   pqxx::work tx2(cx, "tx2");
-  auto rows{with_hold.fetch(1, pqxx::sl::current())};
+  auto const rows{with_hold.fetch(1, pqxx::sl::current())};
   PQXX_CHECK_EQUAL(
     std::size(rows), 1, "Did not get 1 row from with-hold cursor");
 

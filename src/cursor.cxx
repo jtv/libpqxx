@@ -286,7 +286,7 @@ pqxx::icursor_iterator::operator=(icursor_iterator const &rhs) noexcept
 
 bool pqxx::icursor_iterator::operator==(icursor_iterator const &rhs) const
 {
-  auto loc{best_location(rhs)};
+  auto const loc{best_location(rhs)};
   if (m_stream == rhs.m_stream)
     return pos() == rhs.pos();
   if (m_stream != nullptr and rhs.m_stream != nullptr)
@@ -301,7 +301,7 @@ bool pqxx::icursor_iterator::operator<(icursor_iterator const &rhs) const
 {
   if (m_stream == rhs.m_stream)
     return pos() < rhs.pos();
-  auto loc{best_location(rhs)};
+  auto const loc{best_location(rhs)};
   refresh(loc);
   rhs.refresh(loc);
   return not std::empty(m_here);

@@ -170,7 +170,7 @@ void esc_bin(bytes_view binary_data, std::span<char> buffer) noexcept
   constexpr int nibble_mask{0x0f};
   for (auto const byte : binary_data)
   {
-    auto uc{static_cast<unsigned char>(byte)};
+    auto const uc{static_cast<unsigned char>(byte)};
 
     buffer[here++] = hex_digit(uc >> nibble_bits);
     buffer[here++] = hex_digit(uc & nibble_mask);

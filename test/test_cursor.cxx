@@ -33,7 +33,7 @@ void test_stateless_cursor_ignores_trailing_semicolon(pqxx::connection &cx)
     pqxx::cursor_base::read_only, pqxx::cursor_base::owned>
     c{tx, "SELECT * FROM generate_series(0, 3)  ;; ; \n \t  ", "count", false};
 
-  auto r{c.retrieve(1, 2)};
+  auto const r{c.retrieve(1, 2)};
   PQXX_CHECK_EQUAL(std::size(r), 1, "Trailing semicolon confused retrieve().");
 }
 

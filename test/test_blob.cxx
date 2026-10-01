@@ -44,7 +44,7 @@ void test_blob_create_with_oid_obeys_oid(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
-  auto id{pqxx::blob::create(tx)};
+  auto const id{pqxx::blob::create(tx)};
   pqxx::blob::remove(tx, id);
 
   auto actual_id{pqxx::blob::create(tx, id)};
@@ -250,12 +250,12 @@ void test_blob_reads_vector(pqxx::test::context &)
   char const content[]{"abcd"};
   pqxx::connection cx;
   pqxx::work tx{cx};
-  auto id{pqxx::blob::from_buf(
+  auto const id{pqxx::blob::from_buf(
     tx, pqxx::bytes_view{
           reinterpret_cast<std::byte const *>(content), std::size(content)})};
   std::vector<std::byte> buf;
   buf.resize(10);
-  auto out{pqxx::blob::open_r(tx, id).read(buf)};
+  auto const out{pqxx::blob::open_r(tx, id).read(buf)};
   PQXX_CHECK_EQUAL(std::size(out), std::size(content));
   PQXX_CHECK_EQUAL(byte_val(out[0]), byte_val('a'));
 }
@@ -265,7 +265,7 @@ void test_blob_write_appends_at_insertion_point(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
-  auto id{pqxx::blob::create(tx)};
+  auto const id{pqxx::blob::create(tx)};
 
   auto b{pqxx::blob::open_rw(tx, id)};
   b.write(pqxx::bytes{std::byte{'z'}});
@@ -301,14 +301,14 @@ void test_blob_writes_span(pqxx::test::context &)
   pqxx::bytes data;
   for (char c : content) data.push_back(static_cast<std::byte>(c));
 
-  auto id{pqxx::blob::create(tx)};
+  auto const id{pqxx::blob::create(tx)};
   auto b{pqxx::blob::open_rw(tx, id)};
   b.write(std::span<std::byte>{data.data() + 1, 3u});
   b.seek_abs(0);
 
   std::vector<std::byte> buf;
   buf.resize(4);
-  auto out{b.read(std::span<std::byte>{buf.data(), 4u})};
+  auto const out{b.read(std::span<std::byte>{buf.data(), 4u})};
   PQXX_CHECK_EQUAL(std::size(out), 3u);
   PQXX_CHECK_EQUAL(byte_val(out[0]), byte_val('f'));
   PQXX_CHECK_EQUAL(byte_val(out[2]), byte_val('l'));
@@ -322,7 +322,7 @@ void test_blob_resize_shortens_to_desired_length(pqxx::test::context &)
 
   pqxx::connection cx;
   pqxx::work tx{cx};
-  auto id{pqxx::blob::from_buf(tx, data)};
+  auto const id{pqxx::blob::from_buf(tx, data)};
 
   pqxx::blob::open_w(tx, id).resize(2);
   pqxx::bytes buf;
@@ -335,7 +335,7 @@ void test_blob_resize_extends_to_desired_length(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
-  auto id{pqxx::blob::from_buf(tx, pqxx::bytes{std::byte{100}})};
+  auto const id{pqxx::blob::from_buf(tx, pqxx::bytes{std::byte{100}})};
   pqxx::blob::open_w(tx, id).resize(3);
   pqxx::bytes buf;
   pqxx::blob::to_buf(tx, id, buf, 10);
@@ -349,7 +349,7 @@ void test_blob_tell_tracks_position(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
-  auto id{pqxx::blob::create(tx)};
+  auto const id{pqxx::blob::create(tx)};
   auto b{pqxx::blob::open_rw(tx, id)};
 
   PQXX_CHECK_EQUAL(b.tell(), 0);
@@ -371,7 +371,7 @@ void test_blob_seek_sets_positions(pqxx::test::context &)
     std::byte{5}, std::byte{6}, std::byte{7}, std::byte{8}, std::byte{9}};
   pqxx::connection cx;
   pqxx::work tx{cx};
-  auto id{pqxx::blob::from_buf(tx, data)};
+  auto const id{pqxx::blob::from_buf(tx, data)};
   auto b{pqxx::blob::open_r(tx, id)};
 
   pqxx::bytes buf;
@@ -405,7 +405,7 @@ void test_blob_append_from_buf_appends(pqxx::test::context &)
   pqxx::bytes const data{std::byte{'h'}, std::byte{'o'}};
   pqxx::connection cx;
   pqxx::work tx{cx};
-  auto id{pqxx::blob::create(tx)};
+  auto const id{pqxx::blob::create(tx)};
   pqxx::blob::append_from_buf(tx, data, id);
   pqxx::blob::append_from_buf(tx, data, id);
   pqxx::bytes buf;
@@ -428,7 +428,7 @@ void test_blob_generic_append_from_buf_appends(pqxx::test::context &)
   std::array<std::byte, 2> const data{std::byte{'h'}, std::byte{'o'}};
   pqxx::connection cx;
   pqxx::work tx{cx};
-  auto id{pqxx::blob::create(tx)};
+  auto const id{pqxx::blob::create(tx)};
   pqxx::blob::append_from_buf(tx, data, id);
   pqxx::blob::append_from_buf(tx, data, id);
   pqxx::bytes buf;
@@ -471,9 +471,9 @@ my_fopen(char const *path, char const *mode)
 void read_file(char const path[], std::size_t len, pqxx::bytes &buf)
 {
   buf.resize(len);
-  auto f{my_fopen(path, "rb")};
+  auto const f{my_fopen(path, "rb")};
   PQXX_CHECK(f.get() != nullptr, std::format("Did not open file '{}'!", path));
-  auto bytes{
+  auto const bytes{
     std::fread(reinterpret_cast<char *>(buf.data()), 1, len, f.get())};
   if (bytes == 0)
     throw std::runtime_error{"Error reading test file."};
@@ -485,7 +485,7 @@ void write_file(char const path[], pqxx::bytes_view data)
 {
   try
   {
-    auto f{my_fopen(path, "wb")};
+    auto const f{my_fopen(path, "wb")};
     if (
       std::fwrite(
         reinterpret_cast<char const *>(data.data()), 1, std::size(data),
@@ -556,7 +556,7 @@ void test_blob_from_file_with_oid_writes_blob(pqxx::test::context &tctx)
   pqxx::work tx{cx};
 
   // Guarantee (more or less) that id is not in use.
-  auto id{pqxx::blob::create(tx)};
+  auto const id{pqxx::blob::create(tx)};
   pqxx::blob::remove(tx, id);
 
   {
@@ -575,7 +575,7 @@ void test_blob_append_to_buf_appends(pqxx::test::context &)
 
   pqxx::connection cx;
   pqxx::work tx{cx};
-  auto id{pqxx::blob::from_buf(tx, data)};
+  auto const id{pqxx::blob::from_buf(tx, data)};
 
   pqxx::bytes buf;
   PQXX_CHECK_EQUAL(pqxx::blob::append_to_buf(tx, id, 0u, buf, 1u), 1u);
@@ -594,7 +594,7 @@ void test_blob_to_file_writes_file(pqxx::test::context &tctx)
   std::string const temp_file = tctx.make_name("blob-test");
   pqxx::connection cx;
   pqxx::work tx{cx};
-  auto id{pqxx::blob::from_buf(tx, data)};
+  auto const id{pqxx::blob::from_buf(tx, data)};
   pqxx::bytes buf;
 
   try
@@ -616,7 +616,7 @@ void test_blob_close_leaves_blob_unusable(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
-  auto id{pqxx::blob::from_buf(tx, pqxx::bytes{std::byte{1}})};
+  auto const id{pqxx::blob::from_buf(tx, pqxx::bytes{std::byte{1}})};
   auto b{pqxx::blob::open_rw(tx, id)};
   b.close();
   pqxx::bytes buf;
