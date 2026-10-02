@@ -591,7 +591,7 @@ void test_array_supports_move(pqxx::test::context &)
   // NOLINTNEXTLINE(bugprone-use-after-move)
   empty1 = std::move(empty2);
 
-  // NOLINTNEXTLINE(clang-analyzer-cplusplus.Move)
+  // NOLINTNEXTLINE(clang-analyzer-cplusplus.Move,bugprone-use-after-move)
   PQXX_CHECK_EQUAL(empty2.size(), 0u);
 
   PQXX_CHECK_EQUAL(empty1.size(), 2u);
