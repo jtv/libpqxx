@@ -595,6 +595,10 @@ void test_array_supports_move(pqxx::test::context &)
   PQXX_CHECK_EQUAL(empty2.size(), 0u);
 
   PQXX_CHECK_EQUAL(empty1.size(), 2u);
+  PQXX_CHECK_EQUAL(std::size(empty1.sizes()), 3u);
+  PQXX_CHECK_EQUAL(empty1.sizes().at(0u), 1u);
+  PQXX_CHECK_EQUAL(empty1.sizes().at(1u), 1u);
+  PQXX_CHECK_EQUAL(empty1.sizes().at(2u), 2u);
   PQXX_CHECK_EQUAL(empty1.at(0, 0, 0), 3);
   PQXX_CHECK_EQUAL(empty1.at(0, 0, 1), 2);
 }
