@@ -26,7 +26,7 @@ void compare_esc(
 }
 
 
-void test_esc(pqxx::connection &cx, pqxx::transaction_base &t)
+void test_esc(pqxx::connection const &cx, pqxx::transaction_base &t)
 {
   PQXX_CHECK_EQUAL(t.esc(""sv), "");
   PQXX_CHECK_EQUAL(t.esc("'"sv), "''");
