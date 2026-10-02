@@ -39,19 +39,19 @@ void test_046(pqxx::test::context &)
   r.to(f2);
   PQXX_CHECK_BOUNDS(f2, f - 0.01, f + 0.01);
 
-  auto F3{pqxx::from_string<float>(r.c_str())};
+  auto const F3{pqxx::from_string<float>(r.c_str())};
   PQXX_CHECK_BOUNDS(F3, f - 0.01, f + 0.01);
 
-  auto D{pqxx::from_string<double>(r.c_str())};
+  auto const D{pqxx::from_string<double>(r.c_str())};
   PQXX_CHECK_BOUNDS(D, f - 0.01, f + 0.01);
 
   // Valgrind doesn't support "long double."
 #if !defined(PQXX_VALGRIND)
-  auto LD{pqxx::from_string<long double>(r.c_str())};
+  auto const LD{pqxx::from_string<long double>(r.c_str())};
   PQXX_CHECK_BOUNDS(LD, f - 0.01, f + 0.01);
 #endif
 
-  auto S{pqxx::from_string<std::string>(r.c_str())},
+  auto const S{pqxx::from_string<std::string>(r.c_str())},
     S2{pqxx::from_string<std::string>(std::string{r.c_str()})},
     S3{pqxx::from_string<std::string>(r)};
 

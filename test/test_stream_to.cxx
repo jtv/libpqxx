@@ -41,14 +41,14 @@ void test_stream_to_nonoptionals(pqxx::connection &cx)
 
   inserter.complete();
 
-  auto r1{
+  auto const r1{
     tx.exec("SELECT * FROM stream_to_test WHERE number0 = 1234").one_row()};
   PQXX_CHECK_EQUAL(r1[0].as<int>(), 1234);
   PQXX_CHECK_EQUAL(r1[4].as<std::string>(), "hello nonoptional world");
   PQXX_CHECK_EQUAL(r1[3].as<ipv4>(), ipv4(8, 8, 4, 4));
   PQXX_CHECK_EQUAL(r1[5].as<bytea>(), binary);
 
-  auto r2{
+  auto const r2{
     tx.exec("SELECT * FROM stream_to_test WHERE number0 = 5678").one_row()};
   PQXX_CHECK_EQUAL(r2[0].as<int>(), 5678);
   PQXX_CHECK(r2[2].is_null());
@@ -77,14 +77,14 @@ void test_nonoptionals_fold(pqxx::connection &connection)
 
   inserter.complete();
 
-  auto r1{
+  auto const r1{
     tx.exec("SELECT * FROM stream_to_test WHERE number0 = 1234").one_row()};
   PQXX_CHECK_EQUAL(r1[0].as<int>(), 1234);
   PQXX_CHECK_EQUAL(r1[4].as<std::string>(), "hello nonoptional world");
   PQXX_CHECK_EQUAL(r1[3].as<ipv4>(), ipv4(8, 8, 4, 4));
   PQXX_CHECK_EQUAL(r1[5].as<bytea>(), binary);
 
-  auto r2{
+  auto const r2{
     tx.exec("SELECT * FROM stream_to_test WHERE number0 = 5678").one_row()};
   PQXX_CHECK_EQUAL(r2[0].as<int>(), 5678);
   PQXX_CHECK(r2[2].is_null());
@@ -294,7 +294,7 @@ void test_container_stream_to(pqxx::test::context &)
   inserter << std::vector{112, 244};
   inserter.complete();
 
-  auto read{tx.exec("SELECT * FROM test_container").one_row()};
+  auto const read{tx.exec("SELECT * FROM test_container").one_row()};
   PQXX_CHECK_EQUAL(read[0].as<int>(), 112);
   PQXX_CHECK_EQUAL(read[1].as<int>(), 244);
   tx.commit();
@@ -385,7 +385,7 @@ void test_stream_to_factory_with_static_columns(pqxx::test::context &)
   stream.write_values(3, "three");
   stream.complete();
 
-  auto r{tx.exec("SELECT a, b FROM pqxx_stream_to").one_row()};
+  auto const r{tx.exec("SELECT a, b FROM pqxx_stream_to").one_row()};
   PQXX_CHECK_EQUAL(r[0].as<int>(), 3);
   PQXX_CHECK_EQUAL(r[1].as<std::string>(), "three");
 }
@@ -403,7 +403,7 @@ void test_stream_to_factory_with_dynamic_columns(pqxx::test::context &)
   stream.write_values(4, "four");
   stream.complete();
 
-  auto r{tx.exec("SELECT a, b FROM pqxx_stream_to").one_row()};
+  auto const r{tx.exec("SELECT a, b FROM pqxx_stream_to").one_row()};
   PQXX_CHECK_EQUAL(r[0].as<int>(), 4);
   PQXX_CHECK_EQUAL(r[1].as<std::string>(), "four");
 }
@@ -514,7 +514,7 @@ void test_stream_to_escaping(pqxx::test::context &)
   out.complete();
 
   // Verify.
-  auto outputs{tx.exec("SELECT i, t FROM foo ORDER BY i")};
+  auto const outputs{tx.exec("SELECT i, t FROM foo ORDER BY i")};
   PQXX_CHECK_EQUAL(
     static_cast<std::size_t>(std::size(outputs)), std::size(inputs));
   for (i = 0; i < std::size(inputs); ++i)
@@ -539,7 +539,7 @@ void test_stream_to_moves_into_optional(pqxx::test::context &)
   auto copy{std::move(org)};
   copy->write_values(2);
   copy->complete();
-  auto values{tx.exec("SELECT a FROM foo ORDER BY a").expect_rows(2)};
+  auto const values{tx.exec("SELECT a FROM foo ORDER BY a").expect_rows(2)};
   PQXX_CHECK_EQUAL(values[0][0].as<int>(), 1);
   PQXX_CHECK_EQUAL(values[1][0].as<int>(), 2);
 }

@@ -405,6 +405,7 @@ void test_array_generate_empty_strings(pqxx::test::context &)
     "{\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"}");
 }
 
+
 void test_sparse_arrays(pqxx::test::context &)
 {
   // Reproduce #922 : NULL not paying for its separator in an array, causing
@@ -413,7 +414,7 @@ void test_sparse_arrays(pqxx::test::context &)
   // If NULL didn't pay for its separator, the size allocated for an array-like
   // object filled with null-like values would be too small.
 
-  auto arrayOfNulls = std::vector<std::optional<int>>(4, std::nullopt);
+  auto const arrayOfNulls = std::vector<std::optional<int>>(4, std::nullopt);
   std::string const arrayOfNullsStr = "{NULL,NULL,NULL,NULL}";
 
   PQXX_CHECK_GREATER_EQUAL(
@@ -445,6 +446,7 @@ void test_sparse_arrays(pqxx::test::context &)
 
   PQXX_CHECK_EQUAL(pqxx::to_string(sparseArray), sparseArrayStr);
 }
+
 
 void test_array_roundtrip(pqxx::test::context &)
 {
@@ -554,6 +556,51 @@ void test_array_parses_real_arrays(pqxx::test::context &)
   PQXX_CHECK(not nulls_a[0].has_value());
   PQXX_CHECK(nulls_a[1].has_value());
   PQXX_CHECK_EQUAL(nulls_a[1].value_or("(missing)"), "NULL");
+}
+
+
+void test_array_supports_move(pqxx::test::context &)
+{
+  pqxx::array<int, 3> empty1;
+  pqxx::array<int, 3> empty2;
+  PQXX_CHECK_EQUAL(empty1.size(), 0u);
+  PQXX_CHECK_EQUAL(empty1.size(), empty2.size());
+  PQXX_CHECK_EQUAL(empty1.sizes().at(0u), 0u);
+  PQXX_CHECK_EQUAL(empty1.sizes().at(1u), 0u);
+  PQXX_CHECK_EQUAL(empty1.sizes().at(2u), 0u);
+  PQXX_CHECK_EQUAL(empty2.sizes().at(0u), 0u);
+  PQXX_CHECK_EQUAL(empty2.sizes().at(1u), 0u);
+  PQXX_CHECK_EQUAL(empty2.sizes().at(2u), 0u);
+
+  empty1 = std::move(empty2);
+
+  // NOLINTNEXTLINE(clang-analyzer-cplusplus.Move, bugprone-use-after-move)
+  PQXX_CHECK_EQUAL(empty2.size(), 0u);
+
+  PQXX_CHECK_EQUAL(empty1.size(), 0u);
+  PQXX_CHECK_EQUAL(empty1.size(), empty2.size());
+  PQXX_CHECK_EQUAL(empty1.sizes().at(0u), 0u);
+  PQXX_CHECK_EQUAL(empty1.sizes().at(1u), 0u);
+  PQXX_CHECK_EQUAL(empty1.sizes().at(2u), 0u);
+
+  pqxx::connection const cx;
+  empty2 = pqxx::array<int, 3>{"{{{3,2}}}", pqxx::encoding_group::ascii_safe};
+
+  PQXX_CHECK_EQUAL(empty2.size(), 2u);
+
+  // NOLINTNEXTLINE(bugprone-use-after-move)
+  empty1 = std::move(empty2);
+
+  // NOLINTNEXTLINE(clang-analyzer-cplusplus.Move,bugprone-use-after-move)
+  PQXX_CHECK_EQUAL(empty2.size(), 0u);
+
+  PQXX_CHECK_EQUAL(empty1.size(), 2u);
+  PQXX_CHECK_EQUAL(std::size(empty1.sizes()), 3u);
+  PQXX_CHECK_EQUAL(empty1.sizes().at(0u), 1u);
+  PQXX_CHECK_EQUAL(empty1.sizes().at(1u), 1u);
+  PQXX_CHECK_EQUAL(empty1.sizes().at(2u), 2u);
+  PQXX_CHECK_EQUAL(empty1.at(0, 0, 0), 3);
+  PQXX_CHECK_EQUAL(empty1.at(0, 0, 1), 2);
 }
 
 
@@ -722,7 +769,7 @@ void test_array_iterates_in_row_major_order(pqxx::test::context &)
   // Or just really quickly: our input happens to have the digits in
   // sequential order.
   int count{1};
-  for (auto elt : array)
+  for (auto const elt : array)
   {
     PQXX_CHECK_EQUAL(elt, count);
     ++count;
@@ -890,6 +937,7 @@ PQXX_REGISTER_TEST(test_nested_array_with_multiple_entries);
 PQXX_REGISTER_TEST(test_array_roundtrip);
 PQXX_REGISTER_TEST(test_array_strings);
 PQXX_REGISTER_TEST(test_array_parses_real_arrays);
+PQXX_REGISTER_TEST(test_array_supports_move);
 PQXX_REGISTER_TEST(test_array_rejects_malformed_simple_int_arrays);
 PQXX_REGISTER_TEST(test_array_rejects_malformed_simple_string_arrays);
 PQXX_REGISTER_TEST(test_array_rejects_malformed_twodimensional_arrays);

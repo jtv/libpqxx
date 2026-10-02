@@ -83,12 +83,12 @@ void test_basic_args(pqxx::test::context &)
   pqxx::connection cx;
   cx.prepare("EchoNum", "SELECT $1::int");
   pqxx::work tx{cx};
-  auto r{tx.exec(pqxx::prepped{"EchoNum"}, 7)};
+  auto const r{tx.exec(pqxx::prepped{"EchoNum"}, 7)};
   PQXX_CHECK_EQUAL(std::size(r), 1);
   PQXX_CHECK_EQUAL(std::size(r.front()), 1);
   PQXX_CHECK_EQUAL(r.one_field().as<int>(), 7);
 
-  auto rw{tx.exec(pqxx::prepped{"EchoNum"}, 8).one_row()};
+  auto const rw{tx.exec(pqxx::prepped{"EchoNum"}, 8).one_row()};
   PQXX_CHECK_EQUAL(std::size(rw), 1);
   PQXX_CHECK_EQUAL(rw[0].as<int>(), 8);
 }
@@ -170,7 +170,7 @@ void test_binary(pqxx::test::context &)
     pqxx::bytes bytes;
     for (char c : raw_bytes) bytes.push_back(static_cast<std::byte>(c));
 
-    auto bp{
+    auto const bp{
       tx.exec(pqxx::prepped{"EchoBin"}, pqxx::params{tx, bytes}).one_row()};
     auto bval{bp[0].as<pqxx::bytes>()};
     PQXX_CHECK_EQUAL(
@@ -189,8 +189,8 @@ void test_binary(pqxx::test::context &)
     pqxx::bytes data;
     for (char c : raw_bytes) data.push_back(static_cast<std::byte>(c));
 
-    auto ptr{std::make_shared<pqxx::bytes>(data)};
-    auto rp{
+    auto const ptr{std::make_shared<pqxx::bytes>(data)};
+    auto const rp{
       tx.exec(pqxx::prepped{"EchoBin"}, pqxx::params{tx, ptr}).one_row()};
     auto pval{rp[0].as<pqxx::bytes>()};
     PQXX_CHECK_EQUAL(
@@ -204,8 +204,8 @@ void test_binary(pqxx::test::context &)
     std::vector<std::byte> data;
     for (char c : raw_bytes) data.push_back(static_cast<std::byte>(c));
 
-    auto opt{std::optional<pqxx::bytes>{std::in_place, data}};
-    auto op{
+    auto const opt{std::optional<pqxx::bytes>{std::in_place, data}};
+    auto const op{
       tx.exec(pqxx::prepped{"EchoBin"}, pqxx::params{tx, opt}).one_row()};
     auto oval{op[0].as<pqxx::bytes>()};
     PQXX_CHECK_EQUAL(
@@ -218,7 +218,7 @@ void test_binary(pqxx::test::context &)
   // will do.
   {
     std::vector<std::byte> const data{std::byte{'x'}, std::byte{'v'}};
-    auto op{
+    auto const op{
       tx.exec(pqxx::prepped{"EchoBin"}, pqxx::params{tx, data}).one_row()};
     auto oval{op[0].as<pqxx::bytes>()};
     PQXX_CHECK_EQUAL(std::size(oval), 2u);

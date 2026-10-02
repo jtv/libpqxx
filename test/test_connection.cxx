@@ -67,7 +67,7 @@ void test_move_assign(pqxx::test::context &)
 void test_encrypt_password(pqxx::test::context &)
 {
   pqxx::connection c;
-  auto pw{c.encrypt_password("user", "password")};
+  auto const pw{c.encrypt_password("user", "password")};
   PQXX_CHECK(not std::empty(pw));
   PQXX_CHECK_EQUAL(
     std::strlen(pw.c_str()), std::size(pw),

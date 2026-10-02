@@ -113,7 +113,7 @@ find_ascii_char(std::string_view haystack, std::size_t here, sl loc)
   {
     // Look up the next character boundary.  This can be quite costly, so we
     // desperately want the call inlined.
-    auto next{glyph_scanner<ENC>::call(haystack, here, loc)};
+    auto const next{glyph_scanner<ENC>::call(haystack, here, loc)};
     PQXX_ASSUME(next > here);
 
     // (For some reason gcc had a problem with a right-fold here.  But clang

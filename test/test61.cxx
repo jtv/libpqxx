@@ -6,13 +6,14 @@
 // Example program for libpqxx.  Test local variable functionality.
 namespace
 {
-std::string GetDatestyle(pqxx::transaction_base &T)
+std::string GetDatestyle(pqxx::transaction_base const &T)
 {
   return T.conn().get_var("DATESTYLE");
 }
 
 
-std::string SetDatestyle(pqxx::transaction_base &T, std::string const &style)
+std::string
+SetDatestyle(pqxx::transaction_base const &T, std::string const &style)
 {
   T.conn().set_session_var("DATESTYLE", style);
   std::string const fullname{GetDatestyle(T)};
@@ -25,7 +26,7 @@ std::string SetDatestyle(pqxx::transaction_base &T, std::string const &style)
 
 
 void RedoDatestyle(
-  pqxx::transaction_base &T, std::string const &style,
+  pqxx::transaction_base const &T, std::string const &style,
   std::string const &expected)
 {
   PQXX_CHECK_EQUAL(SetDatestyle(T, style), expected);
@@ -35,7 +36,7 @@ void RedoDatestyle(
 void test_061(pqxx::test::context &)
 {
   pqxx::connection cx;
-  pqxx::work tx{cx};
+  pqxx::work const tx{cx};
 
   PQXX_CHECK(not std::empty(GetDatestyle(tx)));
 

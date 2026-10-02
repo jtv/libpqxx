@@ -8,7 +8,7 @@ using namespace std::literals;
 using pqxx::operator""_zv;
 
 void compare_esc(
-  pqxx::connection &cx, pqxx::transaction_base &t, char const text[])
+  pqxx::connection const &cx, pqxx::transaction_base &t, char const text[])
 {
   std::size_t const len{std::size(std::string{text})};
   PQXX_CHECK_EQUAL(
@@ -26,7 +26,7 @@ void compare_esc(
 }
 
 
-void test_esc(pqxx::connection &cx, pqxx::transaction_base &t)
+void test_esc(pqxx::connection const &cx, pqxx::transaction_base &t)
 {
   PQXX_CHECK_EQUAL(t.esc(""sv), "");
   PQXX_CHECK_EQUAL(t.esc("'"sv), "''");
@@ -37,7 +37,7 @@ void test_esc(pqxx::connection &cx, pqxx::transaction_base &t)
 }
 
 
-void test_quote(pqxx::connection &cx, pqxx::transaction_base &t)
+void test_quote(pqxx::connection const &cx, pqxx::transaction_base &t)
 {
   PQXX_CHECK_EQUAL(t.quote("x"), "'x'");
   PQXX_CHECK_EQUAL(t.quote(1), "'1'");
@@ -54,7 +54,7 @@ void test_quote(pqxx::connection &cx, pqxx::transaction_base &t)
 
   for (std::size_t i{0}; test_strings.at(i) != nullptr; ++i)
   {
-    auto r{
+    auto const r{
       t.query_value<std::string>("SELECT " + t.quote(test_strings.at(i)))};
     PQXX_CHECK_EQUAL(r, test_strings.at(i));
   }
@@ -129,7 +129,7 @@ void test_esc_raw_unesc_raw(pqxx::transaction_base &t)
 }
 
 
-void test_esc_like(pqxx::transaction_base &tx)
+void test_esc_like(pqxx::transaction_base const &tx)
 {
   PQXX_CHECK_EQUAL(tx.esc_like(""), "");
   PQXX_CHECK_EQUAL(tx.esc_like("abc"), "abc");
@@ -166,11 +166,11 @@ void test_esc_escapes_into_buffer(pqxx::test::context &)
   buffer.resize(20);
 
   auto const text{"Ain't"sv};
-  auto escaped_text{tx.esc(text, buffer)};
+  auto const escaped_text{tx.esc(text, buffer)};
   PQXX_CHECK_EQUAL(escaped_text, "Ain''t");
 
   pqxx::bytes const data{std::byte{0x22}, std::byte{0x43}};
-  auto escaped_data(tx.esc(data, buffer));
+  auto const escaped_data(tx.esc(data, buffer));
   PQXX_CHECK_EQUAL(escaped_data, "\\x2243");
 }
 
@@ -184,11 +184,11 @@ void test_esc_accepts_various_types(pqxx::test::context &)
   buffer.resize(20);
 
   std::string const text{"it's"};
-  auto escaped_text{tx.esc(text, buffer)};
+  auto const escaped_text{tx.esc(text, buffer)};
   PQXX_CHECK_EQUAL(escaped_text, "it''s");
 
   std::vector<std::byte> const data{std::byte{0x23}, std::byte{0x44}};
-  auto escaped_data(tx.esc(data, buffer));
+  auto const escaped_data(tx.esc(data, buffer));
   PQXX_CHECK_EQUAL(escaped_data, "\\x2344");
 }
 

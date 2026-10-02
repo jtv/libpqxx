@@ -245,7 +245,7 @@ using bytes = std::vector<std::byte>;
 /// Cast binary data to a type that libpqxx will recognise as binary.
 /** There are many different formats for storing binary data in memory.  You
  * may have yours as a `std::string`, or a `std::vector<uchar_t>`, or one of
- * many other types.  In libpqxx we recommend a container of `std::byte`.
+ * many other types.
  *
  * For libpqxx to recognise your data as binary, we recommend using a
  * `pqxx::bytes`, or a `pqxx::bytes_view`; but any contiguous block of
@@ -746,6 +746,8 @@ inline std::size_t copy_chars(
         "buffer of {} bytes, at offset {}.",
         sz, src, std::size(dst), dst_offset),
       loc};
+  // clang-tidy rule bug:
+  // NOLINTNEXTLINE(misc-const-correctness)
   auto at{dst_offset + src.copy(std::data(dst) + dst_offset, sz)};
   if constexpr (terminate)
     dst[at++] = '\0';

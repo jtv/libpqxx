@@ -191,7 +191,7 @@ void query_emps(pqxx::connection &cx)
   // you can convert them to anything so long as the data fits the type.  You
   // can read an integer as a string, or as a floating-point number, and so on.
   std::cout << "Employees:\n";
-  for (auto row : res)
+  for (auto const row : res)
   {
     std::cout << '\t' << row[0].as<int>() << '\t'
               << row[1].as<std::string_view>() << '\t'

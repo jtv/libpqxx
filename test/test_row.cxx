@@ -39,7 +39,7 @@ void test_row_iterator(pqxx::test::context &)
   // on it, and if we used a temporary here, it'd go out of scope, get
   // destroyed, and invalidate the accesses!
   auto row{rows[0]};
-  auto i{std::begin(row)};
+  auto const i{std::begin(row)};
   PQXX_CHECK_EQUAL(i->as<int>(), 1);
   auto i2{i};
   PQXX_CHECK_EQUAL(i2->as<int>(), 1);
@@ -49,7 +49,7 @@ void test_row_iterator(pqxx::test::context &)
   i3 = i2;
   PQXX_CHECK_EQUAL(i3->as<int>(), 2);
 
-  auto r{std::rbegin(row)};
+  auto const r{std::rbegin(row)};
   PQXX_CHECK_EQUAL(r->as<int>(), 3);
   auto r2{r};
   PQXX_CHECK_EQUAL(r2->as<int>(), 3);

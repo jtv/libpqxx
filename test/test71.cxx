@@ -34,7 +34,7 @@ void test_071(pqxx::test::context &)
     values[P.insert("SELECT " + pqxx::to_string(i))] = i;
 
   // Retrieve results in query_id order, and compare to expected values
-  for (auto &c : values) checkresult(P, c);
+  for (auto const &c : values) checkresult(P, c);
 
   PQXX_CHECK(std::empty(P));
 
@@ -55,7 +55,7 @@ void test_071(pqxx::test::context &)
   P.retain(10);
   for (int i{1010}; i > 1000; --i)
     values[P.insert("SELECT " + pqxx::to_string(i))] = i;
-  for (auto &c : values)
+  for (auto const &c : values)
   {
     PQXX_CHECK(
       not P.is_finished(c.first),
@@ -64,7 +64,7 @@ void test_071(pqxx::test::context &)
 
   // See that all results are retrieved by complete()
   P.complete();
-  for (auto &c : values) PQXX_CHECK(P.is_finished(c.first));
+  for (auto const &c : values) PQXX_CHECK(P.is_finished(c.first));
 }
 } // namespace
 

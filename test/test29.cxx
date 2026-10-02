@@ -62,7 +62,7 @@ void check(pqxx::connection &cx, bool explicit_abort)
         pqxx::to_string(boring_year_29) + ", 'yawn')")
       .no_rows();
 
-    auto recount{count_events(doomed)};
+    auto const recount{count_events(doomed)};
     PQXX_CHECK_EQUAL(recount.second, 1);
     PQXX_CHECK_EQUAL(recount.first, event_counts.first + 1);
 
@@ -79,7 +79,7 @@ void check(pqxx::connection &cx, bool explicit_abort)
   // transactions.
   pqxx::work checkup{cx, "checkup"};
 
-  auto new_events{count_events(checkup)};
+  auto const new_events{count_events(checkup)};
   PQXX_CHECK_EQUAL(new_events.first, event_counts.first);
 
   PQXX_CHECK_EQUAL(new_events.second, 0);

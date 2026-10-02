@@ -38,17 +38,25 @@ namespace pqxx
 /** Parses an SQL array from its text format, making it available as a
  * container of C++-side values.
  *
- * The array can have one or more dimensions.  You must specify the number of
- * dimensions at compile time.  In each dimension, the array has a size which
- * the `array` constructor determines at run time based on the SQL array's
- * textual representation.  The sizes of a given SQL array are consistent: if
- * your array has two dimensions, for example, then it will have one
- * "horizontal" size which determines the number of elements in each row; and
- * it will have one "vertical" size which determines the number of rows.
+ * In practice you may not need this class; for many uses you can just read an
+ * SQL array directly into a `std::vector`.
+ *
+ * However, `pqxx::array` directly supports multiple dimensions.  You must
+ * specify the number of dimensions at compile time.  In each dimension, the
+ * array has a size which the `array` constructor determines while parsing the
+ * SQL value, based on the SQL array's textual representation.  For example, a
+ * 2-dimensional array will have two sizes: one for the number of rows and one
+ * for the number of columns.
  *
  * Physical memory storage is "row-major."  This means that the last of the
  * dimensions represents a row.  So in memory, element `a[m][n]` comes right
  * before `a[m][n+1]`.
+ *
+ * Another feature of `pqxx::array` which you don't get by parsing into a
+ * `std::vector` is that you can specify the array separator.  By default, both
+ * ways of parsing an array will expect the SQL array to use the standard
+ * separator for its content type (usually either a comma or a semicolon).  But
+ * `pqxx::array` lets you configure a different separator.
  */
 template<
   not_borrowed ELEMENT, std::size_t DIMENSIONS = 1u,
@@ -56,6 +64,26 @@ template<
 class array final
 {
 public:
+  /// Create an empty array.
+  explicit array(
+    encoding_group enc = encoding_group::unknown, sl loc = sl::current()) :
+          m_ctx{enc, loc}
+  {
+    m_extents.fill(0u);
+    m_factors.fill(0u);
+  }
+
+  /// Copying array objects is not supported.
+  /** It would be technically _possible_ to support copying, but probably not
+   * very useful.  In this case that matters because arrays could get quite
+   * large, and thoughtless copying could make an application unnecessarily
+   * inefficient.
+   */
+  array(array const &) = delete;
+
+  /// Array objects can be moved.
+  array(array &&) = default;
+
   /// Parse an SQL array, read as text from a pqxx::result or stream.
   /** Uses `cx` only during construction, to find out the text encoding in
    * which it should interpret `data`.
@@ -90,8 +118,21 @@ public:
     }
   }
 
+  ~array() = default;
+
   /// The element type of values in this array
   using value_type = ELEMENT;
+
+  /// Copying array objects is not supported.
+  /** It would be technically _possible_ to support copying, but probably not
+   * very useful.  In this case that matters because arrays could get quite
+   * large, and thoughtless copying could make an application unnecessarily
+   * inefficient.
+   */
+  array &operator=(array const &) = delete;
+
+  /// Array objects can be moved.
+  array &operator=(array &&) = default;
 
   /// How many dimensions does this array have?
   /** This value is known at compile time.
@@ -263,7 +304,7 @@ private:
    */
   void check_dims(std::string_view data, sl loc)
   {
-    auto sz{std::size(data)};
+    auto const sz{std::size(data)};
     if (sz < DIMENSIONS * 2)
       throw conversion_error{
         std::format(

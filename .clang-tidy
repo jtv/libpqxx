@@ -219,7 +219,6 @@ Checks: >
     modernize-use-transparent-functors,
     modernize-use-uncaught-exceptions,
     modernize-use-using,
-    performance-faster-string-find,
     performance-for-range-copy,
     performance-implicit-conversion-in-loop,
     performance-inefficient-algorithm,
@@ -263,7 +262,6 @@ Checks: >
     readability-string-compare,
     readability-suspicious-call-argument,
     readability-uniqueptr-delete-release,
-    readability-use-anyofallof,
-    zircon-temporary-objects
+    readability-use-anyofallof
 
 ExcludeHeaderFilterRegex: config.h

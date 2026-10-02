@@ -295,7 +295,7 @@ pqxx::cursor_base::difference_type pqxx::internal::sql_cursor::move(
   auto const query{std::format(
     "MOVE {} IN {}", stridestring(rows), m_home.quote_name(name()))};
   auto const r{gate::connection_sql_cursor{m_home}.exec(query.c_str(), loc)};
-  auto d{static_cast<difference_type>(r.affected_rows())};
+  auto const d{static_cast<difference_type>(r.affected_rows())};
   displacement = adjust(rows, d);
   return d;
 }

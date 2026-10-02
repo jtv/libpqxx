@@ -64,7 +64,7 @@ extern "C"
 namespace
 {
 void process_notice_raw(
-  pqxx::internal::notice_waiters *waiters, pqxx::zview msg) noexcept
+  pqxx::internal::notice_waiters const *waiters, pqxx::zview msg) noexcept
 {
   if ((waiters != nullptr) and not msg.empty())
   {
@@ -635,10 +635,10 @@ PQXX_COLD void pqxx::connection::remove_receiver(
 
   try
   {
-    auto needle{
+    auto const needle{
       std::pair<std::string const, notification_receiver *>{T->channel(), T}};
     auto R{m_receivers.equal_range(needle.first)};
-    auto i{find(R.first, R.second, needle)};
+    auto const i{find(R.first, R.second, needle)};
 
     if (i == R.second)
     {
@@ -988,7 +988,7 @@ void pqxx::connection::close(sl)
       // improvement over the 7.9-and-older situation where you'd simply get a
       // stale pointer.  Better yet, this whole mechanism is going away.
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-      auto old_handlers{get_errorhandlers()};
+      auto const old_handlers{get_errorhandlers()};
 #include "pqxx/internal/ignore-deprecated-post.hxx"
       auto const rbegin{std::crbegin(old_handlers)},
         rend{std::crend(old_handlers)};
@@ -1416,7 +1416,7 @@ std::string quote_connect_param(std::string_view val)
 
   if (quote)
     buf += '\'';
-  for (auto c : val)
+  for (auto const c : val)
   {
     if ((c == '\\') or (c == '\''))
       buf += '\\';

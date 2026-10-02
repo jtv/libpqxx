@@ -24,7 +24,7 @@ void test_pipeline_is_consistent(pqxx::test::context &tctx)
   for (int i{0}; i < num_queries; ++i)
   {
     PQXX_CHECK(not std::empty(pipe));
-    auto res{pipe.retrieve()};
+    auto const res{pipe.retrieve()};
     PQXX_CHECK_EQUAL(res.second.one_field().as<int>(), value);
   }
 
@@ -48,7 +48,7 @@ void test_pipeline(pqxx::test::context &)
   PQXX_CHECK_EQUAL(r.one_field().as<int>(), 2);
 
   // Inserting a query makes the pipeline grab transaction focus back.
-  auto q{pipe.insert("SELECT 2")};
+  auto const q{pipe.insert("SELECT 2")};
   PQXX_CHECK_THROWS(
     tx.exec("SELECT 3"), pqxx::usage_error,
     "Pipeline does not block regular queries");

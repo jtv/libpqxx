@@ -27,7 +27,7 @@ void TestPipeline(pqxx::pipeline &P, int numqueries)
   {
     PQXX_CHECK(not std::empty(P));
 
-    auto R{P.retrieve()};
+    auto const R{P.retrieve()};
 
     PQXX_CHECK_NOT_EQUAL(R.second, Empty);
     if (Prev != Empty)
