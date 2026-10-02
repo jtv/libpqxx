@@ -414,7 +414,7 @@ void test_sparse_arrays(pqxx::test::context &)
   // If NULL didn't pay for its separator, the size allocated for an array-like
   // object filled with null-like values would be too small.
 
-  auto arrayOfNulls = std::vector<std::optional<int>>(4, std::nullopt);
+  auto const arrayOfNulls = std::vector<std::optional<int>>(4, std::nullopt);
   std::string const arrayOfNullsStr = "{NULL,NULL,NULL,NULL}";
 
   PQXX_CHECK_GREATER_EQUAL(
@@ -574,6 +574,7 @@ void test_array_supports_move(pqxx::test::context &)
 
   empty1 = std::move(empty2);
 
+  // NOLINTNEXTLINE(clang-analyzer-cplusplus.Move, bugprone-use-after-move)
   PQXX_CHECK_EQUAL(empty2.size(), 0u);
 
   PQXX_CHECK_EQUAL(empty1.size(), 0u);
@@ -582,13 +583,15 @@ void test_array_supports_move(pqxx::test::context &)
   PQXX_CHECK_EQUAL(empty1.sizes().at(1u), 0u);
   PQXX_CHECK_EQUAL(empty1.sizes().at(2u), 0u);
 
-  pqxx::connection cx;
+  pqxx::connection const cx;
   empty2 = pqxx::array<int, 3>{"{{{3,2}}}", pqxx::encoding_group::ascii_safe};
 
   PQXX_CHECK_EQUAL(empty2.size(), 2u);
 
+  // NOLINTNEXTLINE(bugprone-use-after-move)
   empty1 = std::move(empty2);
 
+  // NOLINTNEXTLINE(clang-analyzer-cplusplus.Move)
   PQXX_CHECK_EQUAL(empty2.size(), 0u);
 
   PQXX_CHECK_EQUAL(empty1.size(), 2u);
@@ -762,7 +765,7 @@ void test_array_iterates_in_row_major_order(pqxx::test::context &)
   // Or just really quickly: our input happens to have the digits in
   // sequential order.
   int count{1};
-  for (auto elt : array)
+  for (auto const elt : array)
   {
     PQXX_CHECK_EQUAL(elt, count);
     ++count;

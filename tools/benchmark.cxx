@@ -295,7 +295,7 @@ public:
           query);
     }(std::make_index_sequence<columns>{})};
 
-    for (auto row : stream)
+    for (auto const row : stream)
     {
       delay();
 
