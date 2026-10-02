@@ -36,7 +36,7 @@ void RedoDatestyle(
 void test_061(pqxx::test::context &)
 {
   pqxx::connection cx;
-  pqxx::work tx{cx};
+  pqxx::work const tx{cx};
 
   PQXX_CHECK(not std::empty(GetDatestyle(tx)));
 

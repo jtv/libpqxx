@@ -129,7 +129,7 @@ PQXX_COLD void pqxx::pipeline::cancel(sl loc)
   {
     pqxx::internal::gate::connection_pipeline(trans().conn())
       .cancel_query(loc);
-    auto canceled_query{m_issuedrange.first};
+    auto const canceled_query{m_issuedrange.first};
     ++m_issuedrange.first;
     m_queries.erase(canceled_query);
   }

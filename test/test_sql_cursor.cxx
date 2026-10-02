@@ -201,7 +201,8 @@ void test_adopted_sql_cursor(pqxx::test::context &)
   PQXX_CHECK_EQUAL(adopted.pos(), 0, "Failed to recognize starting position");
   PQXX_CHECK_EQUAL(adopted.endpos(), -1, "endpos() set too early");
 
-  auto offset{adopted.move(pqxx::cursor_base::all(), pqxx::sl::current())};
+  auto const offset{
+    adopted.move(pqxx::cursor_base::all(), pqxx::sl::current())};
   PQXX_CHECK_EQUAL(offset, 3);
   PQXX_CHECK_EQUAL(adopted.pos(), 4);
   PQXX_CHECK_EQUAL(adopted.endpos(), 4);
