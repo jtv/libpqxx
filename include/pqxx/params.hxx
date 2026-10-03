@@ -63,6 +63,114 @@ namespace pqxx
  */
 class PQXX_LIBEXPORT params final
 {
+  // The way we store a parameter depends on whether it's binary or text
+  // (most types are text), and whether we're responsible for storing the
+  // contents.
+  using entry =
+    std::variant<std::nullptr_t, zview, std::string, bytes_view, bytes>;
+
+  class converter
+  {
+  public:
+    explicit converter(sl loc, encoding_group enc) : m_loc{loc}, m_enc{enc} {}
+
+    /// Make a null parameter.
+    [[nodiscard]] entry convert() const { return {nullptr}; }
+
+    /// Make a non-null zview parameter.
+    /** The underlying data must stay valid for as long as the `params`
+     * remains active.
+     */
+    [[nodiscard]] entry convert(zview value) const { return {value}; }
+
+    /// Make a non-null string parameter.
+    /** Copies the underlying data into internal storage.  For best efficiency,
+     * use the @ref zview variant if you can, or `std::move()`
+     */
+    [[nodiscard]] entry convert(std::string const &value) const { return {value}; }
+
+    /// Make a non-null string parameter.
+    [[nodiscard]] entry convert(std::string &&value) const { return {std::move(value)}; }
+    
+    /// Make a non-null binary parameter.
+    /** The underlying data must stay valid for as long as the `params`
+     * remains active.
+     */
+    [[nodiscard]] entry convert(bytes_view value) const
+    { return m_copy ? entry{bytes{value.begin(), value.end()}} : entry{value}; }
+
+
+    /// Make a non-null binary parameter.
+    /** The `data` object must stay in place and unchanged, for as long as the
+     * `params` remains active.
+     */
+    template<binary DATA> [[nodiscard]] entry convert(DATA const &data) const
+    { return convert(binary_cast(data)); }
+
+    /// Make a non-null binary parameter.
+    [[nodiscard]] entry convert(bytes &&value) const { return {std::move(value)}; }
+
+    /// Make value from a single-value container
+    /** @note finale value here is always copied or moved
+     */
+    template<typename T>
+      requires dereferenceable_type<T> || variant_type<T>
+    [[nodiscard]] entry convert(T &&value)
+    {
+      if (is_null(value))
+        return convert();
+
+      // we have to copy bytes_view if it was passed in temporary wrapper
+      m_copy = std::is_rvalue_reference_v<T &&>;
+      return extract(std::forward<T>(value));
+    }
+
+    /// Make a generic parameter
+    template<typename TYPE>
+    [[nodiscard]] entry convert([[maybe_unused]] TYPE const &value) const
+    {
+      // TODO: Pool storage for multiple string conversions in one buffer?
+      if constexpr (pqxx::always_null<TYPE>())
+        return convert();
+
+      if (is_null(value))
+        return convert();
+
+      // TODO: Block-allocate storage for parameters.
+      return convert(to_string(value, conversion_context{m_enc, m_loc}));
+    }
+
+  private:
+    /// Extract a value from ptr-like type (e.g. unique_ptr or optional)
+    template<dereferenceable_type T>
+    [[nodiscard]] entry extract(T &&value) const
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access) checked with is_null
+    { return extract(*std::forward<T>(value)); }
+
+    /// Extract a value from variant
+    template<variant_type T> [[nodiscard]] entry extract(T &&value) const
+    {
+      // some compilers complain about 'this' not being used
+      return std::visit(
+        [this](auto &&v) {
+          return this->extract(std::forward<decltype(v)>(v));
+        },
+        std::forward<T>(value));
+    }
+
+    /// Convert extracted value to entry
+    template<class T> [[nodiscard]] entry extract(T &&value) const
+    { return convert(std::forward<T>(value)); }
+
+    sl m_loc;
+    encoding_group m_enc{encoding_group::unknown};
+
+    /// copy final result if it is a bytes_view
+    /** this allows to extend lifetime of an argument
+     */
+    bool m_copy{false};
+  };
+
 public:
   params() = default;
 
@@ -78,6 +186,8 @@ public:
    * where a complex object can't be passed otherwise.  To keep things clear,
    * we recommend passing it in the general case so that you never run into
    * exceptions about encoding being unknown.
+   * 
+   * NB: Be carefull with binary args lifetime - params often store only view of them
    */
   template<typename First, typename... Args>
   params(First &&first, Args &&...args)
@@ -133,65 +243,27 @@ public:
   /// Append a null value.
   void append(sl = sl::current()) &;
 
-  /// Append a non-null zview parameter.
-  /** The underlying data must stay valid for as long as the `params`
-   * remains active.
+  /// see converter::convert for references
+  /** @note t lifetime depends on type
+   * * string like and convertible to string - lifetime extended
+   * * byte_views like - lifetime should be longer than of params
+   * * anything wrapped in ptr, optional or variant:
+   *   * if passed by value - lifetime extended
+   *   * if passed by reference - lifetime should be longer than of params
+   *
+   * Nice ways to shoot yourself in the foot:
+   * * pqxx::params make_params(std::optional<bytes> value) { return {value}; }
    */
-  void append(zview, sl = sl::current()) &;
-
-  /// Append a non-null string parameter.
-  /** Copies the underlying data into internal storage.  For best efficiency,
-   * use the @ref zview variant if you can, or `std::move()`
-   */
-  void append(std::string const &, sl = sl::current()) &;
-
-  /// Append a non-null string parameter.
-  void append(std::string &&, sl = sl::current()) &;
-
-  /// Append a non-null binary parameter.
-  /** The underlying data must stay valid for as long as the `params`
-   * remains active.
-   */
-  void append(bytes_view, sl = sl::current()) &;
-
-  /// Append a non-null binary parameter.
-  /** The `data` object must stay in place and unchanged, for as long as the
-   * `params` remains active.
-   */
-  template<binary DATA> void append(DATA const &data, sl loc = sl::current()) &
-  {
-    append(binary_cast(data), loc);
-  }
-
-  /// Append a non-null binary parameter.
-  void append(bytes &&, sl = sl::current()) &;
+  template<typename T>
+    requires (!std::is_same_v<std::remove_cvref_t<T>, params>)
+  void append(T &&t, sl loc = sl::current()) &
+  { m_params.emplace_back(converter{loc, m_enc}.convert(std::forward<T>(t))); }
 
   /// Append all parameters in `value`.
   void append(params const &value, sl = sl::current()) &;
 
   /// Append all parameters in `value`.
   void append(params &&value, sl = sl::current()) &;
-
-  /// Append a non-null parameter, converting it to its string
-  /// representation.
-  template<typename TYPE>
-  void append([[maybe_unused]] TYPE const &value, sl loc = sl::current()) &
-  {
-    // TODO: Pool storage for multiple string conversions in one buffer?
-    if constexpr (pqxx::always_null<TYPE>())
-    {
-      m_params.emplace_back();
-    }
-    else if (is_null(value))
-    {
-      m_params.emplace_back();
-    }
-    else
-    {
-      // TODO: Block-allocate storage for parameters.
-      m_params.emplace_back(to_string(value, conversion_context{m_enc, loc}));
-    }
-  }
 
   /// Append all elements of `range` as parameters.
   template<std::ranges::range RANGE>
@@ -227,11 +299,7 @@ private:
    */
   void append_pack(sl) const noexcept {}
 
-  // The way we store a parameter depends on whether it's binary or text
-  // (most types are text), and whether we're responsible for storing the
-  // contents.
-  using entry =
-    std::variant<std::nullptr_t, zview, std::string, bytes_view, bytes>;
+
   std::vector<entry> m_params;
 
   encoding_group m_enc{encoding_group::unknown};

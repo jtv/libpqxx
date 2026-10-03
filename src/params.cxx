@@ -38,7 +38,6 @@ void pqxx::internal::c_params::reserve(std::size_t n) &
   formats.reserve(n);
 }
 
-
 void pqxx::params::reserve(std::size_t n) &
 {
   m_params.reserve(n);
@@ -50,43 +49,11 @@ void pqxx::params::append(sl) &
   m_params.emplace_back(nullptr);
 }
 
-
-void pqxx::params::append(zview value, sl) &
-{
-  m_params.emplace_back(value);
-}
-
-
-void pqxx::params::append(std::string const &value, sl) &
-{
-  m_params.emplace_back(value);
-}
-
-
-void pqxx::params::append(std::string &&value, sl) &
-{
-  m_params.emplace_back(std::move(value));
-}
-
-
 void pqxx::params::append(params const &value, sl) &
 {
   this->reserve(std::size(value.m_params) + std::size(this->m_params));
   for (auto const &param : value.m_params) m_params.emplace_back(param);
 }
-
-
-void pqxx::params::append(bytes_view value, sl) &
-{
-  m_params.emplace_back(value);
-}
-
-
-void pqxx::params::append(bytes &&value, sl) &
-{
-  m_params.emplace_back(std::move(value));
-}
-
 
 void pqxx::params::append(params &&value, sl) &
 {
