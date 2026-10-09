@@ -7,7 +7,6 @@
 #include <map>
 #include <memory>
 #include <numeric>
-#include <optional>
 #include <span>
 #include <type_traits>
 #include <variant>

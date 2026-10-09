@@ -25,6 +25,7 @@
 #include <iterator>
 #include <limits>
 #include <memory>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -450,7 +451,10 @@ template<typename CONTAINED> struct maybe_traits<std::optional<CONTAINED>>
 
   [[nodiscard]] static contained_t const &get_value(maybe_t const &m)
   {
+    // clang-tidy rule bug:
+    // NOLINTNEXTLINE(cert-dcl03-c)
     assert(has_value(m));
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     return m.value();
   }
 
@@ -472,6 +476,8 @@ template<typename CONTAINED> struct maybe_traits<std::shared_ptr<CONTAINED>>
 
   [[nodiscard]] static contained_t const &get_value(maybe_t const &m)
   {
+    // clang-tidy rule bug:
+    // NOLINTNEXTLINE(cert-dcl03-c)
     assert(has_value(m));
     return *m;
   }
@@ -497,6 +503,8 @@ template<typename CONTAINED> struct maybe_traits<std::unique_ptr<CONTAINED>>
 
   [[nodiscard]] static contained_t const &get_value(maybe_t const &m)
   {
+    // clang-tidy rule bug:
+    // NOLINTNEXTLINE(cert-dcl03-c)
     assert(has_value(m));
     return *m;
   }

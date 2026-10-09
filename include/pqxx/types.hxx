@@ -186,6 +186,9 @@ concept nonbinary_range =
   // other types).  That's convenient, but it upsets our logic for recognising
   // things that the called will want to represent in SQL as arrays.  So, try
   // to exclude such types from the logic which recognises such things.
+  //
+  // There is a separate concept, "maybe_type" for types that merely either
+  // do or do not contain a value of some other type.
   not requires(T t) { t.has_value(); };
 
 
