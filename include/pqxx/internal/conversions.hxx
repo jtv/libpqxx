@@ -844,14 +844,7 @@ template<typename T> struct nonbinary_range_traits
 
 namespace pqxx
 {
-/// Nullness for non-binary ranges.
-/** As of C++26, `std::optional` is also a range.  The same might conceivably
- * happen for smart pointers.  So if `T` is both a range and a `maybe_type`,
- * treat it as a `maybe_type`.
- */
-template<nonbinary_range T>
-  requires(requires { not maybe_type<T>; })
-struct nullness<T> final : no_null<T>
+template<nonbinary_range T> struct nullness<T> final : no_null<T>
 {};
 
 

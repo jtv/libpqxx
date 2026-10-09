@@ -181,7 +181,12 @@ concept nonbinary_range =
   not std::same_as<
     std::remove_cvref_t<std::ranges::range_reference_t<T>>, std::byte> and
   not std::same_as<
-    std::remove_cvref_t<std::ranges::range_reference_t<T>>, char>;
+    std::remove_cvref_t<std::ranges::range_reference_t<T>>, char> and
+  // As of C++26, std::optional is also a range (and the same may happen for
+  // other types).  That's convenient, but it upsets our logic for recognising
+  // things that the called will want to represent in SQL as arrays.  So, try
+  // to exclude such types from the logic which recognises such things.
+  not requires(T t) { t.has_value(); };
 
 
 /// Type alias for a view of bytes.

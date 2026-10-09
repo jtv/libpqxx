@@ -783,7 +783,7 @@ template<typename TYPE>
 [[nodiscard]] inline constexpr bool is_null(TYPE const &value) noexcept
 {
   using base_type = std::remove_cvref_t<TYPE>;
-  if constexpr (always_null<TYPE>())
+  if constexpr (always_null<base_type>())
     return true;
   else
     return nullness<base_type>::is_null(value);
