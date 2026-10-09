@@ -78,8 +78,8 @@ void test_statement_params_advanced(pqxx::test::context &)
 
   auto const v3 = std::make_unique<pqxx::bytes_view>(bin3);
   p.append(v3); // Passed by reference, lifetime managed by caller.
-  // XXX: Doesn't actually move, because there's no rvalue overload.
-  p.append(std::move(v3)); // Passed as rvalue; params takes ownership.
+  // Doesn't actually move, because there's no rvalue overload.
+  p.append(std::move(v3));
   // Passed by value, params takes ownership:
   p.append(std::make_unique<pqxx::bytes_view>(bin3));
 
