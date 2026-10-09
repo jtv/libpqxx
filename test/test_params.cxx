@@ -69,23 +69,24 @@ void test_statement_params_advanced(pqxx::test::context &)
 
   p.append(pqxx::bytes{});
   p.append(std::optional<pqxx::bytes>{});
-  std::optional v1{bin3};
+  std::optional const v1{bin3};
   p.append(v1); // Object passed by reference, lifetime managed by caller.
 
   const std::optional<std::optional<pqxx::bytes_view>> v2{
     std::in_place, std::in_place, bin3};
   p.append(v2); // Passed by reference, lifetime managed by caller.
 
-  auto v3 = std::make_unique<pqxx::bytes_view>(bin3);
-  p.append(v3);            // Passed by reference, lifetime managed by caller.
+  auto const v3 = std::make_unique<pqxx::bytes_view>(bin3);
+  p.append(v3); // Passed by reference, lifetime managed by caller.
+  // XXX: Doesn't actually move, because there's no rvalue overload.
   p.append(std::move(v3)); // Passed as rvalue; params takes ownership.
   // Passed by value, params takes ownership:
   p.append(std::make_unique<pqxx::bytes_view>(bin3));
 
-  auto v4 = std::make_shared<pqxx::bytes_view>(bin3);
+  auto const v4 = std::make_shared<pqxx::bytes_view>(bin3);
   p.append(v4); // Passed by reference, lifetime managed by caller.
 
-  std::variant<pqxx::bytes_view, int> v5{bin3};
+  std::variant<pqxx::bytes_view, int> const v5{bin3};
   p.append(v5); // Passed by reference.
   // Gets converted to string inside the params:
   p.append(std::variant<pqxx::bytes_view, int>{42});
