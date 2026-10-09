@@ -850,7 +850,7 @@ namespace pqxx
  * treat it as a `maybe_type`.
  */
 template<nonbinary_range T>
-  requires(requires { not maybe_type<T> })
+  requires(requires { not maybe_type<T>; })
 struct nullness<T> final : no_null<T>
 {};
 
