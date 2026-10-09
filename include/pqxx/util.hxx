@@ -275,7 +275,8 @@ template<potential_binary TYPE> inline bytes_view binary_cast(TYPE const &data)
 template<char_sized CHAR, typename SIZE>
 bytes_view binary_cast(CHAR const *data, SIZE size)
 {
-  return binary_cast(std::span<CHAR>{data, check_cast<std::size_t>(size)});
+  return binary_cast(
+    std::span<CHAR const>{data, check_cast<std::size_t>(size, "binary size")});
 }
 
 
@@ -377,6 +378,136 @@ PQXX_PURE inline std::string source_loc(LOC const &loc)
     return std::format("{}:", file);
   }
 }
+
+
+/// Types that do nothing but _optionally contain a value_ of some other type.
+/** This generalises some properties of `std::optional` and standard smart
+ * pointer types: whether a given instance contains a value, accessing the
+ * contained value, and constructing an instance with or without a value.
+ *
+ * The generic definition exists for reference only.  It does not implement any
+ * of the member functions.
+ *
+ * _In principle_ we could define this for raw, C-style pointer types as well.
+ * But we don't.  The reason is that a raw pointer does not tell us to _how
+ * many_ objects it points: it could be one, it could be a bunch forming a
+ * C-style array, or it could even be an empty array.
+ */
+template<typename MAYBE> struct maybe_traits final
+{
+  /// The "maybe type" that this traits type describes.
+  using maybe_t = MAYBE;
+
+  /// The type that may or may not be contained in a `maybe_t`.
+  /** This is not known in the case of the reference definition.  Not a problem
+   * since the reference definition isn't meant to be usable.
+   */
+  using contained_t = struct
+  {};
+
+  /// Does `x` contain a value?
+  [[nodiscard]] static constexpr bool
+  has_value(maybe_t const &) noexcept = delete;
+
+  /// Obtain a const reference to the contained value.
+  /** Call this only for an object where `has_value()` returns `true`.
+   *
+   * The return type would normally be `contained_t const &`.
+   */
+  [[nodiscard]] static auto const &get_value(maybe_t const &) = delete;
+
+  /// Create an instance of `maybe_t` not containing any value.
+  /** The return type would normally be `contained_t`.
+   */
+  [[nodiscard]] static auto make_blank() noexcept = delete;
+
+  /// Construct an instance of `maybe_t` containing the given value.
+  /** The return type would normally be `contained_t`.
+   */
+  [[nodiscard]] static auto make(contained_t &&) = delete;
+};
+
+
+/// Concept: A "maybe type" (for which we have specialised `maybe_traits`).
+template<typename MAYBE>
+concept maybe_type = requires(MAYBE m) {
+  // If we hadn't specialised maybe_traits<MAYBE>, these would be deleted:
+  maybe_traits<MAYBE>::has_value(m);
+  maybe_traits<MAYBE>::get_value(m);
+  maybe_traits<MAYBE>::make_blank();
+};
+
+
+template<typename CONTAINED> struct maybe_traits<std::optional<CONTAINED>>
+{
+  using maybe_t = std::optional<CONTAINED>;
+  using contained_t = CONTAINED;
+
+  [[nodiscard]] static constexpr bool has_value(maybe_t const &m) noexcept
+  {
+    return m.has_value();
+  }
+
+  [[nodiscard]] static contained_t const &get_value(maybe_t const &m)
+  {
+    assert(has_value(m));
+    return m.value();
+  }
+
+  [[nodiscard]] static maybe_t make_blank() noexcept { return {}; }
+
+  [[nodiscard]] static maybe_t make(contained_t &&c) { return {c}; }
+};
+
+
+template<typename CONTAINED> struct maybe_traits<std::shared_ptr<CONTAINED>>
+{
+  using maybe_t = std::shared_ptr<CONTAINED>;
+  using contained_t = CONTAINED;
+
+  [[nodiscard]] static constexpr bool has_value(maybe_t const &m) noexcept
+  {
+    return bool{m};
+  }
+
+  [[nodiscard]] static contained_t const &get_value(maybe_t const &m)
+  {
+    assert(has_value(m));
+    return *m;
+  }
+
+  [[nodiscard]] static maybe_t make_blank() noexcept { return {}; }
+
+  [[nodiscard]] static maybe_t make(contained_t &&c)
+  {
+    return std::make_shared<maybe_t>(c);
+  }
+};
+
+
+template<typename CONTAINED> struct maybe_traits<std::unique_ptr<CONTAINED>>
+{
+  using maybe_t = std::unique_ptr<CONTAINED>;
+  using contained_t = CONTAINED;
+
+  [[nodiscard]] static constexpr bool has_value(maybe_t const &m) noexcept
+  {
+    return bool{m};
+  }
+
+  [[nodiscard]] static contained_t const &get_value(maybe_t const &m)
+  {
+    assert(has_value(m));
+    return *m;
+  }
+
+  [[nodiscard]] static maybe_t make_blank() noexcept { return {}; }
+
+  [[nodiscard]] static maybe_t make(contained_t &&c)
+  {
+    return std::make_unique<contained_t>(c);
+  }
+};
 } // namespace pqxx
 
 
