@@ -208,14 +208,17 @@ using ctx = conversion_context const &;
  * String conversions are not meant to work for nulls.  Check for null before
  * converting a value of @c TYPE to a string, or vice versa, and handle them
  * separately.
+ *
+ * The generic definition exists for reference only.  It does not implement any
+ * of the member functions.
  */
 template<typename TYPE> struct string_traits final
 {
   /// Estimate how much buffer space is needed to represent value as SQL text.
   /** The estimate may be a little pessimistic, if it saves time.
    */
-  [[nodiscard]] static inline std::size_t
-  size_buffer(TYPE const &value) noexcept;
+  [[nodiscard]] static std::size_t
+  size_buffer(TYPE const &value) noexcept = delete;
 
   /// Return a @c string_view representing `value` in SQL text.
   /** Produces a view on a PostgreSQL string representation for @c value.
@@ -238,8 +241,8 @@ template<typename TYPE> struct string_traits final
    * If there is no support for converting this type to an SQL string, simply
    * leave this function out of the struct.
    */
-  [[nodiscard]] static inline std::string_view
-  to_buf(std::span<char> buf, TYPE const &value, ctx = {});
+  [[nodiscard]] static std::string_view
+  to_buf(std::span<char> buf, TYPE const &value, ctx = {}) = delete;
 
   /// Parse a string representation of a @c TYPE value.
   /** Throws @c conversion_error if @c value does not meet the expected format
@@ -255,8 +258,8 @@ template<typename TYPE> struct string_traits final
    * If there is no support for converting from an SQL string to this type,
    * simply leave this function out of the struct.
    */
-  [[nodiscard]] static inline TYPE
-  from_string(std::string_view text, ctx = {});
+  [[nodiscard]] static TYPE
+  from_string(std::string_view text, ctx = {}) = delete;
 
   // TODO: Move is_unquoted_safe into the traits after all?
 };
@@ -780,7 +783,7 @@ template<typename TYPE>
 [[nodiscard]] inline constexpr bool is_null(TYPE const &value) noexcept
 {
   using base_type = std::remove_cvref_t<TYPE>;
-  if constexpr (always_null<TYPE>())
+  if constexpr (always_null<base_type>())
     return true;
   else
     return nullness<base_type>::is_null(value);
