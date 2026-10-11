@@ -57,6 +57,7 @@ struct context final
   /// Return an arbitrary nonnegative integer below `ceiling`.
   int make_num(int ceiling) { return make_num() % ceiling; }
 
+  // TODO: Rename to make_char().
   /// Return an arbitrary nonzero `char` value from the full 8-bit range.
   char random_char()
   {
@@ -81,6 +82,12 @@ struct context final
       return std::format("{}", num);
     else
       return std::format("{}_{}", prefix, num);
+  }
+
+  /// Return an arbitrary byte value.
+  std::byte make_byte()
+  {
+    return std::byte{static_cast<unsigned char>(make_num(256))};
   }
 
 private:
@@ -183,6 +190,7 @@ struct registrar final
     "Execution was never supposed to reach this point.",
   sl loc = sl::current());
 
+// TODO: Get rid of the optional descriptions.
 // Verify that a condition is met, similar to assert().
 // Takes an optional failure description as a second argument.
 #if defined(_MSVC_TRADITIONAL) && _MSVC_TRADITIONAL
@@ -229,6 +237,7 @@ inline void check_equal(
   //    hicpp-no-array-decay
   // )
 
+  // TODO: std::format().
   std::string const fulldesc = desc + " (" + actual_text + " <> " +
                                expected_text +
                                ": "
@@ -270,6 +279,7 @@ inline void check_not_equal(
 {
   if (value1 != value2)
     return;
+  // TODO: std::format().
   std::string const fulldesc = desc + " (" + text1 + " == " + text2 +
                                ": "
                                "both are " +
@@ -282,6 +292,31 @@ inline void check_not_equal(
 //    hicpp-no-array-decay
 // )
 
+
+// TODO: Look for test code that we can replace with this.
+/// Verify that two blocks of binary data are equal.
+template<typename VALUE1, typename VALUE2>
+inline void check_equal_bin(
+  VALUE1 const &value1, VALUE2 const &value2, sl loc = sl::current())
+{
+  auto const sz{std::size(value1)};
+  if (not std::cmp_equal(sz, std::size(value2)))
+    throw test_failure{
+      std::format(
+        "Binary data blocks differ in size ({} vs. {})", sz,
+        std::size(value2)),
+      loc};
+
+  for (std::size_t i{0u}; i < sz; ++i)
+  {
+    if (value1.at(i) != value2.at(i))
+      throw test_failure{
+        std::format(
+          "Binary blocks differ in byte {} out of {}: {} vs. {}.", i, sz,
+          static_cast<unsigned>(value1.at(1)), static_cast<unsigned>(value2.at(i))),
+        loc};
+  }
+}
 
 // Verify that value1 is less/greater than value2.
 // Takes an optional failure description as a third argument.
@@ -307,6 +342,7 @@ inline void check_less(
 {
   if (value1 < value2)
     return;
+  // TODO: std::format().
   std::string const fulldesc = desc + " (" + text1 + " >= " + text2 +
                                ": "
                                "\"lower\"=" +
