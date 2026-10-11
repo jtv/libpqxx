@@ -31,6 +31,132 @@ void test_statement_params(pqxx::test::context &)
 }
 
 
+void test_params_converts_most_types_to_string(pqxx::test::context &tctx)
+{
+  pqxx::connection cx;
+  pqxx::work tx{cx};
+
+  int const n{tctx.make_num()};
+  double const d{tctx.make_float_num<double>() / 2};
+  std::vector<int> const a{tctx.make_num(), tctx.make_num()};
+  int const bottom{tctx.make_num(10000)};
+  int const top{bottom + tctx.make_num(100) + 1};
+  pqxx::range<int> const r{
+    pqxx::inclusive_bound<int>{bottom}, pqxx::exclusive_bound<int>{top}};
+  std::string const s{tctx.make_name()};
+
+  // This is how applications SHOULD use params: insert variables, but leave
+  // the variables in place and unchanged until after the params object is no
+  // longer needed.
+  pqxx::row const out{
+    tx.exec("SELECT $1, $2, $3, $4, $5", pqxx::params{n, d, a, r, s})
+      .one_row()};
+
+  // These parameters get passed into the SQL statement, as you'd expect.
+  PQXX_CHECK_EQUAL(out.at(0).as<int>(), n);
+  PQXX_CHECK_BOUNDS(out.at(1).as<double>(), d - 10, d + 10);
+  PQXX_CHECK_EQUAL(out.at(2).as<std::vector<int>>(), a);
+  PQXX_CHECK_EQUAL(out.at(3).as<pqxx::range<int>>(), r);
+  PQXX_CHECK_EQUAL(out.at(4).as<std::string>(), s);
+
+  // Whitebox test.  Actual applications using libpqxx MUST NOT do this.  It
+  // gets too close to implementation details so may change in the future.
+  // It works differently for certain other types.
+  //
+  // If we add these types of variables to a params, then change the values of
+  // the variables, the params still contains the values as we inserted them.
+  // Internally, these values get converted to strings immediately during
+  // insertion.  It does not store any kind of reference to them.
+  pqxx::row out2;
+  {
+    int n2{n};
+    double d2{d};
+    std::vector<int> a2{a};
+    pqxx::range<int> r2{r};
+    std::string s2{s};
+
+    pqxx::params const p{n2, d2, a2, r2, s2};
+
+    // Change the variables that we inserted, to show that this does not affect
+    // the outcome (for these types).
+    --n2;
+    d2 -= 1000;
+    --a2.at(0);
+    a2.push_back(tctx.make_num());
+    r2 = pqxx::range<int>{};
+    s2 = tctx.make_name();
+
+    // Now use the params object we populated with these variables before we
+    // changed them.
+    out2 = tx.exec("SELECT $1, $2, $3, $4, $5", p).one_row();
+  }
+
+  // All the variables we appended to p have since changed, but the params
+  // still contain the original values.  Do not rely on this, it's just a
+  // whitebox test to establish that params works as expected, *internally.*
+  PQXX_CHECK_EQUAL(out2.at(0).as<int>(), n);
+  PQXX_CHECK_BOUNDS(out2.at(1).as<double>(), d - 10, d + 10);
+  PQXX_CHECK_EQUAL(out2.at(2).as<std::vector<int>>(), a);
+  PQXX_CHECK_EQUAL(out2.at(3).as<pqxx::range<int>>(), r);
+  PQXX_CHECK_EQUAL(out.at(4).as<std::string>(), s);
+}
+
+
+void test_params_stores_specific_types_as_views(pqxx::test::context &tctx)
+{
+  pqxx::connection cx;
+  pqxx::work tx{cx};
+
+  std::byte const bx{tctx.make_byte()}, by{tctx.make_byte()},
+    bz{tctx.make_byte()};
+  pqxx::bytes const b{bx, by, bz};
+  std::string const s{tctx.make_name("one")};
+
+  // This is how applications SHOULD use params: insert variabes, but leave
+  // the variables in place and unchanged until after the params object is no
+  // longer needed.
+  pqxx::row const out{
+    tx.exec(
+        "SELECT $1::bytea, $2::bytea, $3",
+        pqxx::params{b, pqxx::bytes_view{b}, std::string_view{s}})
+      .one_row()};
+
+  // These parameters get passed into the SQL statement, as you'd expect.
+  pqxx::test::check_equal_bin(out.at(0).as<pqxx::bytes>(), b);
+  pqxx::test::check_equal_bin(out.at(1).as<pqxx::bytes>(), b);
+  PQXX_CHECK_EQUAL(out.at(2).view(), s);
+
+  // Whitebox test.  Actual applications using libpqxx MUST NOT do this.  It
+  // gets too close to implementation details so may change in the future.
+  // It also works differently for other types.
+  //
+  // If we add these types of variables to a params, but change the data inside
+  // them before using the params, then what goes out to the database server as
+  // parameters is the changed data.
+  pqxx::row out2;
+  {
+    pqxx::bytes b2{b};
+    std::string s2{s};
+
+    pqxx::params const p{b2, pqxx::bytes_view{b2}, pqxx::zview{s2}};
+
+    // Change the data we've already inserted into p.
+    std::exchange(b2[0], b2[2]);
+    b2[2] = tctx.make_byte();
+    s2 = tctx.make_name("two");
+
+    // Now pass p to a statement.  What goes out to te server will be the
+    // changed values, not the values as they were when we inserted them into
+    // p.
+    out2 = tx.exec("SELECT $1::bytea, $2::bytea, $3", p).one_row();
+
+    pqxx::test::check_equal_bin(out2.at(0).as<pqxx::bytes>(), b2);
+    pqxx::test::check_equal_bin(out2.at(1).as<pqxx::bytes>(), b2);
+    PQXX_CHECK_EQUAL(out2.at(2).as<std::string>(), s2);
+  }
+}
+
+
 // TODO: Split this up into smaller tests.
 /// Test from PR #1250: fix binary std::optional etc. params.
 /** One semantic change is that #1250 would _copy_ binary data passed in as a
@@ -148,5 +274,7 @@ void test_statement_params_advanced(pqxx::test::context &)
 
 
 PQXX_REGISTER_TEST(test_statement_params);
+PQXX_REGISTER_TEST(test_params_converts_most_types_to_string);
+PQXX_REGISTER_TEST(test_params_stores_specific_types_as_views);
 PQXX_REGISTER_TEST(test_statement_params_advanced);
 } // namespace
