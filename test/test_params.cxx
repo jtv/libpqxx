@@ -86,6 +86,15 @@ void test_params_converts_most_types_to_string(pqxx::test::context &tctx)
     r2 = pqxx::range<int>{};
     s2 = tctx.make_name();
 
+    // (Check that we've really changed all these variables.  And not
+    // coincidentally, make static analysis tools shut up about the changes
+    // never getting used anywhere.)
+    PQXX_CHECK_NOT_EQUAL(n2, n);
+    PQXX_CHECK_LESS(d2, d);
+    PQXX_CHECK_NOT_EQUAL(a2, a);
+    PQXX_CHECK_NOT_EQUAL(r2, r);
+    PQXX_CHECK_NOT_EQUAL(s2, s);
+
     // Now use the params object we populated with these variables before we
     // changed them.
     out2 = tx.exec("SELECT $1, $2, $3, $4, $5", p).one_row();
