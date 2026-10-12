@@ -33,6 +33,7 @@ void test_statement_params(pqxx::test::context &)
 
 void test_params_converts_most_types_to_string(pqxx::test::context &tctx)
 {
+  std::string_view const query{"SELECT $1, $2, $3, $4, $5, $6::bytea"};
   pqxx::connection cx;
   pqxx::work tx{cx};
 
@@ -44,13 +45,13 @@ void test_params_converts_most_types_to_string(pqxx::test::context &tctx)
   pqxx::range<int> const r{
     pqxx::inclusive_bound<int>{bottom}, pqxx::exclusive_bound<int>{top}};
   std::string const s{tctx.make_name()};
+  pqxx::bytes const b{tctx.make_bytes(10)};
 
   // This is how applications SHOULD use params: insert variables, but leave
   // the variables in place and unchanged until after the params object is no
   // longer needed.
   pqxx::row const out{
-    tx.exec("SELECT $1, $2, $3, $4, $5", pqxx::params{n, d, a, r, s})
-      .one_row()};
+    tx.exec(query, pqxx::params{n, d, a, r, s, pqxx::bytes{b}}).one_row()};
 
   // These parameters get passed into the SQL statement, as you'd expect.
   PQXX_CHECK_EQUAL(out.at(0).as<int>(), n);
@@ -58,6 +59,7 @@ void test_params_converts_most_types_to_string(pqxx::test::context &tctx)
   PQXX_CHECK_EQUAL(out.at(2).as<std::vector<int>>(), a);
   PQXX_CHECK_EQUAL(out.at(3).as<pqxx::range<int>>(), r);
   PQXX_CHECK_EQUAL(out.at(4).as<std::string>(), s);
+  pqxx::test::check_equal_bin(out.at(5).as<pqxx::bytes>(), b);
 
   // Whitebox test.  Actual applications using libpqxx MUST NOT do this.  It
   // gets too close to implementation details so may change in the future.
@@ -74,8 +76,13 @@ void test_params_converts_most_types_to_string(pqxx::test::context &tctx)
     std::vector<int> a2{a};
     pqxx::range<int> r2{r};
     std::string s2{s};
+    pqxx::bytes b2{b};
 
-    pqxx::params const p{n2, d2, a2, r2, s2};
+    // There's no way to pass a pqxx::bytes to params by value, because that'd
+    // be a performance trap.  You can, however, pass one in as an rvalue
+    // reference.  And so we run the bytes values through an extra copy step
+    // just for this test.
+    pqxx::params const p{n2, d2, a2, r2, s2, pqxx::bytes{b2}};
 
     // Change the variables that we inserted, to show that this does not affect
     // the outcome (for these types).
@@ -85,6 +92,7 @@ void test_params_converts_most_types_to_string(pqxx::test::context &tctx)
     a2.push_back(tctx.make_num());
     r2 = pqxx::range<int>{};
     s2 = tctx.make_name();
+    b2 = tctx.make_bytes();
 
     // (Check that we've really changed all these variables.  And not
     // coincidentally, make static analysis tools shut up about the changes
@@ -94,10 +102,11 @@ void test_params_converts_most_types_to_string(pqxx::test::context &tctx)
     PQXX_CHECK_NOT_EQUAL(a2, a);
     PQXX_CHECK_NOT_EQUAL(r2, r);
     PQXX_CHECK_NOT_EQUAL(s2, s);
+    pqxx::test::check_not_equal_bin(b2, b);
 
     // Now use the params object we populated with these variables before we
     // changed them.
-    out2 = tx.exec("SELECT $1, $2, $3, $4, $5", p).one_row();
+    out2 = tx.exec(query, p).one_row();
   }
 
   // All the variables we appended to p have since changed, but the params
@@ -108,6 +117,7 @@ void test_params_converts_most_types_to_string(pqxx::test::context &tctx)
   PQXX_CHECK_EQUAL(out2.at(2).as<std::vector<int>>(), a);
   PQXX_CHECK_EQUAL(out2.at(3).as<pqxx::range<int>>(), r);
   PQXX_CHECK_EQUAL(out.at(4).as<std::string>(), s);
+  pqxx::test::check_equal_bin(out.at(5).as<pqxx::bytes>(), b);
 }
 
 
@@ -116,174 +126,131 @@ void test_params_stores_specific_types_as_views(pqxx::test::context &tctx)
   pqxx::connection cx;
   pqxx::work tx{cx};
 
-  std::byte const bx{tctx.make_byte()}, by{tctx.make_byte()},
-    bz{tctx.make_byte()};
-  pqxx::bytes const b{bx, by, bz};
-  std::string const s{tctx.make_name("one")};
+  std::string_view const query{"SELECT $1::bytea, $2::text"};
+  pqxx::bytes b{tctx.make_bytes(10)};
+  std::string s{tctx.make_name("text param")};
 
   // This is how applications SHOULD use params: insert variabes, but leave
   // the variables in place and unchanged until after the params object is no
   // longer needed.
-  pqxx::row const out{
-    tx.exec(
-        "SELECT $1::bytea, $2::bytea, $3",
-        pqxx::params{b, pqxx::bytes_view{b}, std::string_view{s}})
-      .one_row()};
-
-  // These parameters get passed into the SQL statement, as you'd expect.
+  pqxx::params p{pqxx::binary_cast(b), pqxx::zview{s}};
+  pqxx::row const out{tx.exec(query, p).one_row()};
   pqxx::test::check_equal_bin(out.at(0).as<pqxx::bytes>(), b);
-  pqxx::test::check_equal_bin(out.at(1).as<pqxx::bytes>(), b);
-  PQXX_CHECK_EQUAL(out.at(2).view(), s);
+  PQXX_CHECK_EQUAL(out.at(1).view(), s);
 
-  // Whitebox test.  Actual applications using libpqxx MUST NOT do this.  It
-  // gets too close to implementation details so may change in the future.
-  // It also works differently for other types.
+  // Whitebox test follows.  Actual applications using libpqxx MUST NOT do
+  // this.  It gets too close to implementation details so may change in the
+  // future.  It also works differently for other types.
   //
   // If we add these types of variables to a params, but change the data inside
   // them before using the params, then what goes out to the database server as
   // parameters is the changed data.
-  pqxx::row out2;
+  //
+  // (Be careful not to let b and s re-allocate their buffers internally, since
+  // p stores views referring to the data in those buffers.)
   {
-    pqxx::bytes b2{b};
-    std::string s2{s};
-
-    pqxx::params const p{b2, pqxx::bytes_view{b2}, pqxx::zview{s2}};
-
-    // Change the data we've already inserted into p.
-    std::exchange(b2[0], b2[2]);
-    b2[2] = tctx.make_byte();
-    s2 = tctx.make_name("two");
-
-    // Now pass p to a statement.  What goes out to te server will be the
-    // changed values, not the values as they were when we inserted them into
-    // p.
-    out2 = tx.exec("SELECT $1::bytea, $2::bytea, $3", p).one_row();
-
-    pqxx::test::check_equal_bin(out2.at(0).as<pqxx::bytes>(), b2);
-    pqxx::test::check_equal_bin(out2.at(1).as<pqxx::bytes>(), b2);
-    PQXX_CHECK_EQUAL(out2.at(2).as<std::string>(), s2);
+    for (std::size_t i{0}; i < std::size(b); ++i) b.at(i) = tctx.make_byte();
   }
+  {
+    for (std::size_t i{0}; i < std::size(s); ++i)
+      s.at(i) = tctx.make_ascii_char();
+  }
+
+  // Now pass p to a statement.  What goes out to the server will be the
+  // changed values, not the values as they were when we inserted them into p.
+  auto const out2{tx.exec(query, p).one_row()};
+
+  pqxx::test::check_equal_bin(out2.at(0).as<pqxx::bytes>(), b);
+  PQXX_CHECK_EQUAL(out2.at(1).as<std::string>(), s);
 }
 
 
-// TODO: Split this up into smaller tests.
-/// Test from PR #1250: fix binary std::optional etc. params.
-/** One semantic change is that #1250 would _copy_ binary data passed in as a
- * view inside a `std::optional` or smart pointer into the `params`.  The
- * current implementation just keeps the pointer and expects the caller to keep
- * it valid.
- */
-void test_statement_params_advanced(pqxx::test::context &)
+void test_params_sees_through_maybe_types(pqxx::test::context &tctx)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
 
-  using binary_data = std::array<std::byte, 2>;
-  binary_data const bin{std::byte{'a'}, std::byte{'b'}};
-  pqxx::bytes bin2{std::byte{'b'}, std::byte{'c'}};
-  pqxx::bytes_view bin3{bin2};
+  int const n{tctx.make_num()};
+  std::string const s{tctx.make_name()};
+  pqxx::bytes b{tctx.make_bytes()};
 
-  // Test cases:
-  // 1. General append usage.
-  // 2. Append by value, view, reference (lifetime differs).
-  // 3. "Maybe types," by value and by reference.
-  //
-  // There's a danger of dangling references:
-  // * append(std::optional<const bytes>{std::move(value)});
-  // * append(std::make_unique<bytes>(value));
-  pqxx::params p;
-  p.append();
-  p.append("zview"_zv);
+  auto const query{"SELECT $1, $2, $3::bytea"};
 
   {
-    pqxx::params q;
-    q.append(bin);
-    p.append(q);
-    // (End of q's lifetime.)
+    pqxx::row const r0{tx.exec(query, pqxx::params{n, s, b}).one_row()};
+    PQXX_CHECK_EQUAL(r0.at(0).as<int>(), n);
+    PQXX_CHECK_EQUAL(r0.at(1).view(), s);
+    pqxx::test::check_equal_bin(r0.at(2).as<pqxx::bytes>(), b);
   }
 
-  p.append(pqxx::bytes{});
-  p.append(std::optional<pqxx::bytes>{});
-  std::optional const v1{bin3};
-  p.append(v1); // Object passed by reference, lifetime managed by caller.
-
-  const std::optional<std::optional<pqxx::bytes_view>> v2{
-    std::in_place, std::in_place, bin3};
-  p.append(v2); // Passed by reference, lifetime managed by caller.
-
-  auto const v3 = std::make_unique<pqxx::bytes_view>(bin3);
-  p.append(v3); // Passed by reference, lifetime managed by caller.
-  // Doesn't actually move, because there's no rvalue overload.
-  p.append(std::move(v3));
-  // Passed by value, params takes ownership:
-  p.append(std::make_unique<pqxx::bytes_view>(bin3));
-
-  auto const v4 = std::make_shared<pqxx::bytes_view>(bin3);
-  p.append(v4); // Passed by reference, lifetime managed by caller.
-
-  std::variant<pqxx::bytes_view, int> const v5{bin3};
-  p.append(v5); // Passed by reference.
-  // Gets converted to string inside the params:
-  p.append(std::variant<pqxx::bytes_view, int>{42});
   {
-    const auto c_params = p.make_c_params({});
-    constexpr auto binary = static_cast<int>(pqxx::format::binary);
-    constexpr auto text = static_cast<int>(pqxx::format::text);
-    constexpr size_t size{0u};
-
-    PQXX_CHECK_EQUAL(c_params.formats[2], binary);
-    PQXX_CHECK(c_params.values[4] == nullptr);
-    PQXX_CHECK_EQUAL(c_params.formats[5], binary);
-    // Stored as view, so pointer remains the same.
-    PQXX_CHECK(
-      pqxx::binary_cast(c_params.values[5], size).data() == bin2.data());
-    PQXX_CHECK_EQUAL(c_params.formats[6], binary);
-    PQXX_CHECK(
-      pqxx::binary_cast(c_params.values[6], size).data() == bin2.data());
-    PQXX_CHECK_EQUAL(c_params.formats[7], binary);
-    PQXX_CHECK(
-      pqxx::binary_cast(c_params.values[7], size).data() == bin2.data());
-    PQXX_CHECK_EQUAL(c_params.formats[8], binary);
-    // This data gets copied inside the params.
-    PQXX_CHECK(
-      pqxx::binary_cast(c_params.values[8], size).data() != bin.data());
-    PQXX_CHECK_EQUAL(c_params.formats[9], binary);
-    PQXX_CHECK(
-      pqxx::binary_cast(c_params.values[9], size).data() == bin2.data());
-
-    PQXX_CHECK_EQUAL(c_params.formats[10], binary);
-    PQXX_CHECK(
-      pqxx::binary_cast(c_params.values[10], size).data() == bin2.data());
-    PQXX_CHECK_EQUAL(c_params.formats[11], binary);
-    PQXX_CHECK(
-      pqxx::binary_cast(c_params.values[11], size).data() == bin2.data());
-
-    PQXX_CHECK_EQUAL(c_params.formats[12], text);
+    pqxx::row const r1{
+      tx.exec(
+          query,
+          pqxx::params{std::optional{n}, std::optional{s}, std::optional{b}})
+        .one_row()};
+    PQXX_CHECK_EQUAL(r1.at(0).as<int>(), n);
+    PQXX_CHECK_EQUAL(r1.at(1).view(), s);
+    pqxx::test::check_equal_bin(r1.at(2).as<pqxx::bytes>(), b);
   }
 
-  auto const res{tx.exec(
-    "SELECT $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13", p)};
-  auto const row = res.at(0);
-  PQXX_CHECK(row.at(0).is_null());
-  PQXX_CHECK_EQUAL(row.at(1).view(), "zview");
-  PQXX_CHECK_EQUAL(row.at(2).view(), "ab");
-  PQXX_CHECK(not row.at(3).is_null());
-  PQXX_CHECK_EQUAL(row.at(3).view(), "");
-  PQXX_CHECK(row.at(4).is_null());
-  PQXX_CHECK(not row.at(5).is_null());
-  PQXX_CHECK_EQUAL(row.at(5).view(), "bc");
-  PQXX_CHECK_EQUAL(row.at(6).view(), "bc");
-  PQXX_CHECK_EQUAL(row.at(7).view(), "bc");
-  PQXX_CHECK_EQUAL(row.at(8).view(), "bc");
-  PQXX_CHECK_EQUAL(row.at(9).view(), "bc");
-  PQXX_CHECK_EQUAL(row.at(10).view(), "bc");
-  PQXX_CHECK_EQUAL(row.at(11).view(), "bc");
-  PQXX_CHECK_EQUAL(row.at(12).view(), "42");
+  {
+    pqxx::row const r2{
+      tx.exec(
+          query,
+          pqxx::params{
+            std::optional{std::make_shared<int>(n)},
+            std::optional{std::make_shared<std::string>(s)},
+            std::optional{std::make_shared<pqxx::bytes_view>(b)}})
+        .one_row()};
+    PQXX_CHECK_EQUAL(r2.at(0).as<int>(), n);
+    PQXX_CHECK_EQUAL(r2.at(1).view(), s);
+    pqxx::test::check_equal_bin(r2.at(2).as<pqxx::bytes>(), b);
+  }
+}
+
+
+void test_statement_params_recognises_null_maybes(pqxx::test::context &tctx)
+
+{
+  pqxx::connection cx;
+  pqxx::work tx{cx};
+
+  // Helper: Pass param to a SELECT statement, query it as a std::optional of
+  // int.
+  auto const query_opt{[&tx](auto param) {
+    return tx.query_value<std::optional<int>>(
+      "SELECT $1", pqxx::params{param});
+  }};
+
+  int const n{tctx.make_num()};
+
+  PQXX_CHECK(query_opt(std::optional<int>{n}).has_value());
+  PQXX_CHECK_EQUAL(*query_opt(std::optional<int>{n}), n);
+
+  PQXX_CHECK(not query_opt(std::optional<int>{}).has_value());
+  PQXX_CHECK(not query_opt(std::shared_ptr<int>{}).has_value());
+  PQXX_CHECK(not query_opt(std::unique_ptr<int>{}).has_value());
+
+  // The params can also "see through" multiple layers of nested "maybe-type"
+  // objects.
+  PQXX_CHECK(not query_opt(std::optional<std::unique_ptr<int>>{}).has_value());
+  PQXX_CHECK(not query_opt(std::unique_ptr<std::optional<int>>{}).has_value());
+
+  // In situations where one maybe-type object is nested inside another, we
+  // can get a null even if the top-level one is not blank.
+  PQXX_CHECK(
+    not query_opt(std::optional<std::unique_ptr<int>>{std::unique_ptr<int>{}})
+          .has_value());
+  PQXX_CHECK(
+    not query_opt(std::make_shared<std::optional<int>>(std::optional<int>{}))
+          .has_value());
 }
 
 
 PQXX_REGISTER_TEST(test_statement_params);
 PQXX_REGISTER_TEST(test_params_converts_most_types_to_string);
 PQXX_REGISTER_TEST(test_params_stores_specific_types_as_views);
-PQXX_REGISTER_TEST(test_statement_params_advanced);
+PQXX_REGISTER_TEST(test_params_sees_through_maybe_types);
+PQXX_REGISTER_TEST(test_statement_params_recognises_null_maybes);
 } // namespace

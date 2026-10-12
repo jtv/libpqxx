@@ -64,6 +64,9 @@ struct context final
     return static_cast<char>(static_cast<std::uint8_t>(make_num(255) + 1));
   }
 
+  /// Return an arbitrary `char` in the ASCII range (1 to 127 inclusive).
+  char make_ascii_char() { return 8 + static_cast<char>(make_num(128 - 8)); }
+
   /// Return an arbitrary numeric floating-point value.  (No NaN or infinity.)
   template<std::floating_point T> T make_float_num()
   {
@@ -73,7 +76,7 @@ struct context final
     return static_cast<T>(x - y) / static_cast<T>(z);
   }
 
-  /// Generate a name with a given prefix and a randomised suffix.
+  /// Generate an ASCII name with a given prefix and a randomised suffix.
   std::string make_name(std::string_view prefix = {})
   {
     int const num{make_num()};
@@ -88,6 +91,19 @@ struct context final
   std::byte make_byte()
   {
     return std::byte{static_cast<unsigned char>(make_num(256))};
+  }
+
+
+  /// Return arbitrary binary data.
+  pqxx::bytes make_bytes(int min_len = 1, int limit = 30)
+  {
+    assert(min_len < limit);
+    std::size_t len{
+      static_cast<std::size_t>(min_len + make_num(limit - min_len))};
+    pqxx::bytes b;
+    b.reserve(len);
+    for (std::size_t i{0}; i < len; ++i) b.push_back(make_byte());
+    return b;
   }
 
 private:
@@ -313,9 +329,30 @@ inline void check_equal_bin(
       throw test_failure{
         std::format(
           "Binary blocks differ in byte {} out of {}: {} vs. {}.", i, sz,
-          static_cast<unsigned>(value1.at(1)), static_cast<unsigned>(value2.at(i))),
+          static_cast<unsigned>(value1.at(1)),
+          static_cast<unsigned>(value2.at(i))),
         loc};
   }
+}
+
+
+/// Verify that two blocks of binary data differ.
+template<typename VALUE1, typename VALUE2>
+inline void check_not_equal_bin(
+  VALUE1 const &value1, VALUE2 const &value2, sl loc = sl::current())
+{
+  auto const sz{std::size(value1)};
+  if (not std::cmp_equal(sz, std::size(value2)))
+    return;
+
+  for (std::size_t i{0u}; i < sz; ++i)
+    if (value1.at(i) != value2.at(i))
+      return;
+
+  throw test_failure{
+    std::format(
+      "Binary data blocks of size {} are unexpectedly identical.", sz),
+    loc};
 }
 
 // Verify that value1 is less/greater than value2.
