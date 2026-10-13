@@ -65,7 +65,7 @@ struct context final
   }
 
   /// Return an arbitrary `char` in the ASCII range (1 to 127 inclusive).
-  char make_ascii_char() { return 8 + static_cast<char>(make_num(128 - 8)); }
+  char make_ascii_char() { return static_cast<char>(8 + make_num(128 - 8)); }
 
   /// Return an arbitrary numeric floating-point value.  (No NaN or infinity.)
   template<std::floating_point T> T make_float_num()
@@ -97,8 +97,10 @@ struct context final
   /// Return arbitrary binary data.
   pqxx::bytes make_bytes(int min_len = 1, int limit = 30)
   {
+    // clang-tidy rule bug.
+    // NOLINTNEXTLINE(cert-dcl03-c)
     assert(min_len < limit);
-    std::size_t len{
+    std::size_t const len{
       static_cast<std::size_t>(min_len + make_num(limit - min_len))};
     pqxx::bytes b;
     b.reserve(len);
