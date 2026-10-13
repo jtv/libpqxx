@@ -247,7 +247,8 @@ PQXX_COLD inline bool from_dumb_stringstream(
   dumb_stringstream<F> &s, F &result, std::string_view text)
 {
   s.str(std::string{text});
-  return static_cast<bool>(s >> result);
+  // Accept the complete input, just as the charconv implementation does.
+  return static_cast<bool>(s >> result) and s.eof();
 }
 
 
