@@ -218,7 +218,7 @@ void test_statement_params_recognises_null_maybes(pqxx::test::context &tctx)
 
   // Helper: Pass param to a SELECT statement, query it as a std::optional of
   // int.
-  auto const query_opt{[&tx](auto param) {
+  auto const query_opt{[&tx](auto const &param) {
     return tx.query_value<std::optional<int>>(
       "SELECT $1", pqxx::params{param});
   }};
@@ -226,6 +226,7 @@ void test_statement_params_recognises_null_maybes(pqxx::test::context &tctx)
   int const n{tctx.make_num()};
 
   PQXX_CHECK(query_opt(std::optional<int>{n}).has_value());
+  // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
   PQXX_CHECK_EQUAL(*query_opt(std::optional<int>{n}), n);
 
   PQXX_CHECK(not query_opt(std::optional<int>{}).has_value());
