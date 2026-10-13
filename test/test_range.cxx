@@ -195,6 +195,7 @@ void test_range_subset(pqxx::test::context &)
     {"[1,)", "(10,)"},   {"[1,)", "[10,)"},   {"[0,5]", "[1,4]"},
     {"(0,5)", "[1,4]"},
   };
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
   for (auto const &[super, sub] : subsets)
     PQXX_CHECK(traits::from_string(super).contains(traits::from_string(sub)));
 
@@ -204,6 +205,7 @@ void test_range_subset(pqxx::test::context &)
     {"[1,4]", "[0,4]"},   {"[1,4]", "[1,5]"},   {"(0,10)", "[0,10]"},
     {"(0,10)", "(0,10]"}, {"(0,10)", "[0,10)"},
   };
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
   for (auto const &[super, sub] : non_subsets)
     PQXX_CHECK(
       not traits::from_string(super).contains(traits::from_string(sub)));
