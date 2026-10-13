@@ -57,15 +57,14 @@ struct context final
   /// Return an arbitrary nonnegative integer below `ceiling`.
   int make_num(int ceiling) { return make_num() % ceiling; }
 
-  // TODO: Rename to make_char().
   /// Return an arbitrary nonzero `char` value from the full 8-bit range.
-  char random_char()
+  char make_char()
   {
     return static_cast<char>(static_cast<std::uint8_t>(make_num(255) + 1));
   }
 
-  /// Return an arbitrary `char` in the ASCII range (1 to 127 inclusive).
-  char make_ascii_char() { return static_cast<char>(8 + make_num(128 - 8)); }
+  /// Return an arbitrary `char` in the ASCII range (32 to 127 inclusive).
+  char make_ascii_char() { return static_cast<char>(32 + make_num(128 - 32)); }
 
   /// Return an arbitrary numeric floating-point value.  (No NaN or infinity.)
   template<std::floating_point T> T make_float_num()
@@ -79,12 +78,16 @@ struct context final
   /// Generate an ASCII name with a given prefix and a randomised suffix.
   std::string make_name(std::string_view prefix = {})
   {
-    int const num{make_num()};
-    // TODO: Use wider character set than just those digits.
-    if (std::empty(prefix))
-      return std::format("{}", num);
-    else
-      return std::format("{}_{}", prefix, num);
+    static constexpr std::string_view chars{
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_"};
+    int const extra{5 + make_num(8)};
+    std::string out{prefix};
+    out.push_back('_');
+    out.reserve(std::size(out) + static_cast<unsigned>(extra));
+    for (int i{0}; i < extra; ++i)
+      out.push_back(chars.at(
+        static_cast<unsigned>(make_num(static_cast<int>(std::size(chars))))));
+    return out;
   }
 
   /// Return an arbitrary byte value.
@@ -92,7 +95,6 @@ struct context final
   {
     return std::byte{static_cast<unsigned char>(make_num(256))};
   }
-
 
   /// Return arbitrary binary data.
   pqxx::bytes make_bytes(int min_len = 1, int limit = 30)
@@ -255,15 +257,6 @@ inline void check_equal(
   //    hicpp-no-array-decay
   // )
 
-  // TODO: std::format().
-  std::string const fulldesc = desc + " (" + actual_text + " <> " +
-                               expected_text +
-                               ": "
-                               "actual=" +
-                               to_string(actual) +
-                               ", "
-                               "expected=" +
-                               to_string(expected) + ")";
   throw test_failure{
     std::format(
       "{}\n{} <> {}.\nExpected: {}\nActual:   {}", desc, actual_text,
@@ -297,12 +290,10 @@ inline void check_not_equal(
 {
   if (value1 != value2)
     return;
-  // TODO: std::format().
-  std::string const fulldesc = desc + " (" + text1 + " == " + text2 +
-                               ": "
-                               "both are " +
-                               to_string(value2) + ")";
-  throw test_failure{fulldesc, loc};
+  throw test_failure{
+    std::format(
+      "{} ({} == {}: both are {}).", desc, text1, text2, to_string(value2)),
+    loc};
 }
 
 // NOLINTEND(
@@ -311,12 +302,13 @@ inline void check_not_equal(
 // )
 
 
-// TODO: Look for test code that we can replace with this.
 /// Verify that two blocks of binary data are equal.
 template<typename VALUE1, typename VALUE2>
 inline void check_equal_bin(
   VALUE1 const &value1, VALUE2 const &value2, sl loc = sl::current())
 {
+  static_assert(sizeof(std::declval<VALUE1>()[0]) == 1u);
+  static_assert(sizeof(std::declval<VALUE2>()[0]) == 1u);
   auto const sz{std::size(value1)};
   if (not std::cmp_equal(sz, std::size(value2)))
     throw test_failure{
@@ -327,12 +319,13 @@ inline void check_equal_bin(
 
   for (std::size_t i{0u}; i < sz; ++i)
   {
-    if (value1.at(i) != value2.at(i))
+    // (Can't use at() here, since either value might be a C-style array.)
+    if (static_cast<std::byte>(value1[i]) != static_cast<std::byte>(value2[i]))
       throw test_failure{
         std::format(
           "Binary blocks differ in byte {} out of {}: {} vs. {}.", i, sz,
-          static_cast<unsigned>(value1.at(1)),
-          static_cast<unsigned>(value2.at(i))),
+          static_cast<unsigned char>(value1[i]),
+          static_cast<unsigned char>(value2[i])),
         loc};
   }
 }
@@ -379,17 +372,12 @@ inline void check_less(
   char const text2[], std::string const &desc = "Less/greater check failed.",
   sl loc = sl::current())
 {
-  if (value1 < value2)
-    return;
-  // TODO: std::format().
-  std::string const fulldesc = desc + " (" + text1 + " >= " + text2 +
-                               ": "
-                               "\"lower\"=" +
-                               to_string(value1) +
-                               ", "
-                               "\"upper\"=" +
-                               to_string(value2) + ")";
-  throw test_failure{fulldesc, loc};
+  if (value1 >= value2)
+    throw test_failure{
+      std::format(
+        "{} ({} >= {}: \"lower\"={}, \"upper\"={}).", desc, text1, text2,
+        to_string(value1), to_string(value2)),
+      loc};
 }
 
 
