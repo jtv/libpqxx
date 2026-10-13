@@ -320,6 +320,7 @@ inline void check_equal_bin(
   for (std::size_t i{0u}; i < sz; ++i)
   {
     // (Can't use at() here, since either value might be a C-style array.)
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
     if (static_cast<std::byte>(value1[i]) != static_cast<std::byte>(value2[i]))
       throw test_failure{
         std::format(
