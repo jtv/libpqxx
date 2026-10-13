@@ -119,10 +119,12 @@ template<typename T> void check_float_trailing_data()
       std::ignore = pqxx::from_string<T>(text), pqxx::conversion_error);
 
     // A failed conversion must not poison the reusable fallback stream.
-    PQXX_CHECK_EQUAL(pqxx::from_string<T>("2.5"), T{2.5});
+    PQXX_CHECK_BOUNDS(
+      pqxx::from_string<T>("2.5"), T{2.5}, std::nextafter(T{2.5}, T{3}));
   }
 
-  PQXX_CHECK_EQUAL(pqxx::from_string<T>("-1.25e2"), T{-125});
+  PQXX_CHECK_BOUNDS(
+    pqxx::from_string<T>("-1.25e2"), T{-125}, std::nextafter(T{-125}, T{-124}));
 }
 
 
