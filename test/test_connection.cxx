@@ -127,13 +127,8 @@ template<typename MAP> void test_params_type()
   // We don't know the exact format, but the parameters have to be in there.
   auto const connstr{c.connection_string()};
 
-  // for (auto const &[key, value] : params)
-  for (auto it{params.cbegin()}; it != params.cend(); ++it)
+  for (auto const &[key, value] : params)
   {
-    // Normally we'd use structured binding for this, but Facebook Infer
-    // reports an insane false positive error when we do.
-    auto const &key{std::get<0>(*it)};
-    auto const value{std::get<1>(*it)};
     // TODO: Write "string contains" test helpers, with more helpful failures.
     PQXX_CHECK(pqxx::str_contains(connstr, key));
     PQXX_CHECK(pqxx::str_contains(connstr, value));
