@@ -133,7 +133,7 @@ void test_params_stores_specific_types_as_views(pqxx::test::context &tctx)
   // This is how applications SHOULD use params: insert variabes, but leave
   // the variables in place and unchanged until after the params object is no
   // longer needed.
-  pqxx::params p{pqxx::binary_cast(b), pqxx::zview{s}};
+  pqxx::params const p{pqxx::binary_cast(b), pqxx::zview{s}};
   pqxx::row const out{tx.exec(query, p).one_row()};
   pqxx::test::check_equal_bin(out.at(0).as<pqxx::bytes>(), b);
   PQXX_CHECK_EQUAL(out.at(1).view(), s);
