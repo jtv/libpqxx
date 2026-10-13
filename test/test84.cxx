@@ -84,7 +84,7 @@ void test_084(pqxx::test::context &tctx)
 
   ++i2;
   res2 = *i2++;
-  for (int i{1}; C.get(res) and i2 != iend; res2 = *i2++, ++i)
+  for (; C.get(res) and i2 != iend; res2 = *i2++)
     PQXX_CHECK_EQUAL(pqxx::to_string(res), pqxx::to_string(res2));
 
   PQXX_CHECK(i2 == iend);
