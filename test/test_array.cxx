@@ -381,10 +381,10 @@ void test_generate_escaped_strings(pqxx::test::context &)
 {
   PQXX_CHECK_EQUAL(
     pqxx::to_string(std::vector<std::string>{"a\\b"}, make_context()),
-    "{\"a\\\\b\"}", "Backslashes are not escaped properly.");
+    "{\"a\\\\b\"}");
   PQXX_CHECK_EQUAL(
     pqxx::to_string(std::vector<std::string>{"x\"y\""}, make_context()),
-    "{\"x\\\"y\\\"\"}", "Double quotes are not escaped properly.");
+    "{\"x\\\"y\\\"\"}");
 }
 
 
@@ -418,13 +418,9 @@ void test_sparse_arrays(pqxx::test::context &)
   std::string const arrayOfNullsStr = "{NULL,NULL,NULL,NULL}";
 
   PQXX_CHECK_GREATER_EQUAL(
-    pqxx::size_buffer(arrayOfNulls), arrayOfNullsStr.size(),
-    "Buffer size allocated for an array of optional<int> filled with nulls "
-    "was too small.");
+    pqxx::size_buffer(arrayOfNulls), arrayOfNullsStr.size());
 
-  PQXX_CHECK_EQUAL(
-    pqxx::to_string(arrayOfNulls), arrayOfNullsStr,
-    "Array of optional<int> filled with std::nullopt came out wrong. ");
+  PQXX_CHECK_EQUAL(pqxx::to_string(arrayOfNulls), arrayOfNullsStr);
 
 
   // If the array-like object is instead sparsely-filled, the values contained
@@ -613,9 +609,7 @@ void test_array_rejects_malformed_simple_int_arrays(pqxx::test::context &)
     "{1,}"sv, "{,1}"sv, "{1,{}}"sv, "{x}"sv,  "{1,{2,3}}"sv,
   };
   for (auto bad : bad_arrays)
-    PQXX_CHECK_THROWS(
-      (pqxx::array<int>{bad, cx}), pqxx::conversion_error,
-      "No conversion_error for '" + std::string{bad} + "'.");
+    PQXX_CHECK_THROWS((pqxx::array<int>{bad, cx}), pqxx::conversion_error);
 }
 
 
@@ -629,8 +623,7 @@ void test_array_rejects_malformed_simple_string_arrays(pqxx::test::context &)
   };
   for (auto bad : bad_arrays)
     PQXX_CHECK_THROWS(
-      (pqxx::array<std::string>{bad, cx}), pqxx::conversion_error,
-      "No conversion_error for '" + std::string{bad} + "'.");
+      (pqxx::array<std::string>{bad, cx}), pqxx::conversion_error);
 }
 
 
@@ -645,8 +638,7 @@ void test_array_rejects_malformed_twodimensional_arrays(pqxx::test::context &)
   };
   for (auto bad : bad_arrays)
     PQXX_CHECK_THROWS(
-      (pqxx::array<std::string, 2>{bad, cx}), pqxx::conversion_error,
-      "No conversion_error for '" + std::string{bad} + "'.");
+      (pqxx::array<std::string, 2>{bad, cx}), pqxx::conversion_error);
 }
 
 
@@ -798,11 +790,10 @@ void test_result_parses_simple_array(pqxx::test::context &)
 #include <pqxx/internal/ignore-deprecated-pre.hxx>
   auto const array{r[0].as_sql_array<int>()};
 #include <pqxx/internal/ignore-deprecated-post.hxx>
-  PQXX_CHECK_EQUAL(
-    array[1], 4, "Got wrong value out of array (via as_sql_array).");
+  PQXX_CHECK_EQUAL(array[1], 4);
 
   auto const array2{r[0].as<pqxx::array<int>>()};
-  PQXX_CHECK_EQUAL(array2[3], 2, "Got wrong value out of array (via as).");
+  PQXX_CHECK_EQUAL(array2[3], 2);
 }
 
 
@@ -831,8 +822,7 @@ template<pqxx::encoding_group ENC> void check_scan_double_quoted_ascii()
     pqxx::internal::scan_double_quoted_string<ENC>(R"("x"z)", 0u, here()), 3u);
   PQXX_CHECK_THROWS(
     (pqxx::internal::scan_double_quoted_string<ENC>(R"("foo)", 0u, here())),
-    pqxx::argument_error,
-    "Double-quoted string scan did not detect missing closing quote.");
+    pqxx::argument_error);
   PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<ENC>("\"x\\\"y\"", 0u, here()),
     6u);
@@ -882,7 +872,7 @@ void test_scan_double_quoted_string(pqxx::test::context &)
   PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::sjis>(
       "\"\203\\\"suffix", 0u, here()),
-    4u, "Fell for embedded ASCII-like byte in multibyte char.");
+    4u);
 }
 
 

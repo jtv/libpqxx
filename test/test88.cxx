@@ -62,14 +62,13 @@ void test_088(pqxx::test::context &)
   tx2c.exec("INSERT INTO " + Table + " VALUES(4,'tx2c')").no_rows();
   tx2c.commit();
   auto const R{tx2.exec("SELECT * FROM " + Table + " ORDER BY no")};
-  PQXX_CHECK_EQUAL(std::size(R), 3, "Wrong number of results.");
+  PQXX_CHECK_EQUAL(std::size(R), 3);
   for (auto const &i : R) PQXX_CHECK(i[1].view().starts_with("tx"));
 
   std::array<int, 3> const expected{1, 2, 4};
   for (pqxx::result::size_type n{0}; n < std::size(R); ++n)
     PQXX_CHECK_EQUAL(
-      R[n][0].as<int>(), expected.at(static_cast<std::size_t>(n)),
-      "Hit unexpected row number.");
+      R[n][0].as<int>(), expected.at(static_cast<std::size_t>(n)));
 
   tx2.abort();
 

@@ -24,10 +24,7 @@ void test_039(pqxx::test::context &)
     "WHERE year=" +
     pqxx::to_string(boring_year_39)));
 
-  PQXX_CHECK_EQUAL(
-    std::size(r), 0,
-    "Already have a row for " + pqxx::to_string(boring_year_39) +
-      ", cannot test.");
+  PQXX_CHECK_EQUAL(std::size(r), 0);
 
   // (Not needed, but verify that clear() works on empty containers)
   r.clear();

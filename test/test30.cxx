@@ -13,8 +13,9 @@ void test_030(pqxx::test::context &)
   pqxx::connection cx;
   pqxx::work tx{cx, "test30"};
 
+  // TODO: Don't rely on pg_tables, supply data ourselves.
   pqxx::result const R{tx.exec("SELECT * FROM " + table)};
-  PQXX_CHECK(not std::empty(R), "Table " + table + " is empty, cannot test.");
+  PQXX_CHECK(not std::empty(R));
 
   // Print column names
   for (pqxx::row::size_type c{0}; c < R.columns(); ++c)

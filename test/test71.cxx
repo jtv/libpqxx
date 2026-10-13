@@ -57,9 +57,8 @@ void test_071(pqxx::test::context &)
     values[P.insert("SELECT " + pqxx::to_string(i))] = i;
   for (auto const &c : values)
   {
-    PQXX_CHECK(
-      not P.is_finished(c.first),
-      std::format("Query #{} completed despite retain().", c.first));
+    // Because of the retain(), these queries are never completed.
+    PQXX_CHECK(not P.is_finished(c.first));
   }
 
   // See that all results are retrieved by complete()

@@ -107,7 +107,8 @@ void test_transactor_newstyle_does_not_retry_in_doubt_error(
   }};
 
   PQXX_CHECK_THROWS(pqxx::perform(callback), pqxx::in_doubt_error);
-  PQXX_CHECK_EQUAL(counter, 1, "Transactor retried after in_doubt_error.");
+  // After this kind of error, the transactor will not retry.
+  PQXX_CHECK_EQUAL(counter, 1);
 }
 
 
@@ -122,7 +123,8 @@ void test_transactor_newstyle_does_not_retry_statement_completion_unknown(
 
   PQXX_CHECK_THROWS(
     pqxx::perform(callback), pqxx::statement_completion_unknown);
-  PQXX_CHECK_EQUAL(counter, 1, "Transactor retried after in_doubt_error.");
+  // After this kind of error, the transactor will not retry.
+  PQXX_CHECK_EQUAL(counter, 1);
 }
 
 
@@ -135,6 +137,7 @@ void test_transactor_newstyle_does_not_retry_other_error(pqxx::test::context &)
   }};
 
   PQXX_CHECK_THROWS(pqxx::perform(callback), std::runtime_error);
+  // After this kind of error, the transactor will not retry.
   PQXX_CHECK_EQUAL(counter, 1);
 }
 

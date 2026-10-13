@@ -28,7 +28,7 @@ void test_046(pqxx::test::context &)
   i >> L;
 
   r.to(L2);
-  PQXX_CHECK_EQUAL(L, L2, "Inconsistency between conversion methods.");
+  PQXX_CHECK_EQUAL(L, L2);
 
   float f{}, f2{};
   std::stringstream I2;

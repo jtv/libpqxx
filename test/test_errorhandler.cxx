@@ -118,11 +118,13 @@ void test_returning_false_stops_error_handling(pqxx::connection &cx)
   TestErrorHandler const starved(cx, handlers);
   TestErrorHandler blocker(cx, handlers, false);
   cx.process_notice("Error output.\n");
-  PQXX_CHECK_EQUAL(std::size(handlers), 1u, "Handling chain was not stopped.");
-  PQXX_CHECK_EQUAL(handlers.at(0), &blocker, "Wrong handler got message.");
+  // Handling chain is stopped.
+  PQXX_CHECK_EQUAL(std::size(handlers), 1u);
+  // Message went to the right handler.
+  PQXX_CHECK_EQUAL(handlers.at(0), &blocker);
   PQXX_CHECK_EQUAL(blocker.message(), "Error output.\n");
-  PQXX_CHECK_EQUAL(
-    starved.message(), "", "Message received; it shouldn't be.");
+  // No more messages.
+  PQXX_CHECK_EQUAL(starved.message(), "");
 }
 
 void test_destroyed_error_handlers_are_not_called(pqxx::connection &cx)
@@ -132,8 +134,8 @@ void test_destroyed_error_handlers_are_not_called(pqxx::connection &cx)
     TestErrorHandler const doomed(cx, handlers);
   }
   cx.process_notice("Unheard output.");
-  PQXX_CHECK(
-    std::empty(handlers), "Message was received on dead errorhandler.");
+  // A dead errorhandler can't receive any messages.
+  PQXX_CHECK(std::empty(handlers));
 }
 
 class MinimalErrorHandler final : public pqxx::errorhandler

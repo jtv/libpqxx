@@ -196,19 +196,12 @@ void test_string_converts_to_binary(pqxx::test::context &)
 
   // We can convert a bytea SQL string to a vector of bytes.
   auto const vec{pqxx::from_string<std::vector<std::byte>>(text_data)};
-  PQXX_CHECK_EQUAL(std::size(vec), std::size(bin_data));
-  for (std::size_t i{0}; i < std::size(vec); ++i)
-    PQXX_CHECK(
-      vec.at(i) == bin_data.at(i),
-      std::format("Difference in binary byte #{}.", i));
+  pqxx::test::check_equal_bin(vec, bin_data);
 
   // We can also convert a bytea SQL string to an array of bytes of the right
   // size.
   auto const arr{pqxx::from_string<std::array<std::byte, 3>>(text_data)};
-  for (std::size_t i{0}; i < std::size(arr); ++i)
-    PQXX_CHECK(
-      arr.at(i) == bin_data.at(i),
-      std::format("Difference in binary byte #{}.", i));
+  pqxx::test::check_equal_bin(arr, bin_data);
 
   // However we can _not_ convert a bytea SQL string to an array of bytes of a
   // different size.

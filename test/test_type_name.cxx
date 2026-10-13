@@ -11,8 +11,9 @@ void test_type_name(pqxx::test::context &)
   // class types.
   auto const &i{pqxx::type_name<int>};
   PQXX_CHECK_LESS(std::size(i), 5u, "type_name<int> is suspiciously long.");
-  PQXX_CHECK_EQUAL(
-    i.substr(0, 1), "i", "type_name<int> does not start with 'i'.");
+  // Whatever the compiler, the name for "int" is very likely to start with the
+  // letter "i".
+  PQXX_CHECK_EQUAL(i.substr(0, 1), "i");
 #include <pqxx/internal/ignore-deprecated-post.hxx>
 }
 

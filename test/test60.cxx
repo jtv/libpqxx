@@ -18,10 +18,7 @@ std::string set_datestyle(pqxx::connection &cx, std::string const &style)
 {
   cx.set_session_var("DATESTYLE", style);
   std::string const fullname{get_datestyle(cx)};
-  PQXX_CHECK(
-    not std::empty(fullname),
-    "Setting datestyle to " + style + " makes it an empty string.");
-
+  PQXX_CHECK(not std::empty(fullname));
   return fullname;
 }
 

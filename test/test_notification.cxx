@@ -128,7 +128,7 @@ void test_notification_to_self_arrives_after_commit(pqxx::test::context &tctx)
 
   // Notification has not been delivered yet, since transaction has not yet
   // been committed.
-  PQXX_CHECK_EQUAL(received, 0, "Notification went out before commit.");
+  PQXX_CHECK_EQUAL(received, 0);
   PQXX_CHECK_EQUAL(notifications, 0);
 
   tx.commit();
@@ -413,7 +413,7 @@ void test_listen_on_same_channel_overwrites(pqxx::test::context &tctx)
   tx.commit();
   cx.await_notification(3);
 
-  PQXX_CHECK_EQUAL(count, 1, "Expected 1 notification despite overwrite.");
+  PQXX_CHECK_EQUAL(count, 1);
   PQXX_CHECK_EQUAL(got, "third");
 }
 
@@ -428,7 +428,8 @@ void test_empty_notification_handler_disables(pqxx::test::context &tctx)
   pqxx::work tx{cx};
   tx.notify(chan);
   tx.commit();
-  PQXX_CHECK(not got, "Disabling a notification handler did not work.");
+  // Disabling the notification handler stops it from receiving notifications.
+  PQXX_CHECK(not got);
 }
 
 
@@ -447,7 +448,7 @@ void test_notifications_do_not_come_in_until_commit(pqxx::test::context &tctx)
   pqxx::nontransaction tx{cx};
   tx.notify(chan);
   cx.await_notification(3);
-  PQXX_CHECK(not got, "Notification came in during nontransaction.");
+  PQXX_CHECK(not got);
 }
 
 

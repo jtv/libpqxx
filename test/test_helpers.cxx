@@ -8,12 +8,13 @@ void empty() {}
 // Test PQXX_CHECK.
 void test_check(pqxx::test::context &)
 {
-  PQXX_CHECK(true, "PQXX_CHECK is broken.");
+  PQXX_CHECK(true);
 
   bool failed{true};
   try
   {
-    PQXX_CHECK(false, "(expected)");
+    // We expect this check to fail.
+    PQXX_CHECK(false);
     failed = false;
   }
   catch (pqxx::test::test_failure const &)
@@ -47,9 +48,9 @@ void test_check_throws_exception(pqxx::test::context &)
   }
   catch (pqxx::test::test_failure const &)
   {}
-  PQXX_CHECK(
-    failed,
-    "PQXX_CHECK_THROWS_EXCEPTION did not complain about non-exception.");
+  // We expect PQXX_CHECK_THROWS_EXCEPTION to fail when what's being thrown is
+  // not a std::exception subclass.
+  PQXX_CHECK(failed);
 
   // But there _must_ be an exception.
   failed = true;
@@ -65,8 +66,8 @@ void test_check_throws_exception(pqxx::test::context &)
   {
     // Instead, we go straight here.
   }
-  PQXX_CHECK(
-    failed, "PQXX_CHECK_THROWS_EXCEPTION did not notice missing exception.");
+  // PQXX_CHECK_THROWS_EXCEPTION fails if nothing was thrown.
+  PQXX_CHECK(failed);
 
   // PQXX_CHECK_THROWS_EXCEPTION can test itself...
   PQXX_CHECK_THROWS_EXCEPTION(
@@ -107,7 +108,8 @@ void test_check_throws(pqxx::test::context &)
   {
     // Instead, we go straight here.
   }
-  PQXX_CHECK(failed, "PQXX_CHECK_THROWS did not notice missing exception.");
+  // PQXX_CHECK_THROWS fails if nothing was thrown.
+  PQXX_CHECK(failed);
 
   // The exception must be of the right type (or a subclass of the right type).
   failed = true;
@@ -123,19 +125,19 @@ void test_check_throws(pqxx::test::context &)
   {
     // Instead, we go straight here.
   }
-  PQXX_CHECK(failed, "PQXX_CHECK_THROWS did not notice wrong exception type.");
+  // PQXX_CHECK_THROWS fails if an exception was thrown but it's not the
+  // expected type.
+  PQXX_CHECK(failed);
 
   // PQXX_CHECK_THROWS can test itself...
   PQXX_CHECK_THROWS(
     PQXX_CHECK_THROWS(empty(), pqxx::test::test_failure, "(expected)"),
-    pqxx::test::test_failure,
-    "PQXX_CHECK_THROWS failed to throw for missing exception.");
+    pqxx::test::test_failure);
 
   // NOLINTBEGIN(hicpp-exception-baseclass)
   PQXX_CHECK_THROWS(
     PQXX_CHECK_THROWS(throw 1, std::runtime_error, "(expected)"),
-    pqxx::test::test_failure,
-    "PQXX_CHECK_THROWS failed to throw for wrong exception type.");
+    pqxx::test::test_failure);
   // NOLINTEND(hicpp-exception-baseclass)
 }
 
@@ -143,56 +145,43 @@ void test_check_throws(pqxx::test::context &)
 void test_helpers(pqxx::test::context &)
 {
   // Test other helpers against PQXX_CHECK_THROWS.
-  PQXX_CHECK_THROWS(
-    pqxx::test::check_notreached("(expected)"), pqxx::test::test_failure,
-    "PQXX_CHECK_THROWS did not catch check_notreached().");
 
+  // PQXX_CHECK_THROWS catches check_notreached().
   PQXX_CHECK_THROWS(
-    PQXX_CHECK(false, "(expected)"), pqxx::test::test_failure,
-    "PQXX_CHECK_THROWS did not catch failing PQXX_CHECK.");
+    pqxx::test::check_notreached("(expected)"), pqxx::test::test_failure);
 
+  // PQXX_CHECK_THROWS catches a PQXX_CHECK failure.
+  PQXX_CHECK_THROWS(PQXX_CHECK(false), pqxx::test::test_failure);
+
+  // PQXX_CHECK_THROWS fails if no exception was thrown.
   PQXX_CHECK_THROWS(
-    PQXX_CHECK_THROWS(
-      PQXX_CHECK(true, "(shouldn't happen)"), pqxx::test::test_failure,
-      "(expected)"),
-    pqxx::test::test_failure,
-    "PQXX_CHECK_THROWS on successful PQXX_CHECK failed to throw.");
+    PQXX_CHECK_THROWS(PQXX_CHECK(true), pqxx::test::test_failure),
+    pqxx::test::test_failure);
 
   // PQXX_CHECK_EQUAL tests for equality.  Its arguments need not be of the
   // same type, as long as equality between them is defined.
-  PQXX_CHECK_EQUAL(1, 1, "PQXX_CHECK_EQUAL is broken.");
-  PQXX_CHECK_EQUAL(1, 1L, "PQXX_CHECK_EQUAL breaks on type mismatch.");
+  PQXX_CHECK_EQUAL(1, 1);
+  PQXX_CHECK_EQUAL(1, 1L);
 
-  PQXX_CHECK_THROWS(
-    PQXX_CHECK_EQUAL(1, 2, "(expected)"), pqxx::test::test_failure,
-    "PQXX_CHECK_EQUAL fails to spot inequality.");
+  PQXX_CHECK_THROWS(PQXX_CHECK_EQUAL(1, 2), pqxx::test::test_failure);
 
   // PQXX_CHECK_NOT_EQUAL is like PQXX_CHECK_EQUAL, but tests for inequality.
-  PQXX_CHECK_NOT_EQUAL(1, 2, "PQXX_CHECK_NOT_EQUAL is broken.");
-  PQXX_CHECK_THROWS(
-    PQXX_CHECK_NOT_EQUAL(1, 1, "(expected)"), pqxx::test::test_failure,
-    "PQXX_CHECK_NOT_EQUAL fails to fail when arguments are equal.");
-  PQXX_CHECK_THROWS(
-    PQXX_CHECK_NOT_EQUAL(1, 1L, "(expected)"), pqxx::test::test_failure,
-    "PQXX_CHECK_NOT_EQUAL breaks on type mismatch.");
+  PQXX_CHECK_NOT_EQUAL(1, 2);
+  PQXX_CHECK_THROWS(PQXX_CHECK_NOT_EQUAL(1, 1), pqxx::test::test_failure);
+  PQXX_CHECK_THROWS(PQXX_CHECK_NOT_EQUAL(1, 1L), pqxx::test::test_failure);
 
   // PQXX_CHECK_BOUNDS checks a value against a range.
-  PQXX_CHECK_BOUNDS(2, 1, 3, "PQXX_CHECK_BOUNDS wrongly finds fault.");
+  PQXX_CHECK_BOUNDS(2, 1, 3);
 
-  PQXX_CHECK_THROWS(
-    PQXX_CHECK_BOUNDS(1, 2, 3, "(Expected)"), pqxx::test::test_failure,
-    "PQXX_CHECK_BOUNDS did not detect value below permitted range.");
+  // PQXX_CHECK_BOUNDS catches values below the expected range.
+  PQXX_CHECK_THROWS(PQXX_CHECK_BOUNDS(1, 2, 3), pqxx::test::test_failure);
 
   // PQXX_CHECK_BOUNDS tests against a half-open interval.
-  PQXX_CHECK_BOUNDS(1, 1, 3, "PQXX_CHECK_BOUNDS goes wrong on lower bound.");
-  PQXX_CHECK_THROWS(
-    PQXX_CHECK_BOUNDS(3, 1, 3, "(Expected)"), pqxx::test::test_failure,
-    "PQXX_CHECK_BOUNDS interval is not half-open.");
+  PQXX_CHECK_BOUNDS(1, 1, 3);
+  PQXX_CHECK_THROWS(PQXX_CHECK_BOUNDS(3, 1, 3), pqxx::test::test_failure);
 
   // PQXX_CHECK_BOUNDS deals well with empty intervals.
-  PQXX_CHECK_THROWS(
-    PQXX_CHECK_BOUNDS(1, 2, 1, "(Expected)"), pqxx::test::test_failure,
-    "PQXX_CHECK_BOUNDS did not detect empty interval.");
+  PQXX_CHECK_THROWS(PQXX_CHECK_BOUNDS(1, 2, 1), pqxx::test::test_failure);
 }
 
 

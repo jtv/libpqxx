@@ -65,7 +65,8 @@ void test_stream_from_nonoptionals(pqxx::connection &connection)
     tup_w_nulls;
 
   extractor >> tup_w_nulls;
-  PQXX_CHECK(extractor, "Stream ended prematurely.");
+  // The stream is still open.
+  PQXX_CHECK(extractor);
 
   PQXX_CHECK_EQUAL(std::get<0>(tup_w_nulls), 5678);
   PQXX_CHECK(std::get<2>(tup_w_nulls) == nullptr);
@@ -73,7 +74,7 @@ void test_stream_from_nonoptionals(pqxx::connection &connection)
 
   // We're at the end of the stream.
   extractor >> tup_w_nulls;
-  PQXX_CHECK(not extractor, "Stream did not end.");
+  PQXX_CHECK(not extractor);
 
   // Of course we can't stream a non-null value into a nullptr field.
   auto ex2{pqxx::stream_from::query(tx, "SELECT 1")};
@@ -94,7 +95,7 @@ void test_stream_from_nonoptionals(pqxx::connection &connection)
       std::string{"Could not extract row: "} + what);
   }
   ex2 >> null_tup;
-  PQXX_CHECK(not ex2, "Stream did not end.");
+  PQXX_CHECK(not ex2);
 
   PQXX_CHECK_SUCCEEDS(tx.exec1("SELECT 1"));
 }
@@ -142,12 +143,11 @@ void test_bad_tuples(pqxx::connection &cx)
 // Annoying: clang-tidy complains about an unchecked std::optional access,
 // even if we check that OPT contains a value before we retrieve it.
 #define ASSERT_FIELD_EQUAL(OPT, VAL)                                          \
-  PQXX_CHECK(static_cast<bool>(OPT), "unexpected null field");                \
+  PQXX_CHECK(static_cast<bool>(OPT));                                         \
   if ((OPT))                                                                  \
-  PQXX_CHECK_EQUAL(*(OPT), (VAL), "field value mismatch")
+  PQXX_CHECK_EQUAL(*(OPT), (VAL))
 
-#define ASSERT_FIELD_NULL(OPT)                                                \
-  PQXX_CHECK(not static_cast<bool>(OPT), "expected null field")
+#define ASSERT_FIELD_NULL(OPT) PQXX_CHECK(not static_cast<bool>(OPT))
 
 
 /// Japanese text: \u3053\u3093\u306b\u3061\u308f ("konichiwa," a greeting).
@@ -204,7 +204,7 @@ void test_stream_from_optional(pqxx::connection &connection)
   // NOLINTEND(bugprone-unchecked-optional-access)
 
   extractor >> got_tuple;
-  PQXX_CHECK(not extractor, "stream_from failed to detect end of stream");
+  PQXX_CHECK(not extractor);
 
   extractor.complete();
 }
@@ -318,7 +318,7 @@ void test_stream_from_read_row(pqxx::test::context &)
   PQXX_CHECK(std::data((*fields)[2]) == nullptr);
 
   auto last{stream.read_row()};
-  PQXX_CHECK(last == nullptr, "No null pointer at end of stream.");
+  PQXX_CHECK(last == nullptr);
 }
 
 
@@ -359,25 +359,20 @@ void test_stream_from_parses_awkward_strings(pqxx::test::context &)
        tx.query<std::size_t, std::optional<std::string>>(
          "SELECT id, value FROM nasty ORDER BY id"))
   {
-    PQXX_CHECK_EQUAL(id, std::size(values), "Test data is broken.");
+    PQXX_CHECK_EQUAL(id, std::size(values));
     values.push_back(value);
   }
 
-  PQXX_CHECK(not values.at(0).has_value(), "Null did not work properly.");
-  PQXX_CHECK(values.at(1).has_value(), "String 'NULL' became a NULL.");
-  PQXX_CHECK_EQUAL(
-    values.at(1).value_or("empty"), "NULL", "String 'NULL' went badly.");
-  PQXX_CHECK(values.at(2).has_value(), "String '\\N' became a NULL.");
-  PQXX_CHECK_EQUAL(
-    values.at(2).value_or("empty"), "\\N", "String '\\N' went badly.");
-  PQXX_CHECK(values.at(3).has_value(), "String \"'NULL'\" became a NULL.");
-  PQXX_CHECK_EQUAL(
-    values.at(3).value_or("empty"), "'NULL'", "String \"'NULL'\" went badly.");
+  PQXX_CHECK(not values.at(0).has_value());
+  PQXX_CHECK(values.at(1).has_value());
+  PQXX_CHECK_EQUAL(values.at(1).value_or("empty"), "NULL");
+  PQXX_CHECK(values.at(2).has_value());
+  PQXX_CHECK_EQUAL(values.at(2).value_or("empty"), "\\N");
+  PQXX_CHECK(values.at(3).has_value());
+  PQXX_CHECK_EQUAL(values.at(3).value_or("empty"), "'NULL'");
 
   if (not ascii_db)
-    PQXX_CHECK_EQUAL(
-      values.at(4).value_or("empty"), "\x81\x5c",
-      "Finicky SJIS character went badly.");
+    PQXX_CHECK_EQUAL(values.at(4).value_or("empty"), "\x81\x5c");
 }
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 

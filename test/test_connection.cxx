@@ -51,7 +51,7 @@ void test_move_assign(pqxx::test::context &)
 
   {
     pqxx::work tx1{c2};
-    PQXX_CHECK_EQUAL(tx1.query_value<int>("SELECT 8"), 8, "What!?");
+    PQXX_CHECK_EQUAL(tx1.query_value<int>("SELECT 8"), 8);
 
     pqxx::connection c3;
     PQXX_CHECK_THROWS(c1 = std::move(c2), pqxx::usage_error);
@@ -60,7 +60,7 @@ void test_move_assign(pqxx::test::context &)
 
   // After failed move attempts, the connection is still usable.
   pqxx::work tx2{c2};
-  PQXX_CHECK_EQUAL(tx2.query_value<int>("SELECT 6"), 6, "Huh!?");
+  PQXX_CHECK_EQUAL(tx2.query_value<int>("SELECT 6"), 6);
 }
 
 
@@ -69,9 +69,7 @@ void test_encrypt_password(pqxx::test::context &)
   pqxx::connection c;
   auto const pw{c.encrypt_password("user", "password")};
   PQXX_CHECK(not std::empty(pw));
-  PQXX_CHECK_EQUAL(
-    std::strlen(pw.c_str()), std::size(pw),
-    "Encrypted password contains a null byte.");
+  PQXX_CHECK_EQUAL(std::strlen(pw.c_str()), std::size(pw));
 }
 
 
@@ -89,16 +87,15 @@ void test_connection_string(pqxx::test::context &)
 #  pragma warning(pop)
 #endif
   {
+    // The connection string specifies the username.
+    // TODO: Write "string contains" test helper, so it'll print the string.
     PQXX_CHECK(
-      pqxx::str_contains(connstr, "user=" + std::string{c.username()}),
-      "Connection string did not specify user name: " + connstr);
+      pqxx::str_contains(connstr, "user=" + std::string{c.username()}));
   }
   else
   {
     PQXX_CHECK(
-      not pqxx::str_contains(connstr, "user=" + std::string{c.username()}),
-      "Connection string specified user name, even when using default: " +
-        connstr);
+      not pqxx::str_contains(connstr, "user=" + std::string{c.username()}));
   }
 }
 
@@ -137,16 +134,9 @@ template<typename MAP> void test_params_type()
     // reports an insane false positive error when we do.
     auto const &key{std::get<0>(*it)};
     auto const value{std::get<1>(*it)};
-    PQXX_CHECK(
-      pqxx::str_contains(connstr, key),
-      std::format(
-        "Could not find param name '{}' in connection string: {}",
-        std::string{key}, connstr));
-    PQXX_CHECK(
-      pqxx::str_contains(connstr, value),
-      std::format(
-        "Could not find value for '{}' in connection string: ",
-        std::string{value}, connstr));
+    // TODO: Write "string contains" test helpers, with more helpful failures.
+    PQXX_CHECK(pqxx::str_contains(connstr, key));
+    PQXX_CHECK(pqxx::str_contains(connstr, value));
   }
 }
 
@@ -274,8 +264,7 @@ void test_connection_client_encoding(pqxx::test::context &tctx)
     cx.set_client_encoding(e);
     PQXX_CHECK_EQUAL(
       static_cast<underlying>(cx.get_encoding_group()),
-      static_cast<underlying>(pqxx::encoding_group::ascii_safe),
-      std::format("Unexpected encoding group for '{}'.", e));
+      static_cast<underlying>(pqxx::encoding_group::ascii_safe));
   }
 
   // Covering lots of initial letters because it helps fill out test

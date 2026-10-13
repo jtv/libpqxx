@@ -39,12 +39,11 @@ void test_composite_escapes(pqxx::test::context &)
   pqxx::row r;
   r = tx.exec(R"--(SELECT '("a""b")'::pqxxsingle)--").one_row();
   pqxx::parse_composite(make_context(), r[0].view(), s);
-  PQXX_CHECK_EQUAL(
-    s, "a\"b", "Double-double-quotes escaping did not parse correctly.");
+  PQXX_CHECK_EQUAL(s, "a\"b");
 
   r = tx.exec(R"--(SELECT '("a\"b")'::pqxxsingle)--").one_row();
   pqxx::parse_composite(make_context(), r[0].view(), s);
-  PQXX_CHECK_EQUAL(s, "a\"b", "Backslash escaping did not parse correctly.");
+  PQXX_CHECK_EQUAL(s, "a\"b");
 }
 
 
@@ -95,9 +94,7 @@ void test_composite_renders_to_string(pqxx::test::context &)
   PQXX_CHECK_EQUAL(a, 355);
   PQXX_CHECK_EQUAL(b, "foo");
   PQXX_CHECK_EQUAL(c, "b\na\\r");
-  PQXX_CHECK_EQUAL(
-    nonnull, f.composite_to(pqxx::sl::current(), a, b, c),
-    "field::composite_to() with source_location is different!?");
+  PQXX_CHECK_EQUAL(nonnull, f.composite_to(pqxx::sl::current(), a, b, c));
 }
 
 

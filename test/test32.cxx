@@ -42,10 +42,7 @@ void test_032(pqxx::test::context &)
 
   std::pair<int, int> const before{
     pqxx::perform([&cx, &table] { return count_events_32(cx, table); })};
-  PQXX_CHECK_EQUAL(
-    before.second, 0,
-    "Already have event for " + pqxx::to_string(boring_year_32) +
-      ", cannot test.");
+  PQXX_CHECK_EQUAL(before.second, 0);
 
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"

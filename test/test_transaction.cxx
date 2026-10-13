@@ -61,9 +61,7 @@ void test_nontransaction_autocommits(pqxx::test::context &)
   tx2.abort();
 
   pqxx::nontransaction tx3{cx};
-  PQXX_CHECK_EQUAL(
-    count_temp_table(tx3), 1,
-    "Did not keep effect of aborted nontransaction.");
+  PQXX_CHECK_EQUAL(count_temp_table(tx3), 1);
   delete_temp_table(tx3);
 }
 

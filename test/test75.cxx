@@ -15,8 +15,10 @@ void test_075(pqxx::test::context &)
   pqxx::work tx{cx};
 
   pqxx::test::create_pqxxevents(tx);
+  // TODO: Stop relying on this fixed test table.
   auto const R(tx.exec("SELECT year FROM pqxxevents"));
-  PQXX_CHECK(not std::empty(R), "No events found, cannot test.");
+  // (The test relies on the table being nonempty.)
+  PQXX_CHECK(not std::empty(R));
 
   PQXX_CHECK(R[0] == R.at(0));
   PQXX_CHECK(not(R[0] != R.at(0)));
@@ -87,7 +89,7 @@ void test_075(pqxx::test::context &)
 
   PQXX_CHECK(l == std::rend(contents));
 
-  PQXX_CHECK(not std::empty(R), "No events found in table, cannot test.");
+  PQXX_CHECK(not std::empty(R));
 }
 } // namespace
 

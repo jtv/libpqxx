@@ -17,7 +17,7 @@ void test_separated_list(pqxx::test::context &)
     pqxx::separated_list(
       "+", std::begin(nums), std::end(nums),
       [](auto elt) { return *elt * 2; }),
-    "2+4+6", "Accessors don't seem to work.");
+    "2+4+6");
 }
 
 
