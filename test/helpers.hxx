@@ -372,12 +372,16 @@ inline void check_less(
   char const text2[], std::string const &desc = "Less/greater check failed.",
   sl loc = sl::current())
 {
+  // TODO: Use raw strings once Visual Studio handles them better.
+
+  // NOLINTBEGIN(modernize-raw-string-literal)
   if (value1 >= value2)
     throw test_failure{
       std::format(
         "{} ({} >= {}: \"lower\"={}, \"upper\"={}).", desc, text1, text2,
         to_string(value1), to_string(value2)),
       loc};
+  // NOLINTEND(modernize-raw-string-literal)
 }
 
 

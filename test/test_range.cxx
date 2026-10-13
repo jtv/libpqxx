@@ -241,10 +241,11 @@ void test_parse_range(pqxx::test::context &)
   using traits = pqxx::string_traits<range>;
 
   constexpr std::string_view empties[]{"empty", "EMPTY", "eMpTy"};
-  for (auto empty : empties) PQXX_CHECK(traits::from_string(empty).empty());
+  for (auto const empty : empties)
+    PQXX_CHECK(traits::from_string(empty).empty());
 
   constexpr std::string_view universals[]{"(,)", "[,)", "(,]", "[,]"};
-  for (auto univ : universals)
+  for (auto const univ : universals)
     PQXX_CHECK_EQUAL(traits::from_string(univ), (range{ubound{}, ubound{}}));
 
   PQXX_CHECK(traits::from_string("(0,10]").lower_bound().is_exclusive());
