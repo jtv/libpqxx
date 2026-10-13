@@ -57,11 +57,15 @@ struct context final
   /// Return an arbitrary nonnegative integer below `ceiling`.
   int make_num(int ceiling) { return make_num() % ceiling; }
 
+  // TODO: Rename to make_char().
   /// Return an arbitrary nonzero `char` value from the full 8-bit range.
   char random_char()
   {
     return static_cast<char>(static_cast<std::uint8_t>(make_num(255) + 1));
   }
+
+  /// Return an arbitrary `char` in the ASCII range (1 to 127 inclusive).
+  char make_ascii_char() { return static_cast<char>(8 + make_num(128 - 8)); }
 
   /// Return an arbitrary numeric floating-point value.  (No NaN or infinity.)
   template<std::floating_point T> T make_float_num()
@@ -72,7 +76,7 @@ struct context final
     return static_cast<T>(x - y) / static_cast<T>(z);
   }
 
-  /// Generate a name with a given prefix and a randomised suffix.
+  /// Generate an ASCII name with a given prefix and a randomised suffix.
   std::string make_name(std::string_view prefix = {})
   {
     int const num{make_num()};
@@ -81,6 +85,27 @@ struct context final
       return std::format("{}", num);
     else
       return std::format("{}_{}", prefix, num);
+  }
+
+  /// Return an arbitrary byte value.
+  std::byte make_byte()
+  {
+    return std::byte{static_cast<unsigned char>(make_num(256))};
+  }
+
+
+  /// Return arbitrary binary data.
+  pqxx::bytes make_bytes(int min_len = 1, int limit = 30)
+  {
+    // clang-tidy rule bug.
+    // NOLINTNEXTLINE(cert-dcl03-c)
+    assert(min_len < limit);
+    std::size_t const len{
+      static_cast<std::size_t>(min_len + make_num(limit - min_len))};
+    pqxx::bytes b;
+    b.reserve(len);
+    for (std::size_t i{0}; i < len; ++i) b.push_back(make_byte());
+    return b;
   }
 
 private:
@@ -183,6 +208,7 @@ struct registrar final
     "Execution was never supposed to reach this point.",
   sl loc = sl::current());
 
+// TODO: Get rid of the optional descriptions.
 // Verify that a condition is met, similar to assert().
 // Takes an optional failure description as a second argument.
 #if defined(_MSVC_TRADITIONAL) && _MSVC_TRADITIONAL
@@ -229,6 +255,7 @@ inline void check_equal(
   //    hicpp-no-array-decay
   // )
 
+  // TODO: std::format().
   std::string const fulldesc = desc + " (" + actual_text + " <> " +
                                expected_text +
                                ": "
@@ -270,6 +297,7 @@ inline void check_not_equal(
 {
   if (value1 != value2)
     return;
+  // TODO: std::format().
   std::string const fulldesc = desc + " (" + text1 + " == " + text2 +
                                ": "
                                "both are " +
@@ -282,6 +310,52 @@ inline void check_not_equal(
 //    hicpp-no-array-decay
 // )
 
+
+// TODO: Look for test code that we can replace with this.
+/// Verify that two blocks of binary data are equal.
+template<typename VALUE1, typename VALUE2>
+inline void check_equal_bin(
+  VALUE1 const &value1, VALUE2 const &value2, sl loc = sl::current())
+{
+  auto const sz{std::size(value1)};
+  if (not std::cmp_equal(sz, std::size(value2)))
+    throw test_failure{
+      std::format(
+        "Binary data blocks differ in size ({} vs. {})", sz,
+        std::size(value2)),
+      loc};
+
+  for (std::size_t i{0u}; i < sz; ++i)
+  {
+    if (value1.at(i) != value2.at(i))
+      throw test_failure{
+        std::format(
+          "Binary blocks differ in byte {} out of {}: {} vs. {}.", i, sz,
+          static_cast<unsigned>(value1.at(1)),
+          static_cast<unsigned>(value2.at(i))),
+        loc};
+  }
+}
+
+
+/// Verify that two blocks of binary data differ.
+template<typename VALUE1, typename VALUE2>
+inline void check_not_equal_bin(
+  VALUE1 const &value1, VALUE2 const &value2, sl loc = sl::current())
+{
+  auto const sz{std::size(value1)};
+  if (not std::cmp_equal(sz, std::size(value2)))
+    return;
+
+  for (std::size_t i{0u}; i < sz; ++i)
+    if (value1.at(i) != value2.at(i))
+      return;
+
+  throw test_failure{
+    std::format(
+      "Binary data blocks of size {} are unexpectedly identical.", sz),
+    loc};
+}
 
 // Verify that value1 is less/greater than value2.
 // Takes an optional failure description as a third argument.
@@ -307,6 +381,7 @@ inline void check_less(
 {
   if (value1 < value2)
     return;
+  // TODO: std::format().
   std::string const fulldesc = desc + " (" + text1 + " >= " + text2 +
                                ": "
                                "\"lower\"=" +

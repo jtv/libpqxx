@@ -215,7 +215,7 @@ jobs:
       # Without updating these, the macos builds will just stop working when
       # the XCode/image combo falls out of support.
       #
-      xcode: "26.2.0"
+      xcode: "27.2"
 
     # As of late 2025, this is the default resource class we get for macOS.
     # But since they include the chip generation, they will eventually fall out

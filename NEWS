@@ -1,6 +1,8 @@
-8.0.3
+8.1.0
  - Fix attribute ordering for Windows clang build. (#1252)
  - `pqxx::array` now supports default construction and move. (#1245)
+ - Fix `params` for smart pointer or `optional` holding binary data. (#1250)
+ - New traits type `maybe_traits` & concept `maybe_type`. (#1254)
 8.0.2
  - Simple benchmark tool for query performance.
  - Fix an apparent `memcpy()` overlap.
