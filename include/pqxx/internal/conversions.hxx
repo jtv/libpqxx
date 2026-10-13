@@ -7,7 +7,6 @@
 #include <map>
 #include <memory>
 #include <numeric>
-#include <optional>
 #include <span>
 #include <type_traits>
 #include <variant>
@@ -301,63 +300,18 @@ template<> struct string_traits<bool> final
 template<> inline constexpr bool is_unquoted_safe<bool>{true};
 
 
-template<typename T> struct nullness<std::optional<T>> final
+/// Specialisation for `std::optional` and smart pointers.
+template<maybe_type T> inline constexpr format param_format(T const &value)
 {
-  static constexpr bool has_null = true;
-  /// Technically, you could have an optional of an always-null type.
-  static constexpr bool always_null = pqxx::always_null<T>();
-  [[nodiscard]] PQXX_PURE PQXX_HOT static constexpr bool
-  is_null(std::optional<T> const &v) noexcept
-  {
-    return ((not v.has_value()) or pqxx::is_null(*v));
-  }
-  [[nodiscard]] PQXX_PURE PQXX_HOT static constexpr std::optional<T>
-  null() noexcept
-  {
-    return {};
-  }
-};
-
-
-template<typename T>
-inline constexpr format param_format(std::optional<T> const &value)
-{
-  return param_format(*value);
+  // Recurse for tricky cases, e.g. std::optional<std::shared_ptr<...>>.
+  return param_format(maybe_traits<T>::get_value(value));
 }
 
 
-template<typename T> struct string_traits<std::optional<T>> final
-{
-  static std::string_view
-  to_buf(std::span<char> buf, std::optional<T> const &value, ctx c = {})
-  {
-    if (pqxx::is_null(value))
-      return {};
-    else
-      // (No need to check: if the optional were empty, it'd be null.)
-      // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
-      return pqxx::to_buf(buf, *value, c);
-  }
-
-  static std::optional<T> from_string(std::string_view text, ctx c = {})
-  {
-    return std::optional<T>{std::in_place, pqxx::from_string<T>(text, c)};
-  }
-
-  static std::size_t size_buffer(std::optional<T> const &value) noexcept
-  {
-    if (pqxx::is_null(value))
-      return 0;
-    else
-      // (No need to check: if the optional were empty, it'd be null.)
-      // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
-      return pqxx::size_buffer(value.value());
-  }
-};
-
-
-template<typename T>
-inline constexpr bool is_unquoted_safe<std::optional<T>>{is_unquoted_safe<T>};
+/// Specialisation for `std::optional` and smart pointers.
+template<maybe_type T>
+inline constexpr bool is_unquoted_safe<T>{
+  is_unquoted_safe<typename maybe_traits<T>::contained_t>};
 
 
 template<typename... T> struct nullness<std::variant<T...>> final
@@ -726,110 +680,53 @@ struct nullness<std::monostate> final
 {};
 
 
-template<typename T> struct nullness<std::unique_ptr<T>> final
+/// Specialisation for `std::optional` and smart pointers.
+template<maybe_type T> struct nullness<T> final
 {
+  using maybe_traits = pqxx::maybe_traits<T>;
+
   static constexpr bool has_null = true;
   static constexpr bool always_null = false;
-  [[nodiscard]] PQXX_PURE static constexpr bool
-  is_null(std::unique_ptr<T> const &t) noexcept
+  [[nodiscard]] PQXX_PURE static constexpr bool is_null(T const &t) noexcept
   {
-    return not t or pqxx::is_null(*t);
+    return not maybe_traits::has_value(t) or
+           pqxx::is_null(maybe_traits::get_value(t));
   }
-  [[nodiscard]] PQXX_PURE static constexpr std::unique_ptr<T> null() noexcept
+  [[nodiscard]] PQXX_PURE static constexpr T null() noexcept
   {
-    return {};
-  }
-};
-
-
-template<typename T, typename... Args>
-struct string_traits<std::unique_ptr<T, Args...>> final
-{
-  static std::unique_ptr<T> from_string(std::string_view text, ctx c = {})
-  {
-    return std::make_unique<T>(pqxx::from_string<T>(text, c));
-  }
-
-  static std::string_view to_buf(
-    std::span<char> buf, std::unique_ptr<T, Args...> const &value, ctx c = {})
-  {
-    if (not value)
-      internal::throw_null_conversion(name_type<std::unique_ptr<T>>(), c.loc);
-    return pqxx::to_buf(buf, *value, c);
-  }
-
-  static std::size_t
-  size_buffer(std::unique_ptr<T, Args...> const &value) noexcept
-  {
-    if (pqxx::is_null(value))
-      return 0;
-    else
-      return pqxx::size_buffer(*value.get());
+    return maybe_traits::make_blank();
   }
 };
 
 
-template<typename T, typename... Args>
-inline format param_format(std::unique_ptr<T, Args...> const &value)
+/// Specialisation for `std::optional` and smart pointers.
+template<maybe_type T> struct string_traits<T> final
 {
-  return param_format(*value);
-}
+  using maybe_traits = pqxx::maybe_traits<T>;
 
-
-template<typename T, typename... Args>
-inline constexpr bool is_unquoted_safe<std::unique_ptr<T, Args...>>{
-  is_unquoted_safe<T>};
-
-
-template<typename T> struct nullness<std::shared_ptr<T>> final
-{
-  static constexpr bool has_null = true;
-  static constexpr bool always_null = false;
-  [[nodiscard]] PQXX_PURE static constexpr bool
-  is_null(std::shared_ptr<T> const &t) noexcept
+  static T from_string(std::string_view text, ctx c = {})
   {
-    return not t or pqxx::is_null(*t);
-  }
-  [[nodiscard]] PQXX_PURE static constexpr std::shared_ptr<T> null() noexcept
-  {
-    return {};
-  }
-};
-
-
-template<typename T> struct string_traits<std::shared_ptr<T>> final
-{
-  static std::shared_ptr<T> from_string(std::string_view text, ctx c = {})
-  {
-    return std::make_shared<T>(pqxx::from_string<T>(text, c));
+    // TODO: Construct a blank if string represents a null value.
+    return maybe_traits::make(
+      pqxx::from_string<typename maybe_traits::contained_t>(text, c));
   }
 
   static std::string_view
-  to_buf(std::span<char> buf, std::shared_ptr<T> const &value, ctx c = {})
+  to_buf(std::span<char> buf, T const &value, ctx c = {})
   {
-    if (not value)
-      internal::throw_null_conversion(name_type<std::shared_ptr<T>>(), c.loc);
-    return pqxx::to_buf(buf, *value, c);
+    if (not maybe_traits::has_value(value))
+      internal::throw_null_conversion(name_type<T>(), c.loc);
+    return pqxx::to_buf(buf, maybe_traits::get_value(value), c);
   }
-  static std::size_t size_buffer(std::shared_ptr<T> const &value) noexcept
+
+  static std::size_t size_buffer(T const &value) noexcept
   {
     if (pqxx::is_null(value))
       return 0;
     else
-      return pqxx::size_buffer(*value);
+      return pqxx::size_buffer(maybe_traits::get_value(value));
   }
 };
-
-
-template<typename T> format param_format(std::shared_ptr<T> const &value)
-{
-  return param_format(*value);
-}
-
-
-template<typename T>
-inline constexpr bool is_unquoted_safe<std::shared_ptr<T>>{
-  is_unquoted_safe<T>};
 
 
 template<binary DATA> struct nullness<DATA> final : no_null<DATA>

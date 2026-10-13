@@ -56,10 +56,20 @@ get_encoding_group(transaction_base const &, sl = sl::current());
 
 namespace pqxx
 {
-/// Build a parameter list for a parameterised or prepared statement.
+/// Parameter list for a parameterised or prepared statement.
 /** When calling a parameterised statement or a prepared statement, in many
  * cases you can pass parameters into the statement in the form of a
  * `pqxx::params` object.
+ *
+ * Objects of this type are meant to be short-lived.  Some parameters they may
+ * store internally, but for others they may merely store a reference of some
+ * sort.
+ *
+ * The easiest way to make it work correctly is to create the `params` as an
+ * unnamed temporary object: `tx.exec(query, pqxx::params{p1, p2, p3});`
+ * Or, if that is not an option, at least keep all of the individual parameter
+ * objects that you pass in alive and in place until such time as you're done
+ * executing the SQL statement.
  */
 class PQXX_LIBEXPORT params final
 {
@@ -172,25 +182,32 @@ public:
   /// Append all parameters in `value`.
   void append(params &&value, sl = sl::current()) &;
 
-  /// Append a non-null parameter, converting it to its string
-  /// representation.
-  template<typename TYPE>
-  void append([[maybe_unused]] TYPE const &value, sl loc = sl::current()) &
+  /// Append a parameter which may or may not contain a value.
+  /** This is for smart pointers, `std::optional`, and such.
+   */
+  template<maybe_type TYPE>
+  void append(TYPE const &value, sl loc = sl::current()) &
   {
-    // TODO: Pool storage for multiple string conversions in one buffer?
-    if constexpr (pqxx::always_null<TYPE>())
-    {
-      m_params.emplace_back();
-    }
-    else if (is_null(value))
-    {
-      m_params.emplace_back();
-    }
+    using maybe_traits = maybe_traits<TYPE>;
+
+    if (maybe_traits::has_value(value))
+      append(maybe_traits::get_value(value), loc);
     else
-    {
-      // TODO: Block-allocate storage for parameters.
+      m_params.emplace_back();
+  }
+
+  /// Append a text-format parameter, converting it to text.
+  /** There are separate overloads for parameters that already have types that
+   * we support directly.
+   */
+  template<typename TYPE>
+  void append(TYPE const &value, sl loc = sl::current()) &
+  {
+    // TODO: Pool storage for multiple string conversions in one buffer.
+    if (is_null(value))
+      m_params.emplace_back();
+    else
       m_params.emplace_back(to_string(value, conversion_context{m_enc, loc}));
-    }
   }
 
   /// Append all elements of `range` as parameters.
@@ -200,6 +217,12 @@ public:
     if constexpr (std::ranges::sized_range<RANGE>)
       reserve(std::size(*this) + std::size(range));
     for (auto &value : range) append(value, loc);
+  }
+
+  template<typename... TYPE>
+  void append(std::variant<TYPE...> const &value, sl loc = sl::current()) &
+  {
+    std::visit([this, loc](auto const &i) { this->append(i, loc); }, value);
   }
 
   /// For internal use: Generate a `params` object for use in calls.
