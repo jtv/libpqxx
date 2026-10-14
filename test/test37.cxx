@@ -40,10 +40,7 @@ void test_037(pqxx::test::context &)
 
   auto const Before{
     pqxx::perform([&cx, &table] { return count_events_37(cx, table); })};
-  PQXX_CHECK_EQUAL(
-    Before.second, 0,
-    "Already have event for " + pqxx::to_string(boring_year_37) +
-      ", cannot test.");
+  PQXX_CHECK_EQUAL(Before.second, 0);
 
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"

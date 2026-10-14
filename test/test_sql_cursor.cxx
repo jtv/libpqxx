@@ -55,14 +55,15 @@ void test_forward_sql_cursor(pqxx::test::context &)
   PQXX_CHECK_EQUAL(row[0][0].as<std::string>(), "4");
 
   empty_result = forward.fetch(1, displacement, pqxx::sl::current());
-  PQXX_CHECK_EQUAL(std::size(empty_result), 0, "Got rows at end of cursor");
+  PQXX_CHECK_EQUAL(std::size(empty_result), 0);
   PQXX_CHECK_EQUAL(forward.pos(), 5);
   PQXX_CHECK_EQUAL(forward.endpos(), 5);
   PQXX_CHECK_EQUAL(displacement, 1);
 
   offset = forward.move(5, displacement, pqxx::sl::current());
   PQXX_CHECK_EQUAL(offset, 0);
-  PQXX_CHECK_EQUAL(forward.pos(), 5, "pos() is beyond end");
+  // pos() cannot go beyond the end.
+  PQXX_CHECK_EQUAL(forward.pos(), 5);
   PQXX_CHECK_EQUAL(forward.endpos(), 5);
   PQXX_CHECK_EQUAL(displacement, 0);
 
@@ -163,7 +164,7 @@ void test_scroll_sql_cursor(pqxx::test::context &)
   PQXX_CHECK_EQUAL(rows[0][0].as<int>(), 2);
 
   rows = scroll.fetch(1, pqxx::sl::current());
-  PQXX_CHECK_EQUAL(scroll.pos(), 3, "Bad pos() after inverse turnaround");
+  PQXX_CHECK_EQUAL(scroll.pos(), 3);
   PQXX_CHECK_EQUAL(rows[0][0].as<int>(), 3);
 }
 
@@ -178,8 +179,9 @@ void test_adopted_sql_cursor(pqxx::test::context &)
       "SELECT generate_series(1, 3)")
     .no_rows();
   pqxx::internal::sql_cursor adopted(tx, "adopted", pqxx::cursor_base::owned);
-  PQXX_CHECK_EQUAL(adopted.pos(), -1, "Adopted cursor has known pos()");
-  PQXX_CHECK_EQUAL(adopted.endpos(), -1, "Adopted cursor has known endpos()");
+  // An adopted cursor starts out at an unknown pos() and endpos().
+  PQXX_CHECK_EQUAL(adopted.pos(), -1);
+  PQXX_CHECK_EQUAL(adopted.endpos(), -1);
 
   auto displacement{0};
   auto rows{adopted.fetch(
@@ -188,9 +190,9 @@ void test_adopted_sql_cursor(pqxx::test::context &)
   PQXX_CHECK_EQUAL(rows[0][0].as<int>(), 1);
   PQXX_CHECK_EQUAL(rows[2][0].as<int>(), 3);
   PQXX_CHECK_EQUAL(displacement, 4);
-  PQXX_CHECK_EQUAL(
-    adopted.pos(), -1, "End-of-result set pos() on adopted cur");
-  PQXX_CHECK_EQUAL(adopted.endpos(), -1, "endpos() set too early");
+  // With an adopted cursor, hitting the end does not set pos() & endpos().
+  PQXX_CHECK_EQUAL(adopted.pos(), -1);
+  PQXX_CHECK_EQUAL(adopted.endpos(), -1);
 
   rows = adopted.fetch(
     pqxx::cursor_base::backward_all(), displacement, pqxx::sl::current());
@@ -198,8 +200,10 @@ void test_adopted_sql_cursor(pqxx::test::context &)
   PQXX_CHECK_EQUAL(rows[0][0].as<int>(), 3);
   PQXX_CHECK_EQUAL(rows[2][0].as<int>(), 1);
   PQXX_CHECK_EQUAL(displacement, -4);
-  PQXX_CHECK_EQUAL(adopted.pos(), 0, "Failed to recognize starting position");
-  PQXX_CHECK_EQUAL(adopted.endpos(), -1, "endpos() set too early");
+  // At this point the adopted cursor recognises its starting position.
+  PQXX_CHECK_EQUAL(adopted.pos(), 0);
+  // However it still does not set endpos().
+  PQXX_CHECK_EQUAL(adopted.endpos(), -1);
 
   auto const offset{
     adopted.move(pqxx::cursor_base::all(), pqxx::sl::current())};
@@ -218,10 +222,8 @@ void test_adopted_sql_cursor(pqxx::test::context &)
   {
     pqxx::internal::sql_cursor(tx2, "adopted2", pqxx::cursor_base::owned);
   }
-  // Modern backends: accessing the cursor now is an error, as you'd expect.
-  PQXX_CHECK_THROWS(
-    tx2.exec("FETCH 1 IN adopted2"), pqxx::sql_error,
-    "Owned adopted cursor not cleaned up");
+  // Accessing the cursor now is an error, as you'd expect.
+  PQXX_CHECK_THROWS(tx2.exec("FETCH 1 IN adopted2"), pqxx::sql_error);
 
   tx2.abort();
 
@@ -248,8 +250,7 @@ void test_hold_cursor(pqxx::test::context &)
   tx.commit();
   pqxx::work tx2(cx, "tx2");
   auto const rows{with_hold.fetch(1, pqxx::sl::current())};
-  PQXX_CHECK_EQUAL(
-    std::size(rows), 1, "Did not get 1 row from with-hold cursor");
+  PQXX_CHECK_EQUAL(std::size(rows), 1);
 
   // Cursor without hold is closed on commit.
   pqxx::internal::sql_cursor no_hold(
@@ -258,9 +259,7 @@ void test_hold_cursor(pqxx::test::context &)
     pqxx::cursor_base::owned, false);
   tx2.commit();
   pqxx::work const tx3(cx, "tx3");
-  PQXX_CHECK_THROWS(
-    no_hold.fetch(1, pqxx::sl::current()), pqxx::sql_error,
-    "Cursor not closed on commit");
+  PQXX_CHECK_THROWS(no_hold.fetch(1, pqxx::sl::current()), pqxx::sql_error);
 }
 
 

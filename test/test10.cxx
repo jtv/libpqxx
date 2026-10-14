@@ -42,8 +42,7 @@ void Test(pqxx::connection &C, bool ExplicitAbort)
     // Verify that our Boring Year was not yet in the events table
     event_counts = count_events(doomed);
 
-    PQXX_CHECK_EQUAL(
-      event_counts.second, 0, "Can't run, boring year is already in table.");
+    PQXX_CHECK_EQUAL(event_counts.second, 0);
 
     // Now let's try to introduce a row for our Boring Year
     doomed

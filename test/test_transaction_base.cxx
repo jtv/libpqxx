@@ -98,7 +98,7 @@ void test_transaction_query(pqxx::test::context &)
   PQXX_CHECK_EQUAL(names.at(0), "name1");
   PQXX_CHECK_EQUAL(names.at(4), "name5");
   PQXX_CHECK_EQUAL(salaries.at(0), 1'000);
-  PQXX_CHECK_EQUAL(salaries.at(4), 5'000, );
+  PQXX_CHECK_EQUAL(salaries.at(4), 5'000);
 }
 
 

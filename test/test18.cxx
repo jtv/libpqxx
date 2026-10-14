@@ -44,10 +44,7 @@ void test_018(pqxx::test::context &)
 
   auto const before{
     pqxx::perform([&cx, &table] { return count_events_18(cx, table); })};
-  PQXX_CHECK_EQUAL(
-    before.second, 0,
-    "Already have event for " + pqxx::to_string(boring_year_18) +
-      ", cannot run.");
+  PQXX_CHECK_EQUAL(before.second, 0);
 
   {
     PQXX_CHECK_THROWS(
@@ -66,10 +63,8 @@ void test_018(pqxx::test::context &)
   auto const after{
     pqxx::perform([&cx, &table] { return count_events_18(cx, table); })};
 
-  PQXX_CHECK_EQUAL(after.first, before.first, "Event count changed.");
-  PQXX_CHECK_EQUAL(
-    after.second, before.second,
-    "Event count for " + pqxx::to_string(boring_year_18) + " changed.");
+  PQXX_CHECK_EQUAL(after.first, before.first);
+  PQXX_CHECK_EQUAL(after.second, before.second);
 }
 
 

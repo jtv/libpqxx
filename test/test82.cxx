@@ -88,7 +88,7 @@ void test_082(pqxx::test::context &)
   PQXX_CHECK(ri2 < ri3);
   PQXX_CHECK(ri2 <= ri3);
   PQXX_CHECK(ri3 == ri2 + 1);
-  PQXX_CHECK(ri2 == ri3 - 1, );
+  PQXX_CHECK(ri2 == ri3 - 1);
 
   PQXX_CHECK(ri3 == ++ri2);
 

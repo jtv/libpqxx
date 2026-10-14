@@ -175,8 +175,8 @@ void test_find_chars_reports_malencoded_text(pqxx::test::context &tctx)
   std::array<char, 1000> data{};
   for (std::size_t i{0}; i < std::size(data); ++i)
   {
-    data.at(i) = tctx.random_char();
-    while (data.at(i) == '|') data.at(i) = tctx.random_char();
+    data.at(i) = tctx.make_char();
+    while (data.at(i) == '|') data.at(i) = tctx.make_char();
   }
 
   // Bet that the random data isn't going to be fully valid text in these

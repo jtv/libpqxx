@@ -37,8 +37,7 @@ void test_notice_handler_works_after_connection_closes(pqxx::test::context &)
   // Trigger a notice by asking libpq about a nonexistent column.
   PQXX_CHECK_THROWS_EXCEPTION(std::ignore = r.table_column(99));
 
-  PQXX_CHECK_EQUAL(
-    notices, 1, "Did not get expected single post-connection notice.");
+  PQXX_CHECK_EQUAL(notices, 1);
 }
 
 
@@ -169,7 +168,8 @@ void test_notice_handler_works_after_moving_connection(pqxx::test::context &)
   // receiving a notice.
   tx.exec("BEGIN").no_rows();
 
-  PQXX_CHECK(got_message, "Did not receive notice after moving.");
+  // Looks like the move operation broke notice delivery.
+  PQXX_CHECK(got_message);
 }
 
 

@@ -96,19 +96,14 @@ void test_esc_raw_unesc_raw(pqxx::transaction_base &t)
       "Non-ASCII character in escaped data: " + escaped);
   }
 
-  for (auto const i : escaped)
-    PQXX_CHECK(
-      isprint(i), "Unprintable character in escaped data: " + escaped);
+  for (auto const i : escaped) PQXX_CHECK(isprint(i));
 
   PQXX_CHECK_EQUAL(escaped, "\\x31022e335c34783500");
   PQXX_CHECK_EQUAL(std::size(t.unesc_bin(escaped)), std::size(data));
   auto unescaped{t.unesc_bin(escaped)};
   PQXX_CHECK_EQUAL(std::size(unescaped), std::size(data));
   for (std::size_t i{0}; i < std::size(unescaped); ++i)
-    PQXX_CHECK_EQUAL(
-      int(unescaped[i]), int(data[i]),
-      "Unescaping binary data did not restore byte #" + pqxx::to_string(i) +
-        ".");
+    PQXX_CHECK_EQUAL(int(unescaped[i]), int(data[i]));
 
   PQXX_CHECK_THROWS(std::ignore = t.unesc_bin("\\"_zv), pqxx::failure);
   PQXX_CHECK_THROWS(std::ignore = t.unesc_bin("\\xa"_zv), pqxx::failure);
@@ -203,11 +198,9 @@ void test_binary_esc_checks_buffer_length(pqxx::test::context &)
 
   buf.resize(2 * std::size(bin) + 3);
   std::ignore = tx.esc(bin, buf);
-  PQXX_CHECK_EQUAL(int{buf[0]}, int{'\\'}, "Unexpected binary escape format.");
-  PQXX_CHECK_NOT_EQUAL(
-    int(buf[std::size(buf) - 2]), int('\0'), "Escaped binary ends too soon.");
-  PQXX_CHECK_EQUAL(
-    int(buf[std::size(buf) - 1]), int('\0'), "Terminating zero is missing.");
+  PQXX_CHECK_EQUAL(int{buf[0]}, int{'\\'});
+  PQXX_CHECK_NOT_EQUAL(int(buf[std::size(buf) - 2]), int('\0'));
+  PQXX_CHECK_EQUAL(int(buf[std::size(buf) - 1]), int('\0'));
 
   buf.resize(2 * std::size(bin) + 2);
   PQXX_CHECK_THROWS(std::ignore = tx.esc(bin, buf), pqxx::range_error);

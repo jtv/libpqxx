@@ -59,10 +59,7 @@ void test_013(pqxx::test::context &)
 
   auto const Before{
     pqxx::perform([&cx, &Table] { return count_events_13(cx, Table); })};
-  PQXX_CHECK_EQUAL(
-    Before.second, 0,
-    "Already have event for " + pqxx::to_string(boring_year_13) +
-      "--can't test.");
+  PQXX_CHECK_EQUAL(Before.second, 0);
 
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   pqxx::quiet_errorhandler const d(cx);
@@ -74,12 +71,10 @@ void test_013(pqxx::test::context &)
   auto const After{
     pqxx::perform([&cx, &Table] { return count_events_13(cx, Table); })};
 
-  PQXX_CHECK_EQUAL(
-    After.first, Before.first, "abort() didn't reset event count.");
+  // The abort reset the events count.
+  PQXX_CHECK_EQUAL(After.first, Before.first);
 
-  PQXX_CHECK_EQUAL(
-    After.second, Before.second,
-    "abort() didn't reset event count for " + pqxx::to_string(boring_year_13));
+  PQXX_CHECK_EQUAL(After.second, Before.second);
 }
 
 

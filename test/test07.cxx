@@ -37,12 +37,9 @@ void test_007(pqxx::test::context &)
 
     // See if we get reasonable type identifier for this column.
     pqxx::oid const rctype{R.column_type(0)};
-    PQXX_CHECK_EQUAL(
-      R.column_type(pqxx::row::size_type(0)), rctype,
-      "Inconsistent result::column_type().");
+    PQXX_CHECK_EQUAL(R.column_type(pqxx::row::size_type(0)), rctype);
 
-    std::string const rct{pqxx::to_string(rctype)};
-    PQXX_CHECK(rctype > 0, "Got strange type ID for column: " + rct);
+    PQXX_CHECK_GREATER(rctype, 0u);
 
     std::string const rcol{R.column_name(0)};
     PQXX_CHECK(not std::empty(rcol));
@@ -62,7 +59,7 @@ void test_007(pqxx::test::context &)
 
       PQXX_CHECK_EQUAL(tctype, r.column_type(pqxx::row::size_type(0)));
 
-      PQXX_CHECK_EQUAL(tctype, rctype, );
+      PQXX_CHECK_EQUAL(tctype, rctype);
 
       pqxx::oid const ctctype{r.column_type(rcol)};
 

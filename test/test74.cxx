@@ -20,7 +20,7 @@ void test_074(pqxx::test::context &)
   pqxx::field const f1{R.front()[1]};
   pqxx::fieldstream fs1{f1};
   fs1 >> sval2;
-  PQXX_CHECK_EQUAL(sval2, sval, "fieldstream returned wrong value.");
+  PQXX_CHECK_EQUAL(sval2, sval);
 
   R = tx.exec("SELECT count(*) FROM pg_tables");
   int ival{};

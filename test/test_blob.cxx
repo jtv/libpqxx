@@ -273,12 +273,10 @@ void test_blob_write_appends_at_insertion_point(pqxx::test::context &)
 
   pqxx::bytes buf;
   b.read(buf, 5);
-  PQXX_CHECK_EQUAL(buf, (pqxx::bytes{}), "Found data at the end.");
+  PQXX_CHECK_EQUAL(buf, (pqxx::bytes{}));
   b.seek_abs(0);
   b.read(buf, 5);
-  PQXX_CHECK_EQUAL(
-    buf, (pqxx::bytes{std::byte{'z'}, std::byte{'a'}}),
-    "Consecutive writes did not append correctly.");
+  PQXX_CHECK_EQUAL(buf, (pqxx::bytes{std::byte{'z'}, std::byte{'a'}}));
 
   b.write(pqxx::bytes{std::byte{'x'}});
   // Blob now contains "zax".  That's not we wanted...  Rewind and rewrite.
@@ -287,8 +285,7 @@ void test_blob_write_appends_at_insertion_point(pqxx::test::context &)
   b.seek_abs(0);
   b.read(buf, 5);
   PQXX_CHECK_EQUAL(
-    buf, (pqxx::bytes{std::byte{'z'}, std::byte{'y'}, std::byte{'x'}}),
-    "Rewriting in the middle did not work right.");
+    buf, (pqxx::bytes{std::byte{'z'}, std::byte{'y'}, std::byte{'x'}}));
 }
 
 
@@ -340,8 +337,7 @@ void test_blob_resize_extends_to_desired_length(pqxx::test::context &)
   pqxx::bytes buf;
   pqxx::blob::to_buf(tx, id, buf, 10);
   PQXX_CHECK_EQUAL(
-    buf, (pqxx::bytes{std::byte{100}, std::byte{0}, std::byte{0}}),
-    "Resize did not zero-extend correctly.");
+    buf, (pqxx::bytes{std::byte{100}, std::byte{0}, std::byte{0}}));
 }
 
 
@@ -472,7 +468,7 @@ void read_file(char const path[], std::size_t len, pqxx::bytes &buf)
 {
   buf.resize(len);
   auto const f{my_fopen(path, "rb")};
-  PQXX_CHECK(f.get() != nullptr, std::format("Did not open file '{}'!", path));
+  PQXX_CHECK(f.get() != nullptr);
   auto const bytes{
     std::fread(reinterpret_cast<char *>(buf.data()), 1, len, f.get())};
   if (bytes == 0)

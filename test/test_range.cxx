@@ -195,10 +195,9 @@ void test_range_subset(pqxx::test::context &)
     {"[1,)", "(10,)"},   {"[1,)", "[10,)"},   {"[0,5]", "[1,4]"},
     {"(0,5)", "[1,4]"},
   };
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
   for (auto const &[super, sub] : subsets)
-    PQXX_CHECK(
-      traits::from_string(super).contains(traits::from_string(sub)),
-      std::format("Range '{}' did not contain ''.", super, sub));
+    PQXX_CHECK(traits::from_string(super).contains(traits::from_string(sub)));
 
   constexpr std::string_view non_subsets[][2]{
     {"empty", "[0,0]"},   {"empty", "(,)"},     {"[-10,10]", "(,)"},
@@ -206,10 +205,10 @@ void test_range_subset(pqxx::test::context &)
     {"[1,4]", "[0,4]"},   {"[1,4]", "[1,5]"},   {"(0,10)", "[0,10]"},
     {"(0,10)", "(0,10]"}, {"(0,10)", "[0,10)"},
   };
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
   for (auto const &[super, sub] : non_subsets)
     PQXX_CHECK(
-      not traits::from_string(super).contains(traits::from_string(sub)),
-      std::format("Range '{}' contained '{}'.", super, sub));
+      not traits::from_string(super).contains(traits::from_string(sub)));
 }
 
 
@@ -244,17 +243,12 @@ void test_parse_range(pqxx::test::context &)
   using traits = pqxx::string_traits<range>;
 
   constexpr std::string_view empties[]{"empty", "EMPTY", "eMpTy"};
-  for (auto empty : empties)
-    PQXX_CHECK(
-      traits::from_string(empty).empty(),
-      std::format("This was supposed to produce an empty range: '{}'", empty));
+  for (auto const empty : empties)
+    PQXX_CHECK(traits::from_string(empty).empty());
 
   constexpr std::string_view universals[]{"(,)", "[,)", "(,]", "[,]"};
-  for (auto univ : universals)
-    PQXX_CHECK_EQUAL(
-      traits::from_string(univ), (range{ubound{}, ubound{}}),
-      std::format(
-        "This was supposed to produce a universal range: '{}'", univ));
+  for (auto const univ : universals)
+    PQXX_CHECK_EQUAL(traits::from_string(univ), (range{ubound{}, ubound{}}));
 
   PQXX_CHECK(traits::from_string("(0,10]").lower_bound().is_exclusive());
   PQXX_CHECK(traits::from_string("[0,10]").lower_bound().is_inclusive());
@@ -287,9 +281,7 @@ void test_parse_bad_range(pqxx::test::context &)
   };
 
   for (auto bad : bad_ranges)
-    PQXX_CHECK_THROWS(
-      std::ignore = traits::from_string(bad), conv_err,
-      std::format("This range wasn't supposed to parse: '{}'", bad));
+    PQXX_CHECK_THROWS(std::ignore = traits::from_string(bad), conv_err);
 }
 
 
@@ -335,15 +327,8 @@ void test_range_intersection(pqxx::test::context &)
   };
   for (auto const &[left, right, expected] : intersections)
   {
-    PQXX_CHECK_EQUAL(
-      intersect<int>(left, right), expected,
-      std::format(
-        "Intersection of '{}' and '{}' produced unexpected result.", left,
-        right));
-    PQXX_CHECK_EQUAL(
-      intersect<int>(right, left), expected,
-      std::format(
-        "Intersection of '{}' and '{}' was asymmetric.", left, right));
+    PQXX_CHECK_EQUAL(intersect<int>(left, right), expected);
+    PQXX_CHECK_EQUAL(intersect<int>(right, left), expected);
   }
 }
 

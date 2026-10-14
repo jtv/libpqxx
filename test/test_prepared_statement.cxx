@@ -5,9 +5,7 @@
 // Test program for libpqxx.  Define and use prepared statements.
 
 #define COMPARE_RESULTS(name, lhs, rhs)                                       \
-  PQXX_CHECK_EQUAL(                                                           \
-    pqxx::to_string(rhs), pqxx::to_string(lhs),                               \
-    "Executing " name " as prepared statement yields different results.");
+  PQXX_CHECK_EQUAL(pqxx::to_string(rhs), pqxx::to_string(lhs));
 
 namespace
 {
@@ -314,7 +312,7 @@ void test_placeholders_generates_names(pqxx::test::context &)
   PQXX_CHECK_EQUAL(name.view(), "$11"_zv);
 
   while (name.count() < 999) name.next();
-  PQXX_CHECK_EQUAL(name.view(), "$999"_zv, "Incorrect placeholders 999.");
+  PQXX_CHECK_EQUAL(name.view(), "$999"_zv);
   name.next();
   PQXX_CHECK_EQUAL(name.view(), "$1000"_zv);
 }

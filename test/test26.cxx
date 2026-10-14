@@ -16,7 +16,7 @@ int to_4_digits(int y)
 {
   int Result{y};
 
-  PQXX_CHECK(y >= 0, "Negative year: " + pqxx::to_string(y));
+  PQXX_CHECK_GREATER_EQUAL(y, 0);
 
   if (y < 70)
     Result += 2000;
@@ -76,7 +76,7 @@ void test_026(pqxx::test::context &)
   // in the code above.  This is where the work gets done.
   auto const conversions{pqxx::perform([&cx] { return update_years(cx); })};
 
-  PQXX_CHECK(not std::empty(conversions), "No conversions done!");
+  PQXX_CHECK(not std::empty(conversions));
 }
 
 

@@ -33,9 +33,9 @@ void test_table_column(pqxx::test::context &)
   pqxx::row::size_type const xx{X[0].table_column(static_cast<int>(0))},
     yx{X[0].table_column(pqxx::row::size_type(1))}, zx{X[0].table_column("z")};
 
-  PQXX_CHECK_EQUAL(xx, 0, "Bad result from table_column(int).");
-  PQXX_CHECK_EQUAL(yx, 1, "Bad result from table_column(size_type).");
-  PQXX_CHECK_EQUAL(zx, 2, "Bad result from table_column(string).");
+  PQXX_CHECK_EQUAL(xx, 0);
+  PQXX_CHECK_EQUAL(yx, 1);
+  PQXX_CHECK_EQUAL(zx, 2);
 
   for (pqxx::row::size_type i{0}; i < std::size(R[0]); ++i)
     PQXX_CHECK_EQUAL(R[0][i].table_column(), R.table_column(i));

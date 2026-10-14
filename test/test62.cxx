@@ -31,26 +31,7 @@ void test_062(pqxx::test::context &)
   pqxx::result const R{tx.exec("SELECT * from pqxxbin")};
   tx.exec("DELETE FROM pqxxbin").no_rows();
 
-  auto const B{R.at(0).at(0).as<pqxx::bytes>()};
-
-  PQXX_CHECK(not std::empty(B));
-
-  PQXX_CHECK_EQUAL(std::size(B), std::size(test_data));
-
-  pqxx::bytes::const_iterator c;
-  pqxx::bytes::size_type i{};
-  for (i = 0, c = std::begin(B); i < std::size(B); ++i, ++c)
-  {
-    PQXX_CHECK(c != std::end(B));
-
-    char const x{test_str.at(i)}, y{char(B.at(i))}, z{char(std::data(B)[i])};
-
-    PQXX_CHECK_EQUAL(std::string(&x, 1), std::string(&y, 1));
-
-    PQXX_CHECK_EQUAL(
-      std::string(&y, 1), std::string(&z, 1),
-      "Inconsistent byte at offset " + pqxx::to_string(i) + ".");
-  }
+  pqxx::test::check_equal_bin(R.at(0).at(0).as<pqxx::bytes>(), test_data);
 }
 
 

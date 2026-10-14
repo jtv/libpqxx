@@ -33,11 +33,10 @@ void test_011(pqxx::test::context &)
     pqxx::result::const_iterator const T1(r.begin() + 0), T2(r.begin() + 1);
     PQXX_CHECK_NOT_EQUAL(T1, T2, "Values are identical--can't test swap().");
     pqxx::result::const_iterator T1s(T1), T2s(T2);
-    PQXX_CHECK_EQUAL(T1s, T1, "Result iterator copy-construction is wrong.");
-    PQXX_CHECK_EQUAL(
-      T2s, T2, "Result iterator copy-construction is inconsistently wrong.");
+    PQXX_CHECK_EQUAL(T1s, T1);
+    PQXX_CHECK_EQUAL(T2s, T2);
     T1s.swap(T2s);
-    PQXX_CHECK_NOT_EQUAL(T1s, T1, "Result iterator swap doesn't work.");
+    PQXX_CHECK_NOT_EQUAL(T1s, T1);
     PQXX_CHECK_NOT_EQUAL(T2s, T2);
     PQXX_CHECK_EQUAL(T2s, T1);
     PQXX_CHECK_EQUAL(T1s, T2);
