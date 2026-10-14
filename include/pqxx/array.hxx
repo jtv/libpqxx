@@ -188,8 +188,7 @@ public:
   PQXX_PURE ELEMENT const &operator[](INDEX... index) const
   {
     static_assert(sizeof...(index) == DIMENSIONS);
-    // TODO: Use operator[].  But Facebook's "infer" sees a buffer overflow.
-    return m_elts.at(locate(index...));
+    return m_elts[locate(index...)];
   }
 
   /**
