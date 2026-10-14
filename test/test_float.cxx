@@ -108,6 +108,36 @@ void test_bad_float(pqxx::test::context &)
 }
 
 
+template<typename T> void check_float_trailing_data()
+{
+  using namespace std::literals;
+
+  // Some fallback implementations accept hex numbers, so include trailing
+  // junk rather than assuming that "0x10" itself is invalid.
+  for (auto const text :
+       {"1.5x"sv, "1.5 2"sv, "1.5 "sv, "1.5\t"sv, "0x10x"sv, "1.5\0x"sv})
+  {
+    PQXX_CHECK_THROWS(
+      std::ignore = pqxx::from_string<T>(text), pqxx::conversion_error);
+
+    // A failed conversion must not poison the reusable fallback stream.
+    PQXX_CHECK_BOUNDS(pqxx::from_string<T>("2.5"), T{1.5}, T{3.5});
+  }
+
+  PQXX_CHECK_BOUNDS(pqxx::from_string<T>("-1.25e2"), T{-126}, T{-124});
+}
+
+
+void test_float_trailing_data(pqxx::test::context &)
+{
+  check_float_trailing_data<float>();
+  check_float_trailing_data<double>();
+#if !defined(PQXX_VALGRIND)
+  check_float_trailing_data<long double>();
+#endif
+}
+
+
 template<typename T> void test_float_length(T value)
 {
   auto const text{pqxx::to_string(value)};
@@ -172,5 +202,6 @@ void test_long_float(pqxx::test::context &)
 PQXX_REGISTER_TEST(test_infinities);
 PQXX_REGISTER_TEST(test_bug_262);
 PQXX_REGISTER_TEST(test_bad_float);
+PQXX_REGISTER_TEST(test_float_trailing_data);
 PQXX_REGISTER_TEST(test_long_float);
 } // namespace
