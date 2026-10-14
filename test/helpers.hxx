@@ -623,10 +623,10 @@ inline void check_bounds(
 #if defined(_MSVC_TRADITIONAL) && _MSVC_TRADITIONAL
 #  define PQXX_CHECK_STR_CONTAINS(haystack, needle, ...)                      \
     pqxx::test::check_str_contains(                                           \
-      (haystack), #haystack, (needle), #needle, __VA_OPT__(, ) __VA_ARGS__)
+      (haystack), #haystack, (needle), #needle, ##__VA_ARGS__)
 #  define PQXX_CHECK_NOT_STR_CONTAINS(haystack, needle, ...)                  \
     pqxx::test::check_not_str_contains(                                       \
-      (haystack), #haystack, (needle), #needle, __VA_OPT__(, ) __VA_ARGS__)
+      (haystack), #haystack, (needle), #needle, ##__VA_ARGS__)
 #else
 #  define PQXX_CHECK_STR_CONTAINS(haystack, needle, ...)                      \
     pqxx::test::check_str_contains(                                           \
