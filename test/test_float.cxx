@@ -112,8 +112,10 @@ template<typename T> void check_float_trailing_data()
 {
   using namespace std::literals;
 
+  // Some fallback implementations accept hex numbers, so include trailing
+  // junk rather than assuming that "0x10" itself is invalid.
   for (auto const text :
-       {"1.5x"sv, "1.5 2"sv, "1.5 "sv, "1.5\t"sv, "0x10"sv, "1.5\0x"sv})
+       {"1.5x"sv, "1.5 2"sv, "1.5 "sv, "1.5\t"sv, "0x10x"sv, "1.5\0x"sv})
   {
     PQXX_CHECK_THROWS(
       std::ignore = pqxx::from_string<T>(text), pqxx::conversion_error);
