@@ -337,7 +337,7 @@ void test_connection_params_override_string(pqxx::test::context &tctx)
 
   check_connection_works(cx, tctx);
 
-  std::string_view const connstr{cx.connection_string()};
+  std::string const connstr{cx.connection_string()};
   PQXX_CHECK_NOT_STR_CONTAINS(connstr, first);
   PQXX_CHECK_STR_CONTAINS(connstr, second);
 }
@@ -350,7 +350,7 @@ void test_connection_takes_string_and_empty_params(pqxx::test::context &tctx)
 
   check_connection_works(cx, tctx);
 
-  PQXX_CHECK_STR_CONTAINS(std::string_view{cx.connection_string()}, appname);
+  PQXX_CHECK_STR_CONTAINS(std::string{cx.connection_string()}, appname);
 }
 
 
@@ -363,7 +363,7 @@ void test_connection_takes_empty_string_and_params(pqxx::test::context &tctx)
 
   check_connection_works(cx, tctx);
 
-  PQXX_CHECK_STR_CONTAINS(std::string_view{cx.connection_string()}, appname);
+  PQXX_CHECK_STR_CONTAINS(std::string{cx.connection_string()}, appname);
 }
 
 
