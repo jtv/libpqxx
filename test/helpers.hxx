@@ -619,6 +619,49 @@ inline void check_bounds(
     loc);
 }
 
+// Verify whether the string NEEDLE occurs in the stsring HAYSTACK.
+#if defined(_MSVC_TRADITIONAL) && _MSVC_TRADITIONAL
+#  define PQXX_CHECK_STR_CONTAINS(haystack, needle, ...)                      \
+    pqxx::test::check_str_contains(                                           \
+      (haystack), #haystack, (needle), #needle, __VA_OPT__(, ) __VA_ARGS__)
+#  define PQXX_CHECK_NOT_STR_CONTAINS(haystack, needle, ...)                  \
+    pqxx::test::check_not_str_contains(                                       \
+      (haystack), #haystack, (needle), #needle, __VA_OPT__(, ) __VA_ARGS__)
+#else
+#  define PQXX_CHECK_STR_CONTAINS(haystack, needle, ...)                      \
+    pqxx::test::check_str_contains(                                           \
+      (haystack), #haystack, (needle), #needle __VA_OPT__(, ) __VA_ARGS__)
+#  define PQXX_CHECK_NOT_STR_CONTAINS(haystack, needle, ...)                  \
+    pqxx::test::check_not_str_contains(                                       \
+      (haystack), #haystack, (needle), #needle __VA_OPT__(, ) __VA_ARGS__)
+#endif
+template<typename NEEDLE, typename HAYSTACK>
+inline void check_str_contains(
+  HAYSTACK const &haystack, char const haystack_text[], NEEDLE const &needle,
+  char const needle_text[], sl loc = sl::current())
+{
+  if (not str_contains(haystack, needle))
+    throw test_failure{
+      std::format(
+        "String {} did not occur in {}.\nLooking for \"{}\"\nIn \"{}\"",
+        needle_text, haystack_text, needle, haystack),
+      loc};
+}
+
+
+template<typename NEEDLE, typename HAYSTACK>
+inline void check_not_str_contains(
+  NEEDLE const &haystack, char const haystack_text[], HAYSTACK const &needle,
+  char const needle_text[], sl loc = sl::current())
+{
+  if (str_contains(haystack, needle))
+    throw test_failure{
+      std::format(
+        "String {} unexpectedly occurs in {}.\nChecking for \"{}\"\nIn \"{}\"",
+        needle_text, haystack_text, needle, haystack),
+      loc};
+}
+
 
 // Report expected exception
 void expected_exception(std::string const &);

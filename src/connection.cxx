@@ -1375,7 +1375,8 @@ char const *get_default(PQconninfoOption const &opt) noexcept
     return opt.compiled;
   }
   // As of C++11, std::getenv() uses thread-local storage, so it should be
-  // thread-safe.  MSVC still warns about it though.
+  // thread-safe so long as nobody modifies the environment.  MSVC still warns
+  // about it though.
 #if defined(_MSC_VER)
 #  pragma warning(push)
 #  pragma warning(disable : 4996)

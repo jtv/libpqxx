@@ -77,8 +77,12 @@ void test_connection_string(pqxx::test::context &)
 {
   pqxx::connection const c;
   std::string const connstr{c.connection_string()};
+  std::string const user_str{std::format("user={}", c.username())};
 
 #if defined(_MSC_VER)
+  // Visual Studio 2019 warns about getenv() and thread safety, unaware that
+  // this function is guaranteed to be thread-safe as of C++11, so long as
+  // no thread modifies the environment variables.
 #  pragma warning(push)
 #  pragma warning(disable : 4996)
 #endif
@@ -88,14 +92,12 @@ void test_connection_string(pqxx::test::context &)
 #endif
   {
     // The connection string specifies the username.
-    // TODO: Write "string contains" test helper, so it'll print the string.
-    PQXX_CHECK(
-      pqxx::str_contains(connstr, "user=" + std::string{c.username()}));
+    PQXX_CHECK_STR_CONTAINS(connstr, user_str);
   }
   else
   {
-    PQXX_CHECK(
-      not pqxx::str_contains(connstr, "user=" + std::string{c.username()}));
+    // The connection string does not specify the username.
+    PQXX_CHECK_NOT_STR_CONTAINS(connstr, user_str);
   }
 }
 
@@ -125,13 +127,12 @@ template<typename MAP> void test_params_type()
 
   // Check that the parameters came through in the connection string.
   // We don't know the exact format, but the parameters have to be in there.
-  auto const connstr{c.connection_string()};
+  std::string const connstr{c.connection_string()};
 
   for (auto const &[key, value] : params)
   {
-    // TODO: Write "string contains" test helpers, with more helpful failures.
-    PQXX_CHECK(pqxx::str_contains(connstr, key));
-    PQXX_CHECK(pqxx::str_contains(connstr, value));
+    PQXX_CHECK_STR_CONTAINS(connstr, std::string_view{key});
+    PQXX_CHECK_STR_CONTAINS(connstr, std::string_view{value});
   }
 }
 
@@ -320,11 +321,10 @@ void test_connection_takes_string_and_params(pqxx::test::context &tctx)
 
   // The connection combines settings from both the connection string and the
   // parameters map.
-  auto const connstr{cx.connection_string()};
-  PQXX_CHECK(pqxx::str_contains(connstr, "application_name"));
-  PQXX_CHECK(pqxx::str_contains(connstr, appname));
-  PQXX_CHECK(
-    pqxx::str_contains(connstr, std::format("connect_timeout={}", timeout)));
+  std::string const connstr{cx.connection_string()};
+  PQXX_CHECK_STR_CONTAINS(connstr, "application_name");
+  PQXX_CHECK_STR_CONTAINS(connstr, appname);
+  PQXX_CHECK_STR_CONTAINS(connstr, std::format("connect_timeout={}", timeout));
 }
 
 
@@ -337,9 +337,9 @@ void test_connection_params_override_string(pqxx::test::context &tctx)
 
   check_connection_works(cx, tctx);
 
-  auto const connstr{cx.connection_string()};
-  PQXX_CHECK(not pqxx::str_contains(connstr, first));
-  PQXX_CHECK(pqxx::str_contains(connstr, second));
+  std::string_view const connstr{cx.connection_string()};
+  PQXX_CHECK_NOT_STR_CONTAINS(connstr, first);
+  PQXX_CHECK_STR_CONTAINS(connstr, second);
 }
 
 
@@ -350,7 +350,7 @@ void test_connection_takes_string_and_empty_params(pqxx::test::context &tctx)
 
   check_connection_works(cx, tctx);
 
-  PQXX_CHECK(pqxx::str_contains(cx.connection_string(), appname));
+  PQXX_CHECK_STR_CONTAINS(std::string_view{cx.connection_string()}, appname);
 }
 
 
@@ -363,7 +363,7 @@ void test_connection_takes_empty_string_and_params(pqxx::test::context &tctx)
 
   check_connection_works(cx, tctx);
 
-  PQXX_CHECK(pqxx::str_contains(cx.connection_string(), appname));
+  PQXX_CHECK_STR_CONTAINS(std::string_view{cx.connection_string()}, appname);
 }
 
 
@@ -395,9 +395,9 @@ void test_connection_duplicate_params_overwrite(pqxx::test::context &tctx)
   };
 
   pqxx::connection const cx{"", args};
-  auto const connstr{cx.connection_string()};
-  PQXX_CHECK(not pqxx::str_contains(connstr, name1));
-  PQXX_CHECK(pqxx::str_contains(connstr, name2));
+  std::string const connstr{cx.connection_string()};
+  PQXX_CHECK_NOT_STR_CONTAINS(connstr, name1);
+  PQXX_CHECK_STR_CONTAINS(connstr, name2);
 }
 
 
