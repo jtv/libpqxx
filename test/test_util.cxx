@@ -252,9 +252,9 @@ void test_source_loc_renders_real_source_location(pqxx::test::context &)
                 "{}:{}:{}: ({})", loc.file_name(), loc.line(), loc.column(),
                 loc.function_name())));
 
-  PQXX_CHECK(pqxx::str_contains(
-    loc_text, "test_source_loc_renders_real_source_location"));
-  PQXX_CHECK(pqxx::str_contains(loc_text, __FILE__));
+  PQXX_CHECK_STR_CONTAINS(
+    loc_text, "test_source_loc_renders_real_source_location");
+  PQXX_CHECK_STR_CONTAINS(loc_text, __FILE__);
 }
 
 

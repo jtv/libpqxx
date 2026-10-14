@@ -22,8 +22,13 @@ class result;
 
 namespace pqxx::internal
 {
+/// Dedicated type for `end()` comparison on `result_iter`.
+struct result_iter_end final
+{
+};
+
+
 // TODO: Replace with generator?
-// TODO: Separate type for `end()` iterator.
 /// Iterator for looped unpacking of a result.
 /** A default-constructed `result_iter` denotes the `end()` of any iteration.
  */
@@ -62,14 +67,15 @@ public:
     return *this;
   }
 
-  /// Comparison only works for comparing to end().
-  bool operator==(result_iter const &rhs) const noexcept
+  /// Comparison only works for comparing to @ref end().
+  bool operator==(result_iter_end const &) const noexcept
   {
-    return m_home == rhs.m_home;
+    return m_home == nullptr;
   }
-  bool operator!=(result_iter const &rhs) const noexcept
+  /// Comparison only works for comparing to @ref end().
+  bool operator!=(result_iter_end const &) const noexcept
   {
-    return not(*this == rhs);
+    return m_home != nullptr;
   }
 
   value_type const &operator*() const noexcept { return m_value; }
@@ -98,15 +104,14 @@ public:
   [[nodiscard]] iterator begin() const
   {
     if (std::empty(m_home))
-      return end();
+      return iterator{};
     else
       return iterator{m_home};
   }
-  [[nodiscard]] iterator end() const { return {}; }
+  [[nodiscard]] result_iter_end end() const { return {}; }
 
 private:
-  // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
-  pqxx::result const m_home;
+  pqxx::result m_home;
 };
 } // namespace pqxx::internal
 

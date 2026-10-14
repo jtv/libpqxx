@@ -32,8 +32,6 @@
 
 namespace pqxx
 {
-// TODO: Specialise for string_view/zview, allocate all strings in one buffer.
-
 /// An SQL array received from the database.
 /** Parses an SQL array from its text format, making it available as a
  * container of C++-side values.
@@ -57,6 +55,12 @@ namespace pqxx
  * ways of parsing an array will expect the SQL array to use the standard
  * separator for its content type (usually either a comma or a semicolon).  But
  * `pqxx::array` lets you configure a different separator.
+ *
+ * @warning This class will not let you use `std::string_view` or
+ * @ref pqxx::zview as the element type.  It would be technically possible, but
+ * dangerous.  The views would refer to wherever the text of the SQL
+ * representation is stored, and it would be easy to move or destroy that
+ * storage by accident.
  */
 template<
   not_borrowed ELEMENT, std::size_t DIMENSIONS = 1u,
@@ -188,7 +192,7 @@ public:
   PQXX_PURE ELEMENT const &operator[](INDEX... index) const
   {
     static_assert(sizeof...(index) == DIMENSIONS);
-    // TODO: Use operator[].  But Facebook's "infer" sees a buffer overflow.
+    // TODO: Use operator[].  Facebook's "infer" sees a bogus buffer overflow.
     return m_elts.at(locate(index...));
   }
 
@@ -627,6 +631,10 @@ private:
   }
 
   /// Linear storage for the array's elements.
+  /** In multi-dimensional arrays, this vector is the "flattened" order, mapped
+   * onto a single dimension.  The @ref locate() function maps indexes in the
+   * array to indexes into this linear vector.
+   */
   std::vector<ELEMENT> m_elts;
 
   /// Size along each dimension.
