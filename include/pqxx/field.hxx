@@ -205,6 +205,12 @@ public:
     }
   }
 
+  // NOLINTBEGIN(modernize-use-nodiscard)
+  /// Check that a field is null.
+  /** As an alternative way to check that a field is null, you can "convert" it
+   * to a type that is always null, such as `std::nullptr_t`.  If the field is
+   * not null, this will throw @ref conversion_error.
+   */
   template<always_null_type T> T as(sl loc = sl::current()) const
   {
     if (not is_null())
@@ -213,6 +219,7 @@ public:
         loc};
     return nullness<T>::null();
   }
+  // NOLINTEND(modernize-use-nodiscard)
 
   /// Read value into `obj`; or if null, leave `obj` untouched.
   /** This can be handy to read a field's value but also check for nullness
