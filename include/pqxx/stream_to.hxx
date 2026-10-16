@@ -354,43 +354,6 @@ private:
         // Shrink to fit.  Keep the tab though.
         m_buffer.resize(end + 1);
       }
-      else if constexpr (
-        std::is_same_v<Field, std::string> or
-        std::is_same_v<Field, std::string_view> or
-        std::is_same_v<Field, zview>)
-      {
-        // This string may need escaping.
-        m_field_buf.resize(budget);
-        escape_field_to_buffer(f, c.loc);
-      }
-      else if constexpr (
-        std::is_same_v<Field, std::optional<std::string>> or
-        std::is_same_v<Field, std::optional<std::string_view>> or
-        std::is_same_v<Field, std::optional<zview>>)
-      {
-        // Optional string.  It's not null (we checked for that above), so...
-        // Treat like a string.
-        m_field_buf.resize(budget);
-        // No need to check whether f has a value; if it didn't, the is_null(f)
-        // check at the top would have evaluated as true.
-        // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
-        escape_field_to_buffer(f.value(), c.loc);
-      }
-      // TODO: Support deleter template argument on unique_ptr.
-      else if constexpr (
-        std::is_same_v<Field, std::unique_ptr<std::string>> or
-        std::is_same_v<Field, std::unique_ptr<std::string_view>> or
-        std::is_same_v<Field, std::unique_ptr<zview>> or
-        std::is_same_v<Field, std::shared_ptr<std::string>> or
-        std::is_same_v<Field, std::shared_ptr<std::string_view>> or
-        std::is_same_v<Field, std::shared_ptr<zview>>)
-      {
-        // TODO: Generalise this.
-        // Effectively also an optional string.  It's not null (we checked
-        // for that above).
-        m_field_buf.resize(budget);
-        escape_field_to_buffer(*f, c.loc);
-      }
       else
       {
         // This field needs to be converted to a string, and after that,
@@ -408,9 +371,7 @@ private:
    * so if you write any fields at all, you'll end up with one tab too many
    * at the end of the buffer.
    */
-  template<typename Field>
-  void append_to_buffer(Field const &, ctx)
-    requires(pqxx::always_null<Field>())
+  template<always_null_type Field> void append_to_buffer(Field const &, ctx)
   {
     m_buffer.append(null_field);
   }
