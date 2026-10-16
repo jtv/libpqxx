@@ -380,7 +380,7 @@ struct options final
   /// Random seed for randomised values in tests.
   /** If seed is zero (the default), we'll use something variable.
    */
-  std::size_t seed;
+  std::size_t seed{0};
 
   /// Number of parallel test threads.
   /** On my laptop with 8 physical cores, 4 workers give me about 95% of the
@@ -388,7 +388,7 @@ struct options final
    * right now there are just a few "negative tests" holding things up by
    * waiting for a few seconds to check that something doesn't happen.
    */
-  unsigned jobs;
+  unsigned jobs{0};
 };
 
 
