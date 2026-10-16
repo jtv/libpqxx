@@ -52,7 +52,8 @@ void test_field(pqxx::test::context &)
   std::nullptr_t const nullv{rnull.at(0).as<std::nullptr_t>()};
   PQXX_CHECK(nullv == nullptr);
   pqxx::row const rnonnull{tx.exec("SELECT 1").one_row()};
-  PQXX_CHECK_THROWS(std::ignore = rnonnull.as<std::nullptr_t>(), pqxx::conversion_error);
+  PQXX_CHECK_THROWS(
+    std::ignore = rnonnull.as<std::nullptr_t>(), pqxx::conversion_error);
 
   // (Work around totally bogus MSVC warning: it thinks the comma in the C++23
   // two-parameter indexing expression is a sequence operator.  But only for
