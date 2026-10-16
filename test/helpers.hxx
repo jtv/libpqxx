@@ -210,7 +210,7 @@ struct registrar final
     "Execution was never supposed to reach this point.",
   sl loc = sl::current());
 
-// TODO: Get rid of the optional descriptions.
+// C++23: Use std::stacktrace instead of descriptions.
 // Verify that a condition is met, similar to assert().
 // Takes an optional failure description as a second argument.
 #if defined(_MSVC_TRADITIONAL) && _MSVC_TRADITIONAL

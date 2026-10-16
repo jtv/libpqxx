@@ -36,8 +36,8 @@ namespace pqxx
 /** Parses an SQL array from its text format, making it available as a
  * container of C++-side values.
  *
- * In practice you may not need this class; for many uses you can just read an
- * SQL array directly into a `std::vector`.
+ * In practice you may not need this class; in simple cases you can just read
+ * an SQL array directly into a `std::vector`.
  *
  * However, `pqxx::array` directly supports multiple dimensions.  You must
  * specify the number of dimensions at compile time.  In each dimension, the
@@ -56,11 +56,11 @@ namespace pqxx
  * separator for its content type (usually either a comma or a semicolon).  But
  * `pqxx::array` lets you configure a different separator.
  *
- * @warning This class will not let you use `std::string_view` or
- * @ref pqxx::zview as the element type.  It would be technically possible, but
- * dangerous.  The views would refer to wherever the text of the SQL
- * representation is stored, and it would be easy to move or destroy that
- * storage by accident.
+ * @warning This class will not let you use a view as the element type.  It
+ * would be technically possible for some types, _but it would be dangerous._
+ * The views would have to refer to data stored somewhere else, probably just
+ * wherever the text of the SQL representation is stored.  It would be easy to
+ * move or destroy that storage by accident, invalidating the views.
  */
 template<
   not_borrowed ELEMENT, std::size_t DIMENSIONS = 1u,
@@ -753,7 +753,6 @@ struct nullness<CONT> final : no_null<CONT>
 {};
 
 
-// TODO: Can we support multiple dimensions?
 /// A container of nonbinary data can represent a 1-dimensional SQL array.
 /** This does not define a conversion _to_ an SQL string; we leave that to the
  * `specialisation for nonbinary ranges.

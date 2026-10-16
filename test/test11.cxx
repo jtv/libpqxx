@@ -31,7 +31,8 @@ void test_011(pqxx::test::context &)
 
     // Test result::iterator::swap()
     pqxx::result::const_iterator const T1(r.begin() + 0), T2(r.begin() + 1);
-    PQXX_CHECK_NOT_EQUAL(T1, T2, "Values are identical--can't test swap().");
+    // Can't test swap() if the values are identical.
+    PQXX_CHECK_NOT_EQUAL(T1, T2);
     pqxx::result::const_iterator T1s(T1), T2s(T2);
     PQXX_CHECK_EQUAL(T1s, T1);
     PQXX_CHECK_EQUAL(T2s, T2);

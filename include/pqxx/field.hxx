@@ -870,7 +870,7 @@ template<typename T> inline T from_string(field_ref const &value, ctx c = {})
 /** Yes, you read that right.  This conversion does nothing useful.  It always
  * returns `nullptr`.
  *
- * Except... what if the field is not null?  In that case, this throws
+ * Except... what if the field is not actually null?  In that case, this throws
  * @ref conversion_error.
  */
 template<>
