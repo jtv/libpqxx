@@ -1201,7 +1201,7 @@ protected:
   direct_exec(std::shared_ptr<std::string> const &, std::string_view desc, sl);
   result direct_exec(std::shared_ptr<std::string> const &query, sl loc)
   {
-    return direct_exec(std::move(query), "", loc);
+    return direct_exec(query, "", loc);
   }
 
   /// The `std::source_location` for this transaction's creation.
