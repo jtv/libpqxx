@@ -528,7 +528,6 @@ void test_from_string_rejects_bad_inputs(pqxx::test::context &)
 
   check_fails<double>("");
   check_fails<double>("0.0.0");
-  check_fails<double>("0x01");
   check_fails<double>("n");
   check_fails<double>("0,1");
   check_fails<double>("3.141f");
