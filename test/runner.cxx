@@ -392,6 +392,7 @@ struct options final
 };
 
 
+// TODO: --verbose/-v, printing each test's name before it runs.
 options parse_command_line(int argc, char const *argv[])
 {
   options opts;

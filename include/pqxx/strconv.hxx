@@ -55,7 +55,7 @@ namespace pqxx
 //@{
 
 
-// TODO: Drop `ENABLE` in 9.x.
+// 9.0: Drop `ENABLE`.
 /// Traits describing a type's "null value," if any.
 /** Some C++ types have a special value or state which correspond directly to
  * SQL's NULL.

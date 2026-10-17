@@ -134,7 +134,7 @@ check_cast(FROM value, std::string_view description, sl loc = sl::current())
 }
 
 
-// TODO: No longer useful as of PostgreSQL 17: libpq is always thread-safe.
+// libpq17: No longer useful as libpq 17+ is always thread-safe.
 /// Descriptor of library's thread-safety model.
 /** This describes what the library knows about various risks to thread-safety.
  */

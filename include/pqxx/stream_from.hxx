@@ -266,13 +266,13 @@ public:
   raw_line get_raw_line(sl);
 
 private:
-  // TODO: Clean up this signature once we cull the deprecated constructors.
+  // 9.0: Clean up this signature once we cull the deprecated constructors.
   /// @deprecated
   stream_from(
     transaction_base &tx, std::string_view table, std::string_view columns,
     from_table_t);
 
-  // TODO: Clean up this signature once we cull the deprecated constructors.
+  // 9.0: Clean up this signature once we cull the deprecated constructors.
   /// @deprecated
   stream_from(
     transaction_base &, std::string_view unquoted_table,
