@@ -607,24 +607,24 @@ pqxx::field_ref pqxx::result::one_field_ref(sl loc) const
 }
 
 
-std::optional<pqxx::row> pqxx::result::opt_row(sl loc) const
+template<typename ROW_TYPE>
+inline std::optional<ROW_TYPE> pqxx::result::optional_row(sl loc) const
 {
   auto const sz{size()};
   if (sz > 1)
   {
-    // TODO: See whether result contains a generated statement.
-    if (not m_query or m_query->empty())
-      throw unexpected_rows{
-        std::format("Expected at most 1 row from query, got {}.", sz), loc};
-    else
-      throw unexpected_rows{
+    bool const have_query{m_query and not m_query->empty()};
+    // TODO: If there's no query text, check PG_DIAG_INTERNAL_QUERY.
+    auto const msg{
+      have_query ?
         std::format(
-          "Expected at most 1 row from query '{}', got {}.", *m_query, sz),
-        loc};
+          "Expected at most 1 row from query, got {}: {}.", sz, *m_query) :
+        std::format("Expected at most 1 row from query, got {}.", sz)};
+    throw unexpected_rows{msg, loc};
   }
   else if (sz == 1)
   {
-    return row{front()};
+    return std::optional<ROW_TYPE>{front()};
   }
   else
   {
@@ -635,28 +635,11 @@ std::optional<pqxx::row> pqxx::result::opt_row(sl loc) const
 
 std::optional<pqxx::row_ref> pqxx::result::opt_row_ref(sl loc) const
 {
-  // TODO: Reduce duplication with opt_row().
-  auto const sz{size()};
-  if (sz > 1)
-  {
-    // TODO: See whether result contains a generated statement.
-    if (not m_query or m_query->empty())
-      throw unexpected_rows{
-        std::format("Expected at most 1 row from query, got {}.", sz), loc};
-    else
-      throw unexpected_rows{
-        std::format(
-          "Expected at most 1 row from query '{}', got {}.", *m_query, sz),
-        loc};
-  }
-  else if (sz == 1)
-  {
-    return {front()};
-  }
-  else
-  {
-    return {};
-  }
+  return optional_row<row_ref>(loc);
+}
+std::optional<pqxx::row> pqxx::result::opt_row(sl loc) const
+{
+  return optional_row<row>(loc);
 }
 
 

@@ -538,6 +538,12 @@ private:
     }
   }
 
+  /// Check that there's at most 1 row of data, return as `std::optional`.
+  /** Only actually instantiated for @ref row and @row_ref.
+   */
+  template<typename ROW_TYPE>
+  inline std::optional<ROW_TYPE> optional_row(sl) const;
+
   /// Underlying libpq result set.
   data_pointer m_data;
 
