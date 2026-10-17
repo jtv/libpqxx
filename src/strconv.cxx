@@ -447,45 +447,41 @@ template std::string to_string_float(long double, ctx);
 
 bool pqxx::string_traits<bool>::from_string(std::string_view text, ctx c)
 {
-  std::optional<bool> result;
-
-  // TODO: Don't really need to handle all these formats.
+  // The server represents a Boolean as 't' or 'f'.  However there's no end to
+  // possible representations: TRUE True true t 1 01 0x01 2...
+  //
+  // For simplicity and performance, we only support a fairly minimal palette
+  // of spellings.  The stanrad 't'/'f'.  A zero or a one just because it
+  // sounds like the sort of thing somebody out there might have started
+  // relying on.  And "true" / "false" because converting a Boolean to text
+  // on the server produces one of those strings.
   switch (std::size(text))
   {
-  case 0: result = false; break;
-
-  case 1:
-    switch (text[0])
-    {
+  case 1: [[likely]] switch (text[0]) {
     case 'f':
-    case 'F':
-    case '0': result = false; break;
+    case '0': return false;
 
     case 't':
-    case 'T':
-    case '1': result = true; break;
+    case '1': return true;
 
     default: break;
     }
     break;
 
   case std::size("true"sv):
-    if (text == "true" or text == "TRUE")
-      result = true;
+    if (text == "true")
+      return true;
     break;
 
   case std::size("false"sv):
-    if (text == "false" or text == "FALSE")
-      result = false;
+    if (text == "false")
+      return false;
     break;
 
   default: break;
   }
 
-  if (result)
-    return *result;
-  else
-    throw conversion_error{std::format(
-      "Failed conversion to bool ({}): '{}'.", pqxx::source_loc(c.loc),
-      std::string{text})};
+  throw conversion_error{std::format(
+    "Could not convert string to bool ({}): '{}'.", pqxx::source_loc(c.loc),
+    text)};
 }

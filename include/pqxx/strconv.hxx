@@ -55,7 +55,7 @@ namespace pqxx
 //@{
 
 
-// TODO: Drop `ENABLE` in 9.x.
+// 9.0: Drop `ENABLE`.
 /// Traits describing a type's "null value," if any.
 /** Some C++ types have a special value or state which correspond directly to
  * SQL's NULL.
@@ -76,7 +76,7 @@ template<typename TYPE, typename ENABLE = void> struct nullness final
   static constexpr bool always_null = false;
 
   /// Is @c value a null?
-  PQXX_PURE static bool is_null(TYPE const &value);
+  PQXX_PURE static bool is_null(TYPE const &value) = delete;
 
   /// Return a null value.
   /** Don't use this in generic code to compare a value and see whether it is
@@ -84,7 +84,7 @@ template<typename TYPE, typename ENABLE = void> struct nullness final
    * equal, or may define a null value which is not equal to anything including
    * itself, like in SQL.
    */
-  [[nodiscard]] PQXX_PURE static TYPE null();
+  [[nodiscard]] PQXX_PURE static TYPE null() = delete;
 };
 
 
@@ -847,6 +847,15 @@ template<typename TYPE> inline constexpr format param_format(TYPE const &)
 {
   return format::text;
 }
+
+
+/// A type that is always null, such as `nullptr_t`.
+/** There isn't much you can do with such types.  In some contexts however,
+ * you can parse an SQL value into one of these, just so that it will accept
+ * a null value and throw an exception on a non-null value.
+ */
+template<typename TYPE>
+concept always_null_type = nullness<TYPE>::always_null;
 //@}
 } // namespace pqxx
 

@@ -27,11 +27,8 @@ void test_030(pqxx::test::context &)
     PQXX_CHECK_EQUAL(R[0].column_number(N), c);
   }
 
-  // If there are rows in R, compare their metadata to R's.
-  PQXX_CHECK_GREATER(
-    std::size(R), 1,
-    std::format("{} didn't have enough data for test.", table));
-
+  // Assuming there are enough rows in R, compare their metadata to R's.
+  PQXX_CHECK_GREATER(std::size(R), 1);
   PQXX_CHECK_EQUAL(R[0].row_number(), 0);
   PQXX_CHECK_EQUAL(R[1].row_number(), 1);
 

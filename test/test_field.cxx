@@ -46,6 +46,15 @@ void test_field(pqxx::test::context &)
   auto const r3{tx.exec("SELECT generate_series(1, 5)")};
   PQXX_CHECK_EQUAL(r3.at(3, 0).as<int>(), 4);
 
+  // As a special case, we can "convert a field to nullptr_t," just to make it
+  // check that it is null.
+  pqxx::row const rnull{tx.exec("SELECT NULL").one_row()};
+  std::nullptr_t const nullv{rnull.at(0).as<std::nullptr_t>()};
+  PQXX_CHECK(nullv == nullptr);
+  pqxx::row const rnonnull{tx.exec("SELECT 1").one_row()};
+  PQXX_CHECK_THROWS(
+    std::ignore = rnonnull.as<std::nullptr_t>(), pqxx::conversion_error);
+
   // (Work around totally bogus MSVC warning: it thinks the comma in the C++23
   // two-parameter indexing expression is a sequence operator.  But only for
   // the purposes of issuing annoying warnings; it doesn't _actually_ believe

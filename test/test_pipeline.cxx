@@ -77,7 +77,7 @@ void test_pipeline(pqxx::test::context &)
   auto const finish{clock::now()};
   auto const seconds{
     std::chrono::duration_cast<std::chrono::seconds>(finish - start).count()};
-  PQXX_CHECK_LESS(seconds, 5, "Canceling a sleep took suspiciously long.");
+  PQXX_CHECK_LESS(seconds, 5);
 }
 } // namespace
 

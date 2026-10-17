@@ -24,8 +24,7 @@ namespace pqxx::internal
 {
 /// Dedicated type for `end()` comparison on `result_iter`.
 struct result_iter_end final
-{
-};
+{};
 
 
 // TODO: Replace with generator?

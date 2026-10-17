@@ -90,11 +90,18 @@ void pqxx::params::append(bytes &&value, sl) &
 
 void pqxx::params::append(params &&value, sl) &
 {
-  // TODO: If currently empty, just "steal" value's m_params wholesale.
-  // C++23: Use append_range()?
-  this->reserve(std::size(value.m_params) + std::size(this->m_params));
-  for (auto const &param : value.m_params) m_params.emplace_back(param);
-  value.m_params.clear();
+  if (std::empty(m_params))
+  {
+    // Easy shortcut.
+    *this = std::move(value);
+  }
+  else
+  {
+    // C++23: Use append_range()?
+    this->reserve(std::size(value.m_params) + std::size(this->m_params));
+    for (auto const &param : value.m_params) m_params.emplace_back(param);
+    value.m_params.clear();
+  }
 }
 
 

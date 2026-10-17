@@ -1197,13 +1197,13 @@ protected:
   {
     return direct_exec(query, "", loc);
   }
-  result direct_exec(std::shared_ptr<std::string>, std::string_view desc, sl);
-  result direct_exec(std::shared_ptr<std::string> query, sl loc)
+  result
+  direct_exec(std::shared_ptr<std::string> const &, std::string_view desc, sl);
+  result direct_exec(std::shared_ptr<std::string> const &query, sl loc)
   {
-    return direct_exec(std::move(query), "", loc);
+    return direct_exec(query, "", loc);
   }
 
-  // TODO: Can this be noexcept?
   /// The `std::source_location` for this transaction's creation.
   [[nodiscard]] sl created_loc() const { return m_created_loc; }
 

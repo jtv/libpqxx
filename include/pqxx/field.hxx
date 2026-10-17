@@ -205,6 +205,22 @@ public:
     }
   }
 
+  // NOLINTBEGIN(modernize-use-nodiscard)
+  /// Check that a field is null.
+  /** As an alternative way to check that a field is null, you can "convert" it
+   * to a type that is always null, such as `std::nullptr_t`.  If the field is
+   * not null, this will throw @ref conversion_error.
+   */
+  template<always_null_type T> T as(sl loc = sl::current()) const
+  {
+    if (not is_null())
+      throw conversion_error{
+        std::format("Extracting non-null value into {}.", name_type<T>()),
+        loc};
+    return nullness<T>::null();
+  }
+  // NOLINTEND(modernize-use-nodiscard)
+
   /// Read value into `obj`; or if null, leave `obj` untouched.
   /** This can be handy to read a field's value but also check for nullness
    * along the way.
@@ -864,14 +880,18 @@ template<typename T> inline T from_string(field_ref const &value, ctx c = {})
 }
 
 
-// TODO: Can we make this generic across all "always-null" types?
-// TODO: Do the same for streams.
-/// Convert a field's value to `nullptr_t`.
+/// "Convert" a field's value to `nullptr_t`.
 /** Yes, you read that right.  This conversion does nothing useful.  It always
- * returns `nullptr`.
+ * returns a null.
  *
- * Except... what if the field is not null?  In that case, this throws
- * @ref conversion_error.
+ * Except... what if the field is not actually null?  In that case, this throws
+ * @ref conversion_error.  Sometimes you just want to check that a value is
+ * null as you expect.
+ *
+ * It would be nice to support this for all types that are always null, and it
+ * can almost be done using `alway_null_type`... except that it requires
+ * partial function template specialisation, which the language does not as yet
+ * permit.
  */
 template<>
 inline std::nullptr_t from_string<std::nullptr_t>(field const &value, ctx c)

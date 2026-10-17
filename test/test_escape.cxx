@@ -86,15 +86,10 @@ void test_esc_raw_unesc_raw(pqxx::transaction_base &t)
   std::string const escaped{
     t.esc(pqxx::bytes_view{std::data(data), std::size(binary)})};
 
+  // All escaped characters are in a reasonable ASCII range.
   for (auto const i : escaped)
-  {
-    PQXX_CHECK_GREATER(
-      static_cast<unsigned>(static_cast<unsigned char>(i)), 7u,
-      "Non-ASCII character in escaped data: " + escaped);
-    PQXX_CHECK_LESS(
-      static_cast<unsigned>(static_cast<unsigned char>(i)), 127u,
-      "Non-ASCII character in escaped data: " + escaped);
-  }
+    PQXX_CHECK_BOUNDS(
+      static_cast<unsigned>(static_cast<unsigned char>(i)), 8u, 128u);
 
   for (auto const i : escaped) PQXX_CHECK(isprint(i));
 

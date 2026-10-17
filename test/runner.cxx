@@ -226,7 +226,6 @@ std::string describe_failure(std::string_view test, EXCEPTION const &err)
   }
 
 #if defined(PQXX_HAVE_STACKTRACE)
-  // TODO: Control this with command-line option, to avoid huge outputs.
   if constexpr (requires { err.trace(); })
     if (err.trace())
       summary = std::format("{}\nTraceback:\n{}", summary, *err.trace());
@@ -378,21 +377,22 @@ struct options final
   /// Test functions to run.  If empty, run all.
   std::vector<std::string_view> tests;
 
+  /// Random seed for randomised values in tests.
+  /** If seed is zero (the default), we'll use something variable.
+   */
+  std::size_t seed{0};
+
   /// Number of parallel test threads.
   /** On my laptop with 8 physical cores, 4 workers give me about 95% of the
    * performance I get from 300 workers.  That can change radically though:
    * right now there are just a few "negative tests" holding things up by
    * waiting for a few seconds to check that something doesn't happen.
    */
-  std::ptrdiff_t jobs{4};
-
-  /// Random seed for randomised values in tests.
-  /** If seed is zero (the default), we'll use something variable.
-   */
-  std::size_t seed{0};
+  unsigned jobs{0};
 };
 
 
+// TODO: --verbose/-v, printing each test's name before it runs.
 options parse_command_line(int argc, char const *argv[])
 {
   options opts;
@@ -401,7 +401,9 @@ options parse_command_line(int argc, char const *argv[])
   // preceding "--jobs" option, or "--seed" option, respectively?
   bool want_jobs{false}, want_seed{false};
 
-  // TODO: Store jobs & seed as strings, parse afterwards, once.
+  // Arguments we have received for these options (or defaults).
+  std::string_view jobs{"4"}, seed{"0"};
+
   // Parse command line.
   for (int arg{1}; arg < argc; ++arg)
   {
@@ -417,12 +419,12 @@ options parse_command_line(int argc, char const *argv[])
     else if (want_jobs)
     {
       // Expecting an argument to the "jobs" option.
-      opts.jobs = pqxx::from_string<std::ptrdiff_t>(elt);
+      jobs = elt;
       want_jobs = false;
     }
     else if (want_seed)
     {
-      opts.seed = pqxx::from_string<std::size_t>(elt);
+      seed = elt;
       want_seed = false;
     }
     else if ((elt == "-j") or (elt == "--jobs"))
@@ -433,12 +435,12 @@ options parse_command_line(int argc, char const *argv[])
     else if (elt.starts_with("-j"))
     {
       // Short-form "jobs" option, with a number attached.
-      opts.jobs = pqxx::from_string<std::ptrdiff_t>(elt.substr(2));
+      jobs = elt.substr(2);
     }
     else if (elt.starts_with("--jobs="))
     {
       // Long-form "jobs" option, with a number attached.
-      opts.jobs = pqxx::from_string<std::ptrdiff_t>(elt.substr(7));
+      jobs = elt.substr(7);
     }
     else if ((elt == "-s") or (elt == "--seed"))
     {
@@ -447,11 +449,11 @@ options parse_command_line(int argc, char const *argv[])
     }
     else if (elt.starts_with("-s"))
     {
-      opts.seed = pqxx::from_string<std::size_t>(elt.substr(2));
+      seed = elt.substr(2);
     }
     else if (elt.starts_with("--seed="))
     {
-      opts.seed = pqxx::from_string<std::size_t>(elt.substr(7));
+      seed = elt.substr(7);
     }
     else
     {
@@ -463,6 +465,10 @@ options parse_command_line(int argc, char const *argv[])
     throw std::runtime_error{"The jobs option needs a numeric argument."};
   if (want_seed)
     throw std::runtime_error{"The seed option needs a numeric argument."};
+
+  opts.jobs = pqxx::from_string<unsigned>(jobs);
+  opts.seed = pqxx::from_string<std::size_t>(seed);
+
   if (opts.jobs <= 0)
     throw std::runtime_error{"Number of parallel jobs must be at least 1."};
 
