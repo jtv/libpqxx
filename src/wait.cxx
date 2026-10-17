@@ -6,7 +6,7 @@
 
 #include <array>
 
-// TODO: Prune #includes once we have PQsocketPoll().
+// libpq17: Prune #includes once we have PQsocketPoll().
 
 // For WSAPoll().
 // Normally we'd do this *after* including <thread>, but MinGW complains: it
@@ -64,7 +64,7 @@
 
 namespace
 {
-// TODO: No longer needed once we have PQsocketPoll().
+// libpq17: No longer needed once we have PQsocketPoll().
 template<typename T>
 T to_milli(unsigned seconds, unsigned microseconds, pqxx::sl loc)
 {
@@ -74,7 +74,7 @@ T to_milli(unsigned seconds, unsigned microseconds, pqxx::sl loc)
 }
 
 
-// TODO: No longer needed once we have PQsocketPoll().
+// libpq17: No longer needed once we have PQsocketPoll().
 #if !defined(PQXX_HAVE_POLL) && defined(PQXX_HAVE_SELECT)
 /// Set a bit on an fd_set.
 [[maybe_unused]] void set_fdbit(fd_set &bits, auto fd)
