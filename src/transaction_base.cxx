@@ -272,7 +272,6 @@ pqxx::result pqxx::transaction_base::exec(std::string_view query, sl loc)
   case status::committed:
   case status::aborted:
   case status::in_doubt:
-    // TODO: Pass query.
     throw usage_error{
       "Could not execute command: transaction is already closed.", loc};
 
@@ -474,10 +473,9 @@ pqxx::result pqxx::transaction_base::direct_exec(
 }
 
 
-// TODO: Pass cmd as a const reference.
 // NOLINTBEGIN(performance-unnecessary-value-param)
 pqxx::result pqxx::transaction_base::direct_exec(
-  std::shared_ptr<std::string> cmd, std::string_view desc, sl loc)
+  std::shared_ptr<std::string> const &cmd, std::string_view desc, sl loc)
 {
   check_pending_error();
   return pqxx::internal::gate::connection_transaction{conn()}.exec(

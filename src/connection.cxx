@@ -1297,7 +1297,6 @@ pqxx::connection::set_client_encoding(char const encoding[], sl loc) &
     throw pqxx::argument_error{
       "No encoding string passed to set_client_encoding.", loc};
 
-  // TODO: Remove this check once JOHAB is gone from all supported versions.
   if (
     ((encoding[0] == 'J') or (encoding[0] == 'j')) and
     ((encoding[1] == 'O') or (encoding[1] == 'o')) and
@@ -1305,6 +1304,7 @@ pqxx::connection::set_client_encoding(char const encoding[], sl loc) &
     ((encoding[3] == 'A') or (encoding[3] == 'a')) and
     ((encoding[4] == 'B') or (encoding[4] == 'b')) and (encoding[5] == '\0'))
   {
+    // TODO: Actually, backend supports JOHAB better now.  So should we.
     throw pqxx::argument_error{"JOHAB encoding is not supported.", loc};
   }
 
