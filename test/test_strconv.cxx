@@ -41,33 +41,35 @@ namespace
 using namespace std::literals;
 using pqxx::operator""_zv;
 
+/// Check that converting `text` to type `TO` throws `conversion_error`.
+template<typename TO>
+void check_fails(std::string_view text, pqxx::sl loc = pqxx::sl::current())
+{
+  PQXX_CHECK_THROWS(
+    std::ignore = pqxx::from_string<TO>(text), pqxx::conversion_error,
+    std::format(
+      "Did not get expected failure converting '{}' to {}.", text,
+      pqxx::name_type<TO>()),
+    loc);
+}
+
 
 void test_strconv_bool(pqxx::test::context &)
 {
   PQXX_CHECK_EQUAL(pqxx::to_string(false), "false", "Wrong to_string(false).");
   PQXX_CHECK_EQUAL(pqxx::to_string(true), "true", "Wrong to_string(true).");
 
-  bool result{};
-  pqxx::from_string("false", result);
-  PQXX_CHECK_EQUAL(result, false);
-  pqxx::from_string("FALSE", result);
-  PQXX_CHECK_EQUAL(result, false);
-  pqxx::from_string("f", result);
-  PQXX_CHECK_EQUAL(result, false);
-  pqxx::from_string("F", result);
-  PQXX_CHECK_EQUAL(result, false);
-  pqxx::from_string("0", result);
-  PQXX_CHECK_EQUAL(result, false);
-  pqxx::from_string("true", result);
-  PQXX_CHECK_EQUAL(result, true);
-  pqxx::from_string("TRUE", result);
-  PQXX_CHECK_EQUAL(result, true);
-  pqxx::from_string("t", result);
-  PQXX_CHECK_EQUAL(result, true);
-  pqxx::from_string("T", result);
-  PQXX_CHECK_EQUAL(result, true);
-  pqxx::from_string("1", result);
-  PQXX_CHECK_EQUAL(result, true);
+  PQXX_CHECK_EQUAL(pqxx::from_string<bool>("f"), false);
+  PQXX_CHECK_EQUAL(pqxx::from_string<bool>("false"), false);
+  PQXX_CHECK_EQUAL(pqxx::from_string<bool>("0"), false);
+  PQXX_CHECK_EQUAL(pqxx::from_string<bool>("t"), true);
+  PQXX_CHECK_EQUAL(pqxx::from_string<bool>("true"), true);
+  PQXX_CHECK_EQUAL(pqxx::from_string<bool>("1"), true);
+
+  static constexpr std::string_view bad_strings[]{
+    "",   "T",  "F",  "True", "False", "TRUE",  "FALSE",
+    "00", "01", "11", "tt",   "ff",    "trues", "falses"};
+  for (auto const bad : bad_strings) check_fails<bool>(bad);
 
   // Nasty little corner case: to_buf() for bool will return a view on a
   // string constant, and not use the buffer you give it.  But into_buf() will
@@ -516,6 +518,25 @@ void test_string_to_string(pqxx::test::context &tctx)
 }
 
 
+void test_from_string_rejects_bad_inputs(pqxx::test::context &)
+{
+  check_fails<int>("");
+  check_fails<int>("n");
+  check_fails<int>("0n");
+  check_fails<int>("0x3");
+  check_fails<int>("10l");
+
+  check_fails<double>("");
+  check_fails<double>("0.0.0");
+  check_fails<double>("0x01");
+  check_fails<double>("n");
+  check_fails<double>("0,1");
+  check_fails<double>("3.141f");
+  check_fails<double>("-");
+  check_fails<double>("--0");
+}
+
+
 PQXX_REGISTER_TEST(test_strconv_bool);
 PQXX_REGISTER_TEST(test_strconv_enum);
 PQXX_REGISTER_TEST(test_strconv_class_enum);
@@ -525,4 +546,5 @@ PQXX_REGISTER_TEST(test_to_buf_into_buf);
 PQXX_REGISTER_TEST(test_to_buf_multi);
 PQXX_REGISTER_TEST(test_to_buf_float);
 PQXX_REGISTER_TEST(test_string_to_string);
+PQXX_REGISTER_TEST(test_from_string_rejects_bad_inputs);
 } // namespace
