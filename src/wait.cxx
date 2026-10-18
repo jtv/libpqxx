@@ -6,7 +6,9 @@
 
 #include <array>
 
-// libpq17: Prune #includes once we have PQsocketPoll().
+#include <libpq-fe.h>
+
+// libpq17: Prune #includes once PQsocketPoll() is ubiquitous.
 
 // For WSAPoll().
 // Normally we'd do this *after* including <thread>, but MinGW complains: it
@@ -92,6 +94,22 @@ T to_milli(unsigned seconds, unsigned microseconds, pqxx::sl loc)
 #  endif
 }
 #endif
+
+
+#if defined(PQXX_HAVE_PQSOCKETPOLL)
+/// Compute absolute time (microseconds since Epoch) from wait period.
+[[nodiscard]] inline auto compute_deadline(unsigned seconds, unsigned microseconds, pqxx::sl loc)
+{
+  auto const duration{seconds * 1'000'000 + microseconds};
+  auto const now{PQgetCurrentTimeUSec()};
+  if (std::cmp_greater(duration, (std::numeric_limits<pg_usec_time_t>::max)() - now))
+    throw pqxx::range_error{
+      std::format(
+        "Wait period is too long ({}.{} seconds).", seconds, microseconds),
+      loc};
+  return now + duration;
+}
+#endif
 } // namespace
 
 
@@ -99,9 +117,15 @@ void pqxx::internal::wait_fd(
   int fd, bool for_read, bool for_write, unsigned seconds,
   unsigned microseconds, [[maybe_unused]] sl loc)
 {
-// TODO: As of libpq 17, replace with PQsocketPoll()/PQgetCurrentTimeUSec().
-// WSAPoll is available in winsock2.h only for versions of Windows >= 0x0600
+#if defined(PQXX_HAVE_PQSOCKETPOLL)
+  // libpq17: Drop alternative implementations once libpq17 is the minimum.
+  auto const deadline{compute_deadline(seconds, microseconds, loc)};
+  PQsocketPoll(fd, for_read, for_write, deadline);
+
+#else
+
 #if defined(_WIN32) && (_WIN32_WINNT >= 0x0600)
+  // WSAPoll is available in winsock2.h only for versions of Windows >= 0x0600.
   static_assert(SOCKET_ERROR == -1);
   short const events{static_cast<short>(
     (for_read ? POLLRDNORM : 0) | (for_write ? POLLWRNORM : 0))};
@@ -149,18 +173,23 @@ void pqxx::internal::wait_fd(
     };
     throw std::runtime_error{pqxx::internal::error_string(err_code, errbuf)};
   }
+#endif
 }
 
 
 PQXX_COLD void pqxx::internal::wait_for(unsigned int microseconds)
 {
-#if defined(PQXX_HAVE_SLEEP_FOR)
+  // libpq17: If MinGW is fixed, use this_thread, otherwise PQsocketPoll().
+#if defined(PQXX_HAVE_PQSOCKETPOLL)
+  // MinGW has a strange problem where std::this_thread::sleep_for() can fail
+  // to compile.  It's a configuration error, but it causes enough distraction
+  // that we'd rather not call sleep_for() if we can avoid it.
+  //
+  // Luckily libpq has an alternative now.
+  PQsocketPoll(0, 0, 0, PQgetCurrentTimeUSec() + microseconds);
+#elif defined(PQXX_HAVE_SLEEP_FOR)
   std::this_thread::sleep_for(std::chrono::microseconds{microseconds});
 #else
-  // MinGW still does not have a functioning <thread> header.  Work around this
-  // using select().
-  // Not worth optimising for though -- they'll have to fix it at some point.
-  // TODO: As of libpq 17, replace with PQsocketPoll()/PQgetCurrentTimeUSec()?
   timeval tv{microseconds / 1'000'000u, microseconds % 1'000'000u};
   select(0, nullptr, nullptr, nullptr, &tv);
 #endif
