@@ -260,8 +260,6 @@ template<typename TYPE> struct string_traits final
    */
   [[nodiscard]] static TYPE
   from_string(std::string_view text, ctx = {}) = delete;
-
-  // TODO: Move is_unquoted_safe into the traits after all?
 };
 
 

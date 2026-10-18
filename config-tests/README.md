@@ -12,16 +12,16 @@ snippet of code, found in this directory, and seeing whether that succeeds.
 These are the snippets with names like `PQXX_*.cxx`.
 
 To avoid duplicating those snippets for multiple build systems, we put them
-here.  Both the autotools configuration and the CMake configuration can refer to
-them that way.  We generate autoconf and cmake configuration automatically to
-inject those checks, avoiding tedious repetition.
+here.  That way both the autotools configuration and the CMake configuration
+can refer to them.  We generate autoconf and cmake configuration automatically
+to inject those checks, avoiding tedious repetition.
 
 Some of the checks are based on C++20 feature test macros.  We generate those
 automatically using `tools/generate_cxx_checks.py`.
 
 It took a bit of nasty magic to read a C++ source file into m4 for the autoconf
 side and treat it as a string literal, without macro expansion.  There is every
-chance that I missed something, so be prepared for tests failing for unexpected
+chance that I missed something, so be prepared for checks failing for strange
 reasons!  Some C++ syntax may end up having an unforeseen meaning in m4, and
 screw up the handling of the code snippet.  Re-configure, and read your logs
 carefully after editing these snippets.
