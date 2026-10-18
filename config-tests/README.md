@@ -17,7 +17,16 @@ can refer to them.  We generate autoconf and cmake configuration automatically
 to inject those checks, avoiding tedious repetition.
 
 Some of the checks are based on C++20 feature test macros.  We generate those
-automatically using `tools/generate_cxx_checks.py`.
+automatically using `tools/generate_cxx_checks.py`.  (Why do that instead of
+just checking at compile time?  Because sometimes they can affect object
+layout, and sometimes people compile projects using libpqxx in different C++
+versions than the libpqxx binary.  That can lead to strange incompatibilities
+and even crashes unless we store the choices that were made while compiling
+libpqxx itself.)
+
+All the checks get incorporated into the build files, so to incorporate any new
+changes here, you'll need to re-run `autogen.sh` which re-generates those build
+files.
 
 It took a bit of nasty magic to read a C++ source file into m4 for the autoconf
 side and treat it as a string literal, without macro expansion.  There is every
