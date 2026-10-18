@@ -723,8 +723,10 @@ void test_stream_to_bool(pqxx::test::context &tctx)
   pqxx::connection cx;
   pqxx::work tx{cx};
   auto const table{tctx.make_name("pqxx_test_bool")};
-  tx.exec(std::format(
-    "CREATE TEMP TABLE {} (time TEXT, value BOOLEAN)", tx.quote_name(table)));
+  tx.exec(
+    std::format(
+      "CREATE TEMP TABLE {} (time TEXT, value BOOLEAN)",
+      tx.quote_name(table)));
   auto stream{pqxx::stream_to::table(tx, {table}, {"time", "value"})};
 
   // In #1203, this triggered an assertion failure.

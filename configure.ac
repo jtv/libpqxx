@@ -179,12 +179,6 @@ then
 fi # End of gcc-specific part.
 
 
-# Do the feature checks now, *after* we add all the extra strictness options,
-# so that we don't accidentally enable any features that become unacceptable
-# under our chosen strictness.
-m4_include([pqxx_cxx_feature_checks.ac])
-
-
 # One of the generated checks sets this variable.
 if test "$PQXX_HAVE_GCC_VISIBILITY" = "yes"
 then
@@ -377,6 +371,14 @@ occurring in the file.
 
 # Remove redundant occurrences of -lpq
 LIBS=[$(echo "$LIBS" | sed -e 's/-lpq * -lpq\>/-lpq/g')]
+
+# Do the feature checks now, *after* we add all the extra strictness options,
+# and *after* we find the libpq include path, so that we don't accidentally
+# enable any features that become unacceptable under our chosen options, and
+# so that the checks can include the libpq headers.
+m4_include([pqxx_cxx_feature_checks.ac])
+
+
 
 AC_PROG_MAKE_SET
 

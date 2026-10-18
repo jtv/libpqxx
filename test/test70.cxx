@@ -84,7 +84,7 @@ void test_070(pqxx::test::context &)
   // See if regular retain()/resume() works
   for (int i{0}; i < 5; ++i) TestPipeline(P, i);
 
-    // See if retrieve() fails on an empty pipeline, as it should
+  // See if retrieve() fails on an empty pipeline, as it should
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   pqxx::quiet_errorhandler const d(cx);
 #include "pqxx/internal/ignore-deprecated-post.hxx"

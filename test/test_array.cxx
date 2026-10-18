@@ -348,8 +348,9 @@ void test_generate_multiple_items(pqxx::test::context &)
     expected_string);
 
   PQXX_CHECK_GREATER_EQUAL(
-    pqxx::size_buffer(std::vector<unsigned int>{
-      1073741823, 1789569706, 2505397589, 3221225472}),
+    pqxx::size_buffer(
+      std::vector<unsigned int>{
+        1073741823, 1789569706, 2505397589, 3221225472}),
     45U,
     "Buffer size allocated for an array of 4 unsigned int was too small.");
 

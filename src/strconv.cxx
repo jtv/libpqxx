@@ -55,7 +55,8 @@ constexpr inline char *nonneg_to_buf(char *end, T value)
   // instead of a plain "char *".  I don't see how.
   // NOLINTNEXTLINE(misc-const-correctness)
   char *pos = end;
-  do {
+  do
+  {
     *--pos = pqxx::internal::number_to_digit(int(value % ten));
     value = T(value / ten);
   } while (value > 0);

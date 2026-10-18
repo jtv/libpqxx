@@ -706,7 +706,6 @@ template<maybe_type T> struct string_traits<T> final
 
   static T from_string(std::string_view text, ctx c = {})
   {
-    // TODO: Construct a blank if string represents a null value.
     return maybe_traits::make(
       pqxx::from_string<typename maybe_traits::contained_t>(text, c));
   }

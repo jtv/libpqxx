@@ -132,7 +132,6 @@ public:
   }
 
 #if defined(PQXX_HAVE_MULTIDIM)
-  // TODO: There's a proposal to permit a default value for loc.
   /** Address field by name.
    *
    * @warning This is much slower than indexing by number, or iterating.
