@@ -1,3 +1,6 @@
+Threat Model
+============
+
 Libpqxx is a client library for PostgreSQL.  It's a wrapper for libpq.
 
 It assumes that it's talking to a genuine and fully patched libpq, which in
