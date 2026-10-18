@@ -95,6 +95,7 @@ CMAKE_TEMPLATE = dedent(
     try_compile(
         %(macro)s ${PROJECT_BINARY_DIR}
         SOURCES ${PROJECT_SOURCE_DIR}/config-tests/%(macro)s.cxx
+        CMAKE_FLAGS "-DINCLUDE_DIRECTORIES=${PostgreSQL_INCLUDE_DIRS}"
     )
 """
 )
