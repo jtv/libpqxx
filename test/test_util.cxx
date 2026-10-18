@@ -156,10 +156,14 @@ template<std::floating_point TO> inline void check_nan()
 template<std::floating_point FROM, std::floating_point TO>
 inline void check_inf()
 {
-  PQXX_CHECK(std::isinf(pqxx::check_cast<TO>(
-    std::numeric_limits<FROM>::infinity(), "fail", here())));
-  PQXX_CHECK(std::isinf(pqxx::check_cast<TO>(
-    -std::numeric_limits<FROM>::infinity(), "fail", here())));
+  PQXX_CHECK(
+    std::isinf(
+      pqxx::check_cast<TO>(
+        std::numeric_limits<FROM>::infinity(), "fail", here())));
+  PQXX_CHECK(
+    std::isinf(
+      pqxx::check_cast<TO>(
+        -std::numeric_limits<FROM>::infinity(), "fail", here())));
 }
 
 
@@ -469,9 +473,10 @@ void test_source_loc_handles_minimal_source_location(pqxx::test::context &tctx)
 void test_version_check_requires_identical_abi(pqxx::test::context &)
 {
   // (Baseline check)
-  PQXX_CHECK_SUCCEEDS(pqxx::internal::check_libpqxx_version(
-    pqxx::version_major, pqxx::version_minor, pqxx::version_patch,
-    pqxx::version));
+  PQXX_CHECK_SUCCEEDS(
+    pqxx::internal::check_libpqxx_version(
+      pqxx::version_major, pqxx::version_minor, pqxx::version_patch,
+      pqxx::version));
 
   PQXX_CHECK_THROWS(
     pqxx::internal::check_libpqxx_version(
@@ -489,9 +494,10 @@ void test_version_check_requires_identical_abi(pqxx::test::context &)
 void test_version_check_accepts_patch_upgrade(pqxx::test::context &)
 {
   // (Baseline check)
-  PQXX_CHECK_SUCCEEDS(pqxx::internal::check_libpqxx_version(
-    pqxx::version_major, pqxx::version_minor, pqxx::version_patch,
-    pqxx::version));
+  PQXX_CHECK_SUCCEEDS(
+    pqxx::internal::check_libpqxx_version(
+      pqxx::version_major, pqxx::version_minor, pqxx::version_patch,
+      pqxx::version));
 
   // We don't meddle with the version numbers stored inside the library binary,
   // meaning we can't test both the "special version" scenario and the
@@ -502,9 +508,10 @@ void test_version_check_accepts_patch_upgrade(pqxx::test::context &)
     // We're a regular version.
 
     // Checking an older app build for the same ABI version succeeds.
-    PQXX_CHECK_SUCCEEDS(pqxx::internal::check_libpqxx_version(
-      pqxx::version_major, pqxx::version_minor, pqxx::version_patch - 1,
-      pqxx::version));
+    PQXX_CHECK_SUCCEEDS(
+      pqxx::internal::check_libpqxx_version(
+        pqxx::version_major, pqxx::version_minor, pqxx::version_patch - 1,
+        pqxx::version));
 
     // Checking a newer app build for the same ABI version fails.
     //

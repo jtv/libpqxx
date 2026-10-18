@@ -31,8 +31,9 @@ pqxx::subtransaction::subtransaction(
         // have a full object to implement quoted_name().
         dbtransaction{t.conn(), tname, std::shared_ptr<std::string>{}, loc}
 {
-  set_rollback_cmd(std::make_shared<std::string>(
-    std::format("ROLLBACK TO SAVEPOINT {}", quoted_name())));
+  set_rollback_cmd(
+    std::make_shared<std::string>(
+      std::format("ROLLBACK TO SAVEPOINT {}", quoted_name())));
   direct_exec(
     std::make_shared<std::string>(std::format("SAVEPOINT {}", quoted_name())),
     loc);

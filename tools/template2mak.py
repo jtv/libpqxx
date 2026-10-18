@@ -67,8 +67,7 @@ def expand_foreach(globs, block, outfile):
 
 
 # Header to be prefixed to the generated file.
-OUTPUT_HEADER = dedent(
-    """\
+OUTPUT_HEADER = dedent("""\
     # AUTOMATICALLY GENERATED FILE -- DO NOT EDIT.
     #
     # This file is generated automatically by libpqxx's {script} script, and
@@ -78,8 +77,7 @@ OUTPUT_HEADER = dedent(
     #
     # The {script} script should be available in the tools directory of the
     # libpqxx source archive.
-    """
-)
+    """)
 
 
 foreach_marker = r"###MAKTEMPLATE:FOREACH "

@@ -170,8 +170,9 @@ template<typename T> constexpr std::size_t needs_bytes(T const &value)
   // This is the generic implementation, because it works for all types we
   // support, but it's kind of circular reasoning.  Might still catch a bug
   // though.
-  return std::size(pqxx::to_string(
-    value, pqxx::conversion_context{pqxx::encoding_group::ascii_safe}));
+  return std::size(
+    pqxx::to_string(
+      value, pqxx::conversion_context{pqxx::encoding_group::ascii_safe}));
 }
 
 

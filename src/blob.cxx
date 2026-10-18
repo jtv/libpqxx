@@ -279,9 +279,10 @@ pqxx::blob::from_buf(dbtransaction &tx, bytes_view data, oid id, sl loc)
     {
       try
       {
-        tx.conn().process_notice(std::format(
-          "Could not clean up partially created large object {}: {}\n", id,
-          e.what()));
+        tx.conn().process_notice(
+          std::format(
+            "Could not clean up partially created large object {}: {}\n", id,
+            e.what()));
       }
       catch (std::exception const &)
       {}

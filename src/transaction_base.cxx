@@ -220,10 +220,11 @@ void pqxx::transaction_base::abort(sl loc)
   case status::in_doubt:
     // Aborting an in-doubt transaction is probably a reasonably sane response
     // to an insane situation.  Log it, but do not fail.
-    m_conn.process_notice(std::format(
-      "Warning: {} aborted after going into indeterminate state; "
-      "it may have been executed anyway.\n",
-      description()));
+    m_conn.process_notice(
+      std::format(
+        "Warning: {} aborted after going into indeterminate state; "
+        "it may have been executed anyway.\n",
+        description()));
     return;
 
   default: PQXX_UNREACHABLE;
@@ -393,9 +394,10 @@ void pqxx::transaction_base::close(sl loc) noexcept
       return;
 
     if (m_focus != nullptr) [[unlikely]]
-      m_conn.process_notice(std::format(
-        "Closing {} with {} still open.\n", description(),
-        m_focus->description()));
+      m_conn.process_notice(
+        std::format(
+          "Closing {} with {} still open.\n", description(),
+          m_focus->description()));
 
     try
     {

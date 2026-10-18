@@ -344,7 +344,8 @@ void pqxx::pipeline::obtain_dummy(sl loc)
   unregister_me();
   try
   {
-    do {
+    do
+    {
       m_num_waiting--;
       auto const query{*m_issuedrange.first->second.query};
       auto &holder{m_issuedrange.first->second};

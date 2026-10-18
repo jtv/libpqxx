@@ -642,8 +642,9 @@ PQXX_COLD void pqxx::connection::remove_receiver(
 
     if (i == R.second)
     {
-      [[unlikely]] process_notice(std::format(
-        "Attempt to remove unknown receiver '{}'\n", needle.first));
+      [[unlikely]] process_notice(
+        std::format(
+          "Attempt to remove unknown receiver '{}'\n", needle.first));
     }
     else
     {
@@ -795,9 +796,10 @@ int pqxx::connection::get_notifs(sl loc)
         {
           try
           {
-            process_notice(std::format(
-              "Exception in notification receiver '{}': {}\n", i->first,
-              e.what()));
+            process_notice(
+              std::format(
+                "Exception in notification receiver '{}': {}\n", i->first,
+                e.what()));
           }
           catch (std::bad_alloc const &)
           {
@@ -970,9 +972,10 @@ void pqxx::connection::close(sl)
   try
   {
     if (m_trans) [[unlikely]]
-      process_notice(std::format(
-        "Closing connection while {} is still open.\n",
-        internal::describe_object("transaction"sv, m_trans->name())));
+      process_notice(
+        std::format(
+          "Closing connection while {} is still open.\n",
+          internal::describe_object("transaction"sv, m_trans->name())));
 
     if (not std::empty(m_receivers))
     {

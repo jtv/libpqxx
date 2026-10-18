@@ -10,14 +10,13 @@ endif()
 
 # Run our generated config checks.
 #
-# Some of these may require libpq.  Temporarily set CMAKE_REQUIRED_INCLUDES
-# and CMAKE_REQUIRED_LIBRARIES so that they can find the libpq headers and
-# binary.
+# Some of these may require libpq.  Temporarily set CMAKE_REQUIRED_INCLUDES and
+# CMAKE_REQUIRED_LIBRARIES so that they can find the libpq headers and binary.
 set(CMAKE_REQUIRED_INCLUDES ${PostgreSQL_INCLUDE_DIRS})
 set(CMAKE_REQUIRED_LIBRARIES PostgreSQL::PostgreSQL)
 
-# However we'll skip linking; we only need that for one of the checks so we
-# can save some time doing it only incidentally.
+# However we'll skip linking; we only need that for one of the checks so we can
+# save some time doing it only incidentally.
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
 # Incorporate feature checks we generated from the config-tests directory.
@@ -53,8 +52,8 @@ foreach(line ${lines})
     file(APPEND "${CM_CONFIG_H_IN}" "${l}\n")
 endforeach()
 
-# Now have CMake write config.h based on that config_cmake.h.in.  This makes
-# the process look as much like the autoconf one as we can.
+# Now have CMake write config.h based on that config_cmake.h.in.  This makes the
+# process look as much like the autoconf one as we can.
 configure_file("${CM_CONFIG_H_IN}" "${CONFIG_H}" @ONLY)
 
 message(STATUS "Generating configuration headers - done")
