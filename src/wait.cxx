@@ -98,11 +98,13 @@ T to_milli(unsigned seconds, unsigned microseconds, pqxx::sl loc)
 
 #if defined(PQXX_HAVE_PQSOCKETPOLL)
 /// Compute absolute time (microseconds since Epoch) from wait period.
-[[nodiscard]] inline auto compute_deadline(unsigned seconds, unsigned microseconds, pqxx::sl loc)
+[[nodiscard]] inline auto
+compute_deadline(unsigned seconds, unsigned microseconds, pqxx::sl loc)
 {
   auto const duration{seconds * 1'000'000 + microseconds};
   auto const now{PQgetCurrentTimeUSec()};
-  if (std::cmp_greater(duration, (std::numeric_limits<pg_usec_time_t>::max)() - now))
+  if (std::cmp_greater(
+        duration, (std::numeric_limits<pg_usec_time_t>::max)() - now))
     throw pqxx::range_error{
       std::format(
         "Wait period is too long ({}.{} seconds).", seconds, microseconds),
@@ -124,7 +126,7 @@ void pqxx::internal::wait_fd(
 
 #else
 
-#if defined(_WIN32) && (_WIN32_WINNT >= 0x0600)
+#  if defined(_WIN32) && (_WIN32_WINNT >= 0x0600)
   // WSAPoll is available in winsock2.h only for versions of Windows >= 0x0600.
   static_assert(SOCKET_ERROR == -1);
   short const events{static_cast<short>(
@@ -134,13 +136,13 @@ void pqxx::internal::wait_fd(
     &fdarray, 1u,
     check_cast<int>(
       to_milli<unsigned>(seconds, microseconds, loc), "Timeout too large."))};
-#elif defined(PQXX_HAVE_POLL)
+#  elif defined(PQXX_HAVE_POLL)
   auto const events{static_cast<short>(
     POLLERR | POLLHUP | POLLNVAL | (for_read ? POLLIN : 0) |
     (for_write ? POLLOUT : 0))};
   pollfd pfd{fd, events, 0};
   int const code{poll(&pfd, 1, to_milli<int>(seconds, microseconds, loc))};
-#else
+#  else
   // No poll()?  Our last option is select().
   fd_set read_fds;
   FD_ZERO(&read_fds);
@@ -158,18 +160,18 @@ void pqxx::internal::wait_fd(
 
   timeval tv = {seconds, microseconds};
   int const code{select(fd + 1, &read_fds, &write_fds, &except_fds, &tv)};
-#endif
+#  endif
 
   if (code == -1)
   {
     constexpr std::size_t buf_size{200u};
     std::array<char, buf_size> errbuf{};
     int const err_code{
-#if defined(_WIN32) && (_WIN32_WINNT >= 0x0600)
+#  if defined(_WIN32) && (_WIN32_WINNT >= 0x0600)
       WSAGetLastError()
-#else
+#  else
       errno
-#endif
+#  endif
     };
     throw std::runtime_error{pqxx::internal::error_string(err_code, errbuf)};
   }

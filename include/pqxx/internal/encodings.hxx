@@ -171,11 +171,6 @@ template<> struct glyph_scanner<encoding_group::ascii_safe> final
  * What we do care about is that when a byte has a value that looks like a
  * special ASCII character we're trying to find, we know exactly whether it is
  * that ASCII character, or just a byte inside a multibyte character.
- *
- * With UHC, the second byte in a character is always either outside the ASCII
- * range or in one of the two ASCII letter ranges (A-Z and a-z).  So as long as
- * we're not searching for letters, we actually use @ref ascii_safe there
- * instead.
  */
 template<> struct glyph_scanner<encoding_group::two_tier> final
 {
@@ -296,9 +291,7 @@ template<> struct glyph_scanner<encoding_group::sjis> final
  * the ASCII characters in `NEEDLE`.  Returns its offset, or the end of the
  * `haystack` if it found none.
  *
- * @warn All of the characters in `NEEDLE` need to be ASCII characters, and
- * they _cannot be letters._  This is needed because it enables a more
- * efficient implementation of UHC support.
+ * @warn All of the characters in `NEEDLE` need to be ASCII characters.
  */
 template<char... NEEDLE>
 PQXX_PURE
@@ -308,8 +301,6 @@ PQXX_PURE
   // All characters in NEEDLE must be ASCII.
   static_assert((... and (static_cast<unsigned char>(NEEDLE) < 0x80)));
 
-  // We don't support searching for a NEEDLE that's a letter.  This allows us
-  // to lump UHC in with the more efficient ASCII-safe group.
   static_assert((... and not between_inc(NEEDLE, 'A', 'Z')));
   static_assert((... and not between_inc(NEEDLE, 'a', 'z')));
 
