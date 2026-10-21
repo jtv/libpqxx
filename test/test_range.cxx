@@ -233,6 +233,14 @@ void test_range_to_string(pqxx::test::context &)
   PQXX_CHECK_EQUAL(pqxx::to_string(range{ubound{}, xbound{8}}), "(,8)");
   PQXX_CHECK_EQUAL(pqxx::to_string(range{ibound{5}, ubound{}}), "[5,)");
   PQXX_CHECK_EQUAL(pqxx::to_string(range{xbound{5}, ubound{}}), "(5,)");
+
+  // Stretch the buffer budget to the limit:
+  auto const bottom{(std::numeric_limits<int>::min)()}, top{bottom + 1};
+  range const stretchy{ibound{bottom}, ibound{top}};
+  auto const expected{std::format("[{},{}]", bottom, top)};
+  PQXX_CHECK_GREATER_EQUAL(pqxx::size_buffer(stretchy), std::size(expected));
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(range{ibound{bottom}, ibound{bottom + 1}}), expected);
 }
 
 

@@ -558,9 +558,8 @@ template<typename TYPE> struct string_traits<range<TYPE>> final
   {
     TYPE const *lower{value.lower_bound().value()},
       *upper{value.upper_bound().value()};
-    std::size_t const lsz{
-      lower == nullptr ? 0 : pqxx::size_buffer(*lower) - 1},
-      usz{upper == nullptr ? 0 : pqxx::size_buffer(*upper) - 1};
+    std::size_t const lsz{lower == nullptr ? 0 : pqxx::size_buffer(*lower)},
+      usz{upper == nullptr ? 0 : pqxx::size_buffer(*upper)};
 
     if (value.empty())
       return std::size(s_empty) + 1;
