@@ -127,7 +127,8 @@ public:
   static stream_to
   table(transaction_base &tx, std::string_view path, COLUMNS const &columns)
   {
-    return stream_to::raw_table(tx, path, tx.conn().quote_columns(columns));
+    return stream_to::raw_table(
+      tx, tx.conn().quote_table(path), tx.conn().quote_columns(columns));
   }
 
   /// Stream data to a pre-quoted table and columns.

@@ -29,8 +29,13 @@ namespace pqxx
  * the corresponding field reference must be of a type that can handle nulls.
  * If you are working with a type that does not have an inherent null value,
  * such as e.g. `int`, consider using `std::optional`.
+ *
+ * @warning This class will not let you use a view as an element type.  It
+ * would be technically possible for some types, but we would need somewhere
+ * to store the underlying data.  And that would probably defeat the purpose
+ * of storing views: the parser would have to copy the data around.
  */
-template<typename... T>
+template<not_at_all_borrowed... T>
 inline void parse_composite(ctx c, std::string_view text, T &...fields)
 {
   static constexpr auto num_fields{sizeof...(T)};

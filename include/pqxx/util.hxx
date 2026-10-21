@@ -516,6 +516,52 @@ template<typename CONTAINED> struct maybe_traits<std::unique_ptr<CONTAINED>>
     return std::make_unique<contained_t>(c);
   }
 };
+
+
+#ifndef NDEBUG
+static_assert(not maybe_type<int>);
+static_assert(maybe_type<std::optional<int>>);
+static_assert(maybe_type<std::shared_ptr<int>>);
+static_assert(maybe_type<std::unique_ptr<int>>);
+#endif
+} // namespace pqxx
+
+
+namespace pqxx::internal
+{
+template<typename TYPE> struct core_type_wrapper;
+
+template<typename TYPE>
+  requires(not maybe_type<TYPE>)
+struct core_type_wrapper<TYPE>
+{
+  using core_t = TYPE;
+};
+
+template<typename TYPE>
+  requires(maybe_type<TYPE>)
+struct core_type_wrapper<TYPE>
+{
+  using core_t = typename maybe_traits<TYPE>::contained_t;
+};
+} // namespace pqxx::internal
+
+
+namespace pqxx
+{
+/// Concept: The ultimate core inside `TYPE` is not borrowed.
+template<typename TYPE>
+concept not_at_all_borrowed =
+  not_borrowed<typename pqxx::internal::core_type_wrapper<TYPE>::core_t>;
+
+
+static_assert(not_borrowed<int>);
+static_assert(not not_borrowed<std::string_view>);
+static_assert(not_at_all_borrowed<int>);
+static_assert(not_at_all_borrowed<std::optional<int>>);
+static_assert(std::ranges::borrowed_range<std::string_view>);
+static_assert(not not_at_all_borrowed<std::string_view>);
+static_assert(not not_at_all_borrowed<std::optional<std::string_view>>);
 } // namespace pqxx
 
 
