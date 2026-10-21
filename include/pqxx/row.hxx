@@ -162,7 +162,7 @@ public:
     if (m_result == nullptr)
       throw usage_error{"Indexing uninitialised row.", loc};
     if (std::cmp_less(i, 0))
-      throw usage_error{"Negative column index.", loc};
+      throw usage_error{std::format("Negative column index: {}.", i), loc};
     auto const sz{size()};
     if (std::cmp_greater_equal(i, sz))
       throw range_error{

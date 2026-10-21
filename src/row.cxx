@@ -84,6 +84,8 @@ pqxx::field_ref pqxx::row::at(zview col_name, sl loc) const
 
 pqxx::field_ref pqxx::row::at(pqxx::row::size_type i, sl loc) const
 {
+  if (std::cmp_less(i, 0))
+    throw usage_error{std::format("Negative column index: {}.", i), loc};
   auto const sz{this->size()};
   if (std::cmp_greater_equal(i, sz))
     throw range_error{
