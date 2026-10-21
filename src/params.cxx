@@ -41,7 +41,13 @@ void pqxx::internal::c_params::reserve(std::size_t n) &
 
 void pqxx::params::reserve(std::size_t n) &
 {
-  m_params.reserve(n);
+  // Apparently some implementations of std::vector's reserve() just slavishly
+  // allocate exactly the number you specify, every single time.  Let's
+  // over-allocate a bit to avoid pathological reallocations.  The elements
+  // aren't huge, and the frontend/backend protocol version 3 caps the total
+  // number of parameters somewhere around 2^16 anyway.
+  if (m_params.capacity() < n)
+    m_params.reserve(2 * n);
 }
 
 
