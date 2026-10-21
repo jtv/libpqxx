@@ -13,6 +13,8 @@
  - Disallow views in arrays & composites, even when hidden in a `maybe_type`.
  - Concept `not_at_all_borrowed`, a stronger guarantee than `not_borrowed`.
  - Optimise `params` against excessive `reserve()` calls.
+ - Fix budgeting for composites: could fail unnecessarily.
+ - Catch negative index (i.e. column number) in `row::at()`.
 8.0.2
  - Simple benchmark tool for query performance.
  - Fix an apparent `memcpy()` overlap.
