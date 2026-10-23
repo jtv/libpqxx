@@ -20,7 +20,7 @@
 pqxx::encoding_group
 pqxx::internal::get_encoding_group(pqxx::connection const &cx, sl loc)
 {
-  return cx.get_encoding_group(loc);
+  return cx.effective_encoding_group(loc);
 }
 
 

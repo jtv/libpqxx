@@ -1226,8 +1226,8 @@ private:
   };
 
   /// Compose a @ref conversion_context.
-  /** Gets its @ref encoding_group from the @ref connection, but uses the
-   * `std::source_location` that you pass.
+  /** Gets the client @ref encoding_group from the @ref connection, but uses
+   * the `std::source_location` that you pass.
    */
   [[nodiscard]] conversion_context make_context(sl) const;
 

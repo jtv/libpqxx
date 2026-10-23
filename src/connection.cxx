@@ -197,7 +197,8 @@ pqxx::connection::connection(connection &&rhs, sl loc) :
         m_notice_waiters{std::move(rhs.m_notice_waiters)},
         m_notification_handlers{std::move(rhs.m_notification_handlers)},
         m_created_loc{loc},
-        m_unique_id{rhs.m_unique_id}
+        m_unique_id{rhs.m_unique_id},
+        m_server_is_sql_ascii{rhs.m_server_is_sql_ascii}
 {
   rhs.check_movable(loc);
   rhs.m_conn = nullptr;
@@ -206,7 +207,9 @@ pqxx::connection::connection(connection &&rhs, sl loc) :
 
 pqxx::connection::connection(
   connection::connect_mode, zview connection_string, sl loc) :
-        m_conn{PQconnectStart(connection_string.c_str())}, m_created_loc{loc}
+        m_conn{PQconnectStart(connection_string.c_str())},
+        m_created_loc{loc},
+        m_server_is_sql_ascii{true}
 {
   if (m_conn == nullptr)
     throw std::bad_alloc{};
@@ -224,7 +227,9 @@ pqxx::connection::connection(
 
 
 pqxx::connection::connection(internal::pq::PGconn *raw_conn, sl loc) :
-        m_conn{raw_conn}, m_created_loc{loc}
+        m_conn{raw_conn},
+        m_created_loc{loc},
+        m_server_is_sql_ascii{server_is_sql_ascii()}
 {
   set_up_notice_handlers();
 }
@@ -297,6 +302,8 @@ void pqxx::connection::complete_connection(sl loc)
           "Unsupported server version; the minimum is {}.{}.",
           min_server / 10'000, min_server % 10'000),
         loc};
+
+    m_server_is_sql_ascii = server_is_sql_ascii();
   }
   catch (std::exception const &)
   {
@@ -441,6 +448,7 @@ pqxx::connection &pqxx::connection::operator=(connection &&rhs)
   m_notice_waiters = std::move(rhs.m_notice_waiters);
   m_notification_handlers = std::move(rhs.m_notification_handlers);
   m_created_loc = rhs.m_created_loc;
+  m_server_is_sql_ascii = rhs.m_server_is_sql_ascii;
 
   return *this;
 }
@@ -459,9 +467,8 @@ pqxx::result pqxx::connection::make_result(
     else
       throw broken_connection{"Lost connection to the database server.", loc};
   }
-  auto const enc{get_encoding_group(loc)};
   auto r{pqxx::internal::gate::result_creation::create(
-    smart, query, m_notice_waiters, enc)};
+    smart, query, m_notice_waiters, effective_encoding_group())};
   pqxx::internal::gate::result_creation{r}.check_status(desc, loc);
   return r;
 }
@@ -1206,8 +1213,8 @@ std::string pqxx::connection::esc_like(
   if (sz == 0u)
     return "";
   auto const data{std::data(text)};
-  auto const finder{
-    pqxx::internal::get_char_finder<'_', '%'>(get_encoding_group(loc), loc)};
+  auto const finder{pqxx::internal::get_char_finder<'_', '%'>(
+    effective_encoding_group(loc), loc)};
 
   // We're going to loop in a counterintuitive order.  First we look for the
   // end of the leading sequence of unremarkable characters.
@@ -1289,7 +1296,27 @@ std::string pqxx::connection::adorn_name(std::string_view n)
 
 std::string pqxx::connection::get_client_encoding(sl loc) const
 {
+  // This is not something we can cache, since it can change in mid-session
+  // and in all sorts of ways.
   return internal::name_encoding(encoding_id(loc));
+}
+
+
+bool pqxx::connection::server_is_sql_ascii() const noexcept
+{
+  static constexpr std::string_view sql_ascii{"SQL_ASCII"};
+  char const *const name{
+    PQparameterStatus(real_conn(m_conn), "server_encoding")};
+
+  // If we couldn't even obtain this, the connection is seriously broken and
+  // it doesn't really matter what value we pick.
+  //
+  // However throwing here an exception here is not a good idea because this
+  // is not where we check for broken connections.
+  if (name == nullptr)
+    return true;
+  else
+    return sql_ascii == name;
 }
 
 

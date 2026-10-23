@@ -98,7 +98,7 @@ public:
    * `ELEMENT` type does not support null values.
    */
   array(std::string_view data, connection const &cx, sl loc = sl::current()) :
-          array{data, cx.get_encoding_group(loc), loc}
+          array{data, cx.effective_encoding_group(loc), loc}
   {}
 
   array(std::string_view data, encoding_group enc, sl loc = sl::current()) :
