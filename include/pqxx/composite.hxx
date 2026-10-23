@@ -150,7 +150,6 @@ inline zview composite_into_buf(ctx c, std::span<char> buf, T const &...fields)
   // C++26: Use buf.at().
   buf[pos++] = ')';
   buf[pos] = '\0';
-  assert(pos < std::size(buf)); // XXX:
   return zview{std::data(buf), pos};
 }
 
