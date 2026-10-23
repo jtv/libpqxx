@@ -521,7 +521,6 @@ private:
           std::string const buf{
             pqxx::internal::parse_double_quoted_string<ENC>(
               data.substr(0, end), here, loc)};
-          // XXX: Dangling reference?
           m_elts.emplace_back(from_string<ELEMENT>(buf, c));
         }
         break;
