@@ -513,7 +513,13 @@ public:
 
   // NOLINTEND(modernize-use-nodiscard)
 
-  /// Retrieve encoding group for this result's client encoding.
+  /// Retrieve encoding group for this result's effective client encoding.
+  /** There is one scenario where this is not the same thing as the
+   * connection's client encoding at the time when it produced the result
+   * object: if the server character set is `SQL_ASCII`, special rules apply
+   * and we should basically treat all text as
+   * @ref pqxx::encoding_group::ascii_safe.
+   */
   [[nodiscard]] encoding_group get_encoding_group() const noexcept
   {
     return m_encoding;

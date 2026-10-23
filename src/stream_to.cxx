@@ -114,8 +114,9 @@ pqxx::stream_to::stream_to(
         transaction_focus{tx, s_classname, path},
         m_finder{pqxx::internal::get_char_finder<
           '\b', '\f', '\n', '\r', '\t', '\v', '\\'>(
-          tx.conn().get_encoding_group(loc), loc)},
-        m_created_loc{loc}
+          tx.conn().effective_encoding_group(loc), loc)},
+        m_created_loc{loc},
+        m_encoding_group{tx.conn().effective_encoding_group(loc)}
 {
   begin_copy(tx, path, columns, loc);
   register_me();

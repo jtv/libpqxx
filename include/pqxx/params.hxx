@@ -43,7 +43,7 @@ get_encoding_group(ctx c, sl = sl::current()) noexcept
 }
 
 
-/// Return connection's current client encoding.
+/// Return connection's effective client encoding.
 [[nodiscard]] PQXX_LIBEXPORT pqxx::encoding_group
 get_encoding_group(connection const &, sl = sl::current());
 

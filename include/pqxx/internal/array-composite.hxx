@@ -378,18 +378,16 @@ PQXX_INLINE_COV inline std::size_t size_composite_field_buffer(T const &field)
 {
   if constexpr (is_unquoted_safe<T>)
   {
-    // Safe to copy, without quotes or escaping.  Drop the terminating zero.
-    return size_buffer(field) - 1;
+    // Safe to copy, without quotes or escaping.
+    return size_buffer(field);
   }
   else
   {
     // + Opening quote.
     // + Field budget.
-    // - Terminating zero.
     // + Escaping for each byte in the field's string representation.
-    // - Escaping for terminating zero.
     // + Closing quote.
-    return 1 + 2 * (size_buffer(field) - 1) + 1;
+    return 1 + 2 * size_buffer(field) + 1;
   }
 }
 

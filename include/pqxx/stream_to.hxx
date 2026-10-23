@@ -127,7 +127,8 @@ public:
   static stream_to
   table(transaction_base &tx, std::string_view path, COLUMNS const &columns)
   {
-    return stream_to::raw_table(tx, path, tx.conn().quote_columns(columns));
+    return stream_to::raw_table(
+      tx, tx.conn().quote_table(path), tx.conn().quote_columns(columns));
   }
 
   /// Stream data to a pre-quoted table and columns.
@@ -175,6 +176,7 @@ public:
           m_field_buf{std::move(other.m_field_buf)},
           m_finder{other.m_finder},
           m_created_loc{other.m_created_loc},
+          m_encoding_group{other.m_encoding_group},
           m_finished{other.m_finished}
   {
     other.m_finished = true;
@@ -241,8 +243,7 @@ public:
    */
   template<typename Row> void write_row(Row const &row, sl loc = sl::current())
   {
-    fill_buffer(
-      row, conversion_context{trans().conn().get_encoding_group(loc), loc});
+    fill_buffer(row, conversion_context{m_encoding_group, loc});
     write_buffer(loc);
   }
 
@@ -272,6 +273,11 @@ private:
 
   /// The `std::source_location` for where this stream was created.
   sl m_created_loc;
+
+  /// The effective encoding group for our session.
+  /** See @ref pqxx::connection::effective_encoding_group().
+   */
+  encoding_group m_encoding_group;
 
   /// Has this stream finished?
   bool m_finished = false;
@@ -419,8 +425,7 @@ private:
   /// Write raw COPY line into @c m_buffer, based on varargs fields.
   template<typename... Ts> void fill_buffer(const Ts &...fields)
   {
-    conversion_context const c{
-      trans().conn().get_encoding_group(m_created_loc), m_created_loc};
+    conversion_context const c{m_encoding_group, m_created_loc};
     (..., append_to_buffer(fields, c));
   }
 

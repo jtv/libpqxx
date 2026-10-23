@@ -203,9 +203,9 @@ void test_connection_client_encoding(pqxx::test::context &tctx)
     {"GB18030", pqxx::encoding_group::gb18030},
     {"SJIS", pqxx::encoding_group::sjis},
     {"SHIFT_JIS_2004", pqxx::encoding_group::sjis},
-    // Close enough to ASCII-safe for our purposes, but not actually
-    // generally safe.
-    {"UHC", pqxx::encoding_group::ascii_safe},
+    // Close enough to ASCII-safe when input is well-formed, but sadly not
+    // when it's not.
+    {"UHC", pqxx::encoding_group::two_tier},
   };
   using underlying = std::underlying_type_t<pqxx::encoding_group>;
   for (auto const &[name, enc] : unsafe_encodings)

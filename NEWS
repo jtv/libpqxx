@@ -6,6 +6,16 @@
  - Fix `params` for smart pointer or `optional` holding binary data. (#1250)
  - New traits type `maybe_traits` & concept `maybe_type`. (#1254)
  - Use `PQsocketPoll()` if present; should fix MinGW `<thread>` problem.
+ - Forgo UHC encoding optimisation: input could be malformed.
+ - Auto-quote table name in one more case.
+ - _Finally_ make `transaction_base::do_abort()` nonvirtual.
+ - Documented: "exec" functions can handle compound statements.
+ - Disallow views in arrays & composites, even when hidden in a `maybe_type`.
+ - Concept `not_at_all_borrowed`, a stronger guarantee than `not_borrowed`.
+ - Optimise `params` against excessive `reserve()` calls.
+ - Fix budgeting for composites: could fail unnecessarily.
+ - Catch negative index (i.e. column number) in `row::at()`.
+ - Handle special rules for `SQL_ASCII` server encoding.
 8.0.2
  - Simple benchmark tool for query performance.
  - Fix an apparent `memcpy()` overlap.

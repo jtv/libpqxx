@@ -29,8 +29,13 @@ namespace pqxx
  * the corresponding field reference must be of a type that can handle nulls.
  * If you are working with a type that does not have an inherent null value,
  * such as e.g. `int`, consider using `std::optional`.
+ *
+ * @warning This class will not let you use a view as an element type.  It
+ * would be technically possible for some types, but we would need somewhere
+ * to store the underlying data.  And that would probably defeat the purpose
+ * of storing views: the parser would have to copy the data around.
  */
-template<typename... T>
+template<not_at_all_borrowed... T>
 inline void parse_composite(ctx c, std::string_view text, T &...fields)
 {
   static constexpr auto num_fields{sizeof...(T)};
@@ -69,7 +74,7 @@ inline void parse_composite(ctx c, std::string_view text, T &...fields)
 
 namespace pqxx::internal
 {
-constexpr char empty_composite_str[]{"()"};
+constexpr std::string_view empty_composite_str{"()"};
 } // namespace pqxx::internal
 
 
@@ -115,17 +120,22 @@ composite_size_buffer(T const &...fields) noexcept
 template<typename... T>
 inline zview composite_into_buf(ctx c, std::span<char> buf, T const &...fields)
 {
-  if (std::size(buf) < composite_size_buffer(fields...))
+  auto const needed{composite_size_buffer(fields...)};
+  if (std::size(buf) < needed)
     throw conversion_error{
-      "Buffer space may not be enough to represent composite value.", c.loc};
+      std::format(
+        "Buffer space may not be enough to represent composite value.  Need "
+        "{} byte(s), got {}.",
+        needed, std::size(buf)),
+      c.loc};
 
   constexpr auto num_fields{sizeof...(fields)};
   if constexpr (num_fields == 0)
   {
-    constexpr std::string_view empty{"()"};
     return zview{
-      std::data(buf),
-      pqxx::internal::copy_chars<true>(empty, buf, 0, c.loc) - 1};
+      std::data(buf), pqxx::internal::copy_chars<true>(
+                        pqxx::internal::empty_composite_str, buf, 0, c.loc) -
+                        1};
   }
 
   std::size_t pos{0};
@@ -134,9 +144,9 @@ inline zview composite_into_buf(ctx c, std::span<char> buf, T const &...fields)
 
   (pqxx::internal::write_composite_field<T>(buf, pos, fields, c), ...);
 
-  // If we've got multiple fields, "backspace" that last comma.
-  if constexpr (num_fields > 1)
-    --pos;
+  // Every field ended in a comma.  "Backspace" the one at the end.
+  --pos;
+
   // C++26: Use buf.at().
   buf[pos++] = ')';
   buf[pos] = '\0';

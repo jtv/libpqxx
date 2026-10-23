@@ -23,8 +23,9 @@ int count_rows(pqxx::transaction_base &tx)
 }
 
 
-void test_subtransaction_commits_if_commit_called(pqxx::connection &cx)
+void test_subtransaction_commits_if_commit_called(pqxx::test::context &)
 {
+  pqxx::connection cx;
   pqxx::work tx(cx);
   make_table(tx);
   {
@@ -35,11 +36,16 @@ void test_subtransaction_commits_if_commit_called(pqxx::connection &cx)
   // Work done in a committed subtransaction is preserved while the main
   // transaction remains active.
   PQXX_CHECK_EQUAL(count_rows(tx), 1);
+
+  // After that, we can continue as normal.
+  insert_row(tx);
+  PQXX_CHECK_EQUAL(count_rows(tx), 2);
 }
 
 
-void test_subtransaction_aborts_if_abort_called(pqxx::connection &cx)
+void test_subtransaction_aborts_if_abort_called(pqxx::test::context &)
 {
+  pqxx::connection cx;
   pqxx::work tx(cx);
   make_table(tx);
   {
@@ -49,11 +55,16 @@ void test_subtransaction_aborts_if_abort_called(pqxx::connection &cx)
   }
   // Work done in an aborted subtranction is immediately rolled back.
   PQXX_CHECK_EQUAL(count_rows(tx), 0);
+
+  // After that, we can continue as normal.
+  insert_row(tx);
+  PQXX_CHECK_EQUAL(count_rows(tx), 1);
 }
 
 
-void test_subtransaction_aborts_implicitly(pqxx::connection &cx)
+void test_subtransaction_aborts_implicitly(pqxx::test::context &)
 {
+  pqxx::connection cx;
   pqxx::work tx(cx);
   make_table(tx);
   {
@@ -62,17 +73,14 @@ void test_subtransaction_aborts_implicitly(pqxx::connection &cx)
   }
   // Destructor implicitly rolls back an uncommitted subtransaction.
   PQXX_CHECK_EQUAL(count_rows(tx), 0);
+
+  // After that, we can continue as normal.
+  insert_row(tx);
+  PQXX_CHECK_EQUAL(count_rows(tx), 1);
 }
 
 
-void test_subtransaction(pqxx::test::context &)
-{
-  pqxx::connection cx;
-  test_subtransaction_commits_if_commit_called(cx);
-  test_subtransaction_aborts_if_abort_called(cx);
-  test_subtransaction_aborts_implicitly(cx);
-}
-
-
-PQXX_REGISTER_TEST(test_subtransaction);
+PQXX_REGISTER_TEST(test_subtransaction_commits_if_commit_called);
+PQXX_REGISTER_TEST(test_subtransaction_aborts_if_abort_called);
+PQXX_REGISTER_TEST(test_subtransaction_aborts_implicitly);
 } // namespace
