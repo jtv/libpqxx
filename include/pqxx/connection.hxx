@@ -538,6 +538,20 @@ public:
     return pqxx::internal::enc_group(this->encoding_id(loc), loc);
   }
 
+  /// Effective encoding group.
+  /** This is normally the same thing as the client encoding group, but there
+   * is one exception: if the server's character set is `SQL_ASCII`, then
+   * special rules apply.  In that situation it will mindlessly (and very
+   * efficiently) escape all bytes that look like special characters,
+   * regardless of whether they're actual ASCII characters or just embedded
+   * ASCII-range byte values that happen to sit inside multi-byte characters.
+   */
+  [[nodiscard]] encoding_group
+  effective_encoding_group(sl loc = sl::current()) const
+  {
+    return m_server_is_sql_ascii ? encoding_group::ascii_safe :
+                                   get_encoding_group(loc);
+  }
   //@}
 
   /// Set one of the session variables to a new value.
@@ -1314,6 +1328,15 @@ private:
   using empty_params_t =
     std::initializer_list<std::pair<char const *, char const *>>;
 
+  /// Is the database's server encoding `SQL_ASCII`?
+  /** This encoding is also known as the database's _character set._  We don't
+   * care what the exact character set is, just whether it's `SQL_ASCII` or
+   * not.  There are special rules for that character set.
+   *
+   * Used to initialise `m_server_is_sql_ascii`; it caches the result.
+   */
+  [[nodiscard]] bool server_is_sql_ascii() const noexcept;
+
   friend class connecting;
   enum connect_mode
   {
@@ -1467,6 +1490,14 @@ private:
 
   /// Unique number to use as suffix for identifiers (see adorn_name()).
   int m_unique_id = 0;
+
+  /// Is the server's character set `SQL_ASCII`?
+  /** This is a special server encoding where different rules apply.  The
+   * server character set can never change during a session, and the exact
+   * encoding is of little interest otherwise, so we just cache this one
+   * aspect.
+   */
+  bool m_server_is_sql_ascii;
 };
 
 
@@ -1619,7 +1650,7 @@ connection::quote_columns(STRINGS const &columns, sl loc) const
 template<pqxx::ZString STRING, ZKey_ZValues MAPPING>
 inline connection::connection(
   STRING const &connection_string, MAPPING &&params, sl loc) :
-        m_created_loc{loc}
+        m_created_loc{loc}, m_server_is_sql_ascii{true}
 {
   // Check that the libpqxx binary library version is compatible with the
   // version against which the application was compiled.  We're in an inline

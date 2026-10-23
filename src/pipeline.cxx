@@ -36,7 +36,7 @@ constexpr std::string_view theSeparator{"; "sv}, theDummyValue{"1"sv},
 
 void pqxx::pipeline::init(sl loc)
 {
-  m_encoding = trans().conn().get_encoding_group(loc);
+  m_encoding = trans().conn().effective_encoding_group(loc);
   m_issuedrange = make_pair(std::end(m_queries), std::end(m_queries));
   attach();
 }
