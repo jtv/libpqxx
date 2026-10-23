@@ -13,3 +13,10 @@ So the security concerns are with data passed to libpqxx functions by the
 application, or retrieved from a database and returned to libpqxx from libpq.
 
 The tests in the `test/` directory may do strange things, but that's fine.
+
+
+Style guide
+-----------
+
+Keep your code, documentation, and other text to 78 columns.  Capitalise and
+punctuate code comments just like you would the same text in documentation.
