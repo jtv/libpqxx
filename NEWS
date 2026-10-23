@@ -15,6 +15,7 @@
  - Optimise `params` against excessive `reserve()` calls.
  - Fix budgeting for composites: could fail unnecessarily.
  - Catch negative index (i.e. column number) in `row::at()`.
+ - Handle special rules for `SQL_ASCII` server encoding.
 8.0.2
  - Simple benchmark tool for query performance.
  - Fix an apparent `memcpy()` overlap.
