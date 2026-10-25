@@ -1,4 +1,5 @@
 8.1.0
+ - Fix clashing `std::string_view` linker symbols in MSVC. (#1263)
  - No longer accept empty string as a boolean "false".
  - No longer accept "TRUE", "FALSE", "T", "F" as booleans.
  - Fix attribute ordering for Windows clang build. (#1252)

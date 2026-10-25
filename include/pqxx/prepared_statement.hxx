@@ -65,6 +65,11 @@ namespace pqxx
  * The string must be like a C-style string: it should contain no bytes with
  * value zero, but it must have a single byte with value zero directly behind
  * it in memory.
+ *
+ * Libpqxx does not export this class from its library binaries.  All member
+ * functions are inline.  Exporting the class seems to cause link conflicts in
+ * MSVC as the exported class re-exports methods from base class
+ * `std::string_view`.
  */
 class prepped final : public std::string_view
 {
