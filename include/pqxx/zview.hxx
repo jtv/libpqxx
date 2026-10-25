@@ -51,7 +51,9 @@ concept ZString =
  * matters since libpqxx builds on top of a C library.  For this reason, zview
  * also adds a @ref c_str method.
  */
-class PQXX_LIBEXPORT zview final : public std::string_view
+// All members are inline. Exporting this class also exports its standard-library
+// base on MSVC, causing duplicate string_view symbols in DLL consumers.
+class zview final : public std::string_view
 {
 public:
   /// Default constructor produces a zero-terminated empty string.

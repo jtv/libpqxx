@@ -66,7 +66,7 @@ namespace pqxx
  * value zero, but it must have a single byte with value zero directly behind
  * it in memory.
  */
-class PQXX_LIBEXPORT prepped final : public std::string_view
+class prepped final : public std::string_view
 {
 public:
   explicit constexpr prepped(std::string_view name) noexcept :
