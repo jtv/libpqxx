@@ -50,9 +50,12 @@ concept ZString =
  * The added guarantee lets the view be used as a C-style string, which often
  * matters since libpqxx builds on top of a C library.  For this reason, zview
  * also adds a @ref c_str method.
+ *
+ * Libpqxx does not export this class from its library binaries.  All member
+ * functions are inline.  Exporting the class seems to cause link conflicts in
+ * MSVC as the exported class re-exports methods from base class
+ * `std::string_view`.
  */
-// All members are inline. Exporting this class also exports its standard-library
-// base on MSVC, causing duplicate string_view symbols in DLL consumers.
 class zview final : public std::string_view
 {
 public:
