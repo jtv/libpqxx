@@ -202,7 +202,7 @@ void test_connection_client_encoding(pqxx::test::context &tctx)
     {"GBK", pqxx::encoding_group::gb18030},
     {"GB18030", pqxx::encoding_group::gb18030},
     {"SJIS", pqxx::encoding_group::sjis},
-    {"SHIFT_JIS_2004", pqxx::encoding_group::sjis},
+    {"SHIFT_JIS_2004", pqxx::encoding_group::shift_jis_2004},
     // Close enough to ASCII-safe when input is well-formed, but sadly not
     // when it's not.
     {"UHC", pqxx::encoding_group::two_tier},

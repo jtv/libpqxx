@@ -386,6 +386,33 @@ void test_generate_escaped_strings(pqxx::test::context &)
   PQXX_CHECK_EQUAL(
     pqxx::to_string(std::vector<std::string>{"x\"y\""}, make_context()),
     "{\"x\\\"y\\\"\"}");
+
+  // In SJIS, a byte that looks like a backslash inside a multibyte character
+  // is not a backslash, and must not be escaped.
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(
+      std::vector<std::string>{"\x95\\"},
+      make_context(pqxx::encoding_group::sjis)),
+    "{\"\x95\\\"}");
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(
+      std::vector<std::string>{"\x81\x5f"},
+      make_context(pqxx::encoding_group::sjis)),
+    "{\"\x81\x5f\"}");
+
+  // But in Shift_JIS-2004, the server converts the two-byte character
+  // 0x81 0x5f to an ASCII backslash before it parses the array literal.  So
+  // we must escape it, or the server will read it as an escape.
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(
+      std::vector<std::string>{"a\x81\x5f\"", "b"},
+      make_context(pqxx::encoding_group::shift_jis_2004)),
+    "{\"a\\\\\\\"\",\"b\"}");
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(
+      std::vector<std::string>{"\x95\\"},
+      make_context(pqxx::encoding_group::shift_jis_2004)),
+    "{\"\x95\\\"}");
 }
 
 
@@ -864,6 +891,7 @@ void test_scan_double_quoted_string(pqxx::test::context &)
   check_scan_double_quoted_ascii<enc::two_tier>();
   check_scan_double_quoted_ascii<enc::gb18030>();
   check_scan_double_quoted_ascii<enc::sjis>();
+  check_scan_double_quoted_ascii<enc::shift_jis_2004>();
 
 
   // Now let's try a byte that _looks_ like an ASCII backslash escaping the

@@ -7,6 +7,7 @@
  - Fix `params` for smart pointer or `optional` holding binary data. (#1250)
  - New traits type `maybe_traits` & concept `maybe_type`. (#1254)
  - Use `PQsocketPoll()` if present; should fix MinGW `<thread>` problem.
+ - Escape extra `SHIFT_JIS_2004` backslash character where needed.
  - Forgo UHC encoding optimisation: input could be malformed.
  - Auto-quote table name in one more case.
  - _Finally_ make `transaction_base::do_abort()` nonvirtual.
@@ -17,6 +18,7 @@
  - Fix budgeting for composites: could fail unnecessarily.
  - Catch negative index (i.e. column number) in `row::at()`.
  - Handle special rules for `SQL_ASCII` server encoding.
+ - New `encoding_group::shift_jis_2004`, separate from `sjis`.
 8.0.2
  - Simple benchmark tool for query performance.
  - Fix an apparent `memcpy()` overlap.

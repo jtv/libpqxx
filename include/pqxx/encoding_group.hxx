@@ -90,6 +90,14 @@ enum class encoding_group
 
   /// Non-ASCII-safe: Japanese JIS and Shift JIS.
   sjis,
+
+  /// Non-ASCII-safe: Shift_JIS-2004, the JIS X 0213 version of Shift JIS.
+  /** Almost identical to like @ref sjis, but with one nasty difference:
+   * there's an extra backslash character 0x81 0x5f that is equivalent to the
+   * ASCII backslash 0x5f...  And it can be useed for escaping!  Apparently
+   * the server even converts it to one.
+   */
+  shift_jis_2004,
 };
 } // namespace pqxx
 

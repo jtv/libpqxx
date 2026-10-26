@@ -70,6 +70,7 @@ template<> auto const tricky<pqxx::encoding_group::two_tier>{"\xa1|"sv};
 // (Yeah such a string is not possible here.)
 template<> auto const tricky<pqxx::encoding_group::gb18030>{"\x81|"sv};
 template<> auto const tricky<pqxx::encoding_group::sjis>{"\x81|"sv};
+template<> auto const tricky<pqxx::encoding_group::shift_jis_2004>{"\x81|"sv};
 
 
 /// Test basic sanity of search in encoding group `ENC`.
@@ -134,6 +135,65 @@ void test_find_chars(pqxx::test::context &)
   test_search<pqxx::encoding_group::ascii_safe>("ascii_safe");
   test_search<pqxx::encoding_group::gb18030>("gb18030");
   test_search<pqxx::encoding_group::sjis>("sjis");
+  test_search<pqxx::encoding_group::shift_jis_2004>("shift_jis_2004");
+}
+
+
+/// Cast `char` to `unsigned int` in a deterministic way.
+[[nodiscard]] inline constexpr unsigned char_to_u(char c) noexcept
+{
+  return static_cast<unsigned char>(c);
+}
+
+
+/// Test the "escape finders."
+/** In Shift_JIS-2004, the server reads the 2-byte character 0x81 0x5f as an
+ * ASCII backslash.  (Thankfully this wart is gone in general SJIS.)  An
+ * escape finder looking for backslashes finds these characters as well..  A
+ * regular char finder does not, not even the regular SJIS ones.
+ */
+void test_find_escapable_chars(pqxx::test::context &)
+{
+  using group = pqxx::encoding_group;
+  constexpr std::string_view fake_backslash{"\x81\x5f"sv},
+    fake_tilde{"\x81\xb0"sv};
+  text{"ab\x81\x5f|\\"sv};
+
+  auto const find_2004{
+    pqxx::internal::get_escape_finder<'\\'>(group::shift_jis_2004, loc())};
+  // This finder finds the special SJIS-2004 2-byte backslash.
+  PQXX_CHECK_EQUAL(find_2004(text, 0, loc()), 2u);
+  // Of course it also finds an ASCII backslash.
+  PQXX_CHECK_EQUAL(find_2004(text, 4, loc()), 5u);
+  // Fake tilde is also weird, but our finder isn't looking for that.
+  PQXX_CHECK_EQUAL(find_2004(fake_tilde, 0, loc()), std::size(fake_tilde));
+  PQXX_CHECK_THROWS(find_2004("\x81", 0, loc()), pqxx::argument_error);
+
+  auto const find_tilde{
+    pqxx::internal::get_escape_finder<'~'>(group::shift_jis_2004, loc())};
+  // This finder does spot the special tilde.
+  PQXX_CHECK_EQUAL(find_tilde(fake_tilde, 0, loc()), 0u);
+  // It skips the fake backslash, since we're not looking for tildes.
+  PQXX_CHECK_EQUAL(
+    find_tilde(fake_backslash, 0, loc()), std::size(fake_backslash));
+
+  auto const [special, width]{pqxx::internal::special_char(text, 2)};
+  PQXX_CHECK_EQUAL(char_to_u(special), char_to_u('\\'));
+  PQXX_CHECK_EQUAL(width, 2u);
+  auto const [special2, width2]{pqxx::internal::special_char(text, 5)};
+  PQXX_CHECK_EQUAL(char_to_u(special2), char_to_u('\\'));
+  PQXX_CHECK_EQUAL(width2, 1u);
+
+  // Regular char finders don't know about this wart.  They read the text
+  // as the server will send it to us, and the server never sends these.
+  auto const find_plain{
+    pqxx::internal::get_char_finder<'\\'>(group::shift_jis_2004, loc())};
+  PQXX_CHECK_EQUAL(find_plain(text, 0, loc()), 5u);
+
+  // In plain SJIS, the same bytes are just an unremarkable character.
+  auto const find_sjis{
+    pqxx::internal::get_escape_finder<'\\'>(group::sjis, loc())};
+  PQXX_CHECK_EQUAL(find_sjis(text, 0, loc()), 5u);
 }
 
 
@@ -152,6 +212,7 @@ void test_find_chars_fails_for_unfinished_character(pqxx::test::context &)
   check_unfinished_character<pqxx::encoding_group::two_tier>();
   check_unfinished_character<pqxx::encoding_group::gb18030>();
   check_unfinished_character<pqxx::encoding_group::sjis>();
+  check_unfinished_character<pqxx::encoding_group::shift_jis_2004>();
 }
 
 
@@ -190,6 +251,7 @@ void test_find_chars_reports_malencoded_text(pqxx::test::context &tctx)
 
 
 PQXX_REGISTER_TEST(test_find_chars);
+PQXX_REGISTER_TEST(test_find_escapable_chars);
 PQXX_REGISTER_TEST(test_find_chars_fails_for_unfinished_character);
 PQXX_REGISTER_TEST(test_find_chars_reports_malencoded_text);
 } // namespace

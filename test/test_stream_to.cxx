@@ -574,6 +574,9 @@ template<>
 constexpr pqxx::zview encoding_name<pqxx::encoding_group::gb18030>{"gb18030"};
 template<>
 constexpr pqxx::zview encoding_name<pqxx::encoding_group::sjis>{"SJIS"};
+template<>
+constexpr pqxx::zview encoding_name<pqxx::encoding_group::shift_jis_2004>{
+  "SHIFT_JIS_2004"};
 
 
 /// A Japanese greeting in various encodings.
@@ -590,6 +593,9 @@ constexpr std::string_view hello<pqxx::encoding_group::gb18030>{
 template<>
 constexpr std::string_view hello<pqxx::encoding_group::sjis>{
   "\x82\xb1\x82\xf1\x82\xc9\x82\xbf\x82\xed"};
+template<>
+constexpr std::string_view hello<pqxx::encoding_group::shift_jis_2004>{
+  hello<pqxx::encoding_group::sjis>};
 
 
 /// Test streaming Japanese text to a table in `ENC`.  Reset to UTF-8.
@@ -630,6 +636,7 @@ void test_stream_to_transcodes(pqxx::test::context &)
   check_stream_to_encodes<pqxx::encoding_group::two_tier>(cx);
   check_stream_to_encodes<pqxx::encoding_group::gb18030>(cx);
   check_stream_to_encodes<pqxx::encoding_group::sjis>(cx);
+  check_stream_to_encodes<pqxx::encoding_group::shift_jis_2004>(cx);
 }
 
 
@@ -653,6 +660,9 @@ template<>
 constexpr std::string_view attack<pqxx::encoding_group::gb18030>{"\x95\\"};
 template<>
 constexpr std::string_view attack<pqxx::encoding_group::sjis>{"\x95\\"};
+template<>
+constexpr std::string_view attack<pqxx::encoding_group::shift_jis_2004>{
+  "\x95\\"};
 
 
 /// The respective attack strings, but encoded in UTF-8.
@@ -666,6 +676,9 @@ constexpr std::string_view safe_attack<pqxx::encoding_group::gb18030>{
 template<>
 constexpr std::string_view safe_attack<pqxx::encoding_group::sjis>{
   "\xe8\xa1\xa8"};
+template<>
+constexpr std::string_view safe_attack<pqxx::encoding_group::shift_jis_2004>{
+  safe_attack<pqxx::encoding_group::sjis>};
 
 
 /// Verify that streaming in ENC is resilient to ASCII embedding attacks.
@@ -715,6 +728,48 @@ void test_stream_to_handles_embedded_special_values(pqxx::test::context &)
   check_attack<pqxx::encoding_group::two_tier>(cx);
   check_attack<pqxx::encoding_group::gb18030>(cx);
   check_attack<pqxx::encoding_group::sjis>(cx);
+  check_attack<pqxx::encoding_group::shift_jis_2004>(cx);
+}
+
+
+/// Test that `stream_to` handles special SJIS-2004 backslash correctly.
+/** Shift_JIS-2004 has a two-byte character that the server reads as an ASCII
+ * backslash.  Make sure we escape it, so it can't swallow the row separator.
+ */
+void test_stream_to_escapes_shift_jis_2004_backslash(pqxx::test::context &)
+{
+  // The two-byte character, followed by a newline character.  If we didn't
+  // escape that first character, the server would see "\\\n", an escaped
+  // newline, and read on into the next row.
+  constexpr std::string_view nasty{"\x81\x5f\n"};
+
+  pqxx::connection cx;
+  {
+    pqxx::nontransaction tx{cx};
+    tx.exec("CREATE TEMP TABLE backslash (id serial, data varchar)").no_rows();
+  }
+
+  cx.set_client_encoding("SHIFT_JIS_2004");
+  {
+    pqxx::work tx{cx};
+    auto stream{pqxx::stream_to::table(tx, {"backslash"}, {"data"})};
+    stream.write_values(nasty);
+    stream.write_values("next");
+    stream.complete();
+    tx.commit();
+  }
+
+  cx.set_client_encoding("UTF8");
+  {
+    pqxx::work tx{cx};
+    auto const rows{
+      tx.query<std::string>("SELECT data FROM backslash ORDER BY id")};
+    std::vector<std::string> out;
+    for (auto const &[data] : rows) out.push_back(data);
+    PQXX_CHECK_EQUAL(std::size(out), 2u);
+    PQXX_CHECK_EQUAL(out.at(0), "\\\n");
+    PQXX_CHECK_EQUAL(out.at(1), "next");
+  }
 }
 
 
@@ -749,5 +804,6 @@ PQXX_REGISTER_TEST(test_stream_to_moves_into_optional);
 PQXX_REGISTER_TEST(test_stream_to_empty_strings);
 PQXX_REGISTER_TEST(test_stream_to_transcodes);
 PQXX_REGISTER_TEST(test_stream_to_handles_embedded_special_values);
+PQXX_REGISTER_TEST(test_stream_to_escapes_shift_jis_2004_backslash);
 PQXX_REGISTER_TEST(test_stream_to_bool);
 } // namespace
