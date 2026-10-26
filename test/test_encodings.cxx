@@ -156,8 +156,7 @@ void test_find_escapable_chars(pqxx::test::context &)
 {
   using group = pqxx::encoding_group;
   constexpr std::string_view fake_backslash{"\x81\x5f"sv},
-    fake_tilde{"\x81\xb0"sv},
-  text{"ab\x81\x5f|\\"sv};
+    fake_tilde{"\x81\xb0"sv}, text{"ab\x81\x5f|\\"sv};
 
   auto const find_2004{
     pqxx::internal::get_escape_finder<'\\'>(group::shift_jis_2004, loc())};

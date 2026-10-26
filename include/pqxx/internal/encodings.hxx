@@ -345,8 +345,6 @@ template<encoding_group ENC, char... NEEDLE>
 PQXX_INLINE_COV [[nodiscard]] inline constexpr std::size_t
 find_escapable_char(std::string_view haystack, std::size_t here, sl loc)
 {
-  static_assert(((NEEDLE == '\\') or ...));
-
   if constexpr (ENC == encoding_group::shift_jis_2004)
   {
     // Nasty special case: there's a 2-byte alias for the backslash.
