@@ -291,7 +291,7 @@ jobs:
       - run:
           name: Configure
           # (Run the msys bash, not the one we get from CircleCI.)
-          command: ". vars.sh && bash.exe -c \". vars.sh && \
+          command: ". /tmp/vars.sh && bash.exe -c \". /tmp/vars.sh && \
             CXX=<< parameters.compiler >> \
             CXXFLAGS='-O1 -std=<< parameters.cxx_ver >>' \
             cmake -G Ninja . -DBUILD_TOOLS=1\""
@@ -300,7 +300,7 @@ jobs:
           path: include/pqxx
       - run:
           name: Make
-          command: bash -c ". vars.sh && ninja"
+          command: bash -c ". /tmp/vars.sh && ninja"
           shell: bash.exe
       - run:
           name: Start database
@@ -578,7 +578,7 @@ jobs:
           path: test.log
 
 
-  try-make-dist-install:
+  test-make-dist-install:
     parameters:
       compiler:
         type: string
@@ -697,7 +697,7 @@ workflows:
               compiler: ["clang++", "g++"]
               cxx_ver: ["c++23"]
 
-      - try-make-dist-install:
+      - test-make-dist-install:
           matrix:
             parameters:
               compiler: ["clang++"]

@@ -44,9 +44,10 @@ LOG="/tmp/install.log"
 #
 # Pass the name of the operating system: alpine, debian, fedora, etc.
 identify() {
+    local sysname="$1"
     (
-        echo "Basic OS information:"
-        case "$1" in
+        echo "Basic OS information ($sysname):"
+        case "$sysname" in
             macos)
                 sw_vers
                 ;;
@@ -58,7 +59,7 @@ identify() {
                 ;;
         esac
         echo
-    ) >>"$LOG"
+    ) 2>&1 >>"$LOG"
 }
 
 
