@@ -579,7 +579,7 @@ jobs:
       compiler:
         type: string
     docker:
-      - image: debia
+      - image: debian
 
     steps:
       - checkout
