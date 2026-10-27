@@ -280,14 +280,14 @@ jobs:
       - run:
           name: Install
           command: "./tools/install-deps.sh \
-              windows << parameters.compiler >> >vars.sh"
+              windows << parameters.compiler >> >/tmp/vars.sh"
           shell: bash.exe
           # Installation of dependencies on Windows often times out.
           max_auto_reruns: 3
       - store_artifacts:
-          path: "install.log"
+          path: "/tmp/install.log"
       - store_artifacts:
-          path: "vars.sh"
+          path: "/tmp/vars.sh"
       - run:
           name: Configure
           # (Run the msys bash, not the one we get from CircleCI.)
@@ -304,7 +304,7 @@ jobs:
           shell: bash.exe
       - run:
           name: Start database
-          command: ". vars.sh && ./tools/run-test-postgres.sh"
+          command: ". /tmp/vars.sh && ./tools/run-test-postgres.sh"
           shell: bash.exe
       - store_artifacts:
           path: postgres.log
@@ -314,7 +314,7 @@ jobs:
           path: postgres-start-stderr.log
       - run:
           name: Test
-          command: ". vars.sh && ./test/runner"
+          command: ". /tmp/vars.sh && ./test/runner"
           shell: bash.exe
       - store_artifacts:
           path: test-suite.log

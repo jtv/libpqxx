@@ -37,12 +37,7 @@ EXTRA_PACKAGES=("${@:3}")
 export DEBIAN_FRONTEND=noninteractive TZ=UTC
 
 # Install log.  We upload this as an artefact for debugging.
-if "$PROFILE" = "windows"
-then
-    LOG="install.log"
-else
-    LOG="/tmp/install.log"
-fi
+LOG="/tmp/install.log"
 
 
 # Print identifying information for the current operating system.
@@ -344,7 +339,7 @@ install_ubuntu_valgrind() {
 }
 
 
-# TODO: Support EXTRA_PACKAGES here.
+# This function does not support $EXTRA_PACKAGES.
 install_windows() {
     local arch="mingw-w64-x86_64"
     local cxxpkg
