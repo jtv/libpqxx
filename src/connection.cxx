@@ -599,37 +599,78 @@ void pqxx::connection::listen(
         channel),
       loc};
 
-  std::string str_name{channel};
+  // Hold channel name as a std::string just because the call to te map's
+  // lower_bound() needs a string, not a string_view.
+  //
+  // We'll move() it later on to save on redundant string construction.
+  std::string name_str{channel};
 
-  auto const pos{m_notification_handlers.lower_bound(str_name)},
-    handlers_end{std::end(m_notification_handlers)};
+  // Were we listening on this channel before?
+  bool present;
 
-  if (handler)
+  // Limit some variables' scope to reduce risk of mistakes.
   {
-    // Setting a handler.
-    if ((pos != handlers_end) and (pos->first == channel))
+    auto const pos{m_notification_handlers.lower_bound(name_str)},
+      handlers_end{std::end(m_notification_handlers)};
+
+    present = ((pos != handlers_end) and (pos->first == channel));
+
+    if (present)
     {
-      // Overwrite existing handler.
-      m_notification_handlers.insert_or_assign(
-        pos, std::move(str_name), std::move(handler));
+      if (handler)
+      {
+        assert(present and handler);
+
+        // Overwriting an existing handler.  All we need to do is replace the
+        // handler we had registered.  We keep listening.
+        pos->second = std::move(handler);
+      }
+      else
+      {
+        assert(present and not handler);
+
+        // Removing a handler.  We'll also stop listening further down.
+        m_notification_handlers.erase(pos);
+      }
     }
     else
     {
-      // We had no handler installed for this name.  Start listening.
-      exec(std::format("LISTEN {}", quote_name(channel)), loc).no_rows(loc);
-      m_notification_handlers.emplace_hint(pos, channel, std::move(handler));
+      if (handler)
+      {
+        assert(not present and handler);
+
+        // Installing a handler for a new channel.  We'll also start listening
+        // further down.
+        m_notification_handlers.emplace_hint(
+          pos, std::move(name_str), std::move(handler));
+      }
+      else
+      {
+        assert(not present and not handler);
+
+        // Removing a handler we didn't have.  Nothing to do.
+      }
     }
-  }
+  } // End of scope just to limit variable scope.
+
+  // Now we run the LISTEN/UNLISTEN statements as needed.  We do this all the
+  // way at the end because executing SQL can receive and handle
+  // notifications as a side effect.  A handler might in turn cause changes
+  // to the handlers map, which could invalidate our iterators.
+  if (not handler)
+    // No handler was given.  That means stop listening for this channel.
+    exec(std::format("UNLISTEN {}", quote_name(channel)), loc).no_rows(loc);
+  else if (not present)
+    // A handler was set, and we weren't already listening on the channel.
+    // Start doing so now.
+    exec(std::format("LISTEN {}", quote_name(channel)), loc).no_rows(loc);
   else
   {
-    // Installing an empty handler.  That's equivalent to removing whatever
-    // handler may have been installed previously.
-    if (pos != handlers_end)
-    {
-      // Yes, we had a handler for this name.  Remove it.
-      exec(std::format("UNLISTEN {}", quote_name(channel)), loc).no_rows(loc);
-      m_notification_handlers.erase(pos);
-    }
+    // Either we're unregistering from a channel on which we weren't even
+    // listening, in which case we have nothing to do; or we're registering
+    // on a channel to which we were already listening, in which case we've
+    // already done what we need to (see above) and there's no SQL to run.
+    assert((handler and present) or (not handler and not present));
   }
 }
 
@@ -784,13 +825,13 @@ int pqxx::connection::get_notifs(sl loc)
 
   int notifs = 0;
 
-  // Old mechanism.  This is going away.
   for (auto N{get_notif(m_conn)}; N.get(); N = get_notif(m_conn))
   {
     notifs++;
 
     std::string const channel{N->relname};
 
+    // Old mechanism.  This is going away.
     auto const Hit{m_receivers.equal_range(channel)};
     if (Hit.second != Hit.first)
     {
@@ -824,6 +865,7 @@ int pqxx::connection::get_notifs(sl loc)
         }
     }
 
+    // The 8.x mechanism, where you can just register a lambda.
     auto const handler{m_notification_handlers.find(N->relname)};
     if (handler != std::end(m_notification_handlers))
       (handler->second)(notification{

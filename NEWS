@@ -20,6 +20,7 @@
  - Handle special rules for `SQL_ASCII` server encoding.
  - New `encoding_group::shift_jis_2004`, separate from `sjis`.
  - Drop archlinux CI testing: Docker images seem to be completely broken now.
+ - Tighten up & document behaviour of overwriting notification handlers.
 8.0.2
  - Simple benchmark tool for query performance.
  - Fix an apparent `memcpy()` overlap.

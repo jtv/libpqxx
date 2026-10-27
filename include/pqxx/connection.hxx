@@ -816,6 +816,12 @@ public:
    * A connection can only have one handler per channel, so if you register two
    * different handlers on the same channel, then the second overwrites the
    * first.
+   *
+   * @warning A handler can itself call `listen()`, but if it does so on its
+   * own channel, then this may _immediately_ overwrite the handler,
+   * invalidating your handler object.  Also, be aware that the new handler
+   * may receive notifications that were sent while the old handler was still
+   * active.
    */
   void listen(
     std::string_view channel, notification_handler handler = {},
