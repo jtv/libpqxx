@@ -250,11 +250,11 @@ void test_parse_range(pqxx::test::context &)
   using ubound = pqxx::no_bound;
   using traits = pqxx::string_traits<range>;
 
-  constexpr std::string_view empties[]{"empty", "EMPTY", "eMpTy"};
+  std::vector<std::string_view> const empties{"empty", "EMPTY", "eMpTy"};
   for (auto const empty : empties)
     PQXX_CHECK(traits::from_string(empty).empty());
 
-  constexpr std::string_view universals[]{"(,)", "[,)", "(,]", "[,]"};
+  std::vector<std::string_view> const universals{"(,)", "[,)", "(,]", "[,]"};
   for (auto const univ : universals)
     PQXX_CHECK_EQUAL(traits::from_string(univ), (range{ubound{}, ubound{}}));
 
