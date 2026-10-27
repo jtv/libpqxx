@@ -586,7 +586,10 @@ public:
         throw variable_set_to_null{
           std::format("Attempted to set variable {} to null.", var), loc};
     }
-    exec(std::format("SET {}={}", quote_name(var), quote(value, loc)), loc);
+    exec(
+      std::make_shared<std::string>(
+        std::format("SET {}={}", quote_name(var), quote(value, loc))),
+      "", false, loc);
   }
 
   /// Read currently applicable value of a configuration variable.

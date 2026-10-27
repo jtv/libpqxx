@@ -516,7 +516,10 @@ void pqxx::connection::set_variable(
 
 std::string pqxx::connection::get_variable(std::string_view var, sl loc)
 {
-  return exec(std::format("SHOW {}", quote_name(var)), loc)
+  return exec(
+           std::make_shared<std::string>(
+             std::format("SHOW {}", quote_name(var))),
+           "", false, loc)
     .at(0)
     .at(0)
     .as(std::string{});
@@ -526,7 +529,10 @@ std::string pqxx::connection::get_variable(std::string_view var, sl loc)
 std::string pqxx::connection::get_var(std::string_view var, sl loc)
 {
   // (Variables can't be null, so far as I can make out.)
-  return exec(std::format("SHOW {}", quote_name(var)), loc)
+  return exec(
+           std::make_shared<std::string>(
+             std::format("SHOW {}", quote_name(var))),
+           "", false, loc)
     .one_field_ref(loc)
     .as<std::string>(loc);
 }
@@ -1006,7 +1012,10 @@ void pqxx::connection::prepare(char const definition[], sl loc) &
 
 void pqxx::connection::unprepare(std::string_view name, sl loc)
 {
-  exec(std::format("DEALLOCATE {}", quote_name(name)), loc);
+  exec(
+    std::make_shared<std::string>(
+      std::format("DEALLOCATE {}", quote_name(name))),
+    "", false, loc);
 }
 
 
