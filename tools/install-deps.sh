@@ -48,16 +48,16 @@ identify() {
         echo "Basic OS information:"
         case "$1" in
             macos)
-	        sw_vers
-		;;
-	    windows)
-	        systeminfo
-		;;
-	    *)
-	        cat /etc/os-release
-		;;
-	esac
-	echo
+                sw_vers
+                ;;
+            windows)
+                systeminfo
+                ;;
+            *)
+                cat /etc/os-release
+                ;;
+        esac
+        echo
     ) >>"$LOG"
 }
 
@@ -248,8 +248,8 @@ install_debian_lint() {
     # onwards.
     apt_install \
         "${PKGS_DEBIAN_BASE[@]}" \
-        cmake cppcheck make markdownlint pipx python3-pyflakes shellcheck \
-	which yamllint \
+        clang-tidy cmake cppcheck make markdownlint pipx python3-pyflakes \
+        shellcheck which yamllint \
         "$(compiler_pkg "$1")" "${EXTRA_PACKAGES[@]}"
 
     # Now use pipx to install ruff and uv.
