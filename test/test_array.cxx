@@ -598,7 +598,9 @@ void test_array_supports_move(pqxx::test::context &)
 
   empty1 = std::move(empty2);
 
-  // NOLINTNEXTLINE(clang-analyzer-cplusplus.Move, bugprone-use-after-move)
+  // NOLINTBEGIN(bugprone-use-after-move)
+  // NOLINTBEGIN(clang-analyzer-cplusplus.Move)
+  // NOLINTBEGIN(hicpp-invalid-access-moved)
   PQXX_CHECK_EQUAL(empty2.size(), 0u);
 
   PQXX_CHECK_EQUAL(empty1.size(), 0u);
@@ -612,14 +614,12 @@ void test_array_supports_move(pqxx::test::context &)
 
   PQXX_CHECK_EQUAL(empty2.size(), 2u);
 
-  // NOLINTNEXTLINE(bugprone-use-after-move)
   empty1 = std::move(empty2);
 
-  // NOLINTNEXTLINE(
-  //     bugprone-use-after-move,
-  //     clang-analyzer-cplusplus.Move,
-  //     hicpp-invalid-access-moved)
   PQXX_CHECK_EQUAL(empty2.size(), 0u);
+  // NOLINTEND(hicpp-invalid-access-moved)
+  // NOLINTEND(clang-analyzer-cplusplus.Move)
+  // NOLINTEND(bugprone-use-after-move)
 
   PQXX_CHECK_EQUAL(empty1.size(), 2u);
   PQXX_CHECK_EQUAL(std::size(empty1.sizes()), 3u);
