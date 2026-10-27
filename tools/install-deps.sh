@@ -36,6 +36,31 @@ EXTRA_PACKAGES=("${@:3}")
 # For Debian-flavoured distros:
 export DEBIAN_FRONTEND=noninteractive TZ=UTC
 
+# Install log.  We upload this as an artefact for debugging.
+LOG="/tmp/install.log"
+
+
+# Print identifying information for the current operating system.
+#
+# Pass the name of the operating system: alpine, debian, fedora, etc.
+idenfify() {
+    (
+        echo "Basic OS information:"
+        case "$1" in
+            macos)
+	        sw_vers
+		;;
+	    windows)
+	        WMIC OS GET Caption,Version /VALUE
+		;;
+	    *)
+	        cat /etc/os-release
+		;;
+	esac
+	echo
+    ) >>"$LOG"
+}
+
 
 # Common case: OS package we need to install to get compiler $1.
 #
@@ -63,25 +88,25 @@ apt_install() {
     (
         apt-get -q update
         apt-get -qy install "$@"
-    ) >>/tmp/install.log
+    ) >>"$LOG"
 }
 
 
 # Install packages using Homebrew.
 brew_install() {
-    brew install --quiet "$@" >>/tmp/install.log
+    brew install --quiet "$@" >>"$LOG"
 }
 
 
 # Install packages using dnf.
 dnf_install() {
-    dnf -qy install "$@" >>/tmp/install.log
+    dnf -qy install "$@" >>"$LOG"
 }
 
 
 # Install packages using pacman.  Includes database update.
 pacman_install() {
-    pacman -qSuy --needed --noconfirm "$@" >>/tmp/install.log
+    pacman -qSuy --needed --noconfirm "$@" >>"$LOG"
 }
 
 
@@ -96,6 +121,8 @@ PKGS_DEBIAN_AUTOTOOLS=("${PKGS_ALL_AUTOTOOLS[@]}" make)
 install_alpine() {
     local compiler="$1"
     local extra
+
+    identify
 
     if [ "$compiler" = "g++" ]
     then
@@ -113,12 +140,14 @@ install_alpine() {
         apk add \
             "${PKGS_ALPINE_BASE[@]}" "${PKGS_ALL_AUTOTOOLS[@]}" \
             "${EXTRA_PACKAGES[@]}" "${extra[@]}"
-    ) >>/tmp/install.log
+    ) >>"$LOG"
     echo "export PGHOST=/run/postgresql"
 }
 
 
 install_archlinux() {
+    identify
+
     pacman_install \
         "${PKGS_ARCHLINUX_BASE[@]}" "${PKGS_ARCHLINUX_AUTOTOOLS[@]}" \
         postgresql which \
@@ -135,6 +164,8 @@ install_archlinux_infer() {
     local tarball="infer-linux-x86_64-v$infer_ver.tar.xz"
     local url="$downloads/v$infer_ver/$tarball"
 
+    identify
+
     if [ "$1" != "g++" ]
     then
         echo >&2 "Facebook's 'infer' only seems to work with g++, not '%1'."
@@ -149,14 +180,16 @@ install_archlinux_infer() {
     cd /opt
     # This is not idempotent.  I wasn't joking about using a disposable
     # environment.
-    wget -q "$url" >>/tmp/install.log
-    tar -xJf "$tarball" >>/tmp/install.log
+    wget -q "$url" >>"$LOG"
+    tar -xJf "$tarball" >>"$LOG"
     ln -s /opt/infer-*/bin/infer /usr/local/bin/infer
 }
 
 
 # Install for a "lint.sh --full" run (but no actual build).
 install_archlinux_lint() {
+    identify
+
     pacman_install \
         "${PKGS_ARCHLINUX_BASE[@]}" \
         cmake cppcheck make markdownlint python-pyflakes ruff shellcheck \
@@ -166,6 +199,8 @@ install_archlinux_lint() {
 
 
 install_debian() {
+    identify
+
     apt_install \
         "${PKGS_DEBIAN_BASE[@]}" "${PKGS_DEBIAN_AUTOTOOLS[@]}" \
         postgresql \
@@ -184,6 +219,8 @@ install_debian_infer() {
     local tarball="infer-linux-x86_64-v$infer_ver.tar.xz"
     local url="$downloads/v$infer_ver/$tarball"
 
+    identify
+
     if [ "$1" != "g++" ]
     then
         echo >&2 "Facebook's 'infer' only seems to work with g++, not '%1'."
@@ -191,20 +228,22 @@ install_debian_infer() {
     fi
 
     apt_install \
-        "${PKGS_ARCHLINUX_BASE[@]}" "${PKGS_ARCHLINUX_AUTOTOOLS[@]}" \
+        "${PKGS_DEBIAN_BASE[@]}" "${PKGS_DEBIAN_AUTOTOOLS[@]}" \
         tzdata wget xz-utils \
         "$(compiler_pkg "$1")" "${EXTRA_PACKAGES[@]}"
 
     cd /opt
     # This is not idempotent.  Do this only in a disposable environment.
-    wget -q "$url" >>/tmp/install.log
-    tar -xJf "$tarball" >>/tmp/install.log
+    wget -q "$url" >>"$LOG"
+    tar -xJf "$tarball" >>"$LOG"
     ln -s /opt/infer-*/bin/infer /usr/local/bin/infer
 }
 
 
 # Install for a "lint.sh --full" run (but no actual build).
 install_debian_lint() {
+    identify
+
     # The markdownlint package is only available from Debian 13 (Trixie)
     # onwards.
     apt_install \
@@ -214,12 +253,16 @@ install_debian_lint() {
         "$(compiler_pkg "$1")" "${EXTRA_PACKAGES[@]}"
 
     # Now use pipx to install ruff and uv.
-    export PATH="$PATH:~/.local/bin"
-    pipx install ruff uv >>/tmp/install.log
+    pipx install ruff uv >>"$LOG"
+
+    # shellcheck disable=SC2016
+    echo 'export PATH="$PATH:~/.local/bin"'
 }
 
 
 install_fedora() {
+    identify
+
     dnf_install \
         "${PKGS_ALL_AUTOTOOLS[@]}" \
         libasan libubsan postgresql postgresql-devel postgresql-server \
@@ -240,7 +283,7 @@ install_macos() {
     # means "if A is set, use B, otherwise use an empty value."
     local extra=("${EXTRA_PACKAGES[@]+"${EXTRA_PACKAGES[@]}"}")
 
-    brew update  >>/tmp/install.log
+    brew update  >>"$LOG"
     brew_install \
         "${PKGS_ALL_AUTOTOOLS[@]}" \
         postgresql uv libpq "${extra[@]+"${extra[@]}"}"
@@ -254,17 +297,21 @@ install_macos() {
 
 
 install_ubuntu_codeql() {
+    identify
+
     # Can't use apt_install here, since we're running it in sudo.
     (
         sudo -E apt-get -q -o DPkg::Lock::Timeout=120 update
         sudo -E apt-get -q install -y -o DPkg::Lock::Timeout=120 \
             cmake git libpq-dev make \
             "$(compiler_pkg "$1" clang g++)" "${EXTRA_PACKAGES[@]}"
-    ) >>/tmp/install.log
+    ) >>"$LOG"
 }
 
 
 install_ubuntu() {
+    identify
+
     apt_install \
         "${PKGS_DEBIAN_BASE[@]}" "${PKGS_DEBIAN_AUTOTOOLS[@]}" \
         postgresql \
@@ -277,6 +324,8 @@ install_ubuntu() {
 
 
 install_ubuntu_valgrind() {
+    identify
+
     apt_install \
         "${PKGS_DEBIAN_BASE[@]}" \
         cmake ninja-build postgresql valgrind \
