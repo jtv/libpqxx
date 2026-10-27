@@ -231,7 +231,7 @@ install_debian_infer() {
     apt_install \
         "${PKGS_DEBIAN_BASE[@]}" "${PKGS_DEBIAN_AUTOTOOLS[@]}" \
         tzdata wget xz-utils \
-        "$(compiler_pkg "$1")" "${EXTRA_PACKAGES[@]}"
+        "$(compiler_pkg "$1" clang g++)" "${EXTRA_PACKAGES[@]}"
 
     cd /opt
     # This is not idempotent.  Do this only in a disposable environment.
