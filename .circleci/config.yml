@@ -641,7 +641,7 @@ workflows:
       - coverage:
           matrix:
             parameters:
-              cxx_ver: ["c++26"]
+              cxx_ver: ["c++23"]
 
       - infer:
           matrix:
