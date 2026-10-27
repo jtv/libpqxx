@@ -464,7 +464,7 @@ jobs:
       cxx_ver:
         type: string
     docker:
-      - image: debian
+      - image: debian:stable
     steps:
       - checkout
       - run:

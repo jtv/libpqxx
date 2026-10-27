@@ -51,7 +51,8 @@ identify() {
 	        sw_vers
 		;;
 	    windows)
-	        WMIC OS GET Caption,Version /VALUE
+	        WMIC OS GET Caption /VALUE
+	        WMIC OS GET Version /VALUE
 		;;
 	    *)
 	        cat /etc/os-release
