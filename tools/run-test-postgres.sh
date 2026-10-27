@@ -114,11 +114,11 @@ then
         # Run postgres server in the background.  This is not great practice
         # but...  we're doing this for a disposable environment.
         banner "start postgres"
-	# We need to redirect I/O for Windows' sake.  Without it, on that
-	# platform, this script will complete but never exit.
+        # We need to redirect I/O for Windows' sake.  Without it, on that
+        # platform, this script will complete but never exit.
         $RUN_POSTGRES \
-	    >postgres-start-stdout.log 2>postgres-start-stderr.log \
-	    </dev/null
+            >postgres-start-stdout.log 2>postgres-start-stderr.log \
+            </dev/null
     else
         # Same thing, but "su" to postgres user.
         banner "initdb"
