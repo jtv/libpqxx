@@ -483,7 +483,7 @@ jobs:
             ./configure \
                 CXX=g++ CXXFLAGS='-O0 -g -std=<< parameters.cxx_ver >>'"
       - store_artifacts:
-          path: "configure.log"
+          path: "config.log"
       - run:
           name: Capture
           command: "infer capture -- make -j4 check TESTS="
