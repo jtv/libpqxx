@@ -609,7 +609,7 @@ void pqxx::connection::listen(
   bool const have_handler{handler};
 
   // Were we listening on this channel before?
-  bool present;
+  bool present{false};
 
   // Any SQL LISTEN/UNLISTEN statement we may need to execute at the end.
   // We do that all the way at the end to avoid recursion complications.
