@@ -605,72 +605,82 @@ void pqxx::connection::listen(
   // We'll move() it later on to save on redundant string construction.
   std::string name_str{channel};
 
+  // Did we originally have a handler (since we may move it)?
+  bool const have_handler{handler};
+
   // Were we listening on this channel before?
   bool present;
 
-  // Limit some variables' scope to reduce risk of mistakes.
-  {
-    auto const pos{m_notification_handlers.lower_bound(name_str)},
-      handlers_end{std::end(m_notification_handlers)};
+  // Any SQL LISTEN/UNLISTEN statement we may need to execute at the end.
+  // We do that all the way at the end to avoid recursion complications.
+  std::string_view cmd{""};
 
-    present = ((pos != handlers_end) and (pos->first == channel));
+  // Limit pos' scope to reduce risk of mistakes.  Some changes might
+  // invalidate that iterator and we wouldn't want to dereference it after.
+  {
+    auto const pos{m_notification_handlers.lower_bound(name_str)};
+
+    // std::string_view::operator== compares contents, not just size & pointer.
+    present =
+      ((pos != std::end(m_notification_handlers)) and (pos->first == channel));
 
     if (present)
     {
-      if (handler)
+      if (have_handler)
       {
-        assert(present and handler);
+        assert(present and have_handler);
 
         // Overwriting an existing handler.  All we need to do is replace the
-        // handler we had registered.  We keep listening.
+        // handler we had registered.  We keep listening just as we were.
+        //
+        // The move() here is why we need have_handler: we can't tell from the
+        // value of handler itself afterwards.
         pos->second = std::move(handler);
       }
       else
       {
-        assert(present and not handler);
+        assert(present and not have_handler);
 
-        // Removing a handler.  We'll also stop listening further down.
+        // Removing a handler.  We'll also need to stop listening further down.
         m_notification_handlers.erase(pos);
+        cmd = "UNLISTEN";
       }
     }
     else
     {
-      if (handler)
+      if (have_handler)
       {
-        assert(not present and handler);
+        assert(not present and have_handler);
 
-        // Installing a handler for a new channel.  We'll also start listening
-        // further down.
+        // Installing a handler for a new channel.  We'll also have to start
+        // listening further down.
         m_notification_handlers.emplace_hint(
           pos, std::move(name_str), std::move(handler));
+        cmd = "LISTEN";
       }
       else
       {
-        assert(not present and not handler);
+        assert(not present and not have_handler);
 
-        // Removing a handler we didn't have.  Nothing to do.
+        // Removing a handler we didn't even have.  Nothing to do.
       }
     }
   } // End of scope just to limit variable scope.
 
-  // Now we run the LISTEN/UNLISTEN statements as needed.  We do this all the
-  // way at the end because executing SQL can receive and handle
-  // notifications as a side effect.  A handler might in turn cause changes
-  // to the handlers map, which could invalidate our iterators.
-  if (not handler)
-    // No handler was given.  That means stop listening for this channel.
-    exec(std::format("UNLISTEN {}", quote_name(channel)), loc).no_rows(loc);
-  else if (not present)
-    // A handler was set, and we weren't already listening on the channel.
-    // Start doing so now.
-    exec(std::format("LISTEN {}", quote_name(channel)), loc).no_rows(loc);
-  else
+  if (not cmd.empty())
   {
-    // Either we're unregistering from a channel on which we weren't even
-    // listening, in which case we have nothing to do; or we're registering
-    // on a channel to which we were already listening, in which case we've
-    // already done what we need to (see above) and there's no SQL to run.
-    assert((handler and present) or (not handler and not present));
+    // We're either starting to listen on a new channel, or stopping listening
+    // on a channel on which we were previously listening.
+    assert((present and not have_handler) or (not present and have_handler));
+
+    // We still have some SQL to run.  Don't check for pending notifications
+    // while doing so, or a handler might call listen() and kick off a nasty
+    // recursion.
+    exec(
+      std::make_shared<std::string>(
+        std::format("{} {}", cmd, quote_name(channel))),
+      "", false, loc)
+      .no_rows(loc);
   }
 }
 
@@ -951,15 +961,17 @@ pqxx::connection::get_errorhandlers() const
 pqxx::result
 pqxx::connection::exec(std::string_view query, std::string_view desc, sl loc)
 {
-  return exec(std::make_shared<std::string>(query), desc, loc);
+  return exec(std::make_shared<std::string>(query), desc, true, loc);
 }
 
 
 pqxx::result pqxx::connection::exec(
-  std::shared_ptr<std::string> const &query, std::string_view desc, sl loc)
+  std::shared_ptr<std::string> const &query, std::string_view desc,
+  bool notifs, sl loc)
 {
   auto res{make_result(pq_exec(m_conn, query->c_str()), query, desc, loc)};
-  get_notifs(loc);
+  if (notifs)
+    get_notifs(loc);
   return res;
 }
 

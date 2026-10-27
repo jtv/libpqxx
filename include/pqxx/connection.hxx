@@ -1412,11 +1412,15 @@ private:
   friend class internal::gate::connection_transaction;
   result exec(std::string_view query, sl loc) { return exec(query, "", loc); }
   result exec(std::string_view, std::string_view, sl);
-  PQXX_PRIVATE result
-  exec(std::shared_ptr<std::string> const &, std::string_view, sl);
+
+  /// Execute query.
+  /** @param notifs Check for pending notifications?
+   */
+  PQXX_PRIVATE result exec(
+    std::shared_ptr<std::string> const &, std::string_view, bool notifs, sl);
   PQXX_PRIVATE result exec(std::shared_ptr<std::string> const &query, sl loc)
   {
-    return exec(query, "", loc);
+    return exec(query, "", true, loc);
   }
 
   PQXX_PRIVATE void register_transaction(transaction_base *);
