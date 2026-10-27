@@ -37,7 +37,12 @@ EXTRA_PACKAGES=("${@:3}")
 export DEBIAN_FRONTEND=noninteractive TZ=UTC
 
 # Install log.  We upload this as an artefact for debugging.
-LOG="/tmp/install.log"
+if "$PROFILE" = "windows"
+then
+    LOG="install.log"
+else
+    LOG="/tmp/install.log"
+fi
 
 
 # Print identifying information for the current operating system.
@@ -362,7 +367,7 @@ install_windows() {
     # output go to stdout because that's where we write our variables.  So we
     # let it generate progress information and send the output to stderr.  :-/
     choco install msys2 --limit-output --stoponfirstfailure -y 2>&1 |
-        tee -a install.log >&2
+        tee -a "$LOG" >&2
 
     # We need the msys version of libpq, because the one we'd get from choco
     # is for MSVC (odd, for a C library).  Ironically Microsoft's own vcpkg is
@@ -389,7 +394,7 @@ pacman -S \
     ninja \
     $cxxpkg \
     --noconfirm
-" | tee -a install.log >&2
+" | tee -a "$LOG" >&2
 
     echo "export PGHOST=localhost"
     echo "export PATH='$PATH'"
