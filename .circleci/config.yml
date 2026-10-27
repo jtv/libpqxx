@@ -579,7 +579,7 @@ jobs:
           path: test.log
 
 
-  test-make-dist-install:
+  make-dist-install:
     parameters:
       compiler:
         type: string
@@ -698,7 +698,7 @@ workflows:
               compiler: ["clang++", "g++"]
               cxx_ver: ["c++23"]
 
-      - test-make-dist-install:
+      - make-dist-install:
           matrix:
             parameters:
               compiler: ["clang++"]
