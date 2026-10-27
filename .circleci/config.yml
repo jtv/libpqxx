@@ -396,12 +396,13 @@ jobs:
       cxx_ver:
         type: string
     docker:
-      - image: debian:stable
+      # Need recent compiler for -fpath-coverage-limit option.
+      - image: ubuntu:26.04
     steps:
       - checkout
       - run:
           name: Install
-          command: "tools/install-deps.sh debian g++ lcov >/tmp/vars.sh"
+          command: "tools/install-deps.sh ubuntu g++ lcov >/tmp/vars.sh"
           max_auto_reruns: 3
       - store_artifacts:
           path: "/tmp/install.log"
