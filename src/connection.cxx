@@ -198,10 +198,12 @@ pqxx::connection::connection(connection &&rhs, sl loc) :
         m_notification_handlers{std::move(rhs.m_notification_handlers)},
         m_created_loc{loc},
         m_unique_id{rhs.m_unique_id},
-        m_server_is_sql_ascii{rhs.m_server_is_sql_ascii}
+        m_server_is_sql_ascii{rhs.m_server_is_sql_ascii},
+        m_handling_notifications{rhs.m_handling_notifications}
 {
   rhs.check_movable(loc);
   rhs.m_conn = nullptr;
+  rhs.m_handling_notifications = false;
 }
 
 
@@ -449,6 +451,9 @@ pqxx::connection &pqxx::connection::operator=(connection &&rhs)
   m_notification_handlers = std::move(rhs.m_notification_handlers);
   m_created_loc = rhs.m_created_loc;
   m_server_is_sql_ascii = rhs.m_server_is_sql_ascii;
+  m_handling_notifications = rhs.m_handling_notifications;
+
+  rhs.m_handling_notifications = false;
 
   return *this;
 }
@@ -619,7 +624,7 @@ void pqxx::connection::listen(
 
   // Any SQL LISTEN/UNLISTEN statement we may need to execute at the end.
   // We do that all the way at the end to avoid recursion complications.
-  std::string_view cmd{""};
+  std::string_view cmd{};
 
   // Limit pos' scope to reduce risk of mistakes.  Some changes might
   // invalidate that iterator and we wouldn't want to dereference it after.
@@ -829,6 +834,7 @@ notify_ptr get_notif(pqxx::internal::pq::PGconn *cx)
 } // namespace
 
 
+#include <iostream> // XXX:
 int pqxx::connection::get_notifs(sl loc)
 {
   if (not consume_input())
@@ -839,59 +845,78 @@ int pqxx::connection::get_notifs(sl loc)
   if (m_trans != nullptr) [[unlikely]]
     return 0;
 
+  // Don't check for new notifications while handling notifications.  Leave it
+  // for the next top-level call.
+  if (m_handling_notifications)
+    return 0;
+  m_handling_notifications = true;
+
   int notifs = 0;
 
-  for (auto N{get_notif(m_conn)}; N.get(); N = get_notif(m_conn))
+  try
   {
-    notifs++;
-
-    std::string const channel{N->relname};
-
-    // Old mechanism.  This is going away.
-    auto const Hit{m_receivers.equal_range(channel)};
-    if (Hit.second != Hit.first)
+    for (auto N{get_notif(m_conn)}; N.get(); N = get_notif(m_conn))
     {
-      std::string const payload{N->extra};
-      for (auto i{Hit.first}; i != Hit.second; ++i) try
-        {
-          (*i->second)(payload, N->be_pid);
-        }
-        catch (std::exception const &e)
-        {
-          try
+      notifs++;
+
+      std::string const channel{N->relname};
+
+      // Old mechanism.  This is going away.
+      auto const Hit{m_receivers.equal_range(channel)};
+      if (Hit.second != Hit.first)
+      {
+        std::string const payload{N->extra};
+        for (auto i{Hit.first}; i != Hit.second; ++i) try
           {
-            process_notice(
-              std::format(
-                "Exception in notification receiver '{}': {}\n", i->first,
-                e.what()));
+            (*i->second)(payload, N->be_pid);
           }
-          catch (std::bad_alloc const &)
+          catch (std::exception const &e)
           {
-            // Out of memory.  Try to get the message out in a more robust way.
-            process_notice(
-              "Exception in notification receiver, "
-              "and also ran out of memory\n");
+            try
+            {
+              process_notice(
+                std::format(
+                  "Exception in notification receiver '{}': {}\n", i->first,
+                  e.what()));
+            }
+            catch (std::bad_alloc const &)
+            {
+              // Out of memory.  Try to get the message out in a more robust
+              // way.
+              process_notice(
+                "Exception in notification receiver, "
+                "and also ran out of memory\n");
+            }
+            catch (std::exception const &)
+            {
+              process_notice(
+                "Exception in notification receiver "
+                "(compounded by other error)\n");
+            }
           }
-          catch (std::exception const &)
-          {
-            process_notice(
-              "Exception in notification receiver "
-              "(compounded by other error)\n");
-          }
-        }
+      }
+
+      // The 8.x mechanism, where you can just register a lambda.
+      auto const handler{m_notification_handlers.find(N->relname)};
+      if (handler != std::end(m_notification_handlers))
+        (handler->second)(notification{
+          .conn = *this,
+          .channel = channel,
+          .payload = N->extra,
+          .backend_pid = N->be_pid,
+        });
+
+      N.reset();
     }
 
-    // The 8.x mechanism, where you can just register a lambda.
-    auto const handler{m_notification_handlers.find(N->relname)};
-    if (handler != std::end(m_notification_handlers))
-      (handler->second)(notification{
-        .conn = *this,
-        .channel = channel,
-        .payload = N->extra,
-        .backend_pid = N->be_pid,
-      });
-
-    N.reset();
+    // We're done.  However we leave here, reset this field.
+    m_handling_notifications = false;
+  }
+  catch (std::exception const &)
+  {
+    // Even when the code fails, reset this field.
+    m_handling_notifications = false;
+    throw;
   }
 
   return notifs;

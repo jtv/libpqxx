@@ -1511,6 +1511,9 @@ private:
    * aspect.
    */
   bool m_server_is_sql_ascii;
+
+  /// Is this connection currently handling notifications?
+  bool m_handling_notifications{false};
 };
 
 
