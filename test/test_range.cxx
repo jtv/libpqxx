@@ -187,7 +187,7 @@ void test_range_subset(pqxx::test::context &)
   using range = pqxx::range<int>;
   using traits = pqxx::string_traits<range>;
 
-  constexpr std::string_view subsets[][2]{
+  constexpr std::array<std::string_view, 2> subsets[]{
     {"empty", "empty"},  {"(,)", "empty"},    {"(0,1)", "empty"},
     {"(,)", "[-10,10]"}, {"(,)", "(-10,10)"}, {"(,)", "(,)"},
     {"(,10)", "(,10)"},  {"(,10)", "(,9)"},   {"(,10]", "(,10)"},
@@ -199,7 +199,7 @@ void test_range_subset(pqxx::test::context &)
   for (auto const &[super, sub] : subsets)
     PQXX_CHECK(traits::from_string(super).contains(traits::from_string(sub)));
 
-  constexpr std::string_view non_subsets[][2]{
+  constexpr std::array<std::string_view, 2> non_subsets[]{
     {"empty", "[0,0]"},   {"empty", "(,)"},     {"[-10,10]", "(,)"},
     {"(-10,10)", "(,)"},  {"(,9)", "(,10)"},    {"(,10)", "(,10]"},
     {"[1,4]", "[0,4]"},   {"[1,4]", "[1,5]"},   {"(0,10)", "[0,10]"},
@@ -306,7 +306,7 @@ void test_range_intersection(pqxx::test::context &)
 {
   // Intersections and their expected results, in text form.
   // Each row contains two ranges, and their intersection.
-  constexpr std::string_view intersections[][3]{
+  constexpr std::array<std::string_view, 3> intersections[]{
     {"empty", "empty", "empty"},
     {"(,)", "empty", "empty"},
     {"[,]", "empty", "empty"},
