@@ -43,7 +43,7 @@ LOG="/tmp/install.log"
 # Print identifying information for the current operating system.
 #
 # Pass the name of the operating system: alpine, debian, fedora, etc.
-idenfify() {
+identify() {
     (
         echo "Basic OS information:"
         case "$1" in
