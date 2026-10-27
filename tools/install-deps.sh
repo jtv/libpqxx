@@ -40,9 +40,9 @@ export DEBIAN_FRONTEND=noninteractive TZ=UTC
 LOG="/tmp/install.log"
 
 
-# Print identifying information for the current operating system.
+# Log identifying information for the current operating system.
 #
-# Pass the name of the operating system: alpine, debian, fedora, etc.
+# Pass the profilename: alpine, debian, fedora, etc.
 identify() {
     local sysname="$1"
     (
@@ -52,9 +52,11 @@ identify() {
                 sw_vers
                 ;;
             windows)
+	        # For some reason this isn't coming through on Windows.  :-/
                 systeminfo
                 ;;
             *)
+	        # On Linux systems it's nice and uniform.
                 cat /etc/os-release
                 ;;
         esac
