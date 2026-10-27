@@ -122,7 +122,7 @@ install_alpine() {
     local compiler="$1"
     local extra
 
-    identify
+    identify alpine
 
     if [ "$compiler" = "g++" ]
     then
@@ -146,7 +146,7 @@ install_alpine() {
 
 
 install_archlinux() {
-    identify
+    identify archlinux
 
     pacman_install \
         "${PKGS_ARCHLINUX_BASE[@]}" "${PKGS_ARCHLINUX_AUTOTOOLS[@]}" \
@@ -164,7 +164,7 @@ install_archlinux_infer() {
     local tarball="infer-linux-x86_64-v$infer_ver.tar.xz"
     local url="$downloads/v$infer_ver/$tarball"
 
-    identify
+    identify archlinux
 
     if [ "$1" != "g++" ]
     then
@@ -188,7 +188,7 @@ install_archlinux_infer() {
 
 # Install for a "lint.sh --full" run (but no actual build).
 install_archlinux_lint() {
-    identify
+    identify archlinux
 
     pacman_install \
         "${PKGS_ARCHLINUX_BASE[@]}" \
@@ -199,7 +199,7 @@ install_archlinux_lint() {
 
 
 install_debian() {
-    identify
+    identify debian
 
     apt_install \
         "${PKGS_DEBIAN_BASE[@]}" "${PKGS_DEBIAN_AUTOTOOLS[@]}" \
@@ -219,7 +219,7 @@ install_debian_infer() {
     local tarball="infer-linux-x86_64-v$infer_ver.tar.xz"
     local url="$downloads/v$infer_ver/$tarball"
 
-    identify
+    identify debian
 
     if [ "$1" != "g++" ]
     then
@@ -242,7 +242,7 @@ install_debian_infer() {
 
 # Install for a "lint.sh --full" run (but no actual build).
 install_debian_lint() {
-    identify
+    identify debian
 
     # The markdownlint package is only available from Debian 13 (Trixie)
     # onwards.
@@ -261,7 +261,7 @@ install_debian_lint() {
 
 
 install_fedora() {
-    identify
+    identify fedora
 
     dnf_install \
         "${PKGS_ALL_AUTOTOOLS[@]}" \
@@ -283,6 +283,8 @@ install_macos() {
     # means "if A is set, use B, otherwise use an empty value."
     local extra=("${EXTRA_PACKAGES[@]+"${EXTRA_PACKAGES[@]}"}")
 
+    install macos
+
     brew update  >>"$LOG"
     brew_install \
         "${PKGS_ALL_AUTOTOOLS[@]}" \
@@ -297,7 +299,7 @@ install_macos() {
 
 
 install_ubuntu_codeql() {
-    identify
+    identify ubuntu
 
     # Can't use apt_install here, since we're running it in sudo.
     (
@@ -310,7 +312,7 @@ install_ubuntu_codeql() {
 
 
 install_ubuntu() {
-    identify
+    identify ubuntu
 
     apt_install \
         "${PKGS_DEBIAN_BASE[@]}" "${PKGS_DEBIAN_AUTOTOOLS[@]}" \
@@ -324,7 +326,7 @@ install_ubuntu() {
 
 
 install_ubuntu_valgrind() {
-    identify
+    identify ubuntu
 
     apt_install \
         "${PKGS_DEBIAN_BASE[@]}" \
@@ -343,6 +345,8 @@ install_windows() {
     local cxxpkg
     local msys="/C/tools/msys64"
     local mingw="$msys/mingw64"
+
+    identify windows
 
     cxxpkg="$(compiler_pkg "$1")"
     if [ -n "$cxxpkg" ]
