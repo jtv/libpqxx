@@ -1419,7 +1419,7 @@ private:
   /// Execute query.
   /** @param notifs Check for pending notifications?
    */
-  PQXX_PRIVATE result exec(
+  result exec(
     std::shared_ptr<std::string> const &, std::string_view, bool notifs, sl);
   PQXX_PRIVATE result exec(std::shared_ptr<std::string> const &query, sl loc)
   {
