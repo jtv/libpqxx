@@ -9,10 +9,10 @@
 #
 # Where <system> is one of the environments for which this script works:
 # * alpine
-# * archlinux
+# * archlinux (deprecated)
 # * archlinux-coverage (for running test coverage analysis)
-# * archlinux-lint (for running full lint)
 # * debian
+# * debian-lint (for running full lint)
 # * fedora
 # * macos
 # * ubuntu
@@ -177,6 +177,48 @@ install_debian() {
 }
 
 
+# Install Facebook's Infer static analysis tool.
+install_debian_infer() {
+    local infer_ver="1.3.0"
+    local downloads="https://github.com/facebook/infer/releases/download"
+    local tarball="infer-linux-x86_64-v$infer_ver.tar.xz"
+    local url="$downloads/v$infer_ver/$tarball"
+
+    if [ "$1" != "g++" ]
+    then
+        echo >&2 "Facebook's 'infer' only seems to work with g++, not '%1'."
+        exit 1
+    fi
+
+    apt_install \
+        "${PKGS_ARCHLINUX_BASE[@]}" "${PKGS_ARCHLINUX_AUTOTOOLS[@]}" \
+        tzdata wget xz-utils \
+        "$(compiler_pkg "$1")" "${EXTRA_PACKAGES[@]}"
+
+    cd /opt
+    # This is not idempotent.  Do this only in a disposable environment.
+    wget -q "$url" >>/tmp/install.log
+    tar -xJf "$tarball" >>/tmp/install.log
+    ln -s /opt/infer-*/bin/infer /usr/local/bin/infer
+}
+
+
+# Install for a "lint.sh --full" run (but no actual build).
+install_debian_lint() {
+    # The markdownlint package is only available from Debian 13 (Trixie)
+    # onwards.
+    apt_install \
+        "${PKGS_DEBIAN_BASE[@]}" \
+        cmake cppcheck make markdownlint pipx python3-pyflakes shellcheck \
+	which yamllint \
+        "$(compiler_pkg "$1")" "${EXTRA_PACKAGES[@]}"
+
+    # Now use pipx to install ruff and uv.
+    export PATH="$PATH:~/.local/bin"
+    pipx install ruff uv >>/tmp/install.log
+}
+
+
 install_fedora() {
     dnf_install \
         "${PKGS_ALL_AUTOTOOLS[@]}" \
@@ -308,7 +350,7 @@ then
 Usage: $0 <profile> <compiler> [extra packages...]
 
 Where <profile> is usually an OS name, sometimes a combination of OS and
-purpose: archlinux, archilinux-lint, debian, fedora, macos, windows...
+purpose: archlinux, debian-lint, debian, fedora, macos, windows...
 
 And <compiler> is the compiler: g++ or clang++ (or in future perhaps more).
 EOF
@@ -332,6 +374,12 @@ case "$PROFILE" in
 
     debian)
         install_debian "$COMPILER"
+        ;;
+    debian-infer)
+        install_debian_infer "$COMPILER"
+        ;;
+    debian-lint)
+        install_debian_lint "$COMPILER"
         ;;
 
     fedora)

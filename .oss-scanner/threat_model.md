@@ -37,6 +37,15 @@ Keep your code, documentation, and other text to 78 columns.  Capitalise and
 punctuate code comments just like you would the same text in documentation.
 
 Always use spaces for indentation,never tabs, _except:_
+
 * where the `make` format requires tabs (including Maketile templates), or
 * where we conventionally use them in m4, or
 * in scripts related to GNU autotools: `configure`, `config/compile`, etc.
+
+Try to ensure that Markdown files pass a `markdownlint` check:
+
+* Start with a top-level header.
+* Avoid mixing Markdown header styles.
+* Separate each list from its preceding paragraph with a blank line.
+* Write nontrivial code blocks between triple backquotes; specify language.
+* Write filenames in backquotes to avoid trouble with un-escaped underscores.
