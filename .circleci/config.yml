@@ -579,7 +579,7 @@ jobs:
       compiler:
         type: string
     docker:
-      - image: archlinux
+      - image: debia
 
     steps:
       - checkout
@@ -587,7 +587,7 @@ jobs:
       - run:
           name: Install
           command: "./tools/install-deps.sh \
-                archlinux << parameters.compiler >> >/tmp/vars.sh"
+                debian << parameters.compiler >> >/tmp/vars.sh"
           max_auto_reruns: 3
       - store_artifacts:
           path: "/tmp/install.log"
