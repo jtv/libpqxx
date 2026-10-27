@@ -431,6 +431,8 @@ jobs:
                       -fpath-coverage-limit=2000000 \
                       -fprofile-update=prefer-atomic' \
                   LDFLAGS='--coverage'"
+      - store_artifacts:
+          path: "config.log"
       - run:
           name: Compile
           command: "make -j4 check TESTS="
@@ -480,6 +482,8 @@ jobs:
           command: ". /tmp/vars.sh && autoreconf && \
             ./configure \
                 CXX=g++ CXXFLAGS='-O0 -g -std=<< parameters.cxx_ver >>'"
+      - store_artifacts:
+          path: "configure.log"
       - run:
           name: Capture
           command: "infer capture -- make -j4 check TESTS="
