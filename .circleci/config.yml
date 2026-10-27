@@ -484,17 +484,17 @@ jobs:
       - run:
           name: Configure
           command: ". /tmp/vars.sh && autoreconf && \
-            ./configure \
-                CXX=g++ CXXFLAGS='-O0 -g -std=<< parameters.cxx_ver >>'"
+            ./configure CXXFLAGS='-O0 -g -std=<< parameters.cxx_ver >>'"
       - store_artifacts:
           path: "config.log"
       - run:
           name: Capture
-          command: "infer capture -- make -j4 check TESTS="
+          command: ". /tmp/vars.sh && infer capture -- make -j4 check TESTS="
       - run:
           name: Infer
           no_output_timeout: 20m
-          command: "infer analyze --bufferoverrun --loop-hoisting \
+          command: ". /tmp/vars.sh && \
+              infer analyze --bufferoverrun --loop-hoisting \
               --siof-check-iostreams -- \
               make -j4 check TESTS= 1> >(tee infer.log) 2> >(tee stderr.log)"
       - store_artifacts:
