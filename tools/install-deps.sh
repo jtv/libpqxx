@@ -59,7 +59,7 @@ identify() {
                 ;;
         esac
         echo
-    ) 2>&1 >>"$LOG"
+    ) >>"$LOG" 2>&1
 }
 
 
