@@ -666,7 +666,8 @@ workflows:
       - test-linux:
           matrix:
             parameters:
-              os: ["alpine", "archlinux", "debian", "fedora", "ubuntu"]
+              # Skipping 'archlinux' because the image seems to be broken.
+              os: ["alpine", "debian", "fedora", "ubuntu"]
               compiler: ["clang++", "g++"]
               cxx_ver: ["c++20", "c++23", "c++26"]
             exclude:
