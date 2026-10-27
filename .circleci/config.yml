@@ -396,12 +396,12 @@ jobs:
       cxx_ver:
         type: string
     docker:
-      - image: archlinux
+      - image: debian
     steps:
       - checkout
       - run:
           name: Install
-          command: "tools/install-deps.sh archlinux g++ lcov >/tmp/vars.sh"
+          command: "tools/install-deps.sh debian g++ lcov >/tmp/vars.sh"
           max_auto_reruns: 3
       - store_artifacts:
           path: "/tmp/install.log"
