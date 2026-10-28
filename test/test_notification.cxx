@@ -202,7 +202,6 @@ void test_listen_supports_different_types_of_callable(
   pqxx::work tx2{cx};
   tx2.notify(chan);
   tx2.commit();
-  // XXX: Not arriving!?
   cx.await_notification(3);
   PQXX_CHECK_EQUAL(received, 1);
 
