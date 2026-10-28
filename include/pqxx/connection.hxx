@@ -1195,7 +1195,7 @@ public:
    * The SQL "LIKE" operator also lets you choose your own escape character.
    * This is supported, but must be a single-byte character.
    */
-  template<char escape_char>
+  template<char escape_char = '\\'>
   [[nodiscard]] inline std::string
   esc_like(std::string_view text, sl loc = sl::current()) const;
 
@@ -1753,7 +1753,7 @@ pqxx::connection::esc_like(std::string_view text, sl loc) const
     return "";
   auto const data{std::data(text)};
   // XXX: Also deal with SJIS-2004 2-byte backslash.
-  auto const finder{pqxx::internal::get_char_finder<'_', '%', escape_char>(
+  auto const finder{pqxx::internal::get_escape_finder<'_', '%', escape_char>(
     effective_encoding_group(loc), loc)};
 
   // We're going to loop in a counterintuitive order.  First we look for the
@@ -1782,24 +1782,28 @@ pqxx::connection::esc_like(std::string_view text, sl loc) const
   // unremarkable ones after.
   for (std::size_t here{next}; here < sz; here = next)
   {
-    // So we found a special character.  It's exactly 1 byte long.
+    // We're at a special character.
+
     // clang-tidy rule bug:
     // NOLINTBEGIN(cert-dcl03-c)
     assert(
       (data[here] == '%') or (data[here] == '_') or
-      (data[here] == escape_char));
+      (data[here] == escape_char) or
+      ((escape_char == '\\') and (data[here] == '\x81')));
     // NOLINTEND(cert-dcl03-c)
+
+    out.push_back(escape_char);
+    auto const [special, width]{pqxx::internal::special_char(data, here)};
+    // Append the special character, or if it's the special nasty SJIS-2004
+    // backslash, just a plain old backslash.
+    out.push_back(special);
 
     // Look for the next stopping point after that, whether another special
     // character or the end of the input.  (This search may even start at the
     // end of the input, and find nothing at all.)
-    next = finder(text, here + 1, loc);
+    here += width;
+    next = finder(text, here, loc);
 
-    // Now we start appending: an escape character, followed by the special
-    // character (so that it gets escaped) and its tail of unremarkable
-    // characters after that.  This way we copy the special character and the
-    // unremarkable ones all in one go.
-    out.push_back(escape_char);
     out.append(data + here, data + next);
   }
   return out;
