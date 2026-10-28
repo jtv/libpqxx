@@ -299,9 +299,22 @@ public:
     return conn().quote_name(identifier);
   }
 
-  // TODO: "Into buffer" variant.
   /// Escape string for literal LIKE match.
-  [[nodiscard]] std::string esc_like(
+  /** Set `escape_char` to the escape character.
+   */
+  template<char escape_char = '\\'>
+  [[nodiscard]] std::string
+  esc_like(std::string_view text, sl loc = sl::current()) const
+  {
+    return conn().esc_like<escape_char>(text, loc);
+  }
+
+  /// Escape string for literal LIKE match.
+  /** @deprecated This function is broken.  It does not escape the escape
+   * character itself.
+   */
+  [[nodiscard, deprecated("Use the templated version of esc_like().")]]
+  std::string esc_like(
     std::string_view bin, char escape_char = '\\',
     sl loc = sl::current()) const
   {
@@ -1273,12 +1286,12 @@ private:
 
   status m_status = status::active;
 
-  bool m_registered = false;
-
   /// A `std::source_location` for where this transaction object was created.
   sl m_created_loc;
 
   static constexpr std::string_view s_type_name{"transaction"sv};
+
+  bool m_registered = false;
 };
 } // namespace pqxx
 

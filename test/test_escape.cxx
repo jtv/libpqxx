@@ -121,17 +121,18 @@ void test_esc_raw_unesc_raw(pqxx::transaction_base &t)
 
 void test_esc_like(pqxx::transaction_base const &tx)
 {
-  PQXX_CHECK_EQUAL(tx.esc_like(""), "");
-  PQXX_CHECK_EQUAL(tx.esc_like("abc"), "abc");
-  PQXX_CHECK_EQUAL(tx.esc_like("_"), "\\_");
-  PQXX_CHECK_EQUAL(tx.esc_like("%"), "\\%");
-  PQXX_CHECK_EQUAL(tx.esc_like("a%b_c"), "a\\%b\\_c");
-  PQXX_CHECK_EQUAL(tx.esc_like("_", '+'), "+_");
-  PQXX_CHECK_EQUAL(tx.esc_like("%foo"), "\\%foo");
-  PQXX_CHECK_EQUAL(tx.esc_like("foo%"), "foo\\%");
-  PQXX_CHECK_EQUAL(tx.esc_like("f%o%o"), "f\\%o\\%o");
-  PQXX_CHECK_EQUAL(tx.esc_like("___"), "\\_\\_\\_");
-  PQXX_CHECK_EQUAL(tx.esc_like("_n_n__n_"), "\\_n\\_n\\_\\_n\\_");
+  PQXX_CHECK_EQUAL(tx.esc_like<>(""), "");
+  PQXX_CHECK_EQUAL(tx.esc_like<>("abc"), "abc");
+  PQXX_CHECK_EQUAL(tx.esc_like<>("_"), "\\_");
+  PQXX_CHECK_EQUAL(tx.esc_like<>("%"), "\\%");
+  PQXX_CHECK_EQUAL(tx.esc_like<>("a%b_c"), "a\\%b\\_c");
+  PQXX_CHECK_EQUAL(tx.esc_like<'+'>("_"), "+_");
+  PQXX_CHECK_EQUAL(tx.esc_like<>("%foo"), "\\%foo");
+  PQXX_CHECK_EQUAL(tx.esc_like<>("foo%"), "foo\\%");
+  PQXX_CHECK_EQUAL(tx.esc_like<>("f%o%o"), "f\\%o\\%o");
+  PQXX_CHECK_EQUAL(tx.esc_like<>("___"), "\\_\\_\\_");
+  PQXX_CHECK_EQUAL(tx.esc_like<>("_n_n__n_"), "\\_n\\_n\\_\\_n\\_");
+  PQXX_CHECK_EQUAL(tx.esc_like<'\\'>("hello\\n"), "hello\\\\n");
 }
 
 

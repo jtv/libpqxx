@@ -21,6 +21,7 @@
  - New `encoding_group::shift_jis_2004`, separate from `sjis`.
  - Drop archlinux CI testing: Docker images seem to be completely broken now.
  - Tighten up & document behaviour of overwriting notification handlers.
+ - `esc_like()` is broken.  Use `esc_like<...>()` instead.
 8.0.2
  - Simple benchmark tool for query performance.
  - Fix an apparent `memcpy()` overlap.

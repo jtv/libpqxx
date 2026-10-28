@@ -384,7 +384,7 @@ public:
     }
   }
 
-  // TODO: Once we drop notification_receiver/errorhandler, move is easier.
+  // 9.0: Once we drop notification_receiver/errorhandler, move is easier.
   /// Move assignment.
   /** Neither connection can have an open transaction, `errorhandler`, or
    * `notification_receiver`.
@@ -1169,7 +1169,6 @@ public:
   template<typename T>
   [[nodiscard]] inline std::string quote(T const &t, sl = sl::current()) const;
 
-  // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Escape string for literal LIKE match.
   /** Use this when part of an SQL "LIKE" pattern should match only as a
    * literal string, not as a pattern, even if it contains "%" or "_"
@@ -1190,13 +1189,18 @@ public:
    * ```cxx
    *    tx.exec(
    *        "SELECT file FROM item WHERE file LIKE " +
-   *        tx.quote(tx.esc_like(name) + ".___"));
+   *        tx.quote(tx.esc_like<>(name) + ".___"));
    * ```
    *
    * The SQL "LIKE" operator also lets you choose your own escape character.
    * This is supported, but must be a single-byte character.
    */
-  [[nodiscard]] std::string esc_like(
+  template<char escape_char>
+  [[nodiscard]] inline std::string
+  esc_like(std::string_view text, sl loc = sl::current()) const;
+
+  [[nodiscard, deprecated("Use templated version of esc_like().")]] std::string
+  esc_like(
     std::string_view text, char escape_char = '\\',
     sl loc = sl::current()) const;
   //@}
@@ -1737,6 +1741,68 @@ inline connection::connection(
   values.push_back(nullptr);
 
   init(keys, values, loc);
+}
+
+
+template<char escape_char>
+inline std::string
+pqxx::connection::esc_like(std::string_view text, sl loc) const
+{
+  auto const sz{std::size(text)};
+  if (sz == 0u)
+    return "";
+  auto const data{std::data(text)};
+  // XXX: Also deal with SJIS-2004 2-byte backslash.
+  auto const finder{pqxx::internal::get_char_finder<'_', '%', escape_char>(
+    effective_encoding_group(loc), loc)};
+
+  // We're going to loop in a counterintuitive order.  First we look for the
+  // end of the leading sequence of unremarkable characters.
+  auto next{finder(text, 0, loc)};
+  if (next >= sz)
+    // No special characters at all.  Copy the entire input.
+    return std::string{text};
+
+  // Still here?  Then we'll need to do some actual escaping.  Start a buffer.
+  std::string out;
+
+  // In the worst case we'll need 2 * sz bytes.  So why not just reserve those?
+  // Because if the string is short, reserving too much space may lose us the
+  // Short String Optimization and cost us an unnecessary memory allocation.
+  //
+  // For large inputs, std::string will have an efficient growth algorithm so
+  // it's not like we'll be re-allocating for every byte.
+  out.reserve(std::size(text));
+
+  // Append any leading unremarkable characters that we just scanned.
+  out.append(data, data + next);
+
+  // Now we loop.  This is the counterintuitive part.  We'll be dealing in
+  // chunks of text, each _starting_ with a special character with zero or more
+  // unremarkable ones after.
+  for (std::size_t here{next}; here < sz; here = next)
+  {
+    // So we found a special character.  It's exactly 1 byte long.
+    // clang-tidy rule bug:
+    // NOLINTBEGIN(cert-dcl03-c)
+    assert(
+      (data[here] == '%') or (data[here] == '_') or
+      (data[here] == escape_char));
+    // NOLINTEND(cert-dcl03-c)
+
+    // Look for the next stopping point after that, whether another special
+    // character or the end of the input.  (This search may even start at the
+    // end of the input, and find nothing at all.)
+    next = finder(text, here + 1, loc);
+
+    // Now we start appending: an escape character, followed by the special
+    // character (so that it gets escaped) and its tail of unremarkable
+    // characters after that.  This way we copy the special character and the
+    // unremarkable ones all in one go.
+    out.push_back(escape_char);
+    out.append(data + here, data + next);
+  }
+  return out;
 }
 } // namespace pqxx
 #endif
