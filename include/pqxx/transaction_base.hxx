@@ -318,7 +318,9 @@ public:
     std::string_view bin, char escape_char = '\\',
     sl loc = sl::current()) const
   {
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
     return conn().esc_like(bin, escape_char, loc);
+#include <pqxx/internal/ignore-deprecated-post.hxx>
   }
   //@}
 
