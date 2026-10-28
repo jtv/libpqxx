@@ -1801,10 +1801,9 @@ pqxx::connection::esc_like(std::string_view text, sl loc) const
     // Look for the next stopping point after that, whether another special
     // character or the end of the input.  (This search may even start at the
     // end of the input, and find nothing at all.)
-    here += width;
-    next = finder(text, here, loc);
+    next = finder(text, here + width, loc);
 
-    out.append(data + here, data + next);
+    out.append(data + here + width, data + next);
   }
   return out;
 }
