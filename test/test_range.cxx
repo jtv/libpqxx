@@ -187,7 +187,7 @@ void test_range_subset(pqxx::test::context &)
   using range = pqxx::range<int>;
   using traits = pqxx::string_traits<range>;
 
-  constexpr std::string_view subsets[][2]{
+  std::vector<std::array<std::string_view, 2>> const subsets{
     {"empty", "empty"},  {"(,)", "empty"},    {"(0,1)", "empty"},
     {"(,)", "[-10,10]"}, {"(,)", "(-10,10)"}, {"(,)", "(,)"},
     {"(,10)", "(,10)"},  {"(,10)", "(,9)"},   {"(,10]", "(,10)"},
@@ -199,7 +199,7 @@ void test_range_subset(pqxx::test::context &)
   for (auto const &[super, sub] : subsets)
     PQXX_CHECK(traits::from_string(super).contains(traits::from_string(sub)));
 
-  constexpr std::string_view non_subsets[][2]{
+  std::vector<std::array<std::string_view, 2>> const non_subsets{
     {"empty", "[0,0]"},   {"empty", "(,)"},     {"[-10,10]", "(,)"},
     {"(-10,10)", "(,)"},  {"(,9)", "(,10)"},    {"(,10)", "(,10]"},
     {"[1,4]", "[0,4]"},   {"[1,4]", "[1,5]"},   {"(0,10)", "[0,10]"},
@@ -233,6 +233,14 @@ void test_range_to_string(pqxx::test::context &)
   PQXX_CHECK_EQUAL(pqxx::to_string(range{ubound{}, xbound{8}}), "(,8)");
   PQXX_CHECK_EQUAL(pqxx::to_string(range{ibound{5}, ubound{}}), "[5,)");
   PQXX_CHECK_EQUAL(pqxx::to_string(range{xbound{5}, ubound{}}), "(5,)");
+
+  // Stretch the buffer budget to the limit:
+  auto const bottom{(std::numeric_limits<int>::min)()}, top{bottom + 1};
+  range const stretchy{ibound{bottom}, ibound{top}};
+  auto const expected{std::format("[{},{}]", bottom, top)};
+  PQXX_CHECK_GREATER_EQUAL(pqxx::size_buffer(stretchy), std::size(expected));
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(range{ibound{bottom}, ibound{bottom + 1}}), expected);
 }
 
 
@@ -242,11 +250,11 @@ void test_parse_range(pqxx::test::context &)
   using ubound = pqxx::no_bound;
   using traits = pqxx::string_traits<range>;
 
-  constexpr std::string_view empties[]{"empty", "EMPTY", "eMpTy"};
+  std::vector<std::string_view> const empties{"empty", "EMPTY", "eMpTy"};
   for (auto const empty : empties)
     PQXX_CHECK(traits::from_string(empty).empty());
 
-  constexpr std::string_view universals[]{"(,)", "[,)", "(,]", "[,]"};
+  std::vector<std::string_view> const universals{"(,)", "[,)", "(,]", "[,]"};
   for (auto const univ : universals)
     PQXX_CHECK_EQUAL(traits::from_string(univ), (range{ubound{}, ubound{}}));
 
@@ -274,7 +282,7 @@ void test_parse_bad_range(pqxx::test::context &)
   using range = pqxx::range<int>;
   using conv_err = pqxx::conversion_error;
   using traits = pqxx::string_traits<range>;
-  constexpr std::string_view bad_ranges[]{
+  std::vector<std::string_view> const bad_ranges{
     "",   "x",       "e",          "empt",       "emptyy",   "()",
     "[]", "(empty)", "(empty, 0)", "(0, empty)", ",",        "(,",
     ",)", "(1,2,3)", "(4,5x)",     "(null, 0)",  "[0, 1.0]", "[1.0, 0]",
@@ -298,7 +306,7 @@ void test_range_intersection(pqxx::test::context &)
 {
   // Intersections and their expected results, in text form.
   // Each row contains two ranges, and their intersection.
-  constexpr std::string_view intersections[][3]{
+  std::vector<std::array<std::string_view, 3>> const intersections{
     {"empty", "empty", "empty"},
     {"(,)", "empty", "empty"},
     {"[,]", "empty", "empty"},

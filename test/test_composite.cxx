@@ -108,9 +108,48 @@ void test_composite_can_contain_arrays(pqxx::test::context &)
 }
 
 
+/// Render `fields` into the tightest buffer we can.
+template<typename... TYPE>
+std::string
+render_tight(pqxx::conversion_context const &ctx, TYPE const &...fields)
+{
+  std::size_t const budget{pqxx::composite_size_buffer(fields...)};
+  // Allocate a buffer, and fill it with a conspicuous character to make test
+  // failures easy to diagnose.
+  std::vector<char> buf;
+  buf.resize(budget, '!');
+  return std::string{pqxx::composite_into_buf(ctx, buf, fields...)};
+}
+
+
+void test_composite_fits_budget(pqxx::test::context &)
+{
+  using namespace std::literals;
+  static constexpr int lowest{(std::numeric_limits<int>::min)()};
+
+  PQXX_CHECK_EQUAL(
+    render_tight(make_context(), lowest), std::format("({})", lowest));
+
+  // TODO: Use raw string once MSVC handles backslashes properly.
+  PQXX_CHECK_EQUAL(render_tight(make_context(), "\""s), "(\"\\\"\")"s);
+  PQXX_CHECK_EQUAL(render_tight(make_context(), ""s, ""s), R"--(("",""))--");
+  PQXX_CHECK_EQUAL(
+    render_tight(make_context(), "a"s, "b"s), R"--(("a","b"))--");
+  // TODO: Use raw string once MSVC handles backslashes properly.
+  PQXX_CHECK_EQUAL(
+    render_tight(make_context(), "\"\"\""s, "\\\\\\"s),
+    "(\"\\\"\\\"\\\"\",\"\\\\\\\\\\\\\")");
+
+  PQXX_CHECK_EQUAL(
+    render_tight(make_context(), lowest, lowest),
+    std::format("({},{})", lowest, lowest));
+}
+
+
 PQXX_REGISTER_TEST(test_composite);
 PQXX_REGISTER_TEST(test_composite_escapes);
 PQXX_REGISTER_TEST(test_composite_handles_nulls);
 PQXX_REGISTER_TEST(test_composite_renders_to_string);
 PQXX_REGISTER_TEST(test_composite_can_contain_arrays);
+PQXX_REGISTER_TEST(test_composite_fits_budget);
 } // namespace

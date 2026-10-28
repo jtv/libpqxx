@@ -22,6 +22,12 @@ class PQXX_PRIVATE connection_transaction final : callgate<connection>
     return home().exec(query, desc, loc);
   }
 
+  result exec(
+    std::shared_ptr<std::string> const &query, std::string_view desc, sl loc)
+  {
+    return home().exec(query, desc, true, loc);
+  }
+
   template<typename STRING> result exec(STRING query, sl loc)
   {
     return home().exec(query, "", loc);

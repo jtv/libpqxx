@@ -413,6 +413,8 @@ void test_listen_on_same_channel_overwrites(pqxx::test::context &tctx)
   tx.commit();
   cx.await_notification(3);
 
+  // Exactly one of these handlers received a notification: the last one
+  // registered before the notification went out.
   PQXX_CHECK_EQUAL(count, 1);
   PQXX_CHECK_EQUAL(got, "third");
 }

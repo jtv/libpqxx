@@ -299,13 +299,28 @@ public:
     return conn().quote_name(identifier);
   }
 
-  // TODO: "Into buffer" variant.
   /// Escape string for literal LIKE match.
-  [[nodiscard]] std::string esc_like(
+  /** Set `escape_char` to the escape character.
+   */
+  template<char escape_char = '\\'>
+  [[nodiscard]] std::string
+  esc_like(std::string_view text, sl loc = sl::current()) const
+  {
+    return conn().esc_like<escape_char>(text, loc);
+  }
+
+  /// Escape string for literal LIKE match.
+  /** @deprecated This function is broken.  It does not escape the escape
+   * character itself.
+   */
+  [[nodiscard, deprecated("Use the templated version of esc_like().")]]
+  std::string esc_like(
     std::string_view bin, char escape_char = '\\',
     sl loc = sl::current()) const
   {
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
     return conn().esc_like(bin, escape_char, loc);
+#include <pqxx/internal/ignore-deprecated-post.hxx>
   }
   //@}
 
@@ -337,11 +352,18 @@ public:
    *   This can save you a lot of time.  Processing itself may also be faster.
    *   And of course, it also means you don't need enough memory to hold the
    *   entire result set, just the row you're working on.
-   * * The "exec" functions are a more low-level interface.  Most of them
-   *   return a pqxx::result object.  This is an object that contains all
-   *   information abouut the query's result: the data itself, but also the
-   *   number of rows in the result, the column names, the number of rows that
-   *   your query may have modified, and so on.
+   *
+   * The "exec" functions are a more low-level interface.  Most of them return
+   * a pqxx::result object.  This is an object that contains all information
+   * about the query's result: the data itself, but also the number of rows in
+   * the result, the column names, the number of rows that your query may have
+   * modified, and so on.
+   *
+   * You can pass _compound_ statements to some of the "exec" functions:
+   * multiple SQL statements or queries separated by semicolons (`;`).  If
+   * compound statement succeeds, it returns the @ref result object
+   * representing the last of the combined statements.  If it fails, it stops
+   * executing immediately and throws the error.
    */
   //@{
 
@@ -1177,13 +1199,15 @@ protected:
   void close(sl = sl::current()) noexcept;
 
   /// To be implemented by derived implementation class: commit transaction.
+  /** Unlike its counterpart @ref do_abort(), this function is `virtual`,
+   * giving child classes some room to customise the effects.
+   */
   virtual void do_commit(sl) = 0;
 
   /// Transaction type-specific way of aborting a transaction.
-  /** @warning This will become "final", since this function can be called
-   * from the implementing class destructor.
+  /** This function is nonvirtual since it can be invoked from a destructor.
    */
-  virtual void do_abort(sl);
+  void do_abort(sl);
 
   /// Set the rollback command.
   void set_rollback_cmd(std::shared_ptr<std::string> cmd)
@@ -1217,8 +1241,8 @@ private:
   };
 
   /// Compose a @ref conversion_context.
-  /** Gets its @ref encoding_group from the @ref connection, but uses the
-   * `std::source_location` that you pass.
+  /** Gets the client @ref encoding_group from the @ref connection, but uses
+   * the `std::source_location` that you pass.
    */
   [[nodiscard]] conversion_context make_context(sl) const;
 
@@ -1264,12 +1288,12 @@ private:
 
   status m_status = status::active;
 
-  bool m_registered = false;
-
   /// A `std::source_location` for where this transaction object was created.
   sl m_created_loc;
 
   static constexpr std::string_view s_type_name{"transaction"sv};
+
+  bool m_registered = false;
 };
 } // namespace pqxx
 

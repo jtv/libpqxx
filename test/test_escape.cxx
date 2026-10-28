@@ -119,19 +119,26 @@ void test_esc_raw_unesc_raw(pqxx::transaction_base &t)
 }
 
 
-void test_esc_like(pqxx::transaction_base const &tx)
+void test_esc_like(pqxx::test::context &)
 {
-  PQXX_CHECK_EQUAL(tx.esc_like(""), "");
-  PQXX_CHECK_EQUAL(tx.esc_like("abc"), "abc");
-  PQXX_CHECK_EQUAL(tx.esc_like("_"), "\\_");
-  PQXX_CHECK_EQUAL(tx.esc_like("%"), "\\%");
-  PQXX_CHECK_EQUAL(tx.esc_like("a%b_c"), "a\\%b\\_c");
-  PQXX_CHECK_EQUAL(tx.esc_like("_", '+'), "+_");
-  PQXX_CHECK_EQUAL(tx.esc_like("%foo"), "\\%foo");
-  PQXX_CHECK_EQUAL(tx.esc_like("foo%"), "foo\\%");
-  PQXX_CHECK_EQUAL(tx.esc_like("f%o%o"), "f\\%o\\%o");
-  PQXX_CHECK_EQUAL(tx.esc_like("___"), "\\_\\_\\_");
-  PQXX_CHECK_EQUAL(tx.esc_like("_n_n__n_"), "\\_n\\_n\\_\\_n\\_");
+  pqxx::connection cx;
+
+  PQXX_CHECK_EQUAL(cx.esc_like<>(""), "");
+  PQXX_CHECK_EQUAL(cx.esc_like<>("abc"), "abc");
+  PQXX_CHECK_EQUAL(cx.esc_like<>("_"), "\\_");
+  PQXX_CHECK_EQUAL(cx.esc_like<>("%"), "\\%");
+  PQXX_CHECK_EQUAL(cx.esc_like<>("a%b_c"), "a\\%b\\_c");
+  PQXX_CHECK_EQUAL(cx.esc_like<'+'>("_"), "+_");
+  PQXX_CHECK_EQUAL(cx.esc_like<>("%foo"), "\\%foo");
+  PQXX_CHECK_EQUAL(cx.esc_like<>("foo%"), "foo\\%");
+  PQXX_CHECK_EQUAL(cx.esc_like<>("f%o%o"), "f\\%o\\%o");
+  PQXX_CHECK_EQUAL(cx.esc_like<>("___"), "\\_\\_\\_");
+  PQXX_CHECK_EQUAL(cx.esc_like<>("_n_n__n_"), "\\_n\\_n\\_\\_n\\_");
+  PQXX_CHECK_EQUAL(cx.esc_like<'\\'>("hello\\n"), "hello\\\\n");
+
+  // There's also the special SJIS-2004 2-byte backslash.
+  cx.set_client_encoding("SHIFT_JIS_2004");
+  PQXX_CHECK_EQUAL(cx.esc_like<>(".\x81\x5f."), ".\\\\.");
 }
 
 
@@ -143,7 +150,6 @@ void test_escaping(pqxx::test::context &)
   test_quote(cx, tx);
   test_quote_name(tx);
   test_esc_raw_unesc_raw(tx);
-  test_esc_like(tx);
 }
 
 
@@ -206,4 +212,5 @@ PQXX_REGISTER_TEST(test_escaping);
 PQXX_REGISTER_TEST(test_esc_escapes_into_buffer);
 PQXX_REGISTER_TEST(test_esc_accepts_various_types);
 PQXX_REGISTER_TEST(test_binary_esc_checks_buffer_length);
+PQXX_REGISTER_TEST(test_esc_like);
 } // namespace

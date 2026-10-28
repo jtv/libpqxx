@@ -57,13 +57,12 @@ namespace pqxx
  * `pqxx::array` lets you configure a different separator.
  *
  * @warning This class will not let you use a view as the element type.  It
- * would be technically possible for some types, _but it would be dangerous._
- * The views would have to refer to data stored somewhere else, probably just
- * wherever the text of the SQL representation is stored.  It would be easy to
- * move or destroy that storage by accident, invalidating the views.
+ * would be technically possible for some types, but we would need somewhere
+ * to store the underlying data.  And that would probably defeat the purpose
+ * of storing views: the parser would have to copy the data around.
  */
 template<
-  not_borrowed ELEMENT, std::size_t DIMENSIONS = 1u,
+  not_at_all_borrowed ELEMENT, std::size_t DIMENSIONS = 1u,
   char SEPARATOR = array_separator<ELEMENT>>
 class array final
 {
@@ -99,7 +98,7 @@ public:
    * `ELEMENT` type does not support null values.
    */
   array(std::string_view data, connection const &cx, sl loc = sl::current()) :
-          array{data, cx.get_encoding_group(loc), loc}
+          array{data, cx.effective_encoding_group(loc), loc}
   {}
 
   array(std::string_view data, encoding_group enc, sl loc = sl::current()) :
@@ -116,6 +115,7 @@ public:
     case group::two_tier: parse<group::two_tier>(data, loc); break;
     case group::gb18030: parse<group::gb18030>(data, loc); break;
     case group::sjis: parse<group::sjis>(data, loc); break;
+    case group::shift_jis_2004: parse<group::shift_jis_2004>(data, loc); break;
     // clang-tidy rule bug:
     // NOLINTNEXTLINE(bugprone-suspicious-semicolon)
     default: PQXX_UNREACHABLE; break;

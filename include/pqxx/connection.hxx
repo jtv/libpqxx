@@ -384,7 +384,7 @@ public:
     }
   }
 
-  // TODO: Once we drop notification_receiver/errorhandler, move is easier.
+  // 9.0: Once we drop notification_receiver/errorhandler, move is easier.
   /// Move assignment.
   /** Neither connection can have an open transaction, `errorhandler`, or
    * `notification_receiver`.
@@ -538,6 +538,20 @@ public:
     return pqxx::internal::enc_group(this->encoding_id(loc), loc);
   }
 
+  /// Effective encoding group.
+  /** This is normally the same thing as the client encoding group, but there
+   * is one exception: if the server's character set is `SQL_ASCII`, then
+   * special rules apply.  In that situation it will mindlessly (and very
+   * efficiently) escape all bytes that look like special characters,
+   * regardless of whether they're actual ASCII characters or just embedded
+   * ASCII-range byte values that happen to sit inside multi-byte characters.
+   */
+  [[nodiscard]] encoding_group
+  effective_encoding_group(sl loc = sl::current()) const
+  {
+    return m_server_is_sql_ascii ? encoding_group::ascii_safe :
+                                   get_encoding_group(loc);
+  }
   //@}
 
   /// Set one of the session variables to a new value.
@@ -572,7 +586,10 @@ public:
         throw variable_set_to_null{
           std::format("Attempted to set variable {} to null.", var), loc};
     }
-    exec(std::format("SET {}={}", quote_name(var), quote(value, loc)), loc);
+    exec(
+      std::make_shared<std::string>(
+        std::format("SET {}={}", quote_name(var), quote(value, loc))),
+      "", false, loc);
   }
 
   /// Read currently applicable value of a configuration variable.
@@ -802,6 +819,12 @@ public:
    * A connection can only have one handler per channel, so if you register two
    * different handlers on the same channel, then the second overwrites the
    * first.
+   *
+   * @warning A handler can itself call `listen()`, but if it does so on its
+   * own channel, then this may _immediately_ overwrite the handler,
+   * invalidating your handler object.  Also, be aware that the new handler
+   * may receive notifications that were sent while the old handler was still
+   * active.
    */
   void listen(
     std::string_view channel, notification_handler handler = {},
@@ -1146,7 +1169,6 @@ public:
   template<typename T>
   [[nodiscard]] inline std::string quote(T const &t, sl = sl::current()) const;
 
-  // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Escape string for literal LIKE match.
   /** Use this when part of an SQL "LIKE" pattern should match only as a
    * literal string, not as a pattern, even if it contains "%" or "_"
@@ -1167,13 +1189,18 @@ public:
    * ```cxx
    *    tx.exec(
    *        "SELECT file FROM item WHERE file LIKE " +
-   *        tx.quote(tx.esc_like(name) + ".___"));
+   *        tx.quote(tx.esc_like<>(name) + ".___"));
    * ```
    *
    * The SQL "LIKE" operator also lets you choose your own escape character.
    * This is supported, but must be a single-byte character.
    */
-  [[nodiscard]] std::string esc_like(
+  template<char escape_char = '\\'>
+  [[nodiscard]] inline std::string
+  esc_like(std::string_view text, sl loc = sl::current()) const;
+
+  [[nodiscard, deprecated("Use templated version of esc_like().")]] std::string
+  esc_like(
     std::string_view text, char escape_char = '\\',
     sl loc = sl::current()) const;
   //@}
@@ -1314,6 +1341,15 @@ private:
   using empty_params_t =
     std::initializer_list<std::pair<char const *, char const *>>;
 
+  /// Is the database's server encoding `SQL_ASCII`?
+  /** This encoding is also known as the database's _character set._  We don't
+   * care what the exact character set is, just whether it's `SQL_ASCII` or
+   * not.  There are special rules for that character set.
+   *
+   * Used to initialise `m_server_is_sql_ascii`; it caches the result.
+   */
+  [[nodiscard]] bool server_is_sql_ascii() const noexcept;
+
   friend class connecting;
   enum connect_mode
   {
@@ -1383,11 +1419,15 @@ private:
   friend class internal::gate::connection_transaction;
   result exec(std::string_view query, sl loc) { return exec(query, "", loc); }
   result exec(std::string_view, std::string_view, sl);
-  PQXX_PRIVATE result
-  exec(std::shared_ptr<std::string> const &, std::string_view, sl);
+
+  /// Execute query.
+  /** @param notifs Check for pending notifications?
+   */
+  result exec(
+    std::shared_ptr<std::string> const &, std::string_view, bool notifs, sl);
   PQXX_PRIVATE result exec(std::shared_ptr<std::string> const &query, sl loc)
   {
-    return exec(query, "", loc);
+    return exec(query, "", true, loc);
   }
 
   PQXX_PRIVATE void register_transaction(transaction_base *);
@@ -1467,6 +1507,17 @@ private:
 
   /// Unique number to use as suffix for identifiers (see adorn_name()).
   int m_unique_id = 0;
+
+  /// Is the server's character set `SQL_ASCII`?
+  /** This is a special server encoding where different rules apply.  The
+   * server character set can never change during a session, and the exact
+   * encoding is of little interest otherwise, so we just cache this one
+   * aspect.
+   */
+  bool m_server_is_sql_ascii;
+
+  /// Is this connection currently handling notifications?
+  bool m_handling_notifications{false};
 };
 
 
@@ -1619,7 +1670,7 @@ connection::quote_columns(STRINGS const &columns, sl loc) const
 template<pqxx::ZString STRING, ZKey_ZValues MAPPING>
 inline connection::connection(
   STRING const &connection_string, MAPPING &&params, sl loc) :
-        m_created_loc{loc}
+        m_created_loc{loc}, m_server_is_sql_ascii{true}
 {
   // Check that the libpqxx binary library version is compatible with the
   // version against which the application was compiled.  We're in an inline
@@ -1690,6 +1741,71 @@ inline connection::connection(
   values.push_back(nullptr);
 
   init(keys, values, loc);
+}
+
+
+template<char escape_char>
+inline std::string
+pqxx::connection::esc_like(std::string_view text, sl loc) const
+{
+  auto const sz{std::size(text)};
+  if (sz == 0u)
+    return "";
+  auto const data{std::data(text)};
+  // XXX: Also deal with SJIS-2004 2-byte backslash.
+  auto const finder{pqxx::internal::get_escape_finder<'_', '%', escape_char>(
+    effective_encoding_group(loc), loc)};
+
+  // We're going to loop in a counterintuitive order.  First we look for the
+  // end of the leading sequence of unremarkable characters.
+  auto next{finder(text, 0, loc)};
+  if (next >= sz)
+    // No special characters at all.  Copy the entire input.
+    return std::string{text};
+
+  // Still here?  Then we'll need to do some actual escaping.  Start a buffer.
+  std::string out;
+
+  // In the worst case we'll need 2 * sz bytes.  So why not just reserve those?
+  // Because if the string is short, reserving too much space may lose us the
+  // Short String Optimization and cost us an unnecessary memory allocation.
+  //
+  // For large inputs, std::string will have an efficient growth algorithm so
+  // it's not like we'll be re-allocating for every byte.
+  out.reserve(std::size(text));
+
+  // Append any leading unremarkable characters that we just scanned.
+  out.append(data, data + next);
+
+  // Now we loop.  This is the counterintuitive part.  We'll be dealing in
+  // chunks of text, each _starting_ with a special character with zero or more
+  // unremarkable ones after.
+  for (std::size_t here{next}; here < sz; here = next)
+  {
+    // We're at a special character.
+
+    // clang-tidy rule bug:
+    // NOLINTBEGIN(cert-dcl03-c)
+    assert(
+      (data[here] == '%') or (data[here] == '_') or
+      (data[here] == escape_char) or
+      ((escape_char == '\\') and (data[here] == '\x81')));
+    // NOLINTEND(cert-dcl03-c)
+
+    out.push_back(escape_char);
+    auto const [special, width]{pqxx::internal::special_char(data, here)};
+    // Append the special character, or if it's the special nasty SJIS-2004
+    // backslash, just a plain old backslash.
+    out.push_back(special);
+
+    // Look for the next stopping point after that, whether another special
+    // character or the end of the input.  (This search may even start at the
+    // end of the input, and find nothing at all.)
+    next = finder(text, here + width, loc);
+
+    out.append(data + here + width, data + next);
+  }
+  return out;
 }
 } // namespace pqxx
 #endif

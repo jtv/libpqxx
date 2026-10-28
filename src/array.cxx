@@ -149,6 +149,7 @@ array_parser::specialize_for_encoding(encoding_group enc, sl loc)
     PQXX_ENCODING_CASE(two_tier);
     PQXX_ENCODING_CASE(gb18030);
     PQXX_ENCODING_CASE(sjis);
+    PQXX_ENCODING_CASE(shift_jis_2004);
   }
   [[unlikely]] throw pqxx::internal_error{
     std::format(

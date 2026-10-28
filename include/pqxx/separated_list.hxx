@@ -39,7 +39,7 @@ namespace pqxx
  */
 template<std::forward_iterator ITER, typename ACCESS>
 [[nodiscard]] inline std::string separated_list(
-  std::string_view sep, ITER begin, ITER end, ACCESS access, ctx c = {})
+  std::string_view sep, ITER begin, ITER const &end, ACCESS access, ctx c = {})
 {
   if (end == begin)
     return {};

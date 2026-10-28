@@ -197,16 +197,21 @@ pqxx::connection::connection(connection &&rhs, sl loc) :
         m_notice_waiters{std::move(rhs.m_notice_waiters)},
         m_notification_handlers{std::move(rhs.m_notification_handlers)},
         m_created_loc{loc},
-        m_unique_id{rhs.m_unique_id}
+        m_unique_id{rhs.m_unique_id},
+        m_server_is_sql_ascii{rhs.m_server_is_sql_ascii},
+        m_handling_notifications{rhs.m_handling_notifications}
 {
   rhs.check_movable(loc);
   rhs.m_conn = nullptr;
+  rhs.m_handling_notifications = false;
 }
 
 
 pqxx::connection::connection(
   connection::connect_mode, zview connection_string, sl loc) :
-        m_conn{PQconnectStart(connection_string.c_str())}, m_created_loc{loc}
+        m_conn{PQconnectStart(connection_string.c_str())},
+        m_created_loc{loc},
+        m_server_is_sql_ascii{true}
 {
   if (m_conn == nullptr)
     throw std::bad_alloc{};
@@ -224,7 +229,9 @@ pqxx::connection::connection(
 
 
 pqxx::connection::connection(internal::pq::PGconn *raw_conn, sl loc) :
-        m_conn{raw_conn}, m_created_loc{loc}
+        m_conn{raw_conn},
+        m_created_loc{loc},
+        m_server_is_sql_ascii{server_is_sql_ascii()}
 {
   set_up_notice_handlers();
 }
@@ -297,6 +304,8 @@ void pqxx::connection::complete_connection(sl loc)
           "Unsupported server version; the minimum is {}.{}.",
           min_server / 10'000, min_server % 10'000),
         loc};
+
+    m_server_is_sql_ascii = server_is_sql_ascii();
   }
   catch (std::exception const &)
   {
@@ -441,6 +450,10 @@ pqxx::connection &pqxx::connection::operator=(connection &&rhs)
   m_notice_waiters = std::move(rhs.m_notice_waiters);
   m_notification_handlers = std::move(rhs.m_notification_handlers);
   m_created_loc = rhs.m_created_loc;
+  m_server_is_sql_ascii = rhs.m_server_is_sql_ascii;
+  m_handling_notifications = rhs.m_handling_notifications;
+
+  rhs.m_handling_notifications = false;
 
   return *this;
 }
@@ -459,9 +472,8 @@ pqxx::result pqxx::connection::make_result(
     else
       throw broken_connection{"Lost connection to the database server.", loc};
   }
-  auto const enc{get_encoding_group(loc)};
   auto r{pqxx::internal::gate::result_creation::create(
-    smart, query, m_notice_waiters, enc)};
+    smart, query, m_notice_waiters, effective_encoding_group())};
   pqxx::internal::gate::result_creation{r}.check_status(desc, loc);
   return r;
 }
@@ -509,7 +521,10 @@ void pqxx::connection::set_variable(
 
 std::string pqxx::connection::get_variable(std::string_view var, sl loc)
 {
-  return exec(std::format("SHOW {}", quote_name(var)), loc)
+  return exec(
+           std::make_shared<std::string>(
+             std::format("SHOW {}", quote_name(var))),
+           "", false, loc)
     .at(0)
     .at(0)
     .as(std::string{});
@@ -519,7 +534,10 @@ std::string pqxx::connection::get_variable(std::string_view var, sl loc)
 std::string pqxx::connection::get_var(std::string_view var, sl loc)
 {
   // (Variables can't be null, so far as I can make out.)
-  return exec(std::format("SHOW {}", quote_name(var)), loc)
+  return exec(
+           std::make_shared<std::string>(
+             std::format("SHOW {}", quote_name(var))),
+           "", false, loc)
     .one_field_ref(loc)
     .as<std::string>(loc);
 }
@@ -592,37 +610,88 @@ void pqxx::connection::listen(
         channel),
       loc};
 
-  std::string str_name{channel};
+  // Hold channel name as a std::string just because the call to te map's
+  // lower_bound() needs a string, not a string_view.
+  //
+  // We'll move() it later on to save on redundant string construction.
+  std::string name_str{channel};
 
-  auto const pos{m_notification_handlers.lower_bound(str_name)},
-    handlers_end{std::end(m_notification_handlers)};
+  // Did we originally have a handler (since we may move it)?
+  bool const have_handler{handler};
 
-  if (handler)
+  // Were we listening on this channel before?
+  bool present{false};
+
+  // Any SQL LISTEN/UNLISTEN statement we may need to execute at the end.
+  // We do that all the way at the end to avoid recursion complications.
+  std::string_view cmd{};
+
+  // Limit pos' scope to reduce risk of mistakes.  Some changes might
+  // invalidate that iterator and we wouldn't want to dereference it after.
   {
-    // Setting a handler.
-    if ((pos != handlers_end) and (pos->first == channel))
+    auto const pos{m_notification_handlers.lower_bound(name_str)};
+
+    // std::string_view::operator== compares contents, not just size & pointer.
+    present =
+      ((pos != std::end(m_notification_handlers)) and (pos->first == channel));
+
+    if (present)
     {
-      // Overwrite existing handler.
-      m_notification_handlers.insert_or_assign(
-        pos, std::move(str_name), std::move(handler));
+      if (have_handler)
+      {
+        assert(present and have_handler);
+
+        // Overwriting an existing handler.  All we need to do is replace the
+        // handler we had registered.  We keep listening just as we were.
+        //
+        // The move() here is why we need have_handler: we can't tell from the
+        // value of handler itself afterwards.
+        pos->second = std::move(handler);
+      }
+      else
+      {
+        assert(present and not have_handler);
+
+        // Removing a handler.  We'll also need to stop listening further down.
+        m_notification_handlers.erase(pos);
+        cmd = "UNLISTEN";
+      }
     }
     else
     {
-      // We had no handler installed for this name.  Start listening.
-      exec(std::format("LISTEN {}", quote_name(channel)), loc).no_rows(loc);
-      m_notification_handlers.emplace_hint(pos, channel, std::move(handler));
+      if (have_handler)
+      {
+        assert(not present and have_handler);
+
+        // Installing a handler for a new channel.  We'll also have to start
+        // listening further down.
+        m_notification_handlers.emplace_hint(
+          pos, std::move(name_str), std::move(handler));
+        cmd = "LISTEN";
+      }
+      else
+      {
+        assert(not present and not have_handler);
+
+        // Removing a handler we didn't even have.  Nothing to do.
+      }
     }
-  }
-  else
+  } // End of scope just to limit variable scope.
+
+  if (not cmd.empty())
   {
-    // Installing an empty handler.  That's equivalent to removing whatever
-    // handler may have been installed previously.
-    if (pos != handlers_end)
-    {
-      // Yes, we had a handler for this name.  Remove it.
-      exec(std::format("UNLISTEN {}", quote_name(channel)), loc).no_rows(loc);
-      m_notification_handlers.erase(pos);
-    }
+    // We're either starting to listen on a new channel, or stopping listening
+    // on a channel on which we were previously listening.
+    assert((present and not have_handler) or (not present and have_handler));
+
+    // We still have some SQL to run.  Don't check for pending notifications
+    // while doing so, or a handler might call listen() and kick off a nasty
+    // recursion.
+    exec(
+      std::make_shared<std::string>(
+        std::format("{} {}", cmd, quote_name(channel))),
+      "", false, loc)
+      .no_rows(loc);
   }
 }
 
@@ -765,6 +834,7 @@ notify_ptr get_notif(pqxx::internal::pq::PGconn *cx)
 } // namespace
 
 
+#include <iostream> // XXX:
 int pqxx::connection::get_notifs(sl loc)
 {
   if (not consume_input())
@@ -775,58 +845,78 @@ int pqxx::connection::get_notifs(sl loc)
   if (m_trans != nullptr) [[unlikely]]
     return 0;
 
+  // Don't check for new notifications while handling notifications.  Leave it
+  // for the next top-level call.
+  if (m_handling_notifications)
+    return 0;
+  m_handling_notifications = true;
+
   int notifs = 0;
 
-  // Old mechanism.  This is going away.
-  for (auto N{get_notif(m_conn)}; N.get(); N = get_notif(m_conn))
+  try
   {
-    notifs++;
-
-    std::string const channel{N->relname};
-
-    auto const Hit{m_receivers.equal_range(channel)};
-    if (Hit.second != Hit.first)
+    for (auto N{get_notif(m_conn)}; N.get(); N = get_notif(m_conn))
     {
-      std::string const payload{N->extra};
-      for (auto i{Hit.first}; i != Hit.second; ++i) try
-        {
-          (*i->second)(payload, N->be_pid);
-        }
-        catch (std::exception const &e)
-        {
-          try
+      notifs++;
+
+      std::string const channel{N->relname};
+
+      // Old mechanism.  This is going away.
+      auto const Hit{m_receivers.equal_range(channel)};
+      if (Hit.second != Hit.first)
+      {
+        std::string const payload{N->extra};
+        for (auto i{Hit.first}; i != Hit.second; ++i) try
           {
-            process_notice(
-              std::format(
-                "Exception in notification receiver '{}': {}\n", i->first,
-                e.what()));
+            (*i->second)(payload, N->be_pid);
           }
-          catch (std::bad_alloc const &)
+          catch (std::exception const &e)
           {
-            // Out of memory.  Try to get the message out in a more robust way.
-            process_notice(
-              "Exception in notification receiver, "
-              "and also ran out of memory\n");
+            try
+            {
+              process_notice(
+                std::format(
+                  "Exception in notification receiver '{}': {}\n", i->first,
+                  e.what()));
+            }
+            catch (std::bad_alloc const &)
+            {
+              // Out of memory.  Try to get the message out in a more robust
+              // way.
+              process_notice(
+                "Exception in notification receiver, "
+                "and also ran out of memory\n");
+            }
+            catch (std::exception const &)
+            {
+              process_notice(
+                "Exception in notification receiver "
+                "(compounded by other error)\n");
+            }
           }
-          catch (std::exception const &)
-          {
-            process_notice(
-              "Exception in notification receiver "
-              "(compounded by other error)\n");
-          }
-        }
+      }
+
+      // The 8.x mechanism, where you can just register a lambda.
+      auto const handler{m_notification_handlers.find(N->relname)};
+      if (handler != std::end(m_notification_handlers))
+        (handler->second)(notification{
+          .conn = *this,
+          .channel = channel,
+          .payload = N->extra,
+          .backend_pid = N->be_pid,
+        });
+
+      N.reset();
     }
 
-    auto const handler{m_notification_handlers.find(N->relname)};
-    if (handler != std::end(m_notification_handlers))
-      (handler->second)(notification{
-        .conn = *this,
-        .channel = channel,
-        .payload = N->extra,
-        .backend_pid = N->be_pid,
-      });
-
-    N.reset();
+    // We're done.  However we leave here, reset this field.
+    m_handling_notifications = false;
+  }
+  catch (std::exception const &)
+  {
+    // Even when the code fails, reset this field.
+    m_handling_notifications = false;
+    throw;
   }
 
   return notifs;
@@ -902,15 +992,17 @@ pqxx::connection::get_errorhandlers() const
 pqxx::result
 pqxx::connection::exec(std::string_view query, std::string_view desc, sl loc)
 {
-  return exec(std::make_shared<std::string>(query), desc, loc);
+  return exec(std::make_shared<std::string>(query), desc, true, loc);
 }
 
 
 pqxx::result pqxx::connection::exec(
-  std::shared_ptr<std::string> const &query, std::string_view desc, sl loc)
+  std::shared_ptr<std::string> const &query, std::string_view desc,
+  bool notifs, sl loc)
 {
   auto res{make_result(pq_exec(m_conn, query->c_str()), query, desc, loc)};
-  get_notifs(loc);
+  if (notifs)
+    get_notifs(loc);
   return res;
 }
 
@@ -945,7 +1037,10 @@ void pqxx::connection::prepare(char const definition[], sl loc) &
 
 void pqxx::connection::unprepare(std::string_view name, sl loc)
 {
-  exec(std::format("DEALLOCATE {}", quote_name(name)), loc);
+  exec(
+    std::make_shared<std::string>(
+      std::format("DEALLOCATE {}", quote_name(name))),
+    "", false, loc);
 }
 
 
@@ -1206,8 +1301,8 @@ std::string pqxx::connection::esc_like(
   if (sz == 0u)
     return "";
   auto const data{std::data(text)};
-  auto const finder{
-    pqxx::internal::get_char_finder<'_', '%'>(get_encoding_group(loc), loc)};
+  auto const finder{pqxx::internal::get_char_finder<'_', '%'>(
+    effective_encoding_group(loc), loc)};
 
   // We're going to loop in a counterintuitive order.  First we look for the
   // end of the leading sequence of unremarkable characters.
@@ -1289,7 +1384,27 @@ std::string pqxx::connection::adorn_name(std::string_view n)
 
 std::string pqxx::connection::get_client_encoding(sl loc) const
 {
+  // This is not something we can cache, since it can change in mid-session
+  // and in all sorts of ways.
   return internal::name_encoding(encoding_id(loc));
+}
+
+
+bool pqxx::connection::server_is_sql_ascii() const noexcept
+{
+  static constexpr std::string_view sql_ascii{"SQL_ASCII"};
+  char const *const name{
+    PQparameterStatus(real_conn(m_conn), "server_encoding")};
+
+  // If we couldn't even obtain this, the connection is seriously broken and
+  // it doesn't really matter what value we pick.
+  //
+  // However throwing here an exception here is not a good idea because this
+  // is not where we check for broken connections.
+  if (name == nullptr)
+    return true;
+  else
+    return sql_ascii == name;
 }
 
 

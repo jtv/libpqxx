@@ -363,6 +363,8 @@ specialize_parse_composite_field(conversion_context const &c)
     return parse_composite_field<encoding_group::gb18030>;
   case encoding_group::sjis:
     return parse_composite_field<encoding_group::sjis>;
+  case encoding_group::shift_jis_2004:
+    return parse_composite_field<encoding_group::shift_jis_2004>;
   }
   throw internal_error{
     std::format(
@@ -378,18 +380,16 @@ PQXX_INLINE_COV inline std::size_t size_composite_field_buffer(T const &field)
 {
   if constexpr (is_unquoted_safe<T>)
   {
-    // Safe to copy, without quotes or escaping.  Drop the terminating zero.
-    return size_buffer(field) - 1;
+    // Safe to copy, without quotes or escaping.
+    return size_buffer(field);
   }
   else
   {
     // + Opening quote.
     // + Field budget.
-    // - Terminating zero.
     // + Escaping for each byte in the field's string representation.
-    // - Escaping for terminating zero.
     // + Closing quote.
-    return 1 + 2 * (size_buffer(field) - 1) + 1;
+    return 1 + 2 * size_buffer(field) + 1;
   }
 }
 
@@ -488,7 +488,7 @@ template<nonbinary_range TYPE>
       assert(std::cmp_less(elt_budget, std::size(buf) - here));
       auto const from{pqxx::to_buf(buf.last(elt_budget), elt, c)};
       auto const end{std::size(from)};
-      auto const find{get_char_finder<'\\', '"'>(c.enc, c.loc)};
+      auto const find{get_escape_finder<'\\', '"'>(c.enc, c.loc)};
 
       // Copy the intermediate buffer into the final buffer, but escape
       // using backslashes.  The tricky part here is to handle encodings right.
@@ -511,11 +511,18 @@ template<nonbinary_range TYPE>
           // character (which is always a simple single ASCII byte).
           // C++26: Use buf.at().
           buf[here++] = '\\';
+
+          // Write the escaped character.
+          //
+          // This is another simple single ASCII byte, even if what we found
+          // in the text was a multibyte stand-in for it.  Shift JIS-2004 has
+          // an extra 2-byte backslash character, which the server will replace
+          // with a simple ASCII backslash anyway, so we'll just escape that
+          // one as an ASCII backslash to keep things (relatively) simple.
+          auto const [special, width]{special_char(from, next)};
           // C++26: Use buf.at().
-          // Copy the escaped character itself.  This is another simple single
-          // ASCII byte.
-          // TODO: Can we restructure this to leave that to the next iteration?
-          buf[here++] = from[next++];
+          buf[here++] = special;
+          next += width;
         }
         i = next;
       }

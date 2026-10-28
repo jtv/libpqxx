@@ -498,12 +498,12 @@ public:
 
   icursor_iterator &operator=(icursor_iterator &&) = delete;
 
-  result const &operator*() const noexcept
+  result const &operator*() const
   {
     refresh(created_loc());
     return m_here;
   }
-  PQXX_RETURNS_NONNULL result const *operator->() const noexcept
+  PQXX_RETURNS_NONNULL result const *operator->() const
   {
     refresh(created_loc());
     return &m_here;
@@ -514,7 +514,7 @@ public:
   icursor_iterator &operator=(icursor_iterator const &) noexcept;
 
   [[nodiscard]] bool operator==(icursor_iterator const &rhs) const;
-  [[nodiscard]] bool operator!=(icursor_iterator const &rhs) const noexcept
+  [[nodiscard]] bool operator!=(icursor_iterator const &rhs) const
   {
     return not operator==(rhs);
   }

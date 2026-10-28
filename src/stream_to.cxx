@@ -112,10 +112,11 @@ pqxx::stream_to::stream_to(
   transaction_base &tx, std::string_view path, std::string_view columns,
   sl loc) :
         transaction_focus{tx, s_classname, path},
-        m_finder{pqxx::internal::get_char_finder<
+        m_finder{pqxx::internal::get_escape_finder<
           '\b', '\f', '\n', '\r', '\t', '\v', '\\'>(
-          tx.conn().get_encoding_group(loc), loc)},
-        m_created_loc{loc}
+          tx.conn().effective_encoding_group(loc), loc)},
+        m_created_loc{loc},
+        m_encoding_group{tx.conn().effective_encoding_group(loc)}
 {
   begin_copy(tx, path, columns, loc);
   register_me();
@@ -142,12 +143,17 @@ void pqxx::stream_to::escape_field_to_buffer(std::string_view data, sl loc)
     auto const stop_char{m_finder(data, here, loc)};
     // Append any unremarkable characters we just skipped over.
     m_buffer.append(std::data(data) + here, stop_char - here);
+    here = stop_char;
     if (stop_char < end)
     {
+      // The special character is usually a single ASCII byte, but it may also
+      // be a multibyte alias for one.  Either way, the server will see it as
+      // a single ASCII byte so that's what we write.
+      auto const [special, width]{internal::special_char(data, stop_char)};
       m_buffer.push_back('\\');
-      m_buffer.push_back(escape_char(data[stop_char], loc));
+      m_buffer.push_back(escape_char(special, loc));
+      here += width;
     }
-    here = stop_char + 1;
   }
   // Terminate the field.
   m_buffer.push_back('\t');

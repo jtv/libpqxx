@@ -9,10 +9,10 @@
 #
 # Where <system> is one of the environments for which this script works:
 # * alpine
-# * archlinux
+# * archlinux (deprecated)
 # * archlinux-coverage (for running test coverage analysis)
-# * archlinux-lint (for running full lint)
 # * debian
+# * debian-lint (for running full lint)
 # * fedora
 # * macos
 # * ubuntu
@@ -35,6 +35,34 @@ EXTRA_PACKAGES=("${@:3}")
 
 # For Debian-flavoured distros:
 export DEBIAN_FRONTEND=noninteractive TZ=UTC
+
+# Install log.  We upload this as an artefact for debugging.
+LOG="/tmp/install.log"
+
+
+# Log identifying information for the current operating system.
+#
+# Pass the profilename: alpine, debian, fedora, etc.
+identify() {
+    local sysname="$1"
+    (
+        echo "Basic OS information ($sysname):"
+        case "$sysname" in
+            macos)
+                sw_vers
+                ;;
+            windows)
+	        # For some reason this isn't coming through on Windows.  :-/
+                systeminfo
+                ;;
+            *)
+	        # On Linux systems it's nice and uniform.
+                cat /etc/os-release
+                ;;
+        esac
+        echo
+    ) >>"$LOG" 2>&1
+}
 
 
 # Common case: OS package we need to install to get compiler $1.
@@ -63,25 +91,25 @@ apt_install() {
     (
         apt-get -q update
         apt-get -qy install "$@"
-    ) >>/tmp/install.log
+    ) >>"$LOG"
 }
 
 
 # Install packages using Homebrew.
 brew_install() {
-    brew install --quiet "$@" >>/tmp/install.log
+    brew install --quiet "$@" >>"$LOG"
 }
 
 
 # Install packages using dnf.
 dnf_install() {
-    dnf -qy install "$@" >>/tmp/install.log
+    dnf -qy install "$@" >>"$LOG"
 }
 
 
 # Install packages using pacman.  Includes database update.
 pacman_install() {
-    pacman -qSuy --needed --noconfirm "$@" >>/tmp/install.log
+    pacman -qSuy --needed --noconfirm "$@" >>"$LOG"
 }
 
 
@@ -96,6 +124,8 @@ PKGS_DEBIAN_AUTOTOOLS=("${PKGS_ALL_AUTOTOOLS[@]}" make)
 install_alpine() {
     local compiler="$1"
     local extra
+
+    identify alpine
 
     if [ "$compiler" = "g++" ]
     then
@@ -113,12 +143,14 @@ install_alpine() {
         apk add \
             "${PKGS_ALPINE_BASE[@]}" "${PKGS_ALL_AUTOTOOLS[@]}" \
             "${EXTRA_PACKAGES[@]}" "${extra[@]}"
-    ) >>/tmp/install.log
+    ) >>"$LOG"
     echo "export PGHOST=/run/postgresql"
 }
 
 
 install_archlinux() {
+    identify archlinux
+
     pacman_install \
         "${PKGS_ARCHLINUX_BASE[@]}" "${PKGS_ARCHLINUX_AUTOTOOLS[@]}" \
         postgresql which \
@@ -135,6 +167,8 @@ install_archlinux_infer() {
     local tarball="infer-linux-x86_64-v$infer_ver.tar.xz"
     local url="$downloads/v$infer_ver/$tarball"
 
+    identify archlinux
+
     if [ "$1" != "g++" ]
     then
         echo >&2 "Facebook's 'infer' only seems to work with g++, not '%1'."
@@ -149,14 +183,16 @@ install_archlinux_infer() {
     cd /opt
     # This is not idempotent.  I wasn't joking about using a disposable
     # environment.
-    wget -q "$url" >>/tmp/install.log
-    tar -xJf "$tarball" >>/tmp/install.log
+    wget -q "$url" >>"$LOG"
+    tar -xJf "$tarball" >>"$LOG"
     ln -s /opt/infer-*/bin/infer /usr/local/bin/infer
 }
 
 
 # Install for a "lint.sh --full" run (but no actual build).
 install_archlinux_lint() {
+    identify archlinux
+
     pacman_install \
         "${PKGS_ARCHLINUX_BASE[@]}" \
         cmake cppcheck make markdownlint python-pyflakes ruff shellcheck \
@@ -166,6 +202,8 @@ install_archlinux_lint() {
 
 
 install_debian() {
+    identify debian
+
     apt_install \
         "${PKGS_DEBIAN_BASE[@]}" "${PKGS_DEBIAN_AUTOTOOLS[@]}" \
         postgresql \
@@ -177,7 +215,57 @@ install_debian() {
 }
 
 
+# Install Facebook's Infer static analysis tool.
+install_debian_infer() {
+    local infer_ver="1.3.0"
+    local downloads="https://github.com/facebook/infer/releases/download"
+    local tarball="infer-linux-x86_64-v$infer_ver.tar.xz"
+    local url="$downloads/v$infer_ver/$tarball"
+
+    identify debian
+
+    if [ "$1" != "g++" ]
+    then
+        echo >&2 "Facebook's 'infer' only seems to work with g++, not '%1'."
+        exit 1
+    fi
+
+    apt_install \
+        "${PKGS_DEBIAN_BASE[@]}" "${PKGS_DEBIAN_AUTOTOOLS[@]}" \
+        tzdata wget xz-utils \
+        "$(compiler_pkg "$1" clang g++)" "${EXTRA_PACKAGES[@]}"
+
+    cd /opt
+    # This is not idempotent.  Do this only in a disposable environment.
+    wget -q "$url" >>"$LOG"
+    tar -xJf "$tarball" >>"$LOG"
+    ln -s /opt/infer-*/bin/infer /usr/local/bin/infer
+}
+
+
+# Install for a "lint.sh --full" run (but no actual build).
+install_debian_lint() {
+    identify debian
+
+    # The markdownlint package is only available from Debian 13 (Trixie)
+    # onwards.
+    apt_install \
+        "${PKGS_DEBIAN_BASE[@]}" \
+        clang-tidy cmake cppcheck make markdownlint pipx python3-pyflakes \
+        shellcheck which yamllint \
+        "$(compiler_pkg "$1")" "${EXTRA_PACKAGES[@]}"
+
+    # Now use pipx to install ruff and uv.
+    pipx install ruff uv >>"$LOG"
+
+    # shellcheck disable=SC2016
+    echo 'export PATH="$PATH:~/.local/bin"'
+}
+
+
 install_fedora() {
+    identify fedora
+
     dnf_install \
         "${PKGS_ALL_AUTOTOOLS[@]}" \
         libasan libubsan postgresql postgresql-devel postgresql-server \
@@ -198,7 +286,9 @@ install_macos() {
     # means "if A is set, use B, otherwise use an empty value."
     local extra=("${EXTRA_PACKAGES[@]+"${EXTRA_PACKAGES[@]}"}")
 
-    brew update  >>/tmp/install.log
+    install macos
+
+    brew update  >>"$LOG"
     brew_install \
         "${PKGS_ALL_AUTOTOOLS[@]}" \
         postgresql uv libpq "${extra[@]+"${extra[@]}"}"
@@ -212,17 +302,21 @@ install_macos() {
 
 
 install_ubuntu_codeql() {
+    identify ubuntu
+
     # Can't use apt_install here, since we're running it in sudo.
     (
         sudo -E apt-get -q -o DPkg::Lock::Timeout=120 update
         sudo -E apt-get -q install -y -o DPkg::Lock::Timeout=120 \
             cmake git libpq-dev make \
             "$(compiler_pkg "$1" clang g++)" "${EXTRA_PACKAGES[@]}"
-    ) >>/tmp/install.log
+    ) >>"$LOG"
 }
 
 
 install_ubuntu() {
+    identify ubuntu
+
     apt_install \
         "${PKGS_DEBIAN_BASE[@]}" "${PKGS_DEBIAN_AUTOTOOLS[@]}" \
         postgresql \
@@ -235,6 +329,8 @@ install_ubuntu() {
 
 
 install_ubuntu_valgrind() {
+    identify ubuntu
+
     apt_install \
         "${PKGS_DEBIAN_BASE[@]}" \
         cmake ninja-build postgresql valgrind \
@@ -246,12 +342,14 @@ install_ubuntu_valgrind() {
 }
 
 
-# TODO: Support EXTRA_PACKAGES here.
+# This function does not support $EXTRA_PACKAGES.
 install_windows() {
     local arch="mingw-w64-x86_64"
     local cxxpkg
     local msys="/C/tools/msys64"
     local mingw="$msys/mingw64"
+
+    identify windows
 
     cxxpkg="$(compiler_pkg "$1")"
     if [ -n "$cxxpkg" ]
@@ -267,7 +365,7 @@ install_windows() {
     # output go to stdout because that's where we write our variables.  So we
     # let it generate progress information and send the output to stderr.  :-/
     choco install msys2 --limit-output --stoponfirstfailure -y 2>&1 |
-        tee -a install.log >&2
+        tee -a "$LOG" >&2
 
     # We need the msys version of libpq, because the one we'd get from choco
     # is for MSVC (odd, for a C library).  Ironically Microsoft's own vcpkg is
@@ -294,7 +392,7 @@ pacman -S \
     ninja \
     $cxxpkg \
     --noconfirm
-" | tee -a install.log >&2
+" | tee -a "$LOG" >&2
 
     echo "export PGHOST=localhost"
     echo "export PATH='$PATH'"
@@ -308,7 +406,7 @@ then
 Usage: $0 <profile> <compiler> [extra packages...]
 
 Where <profile> is usually an OS name, sometimes a combination of OS and
-purpose: archlinux, archilinux-lint, debian, fedora, macos, windows...
+purpose: archlinux, debian-lint, debian, fedora, macos, windows...
 
 And <compiler> is the compiler: g++ or clang++ (or in future perhaps more).
 EOF
@@ -332,6 +430,12 @@ case "$PROFILE" in
 
     debian)
         install_debian "$COMPILER"
+        ;;
+    debian-infer)
+        install_debian_infer "$COMPILER"
+        ;;
+    debian-lint)
+        install_debian_lint "$COMPILER"
         ;;
 
     fedora)
