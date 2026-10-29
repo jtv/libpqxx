@@ -782,6 +782,32 @@ template<binary DATA> struct string_traits<DATA> final
     return buf;
   }
 };
+
+
+/// Optimised specialisation: convert string into existing `binary` object.
+template<binary TYPE>
+inline void from_string(std::string_view text, TYPE &value, ctx c = {})
+{
+  auto const size{pqxx::internal::size_unesc_bin(std::size(text))};
+  if constexpr (requires { value.resize(std::size(value)); })
+  {
+    // Make `value` allocate exactly the right size (which we already know).
+    value.resize(size);
+  }
+  else
+  {
+    // There's no suitable `TYPE::resize()`.  But perhaps the caller has
+    // ensured that `value` is already te right size.
+    if (std::cmp_not_equal(std::size(value), size))
+      throw conversion_error{
+        std::format(
+          "Can't convert binary data from SQL text to {}: need {} byte(s), "
+          "found {}, and there's no resize().",
+          name_type<TYPE>(), size, std::size(value)),
+        c.loc};
+  }
+  pqxx::internal::unesc_bin(text, value, c.loc);
+}
 } // namespace pqxx
 
 

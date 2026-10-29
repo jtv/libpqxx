@@ -23,6 +23,8 @@
  - Tighten up & document behaviour of overwriting notification handlers.
  - `esc_like()` is broken.  Use `esc_like<...>()` instead.
  - Some `icursor_iterator` operators are no longer `noexcept`.
+ - `field::view()` and `field_ref::view()` now return `zview`.
+ - In `field` and `field_ref`, optimised `to()` for repeated binary reads.
 8.0.2
  - Simple benchmark tool for query performance.
  - Fix an apparent `memcpy()` overlap.

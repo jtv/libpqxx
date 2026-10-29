@@ -142,13 +142,23 @@ public:
    *
    * Many built-in types come with conversions predefined.  To find out how to
    * add your own, see @ref datatypes.
+   *
+   * For most types, the recommended way to extract the value of a field is to
+   * call `as()`: `int i = my_field.as<int>();`.
+   *
+   * However there are a few exceptions where other ways to do it may be
+   * preferable: to read a `std::string_view` or a `pqxx::zview`, you may just
+   * use `my_field.view()` which is easier on the eyes.  And for getting
+   * `pqxx::bytes` repeatedly in a loop, you can use `my_field.to(my_bytes)`,
+   * passing the same `my_bytes` every time.  This will overwrite `my_bytes`,
+   * re-using its internally allocated storage if possible for speed.
    */
   //@{
   /// Read as @ref zview, or an empty one if null.
   /** A @ref zview is also a `std::string_view`.  It just adds the promise that
    * there is a terminating zero right behind the string.
    */
-  [[nodiscard]] PQXX_PURE std::string_view view() const & noexcept
+  [[nodiscard]] PQXX_PURE zview view() const & noexcept
   {
     return zview{c_str(), size()};
   }
@@ -249,7 +259,7 @@ public:
     if (null)
       obj = default_value;
     else
-      obj = from_string<T>(this->view(), make_context(loc));
+      from_string(view(), obj, make_context(loc));
     return not null;
   }
 
@@ -423,9 +433,9 @@ public:
    * @ref result exists.  Once all `result` objects referring to that data have
    * been destroyed, the view will no longer point to valid memory.
    */
-  [[nodiscard]] PQXX_PURE std::string_view view() const & noexcept
+  [[nodiscard]] PQXX_PURE zview view() const & noexcept
   {
-    return {c_str(), size()};
+    return zview{c_str(), size()};
   }
 
   /// Read as plain C string.
@@ -473,7 +483,7 @@ public:
     }
     else
     {
-      obj = from_string<T>(view(), make_context(loc));
+      from_string(view(), obj, make_context(loc));
       return true;
     }
   }
@@ -525,7 +535,7 @@ public:
   template<typename T>
   bool to(T &obj, T const &default_value, sl loc = sl::current()) const
   {
-    return as_field_ref().to<T>(obj, default_value, make_context(loc));
+    return as_field_ref().to(obj, default_value, make_context(loc));
   }
 
   /// Return value as object of given type, or default value if null.
@@ -683,7 +693,7 @@ template<> inline bool field::to<zview>(zview &obj, sl) const
 {
   bool const null{is_null()};
   if (not null)
-    obj = zview{c_str(), size()};
+    obj = view();
   return not null;
 }
 
@@ -695,7 +705,7 @@ inline bool field::to<zview>(zview &obj, zview const &default_value, sl) const
   if (null)
     obj = default_value;
   else
-    obj = zview{c_str(), size()};
+    obj = view();
   return not null;
 }
 
