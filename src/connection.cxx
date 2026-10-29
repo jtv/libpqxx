@@ -834,7 +834,6 @@ notify_ptr get_notif(pqxx::internal::pq::PGconn *cx)
 } // namespace
 
 
-#include <iostream> // XXX:
 int pqxx::connection::get_notifs(sl loc)
 {
   if (not consume_input())
