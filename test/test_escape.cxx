@@ -1,3 +1,4 @@
+#include <pqxx/nontransaction>
 #include <pqxx/transaction>
 
 #include "helpers.hxx"
@@ -208,9 +209,35 @@ void test_binary_esc_checks_buffer_length(pqxx::test::context &)
 }
 
 
+void test_unesc_bin_handles_large_data(pqxx::test::context &tctx)
+{
+  pqxx::connection cx;
+  pqxx::nontransaction tx{cx};
+
+  // Fixed test data of sufficient length that it can't be parsed in a
+  // single machine word, and preferably also not in an integral number of
+  // words.  This will tickle the hardest cases in the unescaping code.
+  constexpr auto sample_hex{
+    "\\xabcdef01234567890987654321fedcba03211919191902cdabfebfe99253a0b1"
+    "c21234567890cabdfe10101011"sv};
+  constexpr auto sample_bin{
+    "\xab\xcd\xef\x01\x23\x45\x67\x89\x09\x87\x65\x43\x21\xfe\xdc\xba\x03\x21"
+    "\x19\x19\x19\x19\x02\xcd\xab\xfe\xbf\xe9\x92\x53\xa0\xb1\xc2"
+    "\x12\x34\x56\x78\x90\xca\xbd\xfe\x10\x10\x10\x11"sv};
+
+  PQXX_CHECK_EQUAL(
+    tx.esc(tx.unesc_bin(sample_hex)), tx.esc(pqxx::binary_cast(sample_bin)));
+
+  // It also works for randomly generated binary data.
+  pqxx::bytes const random_bin{tctx.make_bytes(0, 100)};
+  PQXX_CHECK_EQUAL(tx.unesc_bin(tx.esc(random_bin)), random_bin);
+}
+
+
 PQXX_REGISTER_TEST(test_escaping);
 PQXX_REGISTER_TEST(test_esc_escapes_into_buffer);
 PQXX_REGISTER_TEST(test_esc_accepts_various_types);
 PQXX_REGISTER_TEST(test_binary_esc_checks_buffer_length);
 PQXX_REGISTER_TEST(test_esc_like);
+PQXX_REGISTER_TEST(test_unesc_bin_handles_large_data);
 } // namespace

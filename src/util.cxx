@@ -124,33 +124,6 @@ static_assert(hex_digit(10) == 'a');
 static_assert(hex_digit(15) == 'f');
 #endif
 // LCOV_EXCL_STOP
-
-
-constexpr int ten{10};
-
-
-// LCOV_EXCL_START
-/// Translate a hex digit to a nibble.  Return -1 if it's not a valid digit.
-constexpr int nibble(int c) noexcept
-{
-  if (c >= '0' and c <= '9') [[likely]]
-    return c - '0';
-  else if (c >= 'a' and c <= 'f')
-    return ten + (c - 'a');
-  else [[unlikely]] if (c >= 'A' and c <= 'F')
-    return ten + (c - 'A');
-  else [[unlikely]]
-    return -1;
-}
-
-
-#if !defined(NDEBUG)
-static_assert(nibble('0') == 0);
-static_assert(nibble('9') == 9);
-static_assert(nibble('a') == 10);
-static_assert(nibble('f') == 15);
-#endif
-// LCOV_EXCL_STOP
 } // namespace
 
 
@@ -196,31 +169,95 @@ std::string esc_bin(bytes_view binary_data)
 void unesc_bin(
   std::string_view escaped_data, std::span<std::byte> buffer, sl loc)
 {
+  // Size of the header: "\x".
+  constexpr std::size_t header{2u};
+  // Number of hex digits in a byte.
+  constexpr std::size_t digits_per_byte{2u};
+
   auto const in_size{std::size(escaped_data)};
-  if (in_size < 2)
+  if (in_size < header)
     throw pqxx::failure{"Binary data appears truncated.", loc};
-  if ((in_size % 2) != 0)
+  if ((in_size % digits_per_byte) != 0)
     throw pqxx::failure{"Invalid escaped binary length.", loc};
-  std::size_t in{0u};
-  if (escaped_data[in++] != '\\' or escaped_data[in++] != 'x')
-    throw pqxx::failure(
-      "Escaped binary data did not start with '\\x'`.  Is the server or libpq "
-      "too old?",
-      loc);
-  std::size_t out{0u};
-  while (in < in_size)
+  if (not escaped_data.starts_with("\\x"sv))
+    throw pqxx::failure("Escaped binary data did not start with '\\x'`.", loc);
+
+  // Read in chunks that can fit in this type.
+  using word_t = unsigned long long;
+
+  // Number of bytes in word_t.
+  constexpr std::size_t word_bytes{sizeof(word_t)};
+
+  // Number of hex digits that can fit into that word.
+  constexpr std::size_t word_digits{sizeof(word_t) * digits_per_byte};
+
+  // The actual hex digits portion of the input.
+  std::string_view const hex_data{escaped_data.substr(header)};
+
+  // Pointer to the hex data.
+  auto const hex_ptr{std::data(hex_data)};
+
+  // Number of words we can process in chunks.  We do the remainder separately.
+  std::size_t const bulk_limit{
+    (std::size(hex_data) / word_digits) * word_digits};
+
+  static_assert(
+    (std::endian::native == std::endian::big) or
+    (std::endian::native == std::endian::little));
+
+  // Our current byte offests in hex_data and buffer, respectively.
+  std::size_t read{0u}, write{0u};
+
+  // This loop does some repeated calculations and such, but compilers are
+  // good at optimising those away.
+  while (read < bulk_limit)
   {
-    int const hi{nibble(escaped_data[in++])};
-    if (hi < 0)
-      throw pqxx::failure{"Invalid hex-escaped data.", loc};
-    int const lo{nibble(escaped_data[in++])};
-    if (lo < 0)
-      throw pqxx::failure{"Invalid hex-escaped data.", loc};
-    buffer[out++] = static_cast<std::byte>((hi << 4) | lo);
+    // The chunk of binary data, as a single numeric data.
+    word_t chunk{};
+
+    // Extent of this chunk in hex_data.
+    auto const chunk_start{read}, chunk_end{read + word_digits};
+
+    // Read a whole chunk of data, abusing the standard library for fast
+    // parsing of hex digits.
+    auto const conv_res{
+      std::from_chars(hex_ptr + chunk_start, hex_ptr + chunk_end, chunk, 16)};
+    if (
+      (conv_res.ptr != (hex_ptr + chunk_end)) or (conv_res.ec != std::errc{}))
+      throw conversion_error{"Invalid hex-escaped binary data.", loc};
+
+    // Write binary chunk to buffer.  It would be tempting to extract the
+    // most-significant byte, write it, then shift left.  But it's much
+    // cheaper to extract the least-significant byte, so we simply write
+    // backwards.
+    //
+    // I hope the compiler will make something good of this.
+    for (std::size_t i{word_bytes}; i > 0; --i)
+    {
+      buffer[write + i - 1] = static_cast<std::byte>(chunk & 0xff);
+      chunk >>= 8;
+    }
+
+    read += word_digits;
+    write += word_bytes;
   }
-  // clang-tidy rule bug:
-  // NOLINTNEXTLINE(cert-dcl03-c)
-  assert(out <= std::size(buffer));
+
+  // Convert those few (if any) remaining bytes, one byte (2 digits) at a time.
+  while (read < std::size(hex_data))
+  {
+    unsigned int chunk{};
+    auto const chunk_start{read}, chunk_end{read + digits_per_byte};
+    auto const conv_res{
+      std::from_chars(hex_ptr + chunk_start, hex_ptr + chunk_end, chunk, 16)};
+    if ((conv_res.ptr != hex_ptr + chunk_end) or (conv_res.ec != std::errc{}))
+      throw conversion_error{"Invalid hex-escaped binary data.", loc};
+
+    read += digits_per_byte;
+    buffer[write++] = static_cast<std::byte>(chunk & 0xff);
+  }
+
+  assert(write == std::size(buffer));
+  assert(read == std::size(hex_data));
 }
 
 

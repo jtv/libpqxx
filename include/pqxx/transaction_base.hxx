@@ -259,9 +259,18 @@ public:
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
-  [[nodiscard]] bytes unesc_bin(zview text, sl loc = sl::current())
+  [[nodiscard]] bytes unesc_bin(std::string_view text, sl loc = sl::current())
   {
     return conn().unesc_bin(text, loc);
+  }
+
+  /// Unescape binary data, e.g. from a `bytea` field.
+  /** Takes a binary string as escaped by PostgreSQL, and writes a restored
+   * copy of the original binary data into `dest`.
+   */
+  void unesc_bin(std::string_view text, bytes &dest, sl loc = sl::current())
+  {
+    conn().unesc_bin(text, dest, loc);
   }
 
   /// Unescape binary data, e.g. from a `bytea` field.
