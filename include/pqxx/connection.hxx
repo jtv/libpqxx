@@ -1752,7 +1752,6 @@ pqxx::connection::esc_like(std::string_view text, sl loc) const
   if (sz == 0u)
     return "";
   auto const data{std::data(text)};
-  // XXX: Also deal with SJIS-2004 2-byte backslash.
   auto const finder{pqxx::internal::get_escape_finder<'_', '%', escape_char>(
     effective_encoding_group(loc), loc)};
 

@@ -234,7 +234,7 @@ void test_params(pqxx::test::context &)
   std::vector<int> const values{3, 9};
   pqxx::params params;
   params.reserve(std::size(values));
-  params.append_multi(values);
+  params.append_range(values);
 
   auto const rw39{
     tx.exec(pqxx::prepped{"Concat2Numbers"}, pqxx::params{tx, params})

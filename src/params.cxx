@@ -77,8 +77,15 @@ void pqxx::params::append(std::string &&value, sl) &
 
 void pqxx::params::append(params const &value, sl) &
 {
-  this->reserve(std::size(value.m_params) + std::size(this->m_params));
+#if defined(__cpp_lib_containers_ranges) && __cpp_lib_containers_ranges
+  m_params.append_range(value.m_params);
+#else
+  // C++23: No longer need this workaround.
+  auto const target{std::size(value.m_params) + std::size(this->m_params)};
+  // Allocate a bit extra to throttle repeated re-allocations.
+  this->reserve(target * 2);
   for (auto const &param : value.m_params) m_params.emplace_back(param);
+#endif
 }
 
 
