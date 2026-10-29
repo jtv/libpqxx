@@ -212,10 +212,18 @@ public:
 
   /// Append all elements of `range` as parameters.
   template<std::ranges::range RANGE>
+  [[deprecated("append_multi() is now called append_range().")]]
   void append_multi(RANGE const &range, sl loc = sl::current()) &
   {
+    append_range(range, loc);
+  }
+
+  /// Append all elements of `range` as parameters.
+  template<std::ranges::range RANGE>
+  void append_range(RANGE const &range, sl loc = sl::current()) &
+  {
     if constexpr (std::ranges::sized_range<RANGE>)
-      reserve(std::size(*this) + std::size(range));
+      reserve((std::size(*this) + std::size(range)) * 2);
     for (auto &value : range) append(value, loc);
   }
 

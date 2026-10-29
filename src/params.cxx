@@ -78,7 +78,7 @@ void pqxx::params::append(std::string &&value, sl) &
 void pqxx::params::append(params const &value, sl) &
 {
 #if defined(__cpp_lib_containers_ranges) && __cpp_lib_containers_ranges
-  m_params.append_range(value.m_params.begin(), value.m_params.end());
+  m_params.append_range(value.m_params);
 #else
   // C++23: No longer need this workaround.
   auto const target{std::size(value.m_params) + std::size(this->m_params)};
