@@ -184,7 +184,8 @@ void unesc_bin(
     throw pqxx::failure("Escaped binary data did not start with '\\x'`.", loc);
 
   // Read in chunks that can fit in this type.
-  using word_t = unsigned long long;
+  // XXX: Or "unsigned long long" if available from_chars() supports it.
+  using word_t = unsigned long;
 
   // Number of bytes in word_t.
   constexpr std::size_t word_bytes{sizeof(word_t)};
