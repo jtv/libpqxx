@@ -248,19 +248,19 @@ private:
 };
 
 
-constexpr hex_table hex_digits;
+constexpr hex_table hex_nibbles;
 
-static_assert(hex_digits['`'] == bad_hex);
-static_assert(hex_digits['0'] == 0);
-static_assert(hex_digits['9'] == 9);
-static_assert(hex_digits[':'] == bad_hex);
-static_assert(hex_digits['@'] == bad_hex);
-static_assert(hex_digits['A'] == 10);
-static_assert(hex_digits['a'] == 10);
-static_assert(hex_digits['F'] == 15);
-static_assert(hex_digits['f'] == 15);
-static_assert(hex_digits['G'] == bad_hex);
-static_assert(hex_digits['g'] == bad_hex);
+static_assert(hex_nibbles['`'] == bad_hex);
+static_assert(hex_nibbles['0'] == 0);
+static_assert(hex_nibbles['9'] == 9);
+static_assert(hex_nibbles[':'] == bad_hex);
+static_assert(hex_nibbles['@'] == bad_hex);
+static_assert(hex_nibbles['A'] == 10);
+static_assert(hex_nibbles['a'] == 10);
+static_assert(hex_nibbles['F'] == 15);
+static_assert(hex_nibbles['f'] == 15);
+static_assert(hex_nibbles['G'] == bad_hex);
+static_assert(hex_nibbles['g'] == bad_hex);
 
 
 void unesc_bin(
@@ -280,7 +280,7 @@ void unesc_bin(
   {
     // C++23: Would std::chunk_view make it easier to grab pairs of bytes?
     unsigned const byteval =
-      ((hex_digits[hex_data[read]] << 4) | hex_digits[hex_data[read + 1]]);
+      ((hex_nibbles[hex_data[read]] << 4) | hex_nibbles[hex_data[read + 1]]);
     chalice |= byteval;
     buffer[write++] = static_cast<std::byte>(byteval);
   }
