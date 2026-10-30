@@ -185,7 +185,7 @@ void unesc_bin(
 
   // Read in chunks that can fit in this type.
   // XXX: Or "unsigned long long" if available from_chars() supports it.
-  using word_t = unsigned long;
+  using word_t = unsigned int;
 
   // Number of bytes in word_t.
   constexpr std::size_t word_bytes{sizeof(word_t)};
