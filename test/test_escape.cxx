@@ -168,6 +168,7 @@ void test_esc_escapes_into_buffer(pqxx::test::context &)
 
   pqxx::bytes const data{std::byte{0x22}, std::byte{0x43}};
   auto const escaped_data(tx.esc(data, buffer));
+  // NOLINTNEXTLINE(modernize-raw-string-literal)
   PQXX_CHECK_EQUAL(escaped_data, "\\x2243");
 }
 
@@ -212,7 +213,7 @@ void test_binary_esc_checks_buffer_length(pqxx::test::context &)
 void test_unesc_bin_handles_large_data(pqxx::test::context &tctx)
 {
   pqxx::connection cx;
-  pqxx::nontransaction tx{cx};
+  pqxx::nontransaction const tx{cx};
 
   // Fixed test data of sufficient length that it can't be parsed in a
   // single machine word, and preferably also not in an integral number of

@@ -166,8 +166,10 @@ std::string esc_bin(bytes_view binary_data)
 }
 
 
+// NOLINTBEGIN(modernize-raw-string-literal)
 /// The standard header for PostgreSQL's hex-escaped binary data.
 constexpr std::string_view header{"\\x"sv};
+// NOLINTEND(modernize-raw-string-literal)
 
 /// Number of hex digits in a byte.
 constexpr std::size_t digits_per_byte{2u};
@@ -219,21 +221,20 @@ static_assert(not has_poison(0));
 static_assert(not has_poison(255));
 
 
-// XXX: Also check that streaming uses fast from_string(outvar) path!
 /// Hex digit lookup table.
 class hex_table final
 {
 public:
-  constexpr hex_table() noexcept
+  constexpr hex_table() noexcept : m_digits{}
   {
-    for (unsigned i{0}; i < std::size(m_digits); ++i) m_digits[i] = bad_hex;
+    for (unsigned i{0}; i < std::size(m_digits); ++i) m_digits.at(i) = bad_hex;
     for (unsigned i{0}; i < 10u; ++i)
-      m_digits['0' + i] = static_cast<uint16_t>(i);
+      m_digits.at('0' + i) = static_cast<uint16_t>(i);
     for (unsigned i{0}; i < 6u; ++i)
     {
       std::uint16_t const value{static_cast<std::uint16_t>(10u + i)};
-      m_digits['A' + i] = value;
-      m_digits['a' + i] = value;
+      m_digits.at('A' + i) = value;
+      m_digits.at('a' + i) = value;
     }
   }
 
@@ -277,8 +278,8 @@ void unesc_bin(
   // conditionals etc.
   for (std::size_t read{0}; read < in_size; read += digits_per_byte)
   {
-    // Can we use std pairwise iteration, maybe get more vectorisation?
-    unsigned byteval =
+    // C++23: Would std::chunk_view make it easier to grab pairs of bytes?
+    unsigned const byteval =
       ((hex_digits[hex_data[read]] << 4) | hex_digits[hex_data[read + 1]]);
     chalice |= byteval;
     buffer[write++] = static_cast<std::byte>(byteval);
