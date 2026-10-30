@@ -225,7 +225,7 @@ static_assert(not has_poison(255));
 class hex_table final
 {
 public:
-  constexpr hex_table() noexcept : m_digits{}
+  constexpr hex_table() noexcept
   {
     for (unsigned i{0}; i < std::size(m_digits); ++i) m_digits.at(i) = bad_hex;
     for (unsigned i{0}; i < 10u; ++i)
@@ -240,11 +240,11 @@ public:
 
   [[nodiscard]] constexpr unsigned operator[](char c) const noexcept
   {
-    return m_digits[static_cast<unsigned char>(c)];
+    return m_digits.at(static_cast<unsigned char>(c));
   }
 
 private:
-  std::array<uint16_t, 256> m_digits;
+  std::array<uint16_t, 256> m_digits{};
 };
 
 
