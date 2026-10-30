@@ -225,6 +225,7 @@ void test_unesc_bin_handles_large_data(pqxx::test::context &tctx)
     "\x19\x19\x19\x19\x02\xcd\xab\xfe\xbf\xe9\x92\x53\xa0\xb1\xc2"
     "\x12\x34\x56\x78\x90\xca\xbd\xfe\x10\x10\x10\x11"sv};
 
+  PQXX_CHECK_EQUAL(tx.esc(pqxx::binary_cast(sample_bin)), sample_hex);
   PQXX_CHECK_EQUAL(
     tx.esc(tx.unesc_bin(sample_hex)), tx.esc(pqxx::binary_cast(sample_bin)));
 

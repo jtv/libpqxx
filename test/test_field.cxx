@@ -124,7 +124,7 @@ void test_field_converts_binary(pqxx::test::context &tctx)
   // as it's exactly the right size.
   // If the non-resizable container is not the right size, however, it fails.
   constexpr std::size_t len{4u};
-  std::array<std::byte, len> fixed;
+  std::array<std::byte, len> fixed{};
   for (int s{0}; std::cmp_less(s, len + 2); ++s)
   {
     auto const input{tctx.make_bytes(s, s + 1)};

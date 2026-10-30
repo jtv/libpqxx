@@ -179,6 +179,7 @@ void unesc_bin(
     throw pqxx::failure{"Binary data appears truncated.", loc};
   if ((in_size % digits_per_byte) != 0)
     throw pqxx::failure{"Invalid escaped binary length.", loc};
+  // NOLINTNEXTLINE(modernize-raw-string-literal)
   if (not escaped_data.starts_with("\\x"sv))
     throw pqxx::failure("Escaped binary data did not start with '\\x'`.", loc);
 
