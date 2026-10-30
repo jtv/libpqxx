@@ -235,10 +235,34 @@ void test_unesc_bin_handles_large_data(pqxx::test::context &tctx)
 }
 
 
+/// Run `data` through `tx.unesc_bin()`, expect to fail.
+void fail_unesc(pqxx::transaction_base const &tx, std::string_view data)
+{
+  std::ignore = tx.unesc_bin(data);
+}
+
+
+void test_unesc_bin_checks_sanity(pqxx::test::context &)
+{
+  pqxx::connection cx;
+  pqxx::nontransaction tx{cx};
+
+  PQXX_CHECK(std::empty(tx.unesc_bin("\\x")));
+  PQXX_CHECK_THROWS(fail_unesc(tx, "\\y"), pqxx::conversion_error);
+  PQXX_CHECK_THROWS(fail_unesc(tx, "\\x123"), pqxx::conversion_error);
+
+  // Bad digits:
+  PQXX_CHECK_THROWS(fail_unesc(tx, "\\xabcdefg0"), pqxx::conversion_error);
+  PQXX_CHECK_THROWS(fail_unesc(tx, "\\x0\x81"), pqxx::conversion_error);
+  PQXX_CHECK_THROWS(fail_unesc(tx, "\\x0!"), pqxx::conversion_error);
+}
+
+
 PQXX_REGISTER_TEST(test_escaping);
 PQXX_REGISTER_TEST(test_esc_escapes_into_buffer);
 PQXX_REGISTER_TEST(test_esc_accepts_various_types);
 PQXX_REGISTER_TEST(test_binary_esc_checks_buffer_length);
 PQXX_REGISTER_TEST(test_esc_like);
 PQXX_REGISTER_TEST(test_unesc_bin_handles_large_data);
+PQXX_REGISTER_TEST(test_unesc_bin_checks_sanity);
 } // namespace

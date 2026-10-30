@@ -259,7 +259,8 @@ public:
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
-  [[nodiscard]] bytes unesc_bin(std::string_view text, sl loc = sl::current())
+  [[nodiscard]] bytes
+  unesc_bin(std::string_view text, sl loc = sl::current()) const
   {
     return conn().unesc_bin(text, loc);
   }
@@ -268,7 +269,8 @@ public:
   /** Takes a binary string as escaped by PostgreSQL, and writes a restored
    * copy of the original binary data into `dest`.
    */
-  void unesc_bin(std::string_view text, bytes &dest, sl loc = sl::current())
+  void
+  unesc_bin(std::string_view text, bytes &dest, sl loc = sl::current()) const
   {
     conn().unesc_bin(text, dest, loc);
   }
@@ -278,7 +280,7 @@ public:
    * copy of the original binary data.
    */
   PQXX_ZARGS [[nodiscard]] bytes
-  unesc_bin(char const text[], sl loc = sl::current())
+  unesc_bin(char const text[], sl loc = sl::current()) const
   {
     return conn().unesc_bin(text, loc);
   }

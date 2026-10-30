@@ -166,100 +166,127 @@ std::string esc_bin(bytes_view binary_data)
 }
 
 
+/// The standard header for PostgreSQL's hex-escaped binary data.
+constexpr std::string_view header{"\\x"sv};
+
+/// Number of hex digits in a byte.
+constexpr std::size_t digits_per_byte{2u};
+
+
+/// Sanity-check hex input, return "payload" portion (the hex digits part).
+inline std::string_view parse_bin_meta(
+  std::string_view escaped_data, std::span<std::byte> buffer, sl loc)
+{
+  // NOLINTNEXTLINE(modernize-raw-string-literal)
+  if (not escaped_data.starts_with(header))
+    throw pqxx::conversion_error("Encoded binary data is malformed.", loc);
+
+  std::string_view const payload{escaped_data.substr(std::size(header))};
+
+  if ((std::size(payload) % digits_per_byte) != 0)
+    throw pqxx::conversion_error{"Invalid encoded binary length.", loc};
+
+  auto const need_bytes{std::size(payload) / digits_per_byte},
+    have_bytes{std::size(buffer)};
+
+  if (need_bytes > have_bytes)
+    throw pqxx::conversion_overrun{std::format(
+      "Need buffer of {} byte(s) to decode binary data, got {}.", need_bytes,
+      have_bytes)};
+
+  return payload;
+}
+
+
+/// Marker value for invalid hex digit.
+/** A hex digit value really only needs one nibble (4 bits).  But we "poison"
+ * this value by setting extra bits.  This lets us skip a lot of per-digit
+ * validity checking and just check at the end whether our digits contain
+ * bits of poison.
+ */
+constexpr uint16_t bad_hex{0xffff};
+
+// X/// Does the given value contain `bad_hex` poison?
+[[nodiscard]] inline constexpr bool has_poison(unsigned value) noexcept
+{
+  // Are any of the bits outside the single-byte range set?
+  return (value >> 8) != 0;
+}
+
+
+static_assert(has_poison(bad_hex));
+static_assert(not has_poison(0));
+static_assert(not has_poison(255));
+
+
+// XXX: Also check that streaming uses fast from_string(outvar) path!
+/// Hex digit lookup table.
+class hex_table final
+{
+public:
+  constexpr hex_table() noexcept
+  {
+    for (unsigned i{0}; i < std::size(m_digits); ++i) m_digits[i] = bad_hex;
+    for (unsigned i{0}; i < 10u; ++i)
+      m_digits['0' + i] = static_cast<uint16_t>(i);
+    for (unsigned i{0}; i < 6u; ++i)
+    {
+      std::uint16_t const value{static_cast<std::uint16_t>(10u + i)};
+      m_digits['A' + i] = value;
+      m_digits['a' + i] = value;
+    }
+  }
+
+  [[nodiscard]] constexpr unsigned operator[](char c) const noexcept
+  {
+    return m_digits[static_cast<unsigned char>(c)];
+  }
+
+private:
+  std::array<uint16_t, 256> m_digits;
+};
+
+
+constexpr hex_table hex_digits;
+
+static_assert(hex_digits['`'] == bad_hex);
+static_assert(hex_digits['0'] == 0);
+static_assert(hex_digits['9'] == 9);
+static_assert(hex_digits[':'] == bad_hex);
+static_assert(hex_digits['@'] == bad_hex);
+static_assert(hex_digits['A'] == 10);
+static_assert(hex_digits['a'] == 10);
+static_assert(hex_digits['F'] == 15);
+static_assert(hex_digits['f'] == 15);
+static_assert(hex_digits['G'] == bad_hex);
+static_assert(hex_digits['g'] == bad_hex);
+
+
 void unesc_bin(
   std::string_view escaped_data, std::span<std::byte> buffer, sl loc)
 {
-  // Size of the header: "\x".
-  constexpr std::size_t header{2u};
-  // Number of hex digits in a byte.
-  constexpr std::size_t digits_per_byte{2u};
+  std::string_view const hex_data{parse_bin_meta(escaped_data, buffer, loc)};
+  auto const in_size{std::size(hex_data)};
 
-  auto const in_size{std::size(escaped_data)};
-  if (in_size < header)
-    throw pqxx::failure{"Binary data appears truncated.", loc};
-  if ((in_size % digits_per_byte) != 0)
-    throw pqxx::failure{"Invalid escaped binary length.", loc};
-  // NOLINTNEXTLINE(modernize-raw-string-literal)
-  if (not escaped_data.starts_with("\\x"sv))
-    throw pqxx::failure("Escaped binary data did not start with '\\x'`.", loc);
+  // Collect all values in here, so we can later check for poison in one go.
+  unsigned chalice{0};
 
-  // Read in chunks that can fit in this type.
-  // XXX: Or "unsigned long long" if available from_chars() supports it.
-  using word_t = unsigned int;
+  std::size_t write{0};
 
-  // Number of bytes in word_t.
-  constexpr std::size_t word_bytes{sizeof(word_t)};
-
-  // Number of hex digits that can fit into that word.
-  constexpr std::size_t word_digits{sizeof(word_t) * digits_per_byte};
-
-  // The actual hex digits portion of the input.
-  std::string_view const hex_data{escaped_data.substr(header)};
-
-  // Pointer to the hex data.
-  auto const hex_ptr{std::data(hex_data)};
-
-  // Number of words we can process in chunks.  We do the remainder separately.
-  std::size_t const bulk_limit{
-    (std::size(hex_data) / word_digits) * word_digits};
-
-  static_assert(
-    (std::endian::native == std::endian::big) or
-    (std::endian::native == std::endian::little));
-
-  // Our current byte offests in hex_data and buffer, respectively.
-  std::size_t read{0u}, write{0u};
-
-  // This loop does some repeated calculations and such, but compilers are
-  // good at optimising those away.
-  while (read < bulk_limit)
+  // This is the central loop.  It matters a lot for performance, so avoid any
+  // conditionals etc.
+  for (std::size_t read{0}; read < in_size; read += digits_per_byte)
   {
-    // The chunk of binary data, as a single numeric data.
-    word_t chunk{};
-
-    // Extent of this chunk in hex_data.
-    auto const chunk_start{read}, chunk_end{read + word_digits};
-
-    // Read a whole chunk of data, abusing the standard library for fast
-    // parsing of hex digits.
-    auto const conv_res{
-      std::from_chars(hex_ptr + chunk_start, hex_ptr + chunk_end, chunk, 16)};
-    if (
-      (conv_res.ptr != (hex_ptr + chunk_end)) or (conv_res.ec != std::errc{}))
-      throw conversion_error{"Invalid hex-escaped binary data.", loc};
-
-    // Write binary chunk to buffer.  It would be tempting to extract the
-    // most-significant byte, write it, then shift left.  But it's much
-    // cheaper to extract the least-significant byte, so we simply write
-    // backwards.
-    //
-    // I hope the compiler will make something good of this.
-    for (std::size_t i{word_bytes}; i > 0; --i)
-    {
-      buffer[write + i - 1] = static_cast<std::byte>(chunk & 0xff);
-      chunk >>= 8;
-    }
-
-    read += word_digits;
-    write += word_bytes;
+    // Can we use std pairwise iteration, maybe get more vectorisation?
+    unsigned byteval =
+      ((hex_digits[hex_data[read]] << 4) | hex_digits[hex_data[read + 1]]);
+    chalice |= byteval;
+    buffer[write++] = static_cast<std::byte>(byteval);
   }
 
-  // Convert those few (if any) remaining bytes, one byte (2 digits) at a time.
-  while (read < std::size(hex_data))
-  {
-    unsigned int chunk{};
-    auto const chunk_start{read}, chunk_end{read + digits_per_byte};
-    auto const conv_res{
-      std::from_chars(hex_ptr + chunk_start, hex_ptr + chunk_end, chunk, 16)};
-    if ((conv_res.ptr != hex_ptr + chunk_end) or (conv_res.ec != std::errc{}))
-      throw conversion_error{"Invalid hex-escaped binary data.", loc};
-
-    read += digits_per_byte;
-    buffer[write++] = static_cast<std::byte>(chunk & 0xff);
-  }
-
-  assert(write == std::size(buffer));
-  assert(read == std::size(hex_data));
+  if (has_poison(chalice))
+    throw conversion_error{
+      "Hex-encoded binary data contains invalid digits.", loc};
 }
 
 
