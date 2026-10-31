@@ -537,6 +537,8 @@ void test_stream_to_moves_into_optional(pqxx::test::context &)
     std::in_place, pqxx::stream_to::table(tx, {"foo"}, {"a"})};
   org->write_values(1);
   auto copy{std::move(org)};
+  // Shut up "possibly uninitialised" warning from g++ 15.2.0.
+  assert(copy.has_value());
   copy->write_values(2);
   copy->complete();
   auto const values{tx.exec("SELECT a FROM foo ORDER BY a").expect_rows(2)};
