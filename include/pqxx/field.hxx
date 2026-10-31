@@ -142,15 +142,22 @@ public:
    *
    * Many built-in types come with conversions predefined.  To find out how to
    * add your own, see @ref datatypes.
+   *
+   * For most types, the recommended way to extract the value of a field is to
+   * call `as()`: `int i = my_field.as<int>();`.
+   *
+   * However there are a few exceptions where other ways to do it may be
+   * preferable: to read a `std::string_view` or a `std::string_view`, you may
+   * just use `my_field.view()` which is easier on the eyes.  And for getting
+   * `pqxx::bytes` repeatedly in a loop, you can use `my_field.to(my_bytes)`,
+   * passing the same `my_bytes` every time.  This will overwrite `my_bytes`,
+   * re-using its internally allocated storage if possible for speed.
    */
   //@{
-  /// Read as @ref zview, or an empty one if null.
-  /** A @ref zview is also a `std::string_view`.  It just adds the promise that
-   * there is a terminating zero right behind the string.
-   */
+  /// Read as `std::string_view`, or an empty view if null.
   [[nodiscard]] PQXX_PURE std::string_view view() const & noexcept
   {
-    return zview{c_str(), size()};
+    return {c_str(), size()};
   }
 
   /// Read as plain C string.
@@ -249,7 +256,7 @@ public:
     if (null)
       obj = default_value;
     else
-      obj = from_string<T>(this->view(), make_context(loc));
+      from_string(view(), obj, make_context(loc));
     return not null;
   }
 
@@ -416,7 +423,7 @@ public:
    * add your own, see @ref datatypes.
    */
   //@{
-  /// Read as @ref zview (which is also a `string_view`).
+  /// Read as `std::string_view`.
   /** Returns an empty view if the field is null.
    *
    * The result only remains usable while the data for the underlying
@@ -425,7 +432,7 @@ public:
    */
   [[nodiscard]] PQXX_PURE std::string_view view() const & noexcept
   {
-    return {c_str(), size()};
+    return zview{c_str(), size()};
   }
 
   /// Read as plain C string.
@@ -473,7 +480,7 @@ public:
     }
     else
     {
-      obj = from_string<T>(view(), make_context(loc));
+      from_string(view(), obj, make_context(loc));
       return true;
     }
   }
@@ -525,7 +532,7 @@ public:
   template<typename T>
   bool to(T &obj, T const &default_value, sl loc = sl::current()) const
   {
-    return as_field_ref().to<T>(obj, default_value, make_context(loc));
+    return as_field_ref().to(obj, default_value, make_context(loc));
   }
 
   /// Return value as object of given type, or default value if null.
@@ -672,7 +679,7 @@ inline oid field_ref::table(sl loc) const
 }
 
 
-/// Specialization: `to(zview &)`.
+/// Specialization: conversion to `zview`.
 /** This conversion is not generally available, since the general conversion
  * would not know whether there was indeed a terminating zero at the end of
  * the string.  (It could check, but it would have no way of knowing that a
@@ -683,11 +690,18 @@ template<> inline bool field::to<zview>(zview &obj, sl) const
 {
   bool const null{is_null()};
   if (not null)
-    obj = zview{c_str(), size()};
+    obj = zview{view()};
   return not null;
 }
 
 
+/// Specialization: conversion to `zview`.
+/** This conversion is not generally available, since the general conversion
+ * would not know whether there was indeed a terminating zero at the end of
+ * the string.  (It could check, but it would have no way of knowing that a
+ * zero occurring after the string in memory was actually part of the same
+ * allocation.)
+ */
 template<>
 inline bool field::to<zview>(zview &obj, zview const &default_value, sl) const
 {
@@ -695,29 +709,36 @@ inline bool field::to<zview>(zview &obj, zview const &default_value, sl) const
   if (null)
     obj = default_value;
   else
-    obj = zview{c_str(), size()};
+    obj = zview{view()};
   return not null;
 }
 
 
-/// Efficient specialisation: you can convert a field to a `zview`.
-/** String conversions generally accept `std::string_view`.  You can't just
- * "convert" any old `std::string_view` to a `pqxx::zview` because `zview` is
- * a promise that the string is zero-terminated.  One can't generally make that
- * promise based on a `string_view`.
- *
+/// Specialization: conversion to `zview`.
+/** This conversion is not generally available, since the general conversion
+ * would not know whether there was indeed a terminating zero at the end of
+ * the string.  (It could check, but it would have no way of knowing that a
+ * zero occurring after the string in memory was actually part of the same
+ * allocation.)
  */
 template<> inline zview field_ref::as<zview>(sl loc) const
 {
   if (is_null())
     internal::throw_null_conversion(name_type<zview>(), loc);
-  return zview{c_str(), size()};
+  return zview{view()};
 }
 
 
+/// Specialization: conversion to `zview`.
+/** This conversion is not generally available, since the general conversion
+ * would not know whether there was indeed a terminating zero at the end of
+ * the string.  (It could check, but it would have no way of knowing that a
+ * zero occurring after the string in memory was actually part of the same
+ * allocation.)
+ */
 template<> inline zview field::as<zview>(zview const &default_value, sl) const
 {
-  return is_null() ? default_value : zview{c_str(), size()};
+  return is_null() ? default_value : zview{view()};
 }
 
 

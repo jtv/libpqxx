@@ -1096,7 +1096,6 @@ public:
     return this->esc(binary_cast(data), buffer);
   }
 
-  // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Unescape binary data, e.g. from a `bytea` field.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
@@ -1104,6 +1103,10 @@ public:
    * (The data must be encoded in PostgreSQL's "hex" format.  The legacy
    * "bytea" escape format, used prior to PostgreSQL 9.0, is no longer
    * supported.)
+   *
+   * @warning If you need to unescape binary data values repeatedly in a loop,
+   * it may be more efficient to re-use a single destination variable and call
+   * the overload that takes the destination variable as an argument.
    */
   [[nodiscard]] bytes
   unesc_bin(std::string_view text, sl loc = sl::current()) const
@@ -1111,6 +1114,21 @@ public:
     bytes buf{pqxx::internal::size_unesc_bin(std::size(text))};
     pqxx::internal::unesc_bin(text, buf, loc);
     return buf;
+  }
+
+  /// Unescape binary data, e.g. from a `bytea` field.
+  /** Takes a binary string as escaped by PostgreSQL, and writes a restored
+   * copy of the original binary data into `dest`.
+   *
+   * (The data must be encoded in PostgreSQL's "hex" format.  The legacy
+   * "bytea" escape format, used prior to PostgreSQL 9.0, is no longer
+   * supported.)
+   */
+  void
+  unesc_bin(std::string_view text, bytes &dest, sl loc = sl::current()) const
+  {
+    dest.resize(pqxx::internal::size_unesc_bin(std::size(text)));
+    pqxx::internal::unesc_bin(text, dest, loc);
   }
 
   /// Escape and quote a string of binary data.

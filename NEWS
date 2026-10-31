@@ -23,6 +23,8 @@
  - Tighten up & document behaviour of overwriting notification handlers.
  - `esc_like()` is broken.  Use `esc_like<...>()` instead.
  - Some `icursor_iterator` operators are no longer `noexcept`.
+ - Transactions' `unesc_bin()` functions are now `const`.
+ - Reading `bytea` fields from a `result` is faster.
 8.0.2
  - Simple benchmark tool for query performance.
  - Fix an apparent `memcpy()` overlap.

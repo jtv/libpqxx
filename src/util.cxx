@@ -124,33 +124,6 @@ static_assert(hex_digit(10) == 'a');
 static_assert(hex_digit(15) == 'f');
 #endif
 // LCOV_EXCL_STOP
-
-
-constexpr int ten{10};
-
-
-// LCOV_EXCL_START
-/// Translate a hex digit to a nibble.  Return -1 if it's not a valid digit.
-constexpr int nibble(int c) noexcept
-{
-  if (c >= '0' and c <= '9') [[likely]]
-    return c - '0';
-  else if (c >= 'a' and c <= 'f')
-    return ten + (c - 'a');
-  else [[unlikely]] if (c >= 'A' and c <= 'F')
-    return ten + (c - 'A');
-  else [[unlikely]]
-    return -1;
-}
-
-
-#if !defined(NDEBUG)
-static_assert(nibble('0') == 0);
-static_assert(nibble('9') == 9);
-static_assert(nibble('a') == 10);
-static_assert(nibble('f') == 15);
-#endif
-// LCOV_EXCL_STOP
 } // namespace
 
 
@@ -193,34 +166,128 @@ std::string esc_bin(bytes_view binary_data)
 }
 
 
+// NOLINTBEGIN(modernize-raw-string-literal)
+/// The standard header for PostgreSQL's hex-escaped binary data.
+constexpr std::string_view header{"\\x"sv};
+// NOLINTEND(modernize-raw-string-literal)
+
+/// Number of hex digits in a byte.
+constexpr std::size_t digits_per_byte{2u};
+
+
+/// Sanity-check hex input, return "payload" portion (the hex digits part).
+inline std::string_view parse_bin_meta(
+  std::string_view escaped_data, std::span<std::byte> buffer, sl loc)
+{
+  // NOLINTNEXTLINE(modernize-raw-string-literal)
+  if (not escaped_data.starts_with(header))
+    throw pqxx::conversion_error("Encoded binary data is malformed.", loc);
+
+  std::string_view const payload{escaped_data.substr(std::size(header))};
+
+  if ((std::size(payload) % digits_per_byte) != 0)
+    throw pqxx::conversion_error{"Invalid encoded binary length.", loc};
+
+  auto const need_bytes{std::size(payload) / digits_per_byte},
+    have_bytes{std::size(buffer)};
+
+  if (need_bytes > have_bytes)
+    throw pqxx::conversion_overrun{std::format(
+      "Need buffer of {} byte(s) to decode binary data, got {}.", need_bytes,
+      have_bytes)};
+
+  return payload;
+}
+
+
+/// Marker value for invalid hex digit.
+/** A hex digit value really only needs one nibble (4 bits).  But we "poison"
+ * this value by setting extra bits.  This lets us skip a lot of per-digit
+ * validity checking and just check at the end whether our digits contain
+ * bits of poison.
+ */
+constexpr uint16_t bad_hex{0xffff};
+
+// X/// Does the given value contain `bad_hex` poison?
+[[nodiscard]] inline constexpr bool has_poison(unsigned value) noexcept
+{
+  // Are any of the bits outside the single-byte range set?
+  return (value >> 8) != 0;
+}
+
+
+static_assert(has_poison(bad_hex));
+static_assert(not has_poison(0));
+static_assert(not has_poison(255));
+
+
+/// Hex digit lookup table.
+class hex_table final
+{
+public:
+  constexpr hex_table() noexcept
+  {
+    for (unsigned i{0}; i < std::size(m_digits); ++i) m_digits.at(i) = bad_hex;
+    for (unsigned i{0}; i < 10u; ++i)
+      m_digits.at('0' + i) = static_cast<uint16_t>(i);
+    for (unsigned i{0}; i < 6u; ++i)
+    {
+      std::uint16_t const value{static_cast<std::uint16_t>(10u + i)};
+      m_digits.at('A' + i) = value;
+      m_digits.at('a' + i) = value;
+    }
+  }
+
+  [[nodiscard]] constexpr unsigned operator[](char c) const noexcept
+  {
+    return m_digits.at(static_cast<unsigned char>(c));
+  }
+
+private:
+  std::array<uint16_t, 256> m_digits{};
+};
+
+
+constexpr hex_table hex_nibbles;
+
+static_assert(hex_nibbles['`'] == bad_hex);
+static_assert(hex_nibbles['0'] == 0);
+static_assert(hex_nibbles['9'] == 9);
+static_assert(hex_nibbles[':'] == bad_hex);
+static_assert(hex_nibbles['@'] == bad_hex);
+static_assert(hex_nibbles['A'] == 10);
+static_assert(hex_nibbles['a'] == 10);
+static_assert(hex_nibbles['F'] == 15);
+static_assert(hex_nibbles['f'] == 15);
+static_assert(hex_nibbles['G'] == bad_hex);
+static_assert(hex_nibbles['g'] == bad_hex);
+
+
 void unesc_bin(
   std::string_view escaped_data, std::span<std::byte> buffer, sl loc)
 {
-  auto const in_size{std::size(escaped_data)};
-  if (in_size < 2)
-    throw pqxx::failure{"Binary data appears truncated.", loc};
-  if ((in_size % 2) != 0)
-    throw pqxx::failure{"Invalid escaped binary length.", loc};
-  std::size_t in{0u};
-  if (escaped_data[in++] != '\\' or escaped_data[in++] != 'x')
-    throw pqxx::failure(
-      "Escaped binary data did not start with '\\x'`.  Is the server or libpq "
-      "too old?",
-      loc);
-  std::size_t out{0u};
-  while (in < in_size)
+  std::string_view const hex_data{parse_bin_meta(escaped_data, buffer, loc)};
+  auto const in_size{std::size(hex_data)};
+
+  // Collect all values in here, so we can later check for poison in one go.
+  unsigned chalice{0};
+
+  std::size_t write{0};
+
+  // This is the central loop.  It matters a lot for performance, so avoid any
+  // conditionals etc.
+  for (std::size_t read{0}; read < in_size; read += digits_per_byte)
   {
-    int const hi{nibble(escaped_data[in++])};
-    if (hi < 0)
-      throw pqxx::failure{"Invalid hex-escaped data.", loc};
-    int const lo{nibble(escaped_data[in++])};
-    if (lo < 0)
-      throw pqxx::failure{"Invalid hex-escaped data.", loc};
-    buffer[out++] = static_cast<std::byte>((hi << 4) | lo);
+    // C++23: Would std::chunk_view make it easier to grab pairs of bytes?
+    unsigned const byteval =
+      ((hex_nibbles[hex_data[read]] << 4) | hex_nibbles[hex_data[read + 1]]);
+    chalice |= byteval;
+    buffer[write++] = static_cast<std::byte>(byteval);
   }
-  // clang-tidy rule bug:
-  // NOLINTNEXTLINE(cert-dcl03-c)
-  assert(out <= std::size(buffer));
+
+  if (has_poison(chalice))
+    throw conversion_error{
+      "Hex-encoded binary data contains invalid digits.", loc};
 }
 
 
