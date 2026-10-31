@@ -221,7 +221,7 @@ static_assert(not has_poison(0));
 static_assert(not has_poison(255));
 
 
-/// Hex digit lookup table.
+/// Hex digit lookup table: `h['0'] == 0`, `h['a'] == 10`, etc.
 class hex_table final
 {
 public:
