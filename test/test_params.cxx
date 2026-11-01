@@ -249,9 +249,29 @@ void test_statement_params_recognises_null_maybes(pqxx::test::context &tctx)
 }
 
 
+void test_params_accepts_field_as_param(pqxx::test::context &tctx)
+{
+  pqxx::connection cx;
+  pqxx::nontransaction tx{cx};
+
+  int const value{tctx.make_num()};
+  auto const org_row{tx.exec("SELECT $1", pqxx::params{value}).one_row()};
+
+  // We can pass the field directly as a parameter.
+  int const out{tx.query_value<int>("SELECT $1", pqxx::params{org_row[0]})};
+  PQXX_CHECK_EQUAL(out, value);
+
+  auto const null_row{tx.exec("SELECT NULL").one_row()};
+  auto const null_out{
+    tx.exec("SELECT $1", pqxx::params{null_row[0]}).one_row()};
+  PQXX_CHECK(null_out[0].is_null());
+}
+
+
 PQXX_REGISTER_TEST(test_statement_params);
 PQXX_REGISTER_TEST(test_params_converts_most_types_to_string);
 PQXX_REGISTER_TEST(test_params_stores_specific_types_as_views);
 PQXX_REGISTER_TEST(test_params_sees_through_maybe_types);
 PQXX_REGISTER_TEST(test_statement_params_recognises_null_maybes);
+PQXX_REGISTER_TEST(test_params_accepts_field_as_param);
 } // namespace
