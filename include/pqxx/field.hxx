@@ -742,6 +742,43 @@ template<> inline zview field::as<zview>(zview const &default_value, sl) const
 }
 
 
+/// A type denoting a @ref result field, i.e. @ref field or @ref field_ref.
+template<typename FIELD>
+concept field_t = std::same_as<FIELD, field> or std::same_as<FIELD, field_ref>;
+
+
+/// A @ref pqxx::field or @ref pqxx::field_ref is null if it contains a null.
+template<field_t FIELD> struct nullness<FIELD> final
+{
+  static constexpr bool has_null{true};
+  static constexpr bool always_null{false};
+  PQXX_PURE static bool is_null(FIELD const &value) noexcept
+  {
+    return value.is_null();
+  }
+  [[nodiscard]] static FIELD null() noexcept { return {}; }
+};
+
+
+/// Support for converting a @ref pqxx::field to a string.
+template<field_t FIELD> struct string_traits<FIELD> final
+{
+  [[nodiscard]] static std::size_t size_buffer(FIELD const &value) noexcept
+  {
+    return value.size();
+  }
+
+  [[nodiscard]] static std::string_view
+  to_buf(std::span<char>, FIELD const &value, ctx = {}) noexcept
+  {
+    return value.view();
+  }
+
+  /// You can't convert a string to a @ref field or @ref field_ref.
+  static field from_string(std::string_view, ctx = {}) = delete;
+};
+
+
 template<typename CHAR = char, typename TRAITS = std::char_traits<CHAR>>
 class field_streambuf final : public std::basic_streambuf<CHAR, TRAITS>
 {
