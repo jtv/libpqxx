@@ -459,8 +459,9 @@ template<typename TYPE> struct string_traits<range<TYPE>> final
       TYPE const *lower{value.lower_bound().value()};
       // Convert bound (but go back to overwrite that trailing zero).
       if (lower != nullptr)
-        tmp = tmp.subspan(pqxx::into_buf(tmp, *lower));
-      // C++26: Use at().
+        tmp = tmp.subspan(pqxx::into_buf(tmp, *lower, c));
+      if (std::cmp_less(std::size(tmp), 2))
+        throw conversion_overrun{s_overrun.c_str(), c.loc};
       tmp[0] = ',';
       tmp = tmp.subspan(1);
       TYPE const *upper{value.upper_bound().value()};

@@ -146,10 +146,26 @@ void test_composite_fits_budget(pqxx::test::context &)
 }
 
 
+void test_composite_into_buf_handles_null_fields(pqxx::test::context &)
+{
+  std::array<char, 60> buf{};
+
+  // A null field in a composite is blank.
+  PQXX_CHECK_EQUAL(
+    pqxx::composite_into_buf(make_context(), buf, 9, std::optional<int>{}, 0),
+    "(9,,0)");
+
+  // An empty string in a composite field gets quoted.
+  PQXX_CHECK_EQUAL(
+    pqxx::composite_into_buf(make_context(), buf, 1, "", 3), "(1,\"\",3)");
+}
+
+
 PQXX_REGISTER_TEST(test_composite);
 PQXX_REGISTER_TEST(test_composite_escapes);
 PQXX_REGISTER_TEST(test_composite_handles_nulls);
 PQXX_REGISTER_TEST(test_composite_renders_to_string);
 PQXX_REGISTER_TEST(test_composite_can_contain_arrays);
 PQXX_REGISTER_TEST(test_composite_fits_budget);
+PQXX_REGISTER_TEST(test_composite_into_buf_handles_null_fields);
 } // namespace

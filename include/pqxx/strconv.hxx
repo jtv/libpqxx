@@ -661,17 +661,12 @@ to_buf(char *begin, char const *end, TYPE... value)
     here += pqxx::into_buf(buf.subspan(start), v);
 
     // clang-tidy rule bug:
-    // NOLINTBEGIN(cert-dcl03-c)
-
-    assert(start < here);
+    // NOLINTNEXTLINE(cert-dcl03-c)
     assert(here <= std::size(buf));
-    // C++26: Use buf.at().
-    assert(buf[here - 1] == '\0');
 
-    // NOLINTEND(cert-dcl03-c)
-
-    // Exclude the trailing zero out of the string_view.
-    auto const len{here - start - 1};
+    // The into_buf() version we call here, so there's no terminating zero to
+    // account for.
+    auto const len{here - start};
     return std::string_view{std::data(buf) + start, len};
   }(value)...};
 }
@@ -695,10 +690,8 @@ to_buf_multi(ctx c, std::span<char> buf, TYPE... value)
     auto const start{here};
     here += pqxx::into_buf(buf.subspan(start), v, c);
     // clang-tidy rule bug:
-    // NOLINTBEGIN(cert-dcl03-c)
-    assert(start < here);
+    // NOLINTNEXTLINE(cert-dcl03-c)
     assert(here <= std::size(buf));
-    // NOLINTEND(cert-dcl03-c)
 
     // C++26: Use buf.at().
     auto const len{here - start};
@@ -732,7 +725,6 @@ to_buf_multi(std::span<char> buf, TYPE... value)
   return {[&here, buf, &c](auto v) {
     auto const start{here};
     here += pqxx::into_buf(buf.subspan(start), v, c);
-    assert(start < here);
     assert(here <= std::size(buf));
     // C++26: Use buf.at().
     auto const len{here - start};

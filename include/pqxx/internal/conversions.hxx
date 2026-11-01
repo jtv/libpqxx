@@ -110,7 +110,11 @@ generic_into_buf(char *begin, char *end, T const &value, ctx c = {})
       std::format("Not enough buffer space to insert {}.", name_type<T>()) +
         state_buffer_overrun(space, len),
       c.loc};
-  std::memmove(begin, std::data(text), len);
+  // We called to_buf(), not into_buf(), so we may still need to move the
+  // string into the buffer.  Not the terminating zero (there may not be one
+  // yet), we add that once it's all in the buffer.
+  std::memmove(begin, std::data(text), len - 1);
+  begin[len - 1] = '\0';
   return begin + len;
 }
 
@@ -131,7 +135,10 @@ generic_into_buf(std::span<char> buf, T const &value, ctx c = {})
       std::format("Not enough buffer space to insert {}.  ", name_type<T>()) +
         state_buffer_overrun(space, len),
       c.loc};
-  std::memmove(begin, std::data(text), len);
+  // Move the text into place if needed.  Not the terminating zero though; it
+  // may not be in the string.  We add that after, in the buffer.
+  std::memmove(begin, std::data(text), len - 1);
+  buf[len - 1] = '\0';
   return len;
 }
 
@@ -471,8 +478,10 @@ template<> struct string_traits<char const *> final
   static char const *from_string(std::string_view text, ctx = {}) = delete;
 
   constexpr PQXX_ZARGS static std::string_view
-  to_buf(std::span<char>, char const *const &value, ctx = {}) noexcept
+  to_buf(std::span<char>, char const *const &value, ctx c = {})
   {
+    if (value == nullptr)
+      pqxx::internal::throw_null_conversion("char const *"sv, c.loc);
     return value;
   }
 
@@ -670,14 +679,23 @@ template<>
 struct nullness<std::nullptr_t> final : all_null<std::nullptr_t, nullptr>
 {};
 
+static_assert(always_null<std::nullptr_t>());
+static_assert(is_null(nullptr));
+
 template<>
 struct nullness<std::nullopt_t> final : all_null<std::nullopt_t, std::nullopt>
 {};
+
+static_assert(always_null<std::nullopt_t>());
+static_assert(is_null(std::nullopt));
 
 template<>
 struct nullness<std::monostate> final
         : all_null<std::monostate, std::monostate{}>
 {};
+
+static_assert(always_null<std::monostate>());
+static_assert(is_null(std::monostate{}));
 
 
 /// Specialisation for `std::optional` and smart pointers.

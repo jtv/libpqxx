@@ -49,6 +49,8 @@ void test_date_string_conversion(pqxx::test::context &)
     std::chrono::year_month_day const date{
       std::chrono::year{y}, std::chrono::month{m}, std::chrono::day{d}};
     PQXX_CHECK_EQUAL(pqxx::to_string(date), text);
+    PQXX_CHECK_LESS_EQUAL(
+      std::size(pqxx::to_string(date)), pqxx::size_buffer(date));
     PQXX_CHECK_EQUAL(
       pqxx::from_string<std::chrono::year_month_day>(text), date);
     if (int{date.year()} > -4712)
@@ -56,8 +58,7 @@ void test_date_string_conversion(pqxx::test::context &)
       // We can't test this for years before 4713 BC (4712 BCE), because
       // postgres doesn't handle earlier years.
       PQXX_CHECK_EQUAL(
-        tx.query_value<std::string>(
-          "SELECT '" + pqxx::to_string(date) + "'::date"),
+        tx.query_value<std::string>("SELECT $1::date", pqxx::params{date}),
         text);
     }
   }
@@ -86,6 +87,8 @@ void test_date_string_conversion(pqxx::test::context &)
     "2021-13-01"sv,
     "2021-+02-01"sv,
     "2021-12-32"sv,
+    "32768-01-01"sv,
+    "-32768-01-01"sv,
   };
   for (auto const text : invalid)
     PQXX_CHECK_THROWS(

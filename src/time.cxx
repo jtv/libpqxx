@@ -32,6 +32,7 @@ constexpr int ten{10};
 inline char *
 year_into_buf(char *begin, std::chrono::year const &value, pqxx::ctx c = {})
 {
+  // TODO: Simplify all this with std::format_to_n().
   int const y{value};
   if (y == int{(std::chrono::year::min)()}) [[unlikely]]
   {
@@ -180,6 +181,9 @@ namespace pqxx
 std::string_view string_traits<std::chrono::year_month_day>::to_buf(
   std::span<char> buf, std::chrono::year_month_day const &value, ctx c)
 {
+  if (not value.ok())
+    throw pqxx::conversion_error{
+      "Trying to convert an invalid year_month_day to string.", c.loc};
   if (std::size(buf) < size_buffer(value))
     throw conversion_overrun{"Not enough room in buffer for date.", c.loc};
   auto here{std::data(buf)};

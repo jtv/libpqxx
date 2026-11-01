@@ -370,6 +370,14 @@ constexpr void test_range_is_constexpr(pqxx::test::context &)
 }
 
 
+void test_range_handles_truncation(pqxx::test::context &)
+{
+  PQXX_CHECK_THROWS(
+    std::ignore = pqxx::from_string<pqxx::range<int>>("[1,"),
+    pqxx::conversion_error);
+}
+
+
 PQXX_REGISTER_TEST(test_range_construct);
 PQXX_REGISTER_TEST(test_range_equality);
 PQXX_REGISTER_TEST(test_range_empty);
@@ -382,4 +390,5 @@ PQXX_REGISTER_TEST(test_parse_bad_range);
 PQXX_REGISTER_TEST(test_range_intersection);
 PQXX_REGISTER_TEST(test_range_conversion);
 PQXX_REGISTER_TEST(test_range_is_constexpr);
+PQXX_REGISTER_TEST(test_range_handles_truncation);
 } // namespace

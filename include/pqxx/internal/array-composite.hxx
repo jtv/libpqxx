@@ -248,6 +248,8 @@ PQXX_INLINE_COV inline void parse_composite_field(
   // clang-tidy rule bug:
   // NOLINTBEGIN(cert-dcl03-c)
   assert(index <= last_field);
+  if (pos >= std::size(input))
+    throw conversion_error{"Unexpected end of input.", loc};
   assert(pos < std::size(input));
   // NOLINTEND(cert-dcl03-c)
   conversion_context const c{ENC, loc};
@@ -378,7 +380,12 @@ specialize_parse_composite_field(conversion_context const &c)
 template<typename T>
 PQXX_INLINE_COV inline std::size_t size_composite_field_buffer(T const &field)
 {
-  if constexpr (is_unquoted_safe<T>)
+  if (is_null(field))
+  {
+    // In a composite, a null field is blank.
+    return 0;
+  }
+  else if constexpr (is_unquoted_safe<T>)
   {
     // Safe to copy, without quotes or escaping.
     return size_buffer(field);
@@ -398,7 +405,11 @@ template<typename T>
 PQXX_INLINE_ONLY inline void write_composite_field(
   std::span<char> buf, std::size_t &pos, T const &field, ctx c)
 {
-  if constexpr (is_unquoted_safe<T>)
+  if (is_null(field))
+  {
+    // A null field in a composite is blank.
+  }
+  else if constexpr (is_unquoted_safe<T>)
   {
     // No need for quoting or escaping.  Convert it straight into its final
     // place in the buffer.
