@@ -316,6 +316,21 @@ void pqxx::connection::complete_connection(sl loc)
 }
 
 
+pqxx::internal::pq::PGconn *pqxx::connection::release_raw_connection() &&
+{
+  // We're decoupling from the lifetime of the underlying libpq connection.
+  // There's nothing more the pqxx::connection can do to guarantee that its
+  // m_notice_waiters will remain valid while any notices may come in.
+  //
+  // Therefore, we need to cancel the notice processor as well, to prevent it
+  // from calling the notice waiters after the end of this object's lifetime.
+  if (m_conn != nullptr)
+    PQsetNoticeProcessor(real_conn(m_conn), pqxx_notice_processor, nullptr);
+
+  return std::exchange(m_conn, nullptr);
+}
+
+
 namespace
 {
 /// Return value-terminated array of `PQconninfoOption` into a `std::range`.
