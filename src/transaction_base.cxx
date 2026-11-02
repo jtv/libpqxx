@@ -347,7 +347,9 @@ void pqxx::transaction_base::notify(
   // For some reason, NOTIFY does not work as a parameterised statement,
   // even just for the payload (which is supposed to be a normal string).
   // Luckily, pg_notify() does.
-  exec("SELECT pg_notify($1, $2)", params{*this, channel, payload}, loc)
+  exec(
+    "SELECT pg_catalog.pg_notify($1, $2)", params{*this, channel, payload},
+    loc)
     .one_row(loc);
 }
 

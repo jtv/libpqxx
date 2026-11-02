@@ -93,10 +93,12 @@ tx_stat query_status(
   pqxx::sl loc = pqxx::sl::current())
 {
   static std::string_view const name{"robusttxck"sv};
-  auto const query{std::format("SELECT txid_status({})", xid)};
+  // The pg_catalog view is normally what we find by default, but some other
+  // application could mess with the search path and override it.
+  std::string_view const query{"SELECT pg_catalog.txid_status($1)"};
   pqxx::connection cx{conn_str, loc};
   pqxx::nontransaction tx{cx, name};
-  auto const status_row{tx.exec(query, loc).one_row(loc)};
+  auto const status_row{tx.exec(query, pqxx::params{xid}, loc).one_row(loc)};
   auto const status_field{status_row[0]};
   if (std::size(status_field) == 0)
     throw pqxx::internal_error{"Transaction status string is empty.", loc};
@@ -115,7 +117,7 @@ tx_stat query_status(
 void pqxx::internal::basic_robusttransaction::init(zview begin_command, sl loc)
 {
   static auto const txid_q{
-    std::make_shared<std::string>("SELECT txid_current()"sv)};
+    std::make_shared<std::string>("SELECT pg_catalog.txid_current()"sv)};
   m_backendpid = conn().backendpid();
   register_transaction();
   direct_exec(begin_command, loc);
