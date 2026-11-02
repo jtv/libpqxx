@@ -27,6 +27,7 @@
  - Reading `bytea` fields from a `result` is faster.
  - Fix a few possible assertion failures and crashes.
  - String conversion for `field`/`field_ref`: can now pass one as a parameter.
+ - Fix: `robusttransaction` could get interrupted by notifications.
 8.0.2
  - Simple benchmark tool for query performance.
  - Fix an apparent `memcpy()` overlap.

@@ -117,6 +117,7 @@ void pqxx::internal::basic_robusttransaction::init(zview begin_command, sl loc)
   static auto const txid_q{
     std::make_shared<std::string>("SELECT txid_current()"sv)};
   m_backendpid = conn().backendpid();
+  register_transaction();
   direct_exec(begin_command, loc);
   m_xid = direct_exec(txid_q, loc).one_field_ref(loc).as<std::string>(loc);
 }
