@@ -462,6 +462,7 @@ template<typename TYPE> struct string_traits<range<TYPE>> final
         tmp = tmp.subspan(pqxx::into_buf(tmp, *lower, c));
       if (std::cmp_less(std::size(tmp), 2))
         throw conversion_overrun{s_overrun.c_str(), c.loc};
+      // C+26: Use at().
       tmp[0] = ',';
       tmp = tmp.subspan(1);
       TYPE const *upper{value.upper_bound().value()};
