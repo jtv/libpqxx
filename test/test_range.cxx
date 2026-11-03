@@ -244,6 +244,76 @@ void test_range_to_string(pqxx::test::context &)
 }
 
 
+pqxx::conversion_context make_context(
+  pqxx::encoding_group enc = pqxx::encoding_group::ascii_safe,
+  pqxx::sl loc = pqxx::sl::current())
+{
+  return pqxx::conversion_context{enc, loc};
+}
+
+
+void test_range_to_string_quotes_bounds(pqxx::test::context &)
+{
+  // For range subtypes such as integer, writing a bound is easy.  But for
+  // more flexible types such as text, the text representation quotes and
+  // escapes the bounds.
+  using range = pqxx::range<std::string>;
+  using ibound = pqxx::inclusive_bound<std::string>;
+  using ubound = pqxx::no_bound;
+
+  // Text bounds get quoted.
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(range{ibound{"a"}, ibound{"b"}}, make_context()),
+    "[\"a\",\"b\"]");
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(range{ubound{}, ibound{"b"}}, make_context()), "(,\"b\"]");
+
+  // An empty string is not the same thing as an empty (unlimited) bound.
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(range{ibound{""}, ibound{"b"}}, make_context()),
+    "[\"\",\"b\"]");
+
+  // Special characters in text bounds get escaped.
+  // NOLINTBEGIN(modernize-raw-string-literal)
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(range{ibound{"a\\b"}, ibound{"b"}}, make_context()),
+    "[\"a\\\\b\",\"b\"]");
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(range{ibound{"!,\""}, ibound{"\"z"}}, make_context()),
+    "[\"!,\\\"\",\"\\\"z\"]");
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(range{ibound{"\"\"\""}, ibound{"\\\\\\"}}, make_context()),
+    "[\"\\\"\\\"\\\"\",\"\\\\\\\\\\\\\"]");
+  // NOLINTEND(modernize-raw-string-literal)
+
+  for (auto const &r :
+       {range{ibound{""}, ibound{""}}, range{ibound{""}, ubound{}},
+        range{ibound{" (a,"}, ibound{"[b] "}},
+        range{ibound{"\"\\"}, ibound{"\\\""}}})
+    PQXX_CHECK_EQUAL(
+      pqxx::from_string<range>(pqxx::to_string(r, make_context())), r);
+
+  // The backslash in a binary bound's text needs escaping as well.
+  using bytes_bound = pqxx::inclusive_bound<pqxx::bytes>;
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(
+      pqxx::range<pqxx::bytes>{
+        bytes_bound{pqxx::bytes{std::byte{0x61}}},
+        bytes_bound{pqxx::bytes{std::byte{0x62}}}},
+      make_context()),
+    "[\"\\\\x61\",\"\\\\x62\"]");
+
+  // A byte inside a multibyte character may look like a backslash.  The
+  // quoting is not fooled.
+  static_assert('\\' == '\x5c');
+  range const katakana{ibound{"\x83\x5c"}, ibound{"\x83\x5c\\"}};
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(
+      katakana, pqxx::conversion_context{pqxx::encoding_group::sjis}),
+    "[\"\x83\x5c\",\"\x83\x5c\\\\\"]");
+}
+
+
 void test_parse_range(pqxx::test::context &)
 {
   using range = pqxx::range<int>;
@@ -385,6 +455,7 @@ PQXX_REGISTER_TEST(test_range_contains);
 PQXX_REGISTER_TEST(test_float_range_contains);
 PQXX_REGISTER_TEST(test_range_subset);
 PQXX_REGISTER_TEST(test_range_to_string);
+PQXX_REGISTER_TEST(test_range_to_string_quotes_bounds);
 PQXX_REGISTER_TEST(test_parse_range);
 PQXX_REGISTER_TEST(test_parse_bad_range);
 PQXX_REGISTER_TEST(test_range_intersection);

@@ -5,6 +5,7 @@
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
 #endif
 
+#include <cstring>
 #include <format>
 #include <utility>
 #include <variant>
@@ -263,6 +264,9 @@ public:
  * The value type `TYPE` must typically be copyable and default-constructible,
  * and support the less-than (`<`) and equals (`==`) comparisons, but there
  * can be rare cases where they need not be.
+ *
+ * For ranges over text and such, your text values must be encoded in the
+ * client encoding.
  */
 template<typename TYPE> class range final
 {
@@ -434,7 +438,8 @@ public:
 
 
 /// String conversions for a @ref range type.
-/** Conversion assumes an ASCII-safe encoding.
+/** Parsing assumes an ASCII-safe encoding.  So does conversion to a string,
+ * unless you specify the encoding.
  */
 template<typename TYPE> struct string_traits<range<TYPE>> final
 {
@@ -449,7 +454,7 @@ template<typename TYPE> struct string_traits<range<TYPE>> final
     }
     else
     {
-      if (std::cmp_less(std::size(buf), 4))
+      if (std::cmp_less(std::size(buf), size_buffer(value)))
         throw conversion_overrun{s_overrun.c_str(), c.loc};
       std::span<char> tmp{buf};
       // C++26: Use at().
@@ -457,16 +462,16 @@ template<typename TYPE> struct string_traits<range<TYPE>> final
         (static_cast<char>(value.lower_bound().is_inclusive() ? '[' : '('));
       tmp = tmp.subspan(1);
       TYPE const *lower{value.lower_bound().value()};
-      // Convert bound (but go back to overwrite that trailing zero).
       if (lower != nullptr)
-        tmp = tmp.subspan(pqxx::into_buf(tmp, *lower, c));
-      // C+26: Use at().
+        tmp = write_bound(tmp, *lower, c);
+      if (std::cmp_less(std::size(tmp), 2))
+        throw conversion_overrun{s_overrun.c_str(), c.loc};
+      // C++26: Use at().
       tmp[0] = ',';
       tmp = tmp.subspan(1);
       TYPE const *upper{value.upper_bound().value()};
-      // Convert bound (but go back to overwrite that trailing zero).
       if (upper != nullptr)
-        tmp = tmp.subspan(pqxx::into_buf(tmp, *upper, c));
+        tmp = write_bound(tmp, *upper, c);
       if (std::cmp_less(std::size(tmp), 2))
         throw conversion_overrun{s_overrun.c_str(), c.loc};
       tmp[0] =
@@ -558,8 +563,8 @@ template<typename TYPE> struct string_traits<range<TYPE>> final
   {
     TYPE const *lower{value.lower_bound().value()},
       *upper{value.upper_bound().value()};
-    std::size_t const lsz{lower == nullptr ? 0 : pqxx::size_buffer(*lower)},
-      usz{upper == nullptr ? 0 : pqxx::size_buffer(*upper)};
+    std::size_t const lsz{lower == nullptr ? 0 : size_bound(*lower)},
+      usz{upper == nullptr ? 0 : size_bound(*upper)};
 
     if (value.empty())
       return std::size(s_empty) + 1;
@@ -570,6 +575,77 @@ template<typename TYPE> struct string_traits<range<TYPE>> final
 private:
   static constexpr zview s_empty{"empty"_zv};
   static constexpr auto s_overrun{"Not enough space in buffer for range."_zv};
+
+  /// Conservatively estimate buffer size needed for a bound's value.
+  static constexpr std::size_t size_bound(TYPE const &bound) noexcept
+  {
+    if constexpr (is_unquoted_safe<TYPE>)
+      return pqxx::size_buffer(bound);
+    else
+      // Opening quote, worst-case text, closing quote.
+      return 1 + 2 * pqxx::size_buffer(bound) + 1;
+  }
+
+  /// Write a bound's value to the beginning of `buf`.
+  /** Quotes and escapes the value where needed, just like a composite field.
+   *
+   * Requires at least `size_bound(bound)` bytes of space.
+   *
+   * @return The remainder of `buf`, right after the bound's value.
+   */
+  static std::span<char>
+  write_bound(std::span<char> buf, TYPE const &bound, ctx c)
+  {
+    if constexpr (is_unquoted_safe<TYPE>)
+    {
+      // No need for quoting or escaping.  Convert it straight into its final
+      // place in the buffer.
+      return buf.subspan(pqxx::into_buf(buf, bound, c));
+    }
+    else
+    {
+      // The bound may need escaping, which means we need an intermediate
+      // buffer.  To avoid allocating that at run time, we use the end of the
+      // buffer that we have.
+      auto const from{
+        pqxx::to_buf(buf.last(pqxx::size_buffer(bound)), bound, c)};
+      auto const end{std::size(from)};
+
+      // It's _almost_ safe to
+      auto const find{
+        pqxx::internal::get_escape_finder<'\\', '"'>(c.enc, c.loc)};
+      std::size_t here{0};
+      // C++26: Use at().
+      buf[here++] = '"';
+
+      // Copy the intermediate buffer into the final buffer, but escape using
+      // backslashes.  The tricky part here is to handle encodings right.
+      std::size_t i{0};
+      while (i < end)
+      {
+        auto next{find(from, i, c.loc)};
+        std::memmove(std::data(buf) + here, std::data(from) + i, next - i);
+        here += (next - i);
+        if (next < end)
+        {
+          // Either a quote or a backslash.  Escape it.
+          buf[here++] = '\\';
+          // Copy the escaped character itself.  This is usually an ASCII
+          // character, but there's one weird 2-byte alias for the backslash
+          // in SJIS-2004.  We convert that one to a backslash right here.
+          auto const [character, char_len]{
+            pqxx::internal::special_char(from, next)};
+          buf[here++] = character;
+          next += char_len;
+        }
+        i = next;
+      }
+
+      // C++26: Use at().
+      buf[here++] = '"';
+      return buf.subspan(here);
+    }
+  }
 
   /// Compose error message for invalid range input.
   static std::string err_bad_input(std::string_view text)
