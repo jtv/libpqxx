@@ -440,7 +440,7 @@ PQXX_INLINE_ONLY inline void write_composite_field(
     std::size_t reading{0};
 
     // Move a stretch of "uninteresting" characters (i.e. ones that don't need
-    // escaping into place, from scratch to buf.
+    // escaping into place, from `scratch` to `buf`.
     //
     // Appends to `buf`, updates `writing`, returns next `reading` position.
     auto const place_uninteresting_stretch{
