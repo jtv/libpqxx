@@ -437,6 +437,7 @@ PQXX_INLINE_ONLY inline void write_composite_field(
     auto const end{std::size(scratch)};
 
     auto const find{get_escape_finder<'\\', '"'>(c.enc, c.loc)};
+    assert(find != nullptr);
     std::size_t reading{0};
 
     // Move a stretch of "uninteresting" characters (i.e. ones that don't need
