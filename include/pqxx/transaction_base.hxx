@@ -1248,7 +1248,7 @@ private:
     active,
     aborted,
     committed,
-    in_doubt
+    in_doubt,
   };
 
   /// Compose a @ref conversion_context.

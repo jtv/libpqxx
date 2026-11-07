@@ -188,6 +188,42 @@ void pqxx::transaction_base::commit(sl loc)
 
 void pqxx::transaction_base::do_abort(sl loc)
 {
+  // First check for any pending error registered by a transaction_focus,
+  // which we could not report as an exception before.
+  try
+  {
+    check_pending_error();
+  }
+  catch (std::exception const &)
+  {
+    // An error was indeed pending.  Continue with the abort first, then report
+    // the error.
+    try
+    {
+      if (m_rollback_cmd)
+      {
+        direct_exec(m_rollback_cmd, loc);
+        // In this one rare case this function sets m_status: we have
+        // successfully aborted the transaction, but we're about to throw a
+        // pending error which will stop abort() from setting the status.
+        m_status = status::aborted;
+      }
+    }
+    catch (std::exception const &)
+    {
+      // Error upon error.  But we'll treat the original pending error as the
+      // main issue.  This new error is most likely either a consequence of
+      // it, or of the same underlying problem that caused it.
+    }
+    // Now re-throw the original pending error.  (If we're aborting from
+    // inside the transaction's destructor, it will not pass the error on.
+    // But on the bright side, if we're aborting from inside a destructor,
+    // chances are that we're in the cleanup after a failure that is already
+    // known to the caller.)
+    throw;
+  }
+
+  // Okay, no errors reported.  Now continue the abort.
   if (m_rollback_cmd)
     direct_exec(m_rollback_cmd, loc);
 }
@@ -207,6 +243,7 @@ void pqxx::transaction_base::abort(sl loc)
     catch (std::exception const &e)
     {
       m_conn.process_notice(std::format("{}\n", e.what()));
+      throw;
     }
     break;
 
@@ -541,6 +578,7 @@ void pqxx::transaction_base::register_pending_error(
 }
 
 
+// XXX: Take, and pass, a source_location.
 void pqxx::transaction_base::check_pending_error()
 {
   if (not std::empty(m_pending_error))
