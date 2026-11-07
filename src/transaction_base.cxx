@@ -114,7 +114,7 @@ pqxx::conversion_context pqxx::transaction_base::make_context(sl loc) const
 
 void pqxx::transaction_base::commit(sl loc)
 {
-  check_pending_error();
+  check_pending_error(loc);
 
   // Check previous status code.  Caller should only call this function if
   // we're in "implicit" state, but multiple commits are silently accepted.
@@ -192,7 +192,7 @@ void pqxx::transaction_base::do_abort(sl loc)
   // which we could not report as an exception before.
   try
   {
-    check_pending_error();
+    check_pending_error(loc);
   }
   catch (std::exception const &)
   {
@@ -299,7 +299,7 @@ public:
 
 pqxx::result pqxx::transaction_base::exec(std::string_view query, sl loc)
 {
-  check_pending_error();
+  check_pending_error(loc);
 
   command const cmd{*this, {}};
 
@@ -323,7 +323,7 @@ pqxx::result pqxx::transaction_base::exec(std::string_view query, sl loc)
 pqxx::result pqxx::transaction_base::exec(
   std::string_view query, std::string_view desc, sl loc)
 {
-  check_pending_error();
+  check_pending_error(loc);
 
   command const cmd{*this, desc};
 
@@ -414,7 +414,7 @@ void pqxx::transaction_base::close(sl loc) noexcept
   {
     try
     {
-      check_pending_error();
+      check_pending_error(loc);
     }
     catch (std::exception const &e)
     {
@@ -508,7 +508,7 @@ void pqxx::transaction_base::unregister_focus(
 pqxx::result pqxx::transaction_base::direct_exec(
   std::string_view cmd, std::string_view desc, sl loc)
 {
-  check_pending_error();
+  check_pending_error(loc);
   return pqxx::internal::gate::connection_transaction{conn()}.exec(
     cmd, desc, loc);
 }
@@ -518,7 +518,7 @@ pqxx::result pqxx::transaction_base::direct_exec(
 pqxx::result pqxx::transaction_base::direct_exec(
   std::shared_ptr<std::string> const &cmd, std::string_view desc, sl loc)
 {
-  check_pending_error();
+  check_pending_error(loc);
   return pqxx::internal::gate::connection_transaction{conn()}.exec(
     cmd, desc, loc);
 }
@@ -579,14 +579,14 @@ void pqxx::transaction_base::register_pending_error(
 
 
 // XXX: Take, and pass, a source_location.
-void pqxx::transaction_base::check_pending_error()
+void pqxx::transaction_base::check_pending_error(sl loc)
 {
   if (not std::empty(m_pending_error))
   {
     // TODO: Store exceptions, or message + source_location.
     std::string err;
     err.swap(m_pending_error);
-    throw failure{err};
+    throw failure{err, loc};
   }
 }
 
