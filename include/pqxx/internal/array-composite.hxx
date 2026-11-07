@@ -444,12 +444,12 @@ PQXX_INLINE_ONLY inline void write_composite_field(
     //
     // Appends to `buf`, updates `writing`, returns next `reading` position.
     auto const place_uninteresting_stretch{
-      [scratch, buf, &find, &writing](std::size_t reading, sl loc) {
-        auto const next{find(scratch, reading, loc)};
+      [scratch, buf, &find, &writing](std::size_t read_pos, sl loc) {
+        auto const next{find(scratch, read_pos, loc)};
+        auto const len{next - read_pos};
         std::memmove(
-          std::data(buf) + writing, std::data(scratch) + reading,
-          next - reading);
-        writing += (next - reading);
+          std::data(buf) + writing, std::data(scratch) + read_pos, len);
+        writing += len;
         return next;
       }};
 
