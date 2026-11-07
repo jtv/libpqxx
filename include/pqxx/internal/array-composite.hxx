@@ -434,6 +434,7 @@ PQXX_INLINE_ONLY inline void write_composite_field(
     // "Scratch buffer" where we keep the converted field.
     // This still needs escaping.
     auto const scratch{to_buf(buf.last(budget), field, c)};
+    assert(std::data(scratch) != nullptr);
     auto const end{std::size(scratch)};
 
     auto const find{get_escape_finder<'\\', '"'>(c.enc, c.loc)};
