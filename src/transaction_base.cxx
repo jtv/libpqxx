@@ -578,7 +578,6 @@ void pqxx::transaction_base::register_pending_error(
 }
 
 
-// XXX: Take, and pass, a source_location.
 void pqxx::transaction_base::check_pending_error(sl loc)
 {
   if (not std::empty(m_pending_error))
