@@ -286,7 +286,7 @@ install_macos() {
     # means "if A is set, use B, otherwise use an empty value."
     local extra=("${EXTRA_PACKAGES[@]+"${EXTRA_PACKAGES[@]}"}")
 
-    install macos
+    identify macos
 
     brew update  >>"$LOG"
     brew_install \

@@ -1324,10 +1324,7 @@ public:
    * In order to _use_ the resulting pointer, for most purposes you'll have to
    * cast it to its original C type: `::PGconn *` as defined by libpq.
    */
-  internal::pq::PGconn *release_raw_connection() &&
-  {
-    return std::exchange(m_conn, nullptr);
-  }
+  internal::pq::PGconn *release_raw_connection() &&;
 
   /// Set session variable, using SQL's `SET` command.
   /** @deprecated To set a session variable, use @ref set_session_var.  To set

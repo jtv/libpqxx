@@ -248,6 +248,8 @@ PQXX_INLINE_COV inline void parse_composite_field(
   // clang-tidy rule bug:
   // NOLINTBEGIN(cert-dcl03-c)
   assert(index <= last_field);
+  if (pos >= std::size(input))
+    throw conversion_error{"Unexpected end of input.", loc};
   assert(pos < std::size(input));
   // NOLINTEND(cert-dcl03-c)
   conversion_context const c{ENC, loc};
@@ -378,7 +380,12 @@ specialize_parse_composite_field(conversion_context const &c)
 template<typename T>
 PQXX_INLINE_COV inline std::size_t size_composite_field_buffer(T const &field)
 {
-  if constexpr (is_unquoted_safe<T>)
+  if (is_null(field))
+  {
+    // In a composite, a null field is blank.
+    return 0;
+  }
+  else if constexpr (is_unquoted_safe<T>)
   {
     // Safe to copy, without quotes or escaping.
     return size_buffer(field);
@@ -398,41 +405,79 @@ template<typename T>
 PQXX_INLINE_ONLY inline void write_composite_field(
   std::span<char> buf, std::size_t &pos, T const &field, ctx c)
 {
-  if constexpr (is_unquoted_safe<T>)
+  std::size_t writing{pos};
+  if (is_null(field))
+  {
+    // A null field in a composite is blank.
+  }
+  else if constexpr (is_unquoted_safe<T>)
   {
     // No need for quoting or escaping.  Convert it straight into its final
     // place in the buffer.
-    pos += into_buf(buf.subspan(pos), field, c);
+    writing += into_buf(buf.subspan(pos), field, c);
   }
   else
   {
-    // The field may need escaping, which means we need an intermediate buffer.
-    // To avoid allocating that at run time, we use the end of the buffer that
-    // we have.
+    // Some characters in the field may need escaping, which means we need an
+    // intermediate buffer.  To avoid allocating that at run time, we use the
+    // end of the buffer that we have.
+    //
+    // We know there's room for this because we checked the budget and there's
+    // room for the field.  We just need to be careful to _move,_ not _copy,_
+    // it into place, because the working area and the destination inside the
+    // buffer may overlap.
     auto const budget{size_buffer(field)};
-    // clang-tidy rule bug:
-    // NOLINTNEXTLINE(cert-dcl03-c)
     assert(budget < std::size(buf));
     // C++26: Use buf.at().
-    buf[pos++] = '"';
+    buf[writing++] = '"';
 
-    // Now escape buf into its final position.
-    for (char const x : to_buf(buf.last(budget), field, c))
+    // "Scratch buffer" where we keep the converted field.
+    // This still needs escaping.
+    auto const scratch{to_buf(buf.last(budget), field, c)};
+    auto const end{std::size(scratch)};
+
+    auto const find{get_escape_finder<'\\', '"'>(c.enc, c.loc)};
+    std::size_t reading{0};
+
+    // Move a stretch of "uninteresting" characters (i.e. ones that don't need
+    // escaping into place, from `scratch` to `buf`.
+    //
+    // Appends to `buf`, updates `writing`, returns next `reading` position.
+    auto const place_uninteresting_stretch{
+      [scratch, buf, &find, &writing](std::size_t read_pos, sl loc) {
+        auto const next{find(scratch, read_pos, loc)};
+        auto const len{next - read_pos};
+        std::memmove(
+          std::data(buf) + writing, std::data(scratch) + read_pos, len);
+        writing += len;
+        return next;
+      }};
+
+    // Now escape buf into its final position.  But beware of bytes inside
+    // multibyte characters that happen to look like ASCII backslashes or
+    // quotes.
+    while (reading < end)
     {
-      if ((x == '"') or (x == '\\'))
-        // C++26: Use buf.at().
-        buf[pos++] = '\\';
+      reading = place_uninteresting_stretch(reading, c.loc);
 
-      // C++26: Use buf.at().
-      buf[pos++] = x;
+      // Annoying: we have to check for the end twice per iteration, because
+      // we have two ways to reach the end.
+      if (reading < end)
+      {
+        // Quote or backslash.  Escape it.
+        auto const [character, len]{
+          pqxx::internal::special_char(scratch, reading)};
+        buf[writing++] = '\\';
+        buf[writing++] = character;
+        reading += len;
+      }
     }
 
-    // C++26: Use buf.at().
-    buf[pos++] = '"';
+    // C++26: Use at().
+    buf[writing++] = '"';
   }
-
-  // C++26: Use buf.at().
-  buf[pos++] = ',';
+  buf[writing++] = ',';
+  pos = writing;
 }
 
 

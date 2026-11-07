@@ -146,10 +146,64 @@ void test_composite_fits_budget(pqxx::test::context &)
 }
 
 
+void test_composite_into_buf_handles_null_fields(pqxx::test::context &)
+{
+  std::array<char, 60> buf{};
+
+  // A null field in a composite is blank.
+  PQXX_CHECK_EQUAL(
+    pqxx::composite_into_buf(make_context(), buf, 9, std::optional<int>{}, 0),
+    "(9,,0)");
+
+  // An empty string in a composite field gets quoted.
+  PQXX_CHECK_EQUAL(
+    pqxx::composite_into_buf(make_context(), buf, 1, "", 3), "(1,\"\",3)");
+}
+
+
+void test_composite_escaping_respects_encoding(pqxx::test::context &)
+{
+  using encg = pqxx::encoding_group;
+  std::array<char, 100> buf{};
+
+  // In these encodings, a multibyte character can contain a byte that happens
+  // to have the same value as an ASCII backslash.  It's not a backslash, and
+  // we don't escape it.
+  PQXX_CHECK_EQUAL(
+    pqxx::composite_into_buf(make_context(encg::two_tier), buf, "\xa5\\", "x"),
+    "(\"\xa5\\\",\"x\")");
+  PQXX_CHECK_EQUAL(
+    pqxx::composite_into_buf(make_context(encg::gb18030), buf, "\x95\\", "x"),
+    "(\"\x95\\\",\"x\")");
+  PQXX_CHECK_EQUAL(
+    pqxx::composite_into_buf(make_context(encg::sjis), buf, "\x95\\", "x"),
+    "(\"\x95\\\",\"x\")");
+
+  // We do of course escape real quotes and backslashes.
+  PQXX_CHECK_EQUAL(
+    pqxx::composite_into_buf(make_context(encg::sjis), buf, "\x95\\\\\"", 1),
+    "(\"\x95\\\\\\\\\"\",1)");
+
+  // A string can't "swallow up" the closing quote by including a truncated
+  // multibyte character that looks like the closing quote belongs inside it.
+  // That's a malformed string and it causes an exception.
+  PQXX_CHECK_THROWS(
+    pqxx::composite_into_buf(make_context(encg::sjis), buf, "\x95"),
+    pqxx::argument_error);
+
+  // We can't escape text safely without knowing its encoding.
+  PQXX_CHECK_THROWS(
+    pqxx::composite_into_buf(make_context(encg::unknown), buf, "x"),
+    pqxx::argument_error);
+}
+
+
 PQXX_REGISTER_TEST(test_composite);
 PQXX_REGISTER_TEST(test_composite_escapes);
 PQXX_REGISTER_TEST(test_composite_handles_nulls);
 PQXX_REGISTER_TEST(test_composite_renders_to_string);
 PQXX_REGISTER_TEST(test_composite_can_contain_arrays);
 PQXX_REGISTER_TEST(test_composite_fits_budget);
+PQXX_REGISTER_TEST(test_composite_into_buf_handles_null_fields);
+PQXX_REGISTER_TEST(test_composite_escaping_respects_encoding);
 } // namespace

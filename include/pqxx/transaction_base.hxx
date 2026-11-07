@@ -1248,7 +1248,7 @@ private:
     active,
     aborted,
     committed,
-    in_doubt
+    in_doubt,
   };
 
   /// Compose a @ref conversion_context.
@@ -1257,7 +1257,7 @@ private:
    */
   [[nodiscard]] conversion_context make_context(sl) const;
 
-  PQXX_PRIVATE void check_pending_error();
+  PQXX_PRIVATE void check_pending_error(sl loc);
 
   result internal_exec_prepared(
     std::string_view statement, internal::c_params const &args, sl);
