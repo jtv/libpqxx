@@ -426,27 +426,29 @@ PQXX_INLINE_ONLY inline void write_composite_field(
     // room for the field.  We just need to be careful to _move,_ not _copy,_
     // it into place, because the working area and the destination inside the
     // buffer may overlap.
+    auto const find{get_escape_finder<'\\', '"'>(c.enc, c.loc)};
+    assert(find != nullptr);
+
     auto const budget{size_buffer(field)};
     assert(budget < std::size(buf));
     // C++26: Use buf.at().
     buf[writing++] = '"';
 
-    // "Scratch buffer" where we keep the converted field.
-    // This still needs escaping.
+    // "Scratch buffer" where we keep the converted field.  This still needs
+    // escaping.  (We may not need the scratch buffer at all; in some cases
+    // to_buf() may just return a view on the input, or on a constant string
+    // such as "false".)
     auto const scratch{to_buf(buf.last(budget), field, c)};
     assert(std::data(scratch) != nullptr);
     auto const end{std::size(scratch)};
 
-    auto const find{get_escape_finder<'\\', '"'>(c.enc, c.loc)};
-    assert(find != nullptr);
-    std::size_t reading{0};
-
     // Move a stretch of "uninteresting" characters (i.e. ones that don't need
-    // escaping into place, from `scratch` to `buf`.
+    // escaping into place) from `scratch` to `buf`.
     //
     // Appends to `buf`, updates `writing`, returns next `reading` position.
     auto const place_uninteresting_stretch{
-      [scratch, buf, &find, &writing](std::size_t read_pos, sl loc) {
+      [scratch, buf, find, &writing](std::size_t read_pos, sl loc) {
+        assert(find != nullptr);
         auto const next{find(scratch, read_pos, loc)};
         auto const len{next - read_pos};
         std::memmove(
@@ -458,6 +460,7 @@ PQXX_INLINE_ONLY inline void write_composite_field(
     // Now escape buf into its final position.  But beware of bytes inside
     // multibyte characters that happen to look like ASCII backslashes or
     // quotes.
+    std::size_t reading{0};
     while (reading < end)
     {
       reading = place_uninteresting_stretch(reading, c.loc);
