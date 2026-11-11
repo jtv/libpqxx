@@ -327,9 +327,8 @@ template<> struct string_traits<bool> final
     default: break;
     }
 
-    throw conversion_error{std::format(
-      "Could not convert string to bool ({}): '{}'.", pqxx::source_loc(c.loc),
-      text)};
+    throw conversion_error{
+      std::format("Could not convert string to bool: '{}'.", text), c.loc};
   }
 
   PQXX_PURE PQXX_HOT static constexpr std::string_view
