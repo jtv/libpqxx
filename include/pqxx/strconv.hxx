@@ -427,8 +427,8 @@ consteval bool supports_to_buf_8()
  * differences.
  */
 template<typename TYPE>
-[[nodiscard]] inline std::string_view
-to_buf(std::span<char> buf, TYPE const &value, ctx c = {})
+[[nodiscard]] inline std::string_view constexpr to_buf(
+  std::span<char> buf, TYPE const &value, ctx c = {})
 {
   using traits = string_traits<TYPE>;
   if constexpr (supports_to_buf_8<TYPE>())

@@ -378,7 +378,8 @@ specialize_parse_composite_field(conversion_context const &c)
 
 /// Conservatively estimate buffer size needed for a composite field.
 template<typename T>
-PQXX_INLINE_COV inline std::size_t size_composite_field_buffer(T const &field)
+PQXX_INLINE_COV inline constexpr std::size_t
+size_composite_field_buffer(T const &field)
 {
   if (is_null(field))
   {
@@ -402,7 +403,7 @@ PQXX_INLINE_COV inline std::size_t size_composite_field_buffer(T const &field)
 
 
 template<typename T>
-PQXX_INLINE_ONLY inline void write_composite_field(
+PQXX_INLINE_ONLY inline constexpr void write_composite_field(
   std::span<char> buf, std::size_t &pos, T const &field, ctx c)
 {
   std::size_t writing{pos};
@@ -451,9 +452,28 @@ PQXX_INLINE_ONLY inline void write_composite_field(
         assert(find != nullptr);
         auto const next{find(scratch, read_pos, loc)};
         auto const len{next - read_pos};
-        std::memmove(
-          std::data(buf) + writing, std::data(scratch) + read_pos, len);
-        writing += len;
+
+        // C++23: use "if consteval".
+        if (std::is_constant_evaluated())
+        {
+          // This could get slow: the compiler can't optimise it very
+          // aggressively without first checking whether the input and output
+          // overlap.
+          //
+          // Be careful to copy in forward order, so that the text we write
+          // doesn't overlap parts of the scratch buffer that we have yet to
+          // move into place.
+          for (std::size_t i{0}; i < len; ++i)
+            buf[writing++] = scratch[read_pos + i];
+        }
+        else
+        {
+          // This is, sadly, not constexpr.  But when we can use it, it
+          // leaves the standard library to figure out any overlap.
+          std::memmove(
+            std::data(buf) + writing, std::data(scratch) + read_pos, len);
+          writing += len;
+        }
         return next;
       }};
 

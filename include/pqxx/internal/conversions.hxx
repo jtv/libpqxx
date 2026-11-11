@@ -214,6 +214,9 @@ template<std::floating_point T> struct float_string_traits
 /// String traits for builtin integer types.
 /** This does not cover `bool` or (unlike `std::integral`) the `char` types.
  *
+ * (There is no string conversion for `char`.  This is deliberate.  It would
+ * invite mistakes.)
+ *
  * Once upon a time this was a partial specialisation of `string_traits` for
  * the `pqxx::internal::integer` concept, but MSVC 2026 had a mysterious
  * problem with that (see #1160).  So, we had to revert to a much clunkier way
@@ -287,8 +290,47 @@ struct string_traits<long double> final
 
 template<> struct string_traits<bool> final
 {
-  PQXX_LIBEXPORT PQXX_HOT static bool
-  from_string(std::string_view text, ctx c = {});
+  PQXX_LIBEXPORT PQXX_HOT static constexpr bool
+  from_string(std::string_view text, ctx c = {})
+  {
+    // The server represents a Boolean as 't' or 'f'.  However there's no end
+    // to possible representations: TRUE True true t 1 01 0x01 2...
+    //
+    // For simplicity and performance, we only support a fairly minimal palette
+    // of spellings.  The stanrad 't'/'f'.  A zero or a one just because it
+    // sounds like the sort of thing somebody out there might have started
+    // relying on.  And "true" / "false" because converting a Boolean to text
+    // on the server produces one of those strings.
+    switch (std::size(text))
+    {
+    case 1: [[likely]] switch (text[0]) {
+      case 'f':
+      case '0': return false;
+
+      case 't':
+      case '1': return true;
+
+      default: break;
+      }
+      break;
+
+    case std::size("true"sv):
+      if (text == "true")
+        return true;
+      break;
+
+    case std::size("false"sv):
+      if (text == "false")
+        return false;
+      break;
+
+    default: break;
+    }
+
+    throw conversion_error{std::format(
+      "Could not convert string to bool ({}): '{}'.", pqxx::source_loc(c.loc),
+      text)};
+  }
 
   PQXX_PURE PQXX_HOT static constexpr std::string_view
   to_buf(std::span<char>, bool const &value, ctx = {}) noexcept
@@ -346,7 +388,7 @@ template<typename... T> struct nullness<std::variant<T...>> final
 
 template<typename... T> struct string_traits<std::variant<T...>> final
 {
-  static std::string_view
+  static constexpr std::string_view
   to_buf(std::span<char> buf, std::variant<T...> const &value, ctx c = {})
   {
     return std::visit(
@@ -356,7 +398,8 @@ template<typename... T> struct string_traits<std::variant<T...>> final
       },
       value);
   }
-  static std::size_t size_buffer(std::variant<T...> const &value) noexcept
+  static constexpr std::size_t
+  size_buffer(std::variant<T...> const &value) noexcept
   {
     if (pqxx::is_null(value))
       return 0;
@@ -369,7 +412,8 @@ template<typename... T> struct string_traits<std::variant<T...>> final
    * like "pick the first type which fits the value," but we'd have to look
    * into how natural that API feels to users.
    */
-  static std::variant<T...> from_string(std::string_view, ctx = {}) = delete;
+  static constexpr std::variant<T...>
+    from_string(std::string_view, ctx = {}) = delete;
 };
 
 
@@ -521,12 +565,12 @@ template<> struct nullness<char *> final
  */
 template<> struct string_traits<char *> final
 {
-  static std::string_view
+  static constexpr std::string_view
   to_buf(std::span<char> buf, char *const &value, ctx c = {})
   {
     return pqxx::to_buf<char const *>(buf, value, c);
   }
-  static std::size_t size_buffer(char *const &value) noexcept
+  static constexpr std::size_t size_buffer(char *const &value) noexcept
   {
     if (pqxx::is_null(value))
       return 0;
