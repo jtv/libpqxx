@@ -442,47 +442,42 @@ PQXX_INLINE_ONLY inline constexpr void write_composite_field(
     assert(std::data(scratch) != nullptr);
     auto const end{std::size(scratch)};
 
-    // Move a stretch of "uninteresting" characters (i.e. ones that don't need
-    // escaping into place) from `scratch` to `buf`.
-    //
-    // Appends to `buf`, updates `writing`, returns next `reading` position.
-    auto const place_uninteresting_stretch{
-      [scratch, buf, find, &writing](std::size_t read_pos, sl loc) {
-        assert(find != nullptr);
-        auto const next{find(scratch, read_pos, loc)};
-        auto const len{next - read_pos};
-
-        // C++23: use "if consteval".
-        if (std::is_constant_evaluated())
-        {
-          // This could get slow: the compiler can't optimise it very
-          // aggressively without first checking whether the input and output
-          // overlap.
-          //
-          // Be careful to copy in forward order, so that the text we write
-          // doesn't overlap parts of the scratch buffer that we have yet to
-          // move into place.
-          for (std::size_t i{0}; i < len; ++i)
-            buf[writing++] = scratch[read_pos + i];
-        }
-        else
-        {
-          // This is, sadly, not constexpr.  But when we can use it, it
-          // leaves the standard library to figure out any overlap.
-          std::memmove(
-            std::data(buf) + writing, std::data(scratch) + read_pos, len);
-          writing += len;
-        }
-        return next;
-      }};
-
-    // Now escape buf into its final position.  But beware of bytes inside
-    // multibyte characters that happen to look like ASCII backslashes or
-    // quotes.
+    // Now escape buf into its final position, escaping special characters
+    // along the way.  (But beware of bytes inside multibyte characters that
+    // happen to look like ASCII backslashes or quotes.)
     std::size_t reading{0};
     while (reading < end)
     {
-      reading = place_uninteresting_stretch(reading, c.loc);
+      // Find the next "interesting" character, i.e. one that needs
+      // escaping.  If we find none, this will point at the end.
+      auto const next{find(scratch, reading, c.loc)};
+
+      // The number of intervening "uninteresting" characters.
+      auto const stretch{next - reading};
+
+      // Now we append the stretch of "uninteresting" characters from the
+      // scratch buffer into the main buffer.
+      //
+      // The two may overlap, so be careful not to overwrite any part of the
+      // scratch buffer that we may still need to copy.
+
+      // C++23: Use "if consteval".
+      if (std::is_constant_evaluated())
+      {
+        // Byte-by-byte copy.  It's inefficient but we're doing this at
+        // compile time, probably just during a test.
+        for (std::size_t i{0}; i < stretch; ++i)
+          buf[writing++] = scratch[reading + i];
+      }
+      else
+      {
+        // We're doing this at run time.  Annoyingly std::memmove() is not
+        // constexpr.
+        std::memmove(
+          std::data(buf) + writing, std::data(scratch) + reading, stretch);
+        writing += stretch;
+      }
+      reading = next;
 
       // Annoying: we have to check for the end twice per iteration, because
       // we have two ways to reach the end.
