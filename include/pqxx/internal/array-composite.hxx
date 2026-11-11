@@ -428,7 +428,6 @@ PQXX_INLINE_ONLY inline constexpr void write_composite_field(
     // it into place, because the working area and the destination inside the
     // buffer may overlap.
     auto const find{get_escape_finder<'\\', '"'>(c.enc, c.loc)};
-    assert(find != nullptr);
 
     auto const budget{size_buffer(field)};
     assert(budget < std::size(buf));
