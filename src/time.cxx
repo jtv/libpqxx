@@ -32,6 +32,7 @@ constexpr int ten{10};
 inline char *
 year_into_buf(char *begin, std::chrono::year const &value, pqxx::ctx c = {})
 {
+  // TODO: Simplify all this with std::format_to_n().
   int const y{value};
   if (y == int{(std::chrono::year::min)()}) [[unlikely]]
   {
@@ -89,6 +90,14 @@ inline int year_from_buf(std::string_view text, pqxx::sl loc)
   int const year{pqxx::from_string<int>(text)};
   if (year <= 0)
     throw pqxx::conversion_error{std::format("Bad year: '{}'.", text), loc};
+  // Check year against limits.  We don't know yet at this stage whether we
+  // need to check the upper bound or the lower bound, but luckily they happen
+  // to be the same number.
+  static_assert(
+    int{(std::chrono::year::min)()} == -int{(std::chrono::year::max())});
+  if (year > int{(std::chrono::year::max)()})
+    throw pqxx::conversion_error{
+      std::format("Year out of range: '{}'.", text), loc};
   return year;
 }
 
@@ -180,6 +189,9 @@ namespace pqxx
 std::string_view string_traits<std::chrono::year_month_day>::to_buf(
   std::span<char> buf, std::chrono::year_month_day const &value, ctx c)
 {
+  if (not value.ok())
+    throw pqxx::conversion_error{
+      "Trying to convert an invalid year_month_day to string.", c.loc};
   if (std::size(buf) < size_buffer(value))
     throw conversion_overrun{"Not enough room in buffer for date.", c.loc};
   auto here{std::data(buf)};

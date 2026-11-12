@@ -33,10 +33,14 @@ have reduced priority.
 Style guide
 -----------
 
-Keep your code, documentation, and other text to 78 columns.  Capitalise and
+Keep your code, documentation, and other text to 79 columns.  Capitalise and
 punctuate code comments just like you would the same text in documentation.
 
-Always use spaces for indentation,never tabs, _except:_
+In Markdown text, write identifiers (e.g. C++ classes or Python variables) in
+backquotes (`transaction_base` etc.).  Not just for typesetting but also to
+set them apart from common words.
+
+Always use spaces for indentation, never tabs, _except:_
 
 * where the `make` format requires tabs (including Maketile templates), or
 * where we conventionally use them in m4, or
@@ -49,3 +53,7 @@ Try to ensure that Markdown files pass a `markdownlint` check:
 * Separate each list from its preceding paragraph with a blank line.
 * Write nontrivial code blocks between triple backquotes; specify language.
 * Write filenames in backquotes to avoid trouble with un-escaped underscores.
+
+Feel free to capitalise the "l" in "libpqxx" at the beginning of a sentence.
+
+Oh, and "prepend" is not a word.  You probably mean "prefix."

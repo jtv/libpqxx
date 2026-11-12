@@ -84,7 +84,7 @@ namespace pqxx
 /** Returns a conservative estimate.
  */
 template<typename... T>
-[[nodiscard]] inline std::size_t
+[[nodiscard]] inline constexpr std::size_t
 composite_size_buffer(T const &...fields) noexcept
 {
   constexpr auto num{sizeof...(fields)};
@@ -118,8 +118,20 @@ composite_size_buffer(T const &...fields) noexcept
  * gets passed in as a query parameter.
  */
 template<typename... T>
-inline zview composite_into_buf(ctx c, std::span<char> buf, T const &...fields)
+inline constexpr zview
+composite_into_buf(ctx c, std::span<char> buf, T const &...fields)
 {
+  // For some reason, if we let this happen inside the char-finder lookup from
+  // inside the write_composite_field() folding expression, clang++ with -O2
+  // on Linux fails the test, saying that it threw the exact exception the
+  // test was expecting (and, obviously, catching).
+  //
+  // Also of course, we can present a more specific error message if we test
+  // for it here.
+  if (c.enc == encoding_group::unknown)
+    throw pqxx::argument_error{
+      "Tried to write composite without knowing its encoding.", c.loc};
+
   auto const needed{composite_size_buffer(fields...)};
   if (std::size(buf) < needed)
     throw conversion_error{

@@ -13,6 +13,15 @@ using date_tup =
   std::tuple<int, std::chrono::month, std::chrono::day, std::string_view>;
 
 
+/// Create a @ref pqxx::conversion_context.
+pqxx::conversion_context make_context(
+  pqxx::encoding_group enc = pqxx::encoding_group::ascii_safe,
+  pqxx::sl loc = pqxx::sl::current())
+{
+  return pqxx::conversion_context{enc, loc};
+}
+
+
 /// Build a `date_tup`.
 constexpr date_tup
 make_date(int y, unsigned m, unsigned d, std::string_view text)
@@ -42,22 +51,25 @@ void test_date_string_conversion(pqxx::test::context &)
     make_date(2000, 2, 29, "2000-02-29"sv),
     make_date(2004, 2, 29, "2004-02-29"sv),
     // This one won't work in postgres, but we can test the conversions.
-    make_date(-32767, 11, 3, "32768-11-03 BC"sv),
+    make_date(-32766, 1, 1, "32767-01-01 BC"sv),
   };
   for (auto const &[y, m, d, text] : std::span{conversions})
   {
     std::chrono::year_month_day const date{
       std::chrono::year{y}, std::chrono::month{m}, std::chrono::day{d}};
-    PQXX_CHECK_EQUAL(pqxx::to_string(date), text);
+    PQXX_CHECK_EQUAL(pqxx::to_string(date, make_context()), text);
+    PQXX_CHECK_LESS_EQUAL(
+      std::size(pqxx::to_string(date, make_context())),
+      pqxx::size_buffer(date));
     PQXX_CHECK_EQUAL(
-      pqxx::from_string<std::chrono::year_month_day>(text), date);
+      pqxx::from_string<std::chrono::year_month_day>(text, make_context()),
+      date);
     if (int{date.year()} > -4712)
     {
       // We can't test this for years before 4713 BC (4712 BCE), because
       // postgres doesn't handle earlier years.
       PQXX_CHECK_EQUAL(
-        tx.query_value<std::string>(
-          "SELECT '" + pqxx::to_string(date) + "'::date"),
+        tx.query_value<std::string>("SELECT $1::date", pqxx::params{date}),
         text);
     }
   }
@@ -86,6 +98,11 @@ void test_date_string_conversion(pqxx::test::context &)
     "2021-13-01"sv,
     "2021-+02-01"sv,
     "2021-12-32"sv,
+    "32768-01-01"sv,
+    "32768-01-01 BC"sv,
+    "32769-01-01 BC"sv,
+    "327680-01-01"sv,
+    "327680-01-01 BC"sv,
   };
   for (auto const text : invalid)
     PQXX_CHECK_THROWS(
