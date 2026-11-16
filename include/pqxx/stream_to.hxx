@@ -355,7 +355,7 @@ private:
           offset + into_buf({data + offset, data + total}, f, c)};
         // clang-tidy rule bug:
         // NOLINTNEXTLINE(cert-dcl03-c)
-        assert((end + 1) < std::size(m_buffer));
+        assert(end < std::size(m_buffer));
         m_buffer[end] = '\t';
         // Shrink to fit.  Keep the tab though.
         m_buffer.resize(end + 1);

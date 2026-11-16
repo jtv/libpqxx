@@ -110,7 +110,11 @@ generic_into_buf(char *begin, char *end, T const &value, ctx c = {})
       std::format("Not enough buffer space to insert {}.", name_type<T>()) +
         state_buffer_overrun(space, len),
       c.loc};
-  std::memmove(begin, std::data(text), len);
+  // We called to_buf(), not into_buf(), so we may still need to move the
+  // string into the buffer.  Not the terminating zero (there may not be one
+  // yet), we add that once it's all in the buffer.
+  std::memmove(begin, std::data(text), len - 1);
+  begin[len - 1] = '\0';
   return begin + len;
 }
 
@@ -131,7 +135,10 @@ generic_into_buf(std::span<char> buf, T const &value, ctx c = {})
       std::format("Not enough buffer space to insert {}.  ", name_type<T>()) +
         state_buffer_overrun(space, len),
       c.loc};
-  std::memmove(begin, std::data(text), len);
+  // Move the text into place if needed.  Not the terminating zero though; it
+  // may not be in the string.  We add that after, in the buffer.
+  std::memmove(begin, std::data(text), len - 1);
+  buf[len - 1] = '\0';
   return len;
 }
 
@@ -207,6 +214,9 @@ template<std::floating_point T> struct float_string_traits
 /// String traits for builtin integer types.
 /** This does not cover `bool` or (unlike `std::integral`) the `char` types.
  *
+ * (There is no string conversion for `char`.  This is deliberate.  It would
+ * invite mistakes.)
+ *
  * Once upon a time this was a partial specialisation of `string_traits` for
  * the `pqxx::internal::integer` concept, but MSVC 2026 had a mysterious
  * problem with that (see #1160).  So, we had to revert to a much clunkier way
@@ -280,8 +290,46 @@ struct string_traits<long double> final
 
 template<> struct string_traits<bool> final
 {
-  PQXX_LIBEXPORT PQXX_HOT static bool
-  from_string(std::string_view text, ctx c = {});
+  PQXX_LIBEXPORT PQXX_HOT static constexpr bool
+  from_string(std::string_view text, ctx c = {})
+  {
+    // The server represents a Boolean as 't' or 'f'.  However there's no end
+    // to possible representations: TRUE True true t 1 01 0x01 2...
+    //
+    // For simplicity and performance, we only support a fairly minimal palette
+    // of spellings.  The stanrad 't'/'f'.  A zero or a one just because it
+    // sounds like the sort of thing somebody out there might have started
+    // relying on.  And "true" / "false" because converting a Boolean to text
+    // on the server produces one of those strings.
+    switch (std::size(text))
+    {
+    case 1: [[likely]] switch (text[0]) {
+      case 'f':
+      case '0': return false;
+
+      case 't':
+      case '1': return true;
+
+      default: break;
+      }
+      break;
+
+    case std::size("true"sv):
+      if (text == "true")
+        return true;
+      break;
+
+    case std::size("false"sv):
+      if (text == "false")
+        return false;
+      break;
+
+    default: break;
+    }
+
+    throw conversion_error{
+      std::format("Could not convert string to bool: '{}'.", text), c.loc};
+  }
 
   PQXX_PURE PQXX_HOT static constexpr std::string_view
   to_buf(std::span<char>, bool const &value, ctx = {}) noexcept
@@ -339,7 +387,7 @@ template<typename... T> struct nullness<std::variant<T...>> final
 
 template<typename... T> struct string_traits<std::variant<T...>> final
 {
-  static std::string_view
+  static constexpr std::string_view
   to_buf(std::span<char> buf, std::variant<T...> const &value, ctx c = {})
   {
     return std::visit(
@@ -349,7 +397,8 @@ template<typename... T> struct string_traits<std::variant<T...>> final
       },
       value);
   }
-  static std::size_t size_buffer(std::variant<T...> const &value) noexcept
+  static constexpr std::size_t
+  size_buffer(std::variant<T...> const &value) noexcept
   {
     if (pqxx::is_null(value))
       return 0;
@@ -362,7 +411,8 @@ template<typename... T> struct string_traits<std::variant<T...>> final
    * like "pick the first type which fits the value," but we'd have to look
    * into how natural that API feels to users.
    */
-  static std::variant<T...> from_string(std::string_view, ctx = {}) = delete;
+  static constexpr std::variant<T...>
+    from_string(std::string_view, ctx = {}) = delete;
 };
 
 
@@ -471,8 +521,10 @@ template<> struct string_traits<char const *> final
   static char const *from_string(std::string_view text, ctx = {}) = delete;
 
   constexpr PQXX_ZARGS static std::string_view
-  to_buf(std::span<char>, char const *const &value, ctx = {}) noexcept
+  to_buf(std::span<char>, char const *const &value, ctx c = {})
   {
+    if (value == nullptr)
+      pqxx::internal::throw_null_conversion("char const *"sv, c.loc);
     return value;
   }
 
@@ -512,12 +564,12 @@ template<> struct nullness<char *> final
  */
 template<> struct string_traits<char *> final
 {
-  static std::string_view
+  static constexpr std::string_view
   to_buf(std::span<char> buf, char *const &value, ctx c = {})
   {
     return pqxx::to_buf<char const *>(buf, value, c);
   }
-  static std::size_t size_buffer(char *const &value) noexcept
+  static constexpr std::size_t size_buffer(char *const &value) noexcept
   {
     if (pqxx::is_null(value))
       return 0;
@@ -670,14 +722,23 @@ template<>
 struct nullness<std::nullptr_t> final : all_null<std::nullptr_t, nullptr>
 {};
 
+static_assert(always_null<std::nullptr_t>());
+static_assert(is_null(nullptr));
+
 template<>
 struct nullness<std::nullopt_t> final : all_null<std::nullopt_t, std::nullopt>
 {};
+
+static_assert(always_null<std::nullopt_t>());
+static_assert(is_null(std::nullopt));
 
 template<>
 struct nullness<std::monostate> final
         : all_null<std::monostate, std::monostate{}>
 {};
+
+static_assert(always_null<std::monostate>());
+static_assert(is_null(std::monostate{}));
 
 
 /// Specialisation for `std::optional` and smart pointers.

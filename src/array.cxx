@@ -83,6 +83,9 @@ array_parser::parse_array_step(sl loc)
   if (m_pos >= std::size(m_input))
     return std::make_pair(juncture::done, value);
 
+  if ((m_pos == 0) and m_input.starts_with('['))
+    throw conversion_error{"Not supported: array with bounds prefix."};
+
   auto [found, end] = [this, &value, loc] {
     // We don't need to do any actual scanning yet, because we're looking for
     // specific ASCII characters and we're at the beginning of a character.

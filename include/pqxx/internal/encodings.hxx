@@ -375,7 +375,7 @@ find_escapable_char(std::string_view haystack, std::size_t here, sl loc)
 /** Call this on the offset returned by a finder obtained through
  * @ref get_escape_finder().  Normally the special character is a single ASCII
  * byte, but in Shift_JIS-2004 it can also be a particular two-byte character
- * which the server will convert to ASCII.
+ * which the server will convert to an ASCII backslash.
  *
  * @return The ASCII character as the server will see it, and the number of
  * bytes the character occupies in `text`.

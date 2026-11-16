@@ -193,7 +193,7 @@ struct byte_char_traits final : std::char_traits<char>
    */
   static size_t length(const std::byte *data);
 
-  PQXX_RETURNS_NONNULL static const std::byte *
+  static const std::byte *
   find(const std::byte *data, std::size_t size, const std::byte &value)
   {
     return static_cast<const std::byte *>(

@@ -5,7 +5,7 @@
 
 namespace
 {
-pqxx::conversion_context make_context(
+constexpr pqxx::conversion_context make_context(
   pqxx::encoding_group enc = pqxx::encoding_group::ascii_safe,
   pqxx::sl loc = pqxx::sl::current())
 {
@@ -146,10 +146,76 @@ void test_composite_fits_budget(pqxx::test::context &)
 }
 
 
+void test_composite_into_buf_handles_null_fields(pqxx::test::context &)
+{
+  std::array<char, 60> buf{};
+
+  // A null field in a composite is blank.
+  PQXX_CHECK_EQUAL(
+    pqxx::composite_into_buf(make_context(), buf, 9, std::optional<int>{}, 0),
+    "(9,,0)");
+
+  // An empty string in a composite field gets quoted.
+  PQXX_CHECK_EQUAL(
+    pqxx::composite_into_buf(make_context(), buf, 1, "", 3), "(1,\"\",3)");
+}
+
+
+/// Escape composite, possibly at compile time; compare to expectation.
+template<typename... TYPES>
+consteval bool consteval_test_composite_escaping(
+  std::string_view expected, pqxx::encoding_group enc, TYPES... elements)
+{
+  std::array<char, 100> cbuf{};
+
+  return std::string_view{pqxx::composite_into_buf(
+           make_context(enc), cbuf, elements...)} == expected;
+}
+
+
+// In these encodings, a multibyte character can contain a byte that happens
+// to have the same value as an ASCII backslash.  It's not a backslash, and we
+// don't escape it.
+static_assert(consteval_test_composite_escaping(
+  "(\"\xa5\\\",\"x\")", pqxx::encoding_group::two_tier, "\xa5\\", "x"));
+static_assert(consteval_test_composite_escaping(
+  "(\"\x95\\\",\"x\")", pqxx::encoding_group::gb18030, "\x95\\", "x"));
+static_assert(consteval_test_composite_escaping(
+  "(\"\x95\\\",\"x\")", pqxx::encoding_group::sjis, "\x95\\", "x"));
+static_assert(consteval_test_composite_escaping(
+  "(\"\x95\\\",\"x\")", pqxx::encoding_group::shift_jis_2004, "\x95\\", "x"));
+
+// We do of course escape real quotes and backslashes.
+static_assert(consteval_test_composite_escaping(
+  "(\"\x95\\\\\\\\\"\",\"1\")", pqxx::encoding_group::sjis, "\x95\\\\\"",
+  "1"));
+
+
+void test_composite_escaping_respects_encoding(pqxx::test::context &)
+{
+  using encg = pqxx::encoding_group;
+  std::array<char, 100> buf{};
+
+  // A string can't "swallow up" the closing quote by including a truncated
+  // multibyte character that looks like the closing quote belongs inside it.
+  // That's a malformed string and it causes an exception.
+  PQXX_CHECK_THROWS(
+    pqxx::composite_into_buf(make_context(encg::sjis), buf, "\x95"),
+    pqxx::argument_error);
+
+  // We can't escape text safely without knowing its encoding.
+  PQXX_CHECK_THROWS(
+    pqxx::composite_into_buf(make_context(encg::unknown), buf, "hello"),
+    pqxx::argument_error);
+}
+
+
 PQXX_REGISTER_TEST(test_composite);
 PQXX_REGISTER_TEST(test_composite_escapes);
 PQXX_REGISTER_TEST(test_composite_handles_nulls);
 PQXX_REGISTER_TEST(test_composite_renders_to_string);
 PQXX_REGISTER_TEST(test_composite_can_contain_arrays);
 PQXX_REGISTER_TEST(test_composite_fits_budget);
+PQXX_REGISTER_TEST(test_composite_into_buf_handles_null_fields);
+PQXX_REGISTER_TEST(test_composite_escaping_respects_encoding);
 } // namespace

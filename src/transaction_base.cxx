@@ -114,7 +114,7 @@ pqxx::conversion_context pqxx::transaction_base::make_context(sl loc) const
 
 void pqxx::transaction_base::commit(sl loc)
 {
-  check_pending_error();
+  check_pending_error(loc);
 
   // Check previous status code.  Caller should only call this function if
   // we're in "implicit" state, but multiple commits are silently accepted.
@@ -188,6 +188,42 @@ void pqxx::transaction_base::commit(sl loc)
 
 void pqxx::transaction_base::do_abort(sl loc)
 {
+  // First check for any pending error registered by a transaction_focus,
+  // which we could not report as an exception before.
+  try
+  {
+    check_pending_error(loc);
+  }
+  catch (std::exception const &)
+  {
+    // An error was indeed pending.  Continue with the abort first, then report
+    // the error.
+    try
+    {
+      if (m_rollback_cmd)
+      {
+        direct_exec(m_rollback_cmd, loc);
+        // In this one rare case this function sets m_status: we have
+        // successfully aborted the transaction, but we're about to throw a
+        // pending error which will stop abort() from setting the status.
+        m_status = status::aborted;
+      }
+    }
+    catch (std::exception const &)
+    {
+      // Error upon error.  But we'll treat the original pending error as the
+      // main issue.  This new error is most likely either a consequence of
+      // it, or of the same underlying problem that caused it.
+    }
+    // Now re-throw the original pending error.  (If we're aborting from
+    // inside the transaction's destructor, it will not pass the error on.
+    // But on the bright side, if we're aborting from inside a destructor,
+    // chances are that we're in the cleanup after a failure that is already
+    // known to the caller.)
+    throw;
+  }
+
+  // Okay, no errors reported.  Now continue the abort.
   if (m_rollback_cmd)
     direct_exec(m_rollback_cmd, loc);
 }
@@ -207,6 +243,7 @@ void pqxx::transaction_base::abort(sl loc)
     catch (std::exception const &e)
     {
       m_conn.process_notice(std::format("{}\n", e.what()));
+      throw;
     }
     break;
 
@@ -262,7 +299,7 @@ public:
 
 pqxx::result pqxx::transaction_base::exec(std::string_view query, sl loc)
 {
-  check_pending_error();
+  check_pending_error(loc);
 
   command const cmd{*this, {}};
 
@@ -286,7 +323,7 @@ pqxx::result pqxx::transaction_base::exec(std::string_view query, sl loc)
 pqxx::result pqxx::transaction_base::exec(
   std::string_view query, std::string_view desc, sl loc)
 {
-  check_pending_error();
+  check_pending_error(loc);
 
   command const cmd{*this, desc};
 
@@ -347,7 +384,9 @@ void pqxx::transaction_base::notify(
   // For some reason, NOTIFY does not work as a parameterised statement,
   // even just for the payload (which is supposed to be a normal string).
   // Luckily, pg_notify() does.
-  exec("SELECT pg_notify($1, $2)", params{*this, channel, payload}, loc)
+  exec(
+    "SELECT pg_catalog.pg_notify($1, $2)", params{*this, channel, payload},
+    loc)
     .one_row(loc);
 }
 
@@ -375,7 +414,7 @@ void pqxx::transaction_base::close(sl loc) noexcept
   {
     try
     {
-      check_pending_error();
+      check_pending_error(loc);
     }
     catch (std::exception const &e)
     {
@@ -469,7 +508,7 @@ void pqxx::transaction_base::unregister_focus(
 pqxx::result pqxx::transaction_base::direct_exec(
   std::string_view cmd, std::string_view desc, sl loc)
 {
-  check_pending_error();
+  check_pending_error(loc);
   return pqxx::internal::gate::connection_transaction{conn()}.exec(
     cmd, desc, loc);
 }
@@ -479,7 +518,7 @@ pqxx::result pqxx::transaction_base::direct_exec(
 pqxx::result pqxx::transaction_base::direct_exec(
   std::shared_ptr<std::string> const &cmd, std::string_view desc, sl loc)
 {
-  check_pending_error();
+  check_pending_error(loc);
   return pqxx::internal::gate::connection_transaction{conn()}.exec(
     cmd, desc, loc);
 }
@@ -539,14 +578,14 @@ void pqxx::transaction_base::register_pending_error(
 }
 
 
-void pqxx::transaction_base::check_pending_error()
+void pqxx::transaction_base::check_pending_error(sl loc)
 {
   if (not std::empty(m_pending_error))
   {
     // TODO: Store exceptions, or message + source_location.
     std::string err;
     err.swap(m_pending_error);
-    throw failure{err};
+    throw failure{err, loc};
   }
 }
 

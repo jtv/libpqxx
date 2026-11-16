@@ -1,4 +1,6 @@
+#include <pqxx/nontransaction>
 #include <pqxx/stream_to>
+#include <pqxx/subtransaction>
 #include <pqxx/transaction>
 
 #include "helpers.hxx"
@@ -279,6 +281,75 @@ void test_transaction_query_n(pqxx::test::context &)
 }
 
 
+/// Create a table with a unique "id" key column.
+void make_table_with_id(pqxx::connection &cx, std::string_view table)
+{
+  pqxx::nontransaction ntx{cx};
+  auto const statement{std::format(
+    "CREATE TEMP TABLE {} (id integer PRIMARY KEY)", ntx.quote_name(table))};
+  ntx.exec(statement).no_rows();
+}
+
+
+/// Leave a pending error in `tx`: a stream whose destructor fails to complete.
+/** We do this by streaming clashing `id` values into `table`.
+ */
+void make_pending_error(
+  pqxx::transaction_base &tx, std::string_view table, int id)
+{
+  auto stream{pqxx::stream_to::table(tx, {table}, {"id"})};
+  stream.write_values(id);
+  stream.write_values(id);
+}
+
+
+void test_transaction_pending_error_combines_with_abort(
+  pqxx::test::context &tctx)
+{
+  pqxx::connection cx;
+  std::string notices;
+  cx.set_notice_handler(
+    [&notices](pqxx::zview msg) noexcept { notices += msg; });
+
+  std::string const table{tctx.make_name("pqxx")};
+  make_table_with_id(cx, table);
+
+  // We cause a "pending error" during a stream.  The stream can't throw an
+  // exception because it's in a state where we can't abort the transaction
+  // yet.
+  //
+  // So, the stream _registers_ the error for later handling by the next
+  // thing we try to do with the transaction.
+  {
+    pqxx::work tx{cx};
+    make_pending_error(tx, table, tctx.make_num());
+
+    // When we try to abort(), the pending error surfaces.
+    PQXX_CHECK_THROWS(tx.abort(), pqxx::failure);
+
+    // The pending error was reported to the notice handler.
+    PQXX_CHECK(pqxx::str_contains(notices, table));
+
+    // The transaction won't let us execute another command; it's aborted.
+    PQXX_CHECK_THROWS(tx.exec("SELECT 0"), pqxx::usage_error);
+  }
+
+  // We're now free to start a new transaction.  We'll try the same thing with
+  // a subtransaction.
+  pqxx::work tx{cx};
+  {
+    pqxx::subtransaction sub{tx};
+    make_pending_error(sub, table, tctx.make_num());
+    PQXX_CHECK_THROWS(sub.abort(), pqxx::failure);
+  }
+  // We're still in tx, but the rows we tried to add in sub were rolled back.
+  PQXX_CHECK_EQUAL(
+    tx.query_value<int>(
+      std::format("SELECT count(*) FROM {}", tx.quote_name(table))),
+    0);
+}
+
+
 PQXX_REGISTER_TEST(test_transaction_base);
 PQXX_REGISTER_TEST(test_transaction_query);
 PQXX_REGISTER_TEST(test_transaction_query_params);
@@ -287,4 +358,5 @@ PQXX_REGISTER_TEST(test_transaction_for_stream);
 PQXX_REGISTER_TEST(test_transaction_query01);
 PQXX_REGISTER_TEST(test_transaction_query1);
 PQXX_REGISTER_TEST(test_transaction_query_n);
+PQXX_REGISTER_TEST(test_transaction_pending_error_combines_with_abort);
 } // namespace

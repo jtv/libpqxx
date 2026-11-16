@@ -162,8 +162,10 @@ pqxx::row_ref pqxx::result::back() const noexcept
 
 void pqxx::result::swap(result &rhs) noexcept
 {
-  m_data.swap(rhs.m_data);
-  m_query.swap(rhs.m_query);
+  std::swap(m_data, rhs.m_data);
+  std::swap(m_query, rhs.m_query);
+  std::swap(m_notice_waiters, rhs.m_notice_waiters);
+  std::swap(m_encoding, rhs.m_encoding);
 }
 
 

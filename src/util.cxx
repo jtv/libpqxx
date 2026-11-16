@@ -102,7 +102,13 @@ void pqxx::internal::check_unique_unregister(
 
 namespace
 {
-constexpr std::array<char, 16u> hex_digits{
+/// The number of bits in a nibble.
+constexpr int const nibble_bits{4};
+
+/// Bitmask for extracting least-significant nibble from an integral value.
+constexpr int const nibble_mask{0x0f};
+
+constexpr std::array<char, 16u> const hex_digits{
   '0', '1', '2', '3', '4', '5', '6', '7',
   '8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
 };
@@ -110,7 +116,7 @@ constexpr std::array<char, 16u> hex_digits{
 
 // LCOV_EXCL_START
 /// Translate a number (must be between 0 and 16 exclusive) to a hex digit.
-constexpr char hex_digit(int c) noexcept
+[[nodiscard]] inline constexpr char hex_digit(int c) noexcept
 {
   PQXX_ASSUME(c >= 0);
   return hex_digits.at(static_cast<unsigned int>(c));
@@ -124,60 +130,20 @@ static_assert(hex_digit(10) == 'a');
 static_assert(hex_digit(15) == 'f');
 #endif
 // LCOV_EXCL_STOP
-} // namespace
-
-
-namespace pqxx::internal
-{
-void esc_bin(bytes_view binary_data, std::span<char> buffer) noexcept
-{
-  // clang-tidy rule bug:
-  // NOLINTNEXTLINE(cert-dcl03-c)
-  assert(std::size(buffer) >= size_esc_bin(std::size(binary_data)));
-  std::size_t here{0u};
-  // C++26: Use at().
-  buffer[here++] = '\\';
-  buffer[here++] = 'x';
-
-  constexpr int nibble_bits{4};
-  constexpr int nibble_mask{0x0f};
-  for (auto const byte : binary_data)
-  {
-    auto const uc{static_cast<unsigned char>(byte)};
-
-    buffer[here++] = hex_digit(uc >> nibble_bits);
-    buffer[here++] = hex_digit(uc & nibble_mask);
-  }
-
-  // (No need to increment further.  Facebook's "infer" complains if we do.)
-  buffer[here] = '\0';
-}
-
-
-std::string esc_bin(bytes_view binary_data)
-{
-  auto const bytes{size_esc_bin(std::size(binary_data))};
-  std::string buf;
-  buf.resize(bytes);
-  esc_bin(binary_data, buf);
-  // Strip off the trailing zero.
-  buf.resize(bytes - 1);
-  return buf;
-}
 
 
 // NOLINTBEGIN(modernize-raw-string-literal)
 /// The standard header for PostgreSQL's hex-escaped binary data.
-constexpr std::string_view header{"\\x"sv};
+constexpr std::string_view const header{"\\x"sv};
 // NOLINTEND(modernize-raw-string-literal)
 
 /// Number of hex digits in a byte.
-constexpr std::size_t digits_per_byte{2u};
+constexpr std::size_t const digits_per_byte{2u};
 
 
 /// Sanity-check hex input, return "payload" portion (the hex digits part).
 inline std::string_view parse_bin_meta(
-  std::string_view escaped_data, std::span<std::byte> buffer, sl loc)
+  std::string_view escaped_data, std::span<std::byte> buffer, pqxx::sl loc)
 {
   // NOLINTNEXTLINE(modernize-raw-string-literal)
   if (not escaped_data.starts_with(header))
@@ -206,7 +172,7 @@ inline std::string_view parse_bin_meta(
  * validity checking and just check at the end whether our digits contain
  * bits of poison.
  */
-constexpr uint16_t bad_hex{0xffff};
+constexpr uint16_t const bad_hex{0xffff};
 
 // X/// Does the given value contain `bad_hex` poison?
 [[nodiscard]] inline constexpr bool has_poison(unsigned value) noexcept
@@ -222,10 +188,12 @@ static_assert(not has_poison(255));
 
 
 /// Hex digit lookup table: `h['0'] == 0`, `h['a'] == 10`, etc.
+/** Entries for invalid hex digits are initialised to `bad_hex`.
+ */
 class hex_table final
 {
 public:
-  constexpr hex_table() noexcept
+  consteval hex_table() noexcept
   {
     for (unsigned i{0}; i < std::size(m_digits); ++i) m_digits.at(i) = bad_hex;
     for (unsigned i{0}; i < 10u; ++i)
@@ -238,6 +206,7 @@ public:
     }
   }
 
+  /// Look up a hex digit's numeric value, or `bad_hex` if invalid.
   [[nodiscard]] constexpr unsigned operator[](char c) const noexcept
   {
     return m_digits.at(static_cast<unsigned char>(c));
@@ -248,7 +217,7 @@ private:
 };
 
 
-constexpr hex_table hex_nibbles;
+constexpr hex_table const hex_nibbles;
 
 static_assert(hex_nibbles['`'] == bad_hex);
 static_assert(hex_nibbles['0'] == 0);
@@ -261,6 +230,41 @@ static_assert(hex_nibbles['F'] == 15);
 static_assert(hex_nibbles['f'] == 15);
 static_assert(hex_nibbles['G'] == bad_hex);
 static_assert(hex_nibbles['g'] == bad_hex);
+} // namespace
+
+
+namespace pqxx::internal
+{
+void esc_bin(bytes_view binary_data, std::span<char> buffer) noexcept
+{
+  // clang-tidy rule bug:
+  // NOLINTNEXTLINE(cert-dcl03-c)
+  assert(std::size(buffer) >= size_esc_bin(std::size(binary_data)));
+  std::size_t here{header.copy(std::data(buffer), std::size(header))};
+
+  for (auto const byte : binary_data)
+  {
+    auto const uc{static_cast<unsigned char>(byte)};
+
+    buffer[here++] = hex_digit(uc >> nibble_bits);
+    buffer[here++] = hex_digit(uc & nibble_mask);
+  }
+
+  // (No need to increment further.  Facebook's "infer" complains if we do.)
+  buffer[here] = '\0';
+}
+
+
+std::string esc_bin(bytes_view binary_data)
+{
+  auto const bytes{size_esc_bin(std::size(binary_data))};
+  std::string buf;
+  buf.resize(bytes);
+  esc_bin(binary_data, buf);
+  // Strip off the trailing zero.
+  buf.resize(bytes - 1);
+  return buf;
+}
 
 
 void unesc_bin(
@@ -272,6 +276,7 @@ void unesc_bin(
   // Collect all values in here, so we can later check for poison in one go.
   unsigned chalice{0};
 
+  // Current write position in buffer.
   std::size_t write{0};
 
   // This is the central loop.  It matters a lot for performance, so avoid any
@@ -280,7 +285,8 @@ void unesc_bin(
   {
     // C++23: Would std::chunk_view make it easier to grab pairs of bytes?
     unsigned const byteval =
-      ((hex_nibbles[hex_data[read]] << 4) | hex_nibbles[hex_data[read + 1]]);
+      ((hex_nibbles[hex_data[read]] << nibble_bits) |
+       hex_nibbles[hex_data[read + 1]]);
     chalice |= byteval;
     buffer[write++] = static_cast<std::byte>(byteval);
   }

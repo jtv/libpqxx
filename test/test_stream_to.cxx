@@ -794,6 +794,27 @@ void test_stream_to_bool(pqxx::test::context &tctx)
 }
 
 
+void test_stream_to_field_gets_entire_budget(pqxx::test::context &tctx)
+{
+  pqxx::connection cx;
+  pqxx::work tx{cx};
+
+  std::string const table{tctx.make_name("pqxx")};
+  std::string const quoted{tx.quote_name(table)};
+
+  tx.exec(std::format("CREATE TEMP TABLE {} (n bigint)", quoted)).no_rows();
+
+  // Stream a numeric value that takes up its entire string conversion buffer.
+  int const value{(std::numeric_limits<int>::min)()};
+  auto stream{pqxx::stream_to::table(tx, {table}, {"n"})};
+  stream.write_values(value);
+  stream.complete();
+
+  PQXX_CHECK_EQUAL(
+    tx.query_value<int>(std::format("SELECT n FROM {}", quoted)), value);
+}
+
+
 PQXX_REGISTER_TEST(test_stream_to);
 PQXX_REGISTER_TEST(test_container_stream_to);
 PQXX_REGISTER_TEST(test_stream_to_does_nonnull_optional);
@@ -808,4 +829,5 @@ PQXX_REGISTER_TEST(test_stream_to_transcodes);
 PQXX_REGISTER_TEST(test_stream_to_handles_embedded_special_values);
 PQXX_REGISTER_TEST(test_stream_to_escapes_shift_jis_2004_backslash);
 PQXX_REGISTER_TEST(test_stream_to_bool);
+PQXX_REGISTER_TEST(test_stream_to_field_gets_entire_budget);
 } // namespace
