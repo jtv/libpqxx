@@ -31,13 +31,14 @@ PQXX_PURE PQXX_HOT inline constexpr char number_to_digit(int i) noexcept
 
 
 /// Compute numeric value of given textual digit (assuming that it is a digit).
-/** The digit must be a base-10 digit.
+/** The digit must be the ASCII value for a valid base-10 digit.
  */
-PQXX_PURE PQXX_HOT inline constexpr int digit_to_number(char c) noexcept
+PQXX_PURE PQXX_HOT inline constexpr unsigned short
+digit_to_number(char c) noexcept
 {
   PQXX_ASSUME(c >= '0');
   PQXX_ASSUME(c <= '9');
-  return c - '0';
+  return static_cast<unsigned short>(c - '0');
 }
 
 
@@ -211,6 +212,107 @@ template<std::floating_point T> struct float_string_traits
   }
 };
 
+
+/// Concept: "Properly" arithmetic type (so not `bool` or `char`).
+template<typename T>
+concept arith = pqxx::internal::integer<T> or std::floating_point<T>;
+
+
+template<arith TYPE>
+inline TYPE from_string_arithmetic(std::string_view in, pqxx::ctx c)
+{
+  char const *here{std::data(in)};
+  auto const end{std::data(in) + std::size(in)};
+
+  // Skip whitespace.  This is not the proper way to do it, but I see no way
+  // that any of the supported encodings could ever produce a valid character
+  // whose byte sequence would confuse this code.
+  while (here < end and (*here == ' ' or *here == '\t')) ++here;
+
+  TYPE out{};
+  auto const res{std::from_chars(here, end, out)};
+  if (res.ec == std::errc() and res.ptr == end) [[likely]]
+    return out;
+
+  std::string msg;
+  if (res.ec == std::errc())
+  {
+    msg = "Could not parse full string.";
+  }
+  else
+  {
+    switch (res.ec)
+    {
+    case std::errc::result_out_of_range: msg = "Value out of range."; break;
+    case std::errc::invalid_argument: msg = "Invalid argument."; break;
+    default: break;
+    }
+  }
+
+  auto const base{std::format(
+    "Could not convert '{}' to {}", std::string(in), pqxx::name_type<TYPE>())};
+  if (std::empty(msg))
+    throw pqxx::conversion_error{std::format("{}.", base), c.loc};
+  else
+    throw pqxx::conversion_error{std::format("{}: {}", base, msg), c.loc};
+}
+
+
+/// Workaround for C++20: Parse integral value from string at compile time.
+/** In C++23, `std::from_chars()` for integral values becomes `constexpr`.
+ * But until then, we can't use @ref from_string_arithmetic() at compile time.
+ *
+ * Do not _ever_ use this at run time.  It's just a workaround, and not at all
+ * optimised.
+ */
+template<integer T>
+constexpr T fake_from_string_integer(std::string_view text, ctx c)
+{
+  // This function is only useful at compile time.
+  assert(std::is_constant_evaluated());
+
+  using limits = std::numeric_limits<T>;
+
+  if (std::empty(text))
+    throw conversion_error{"Expeced integer, got empty string.", c.loc};
+
+  // Built-in operators like + and * for short return int.
+  using computation_type = decltype(std::declval<T>() + 1);
+
+  computation_type out{0};
+  computation_type sign{1};
+  if constexpr (std::is_signed_v<T>)
+  {
+    if (text.at(0) == '-') [[unlikely]]
+    {
+      sign = -1;
+      text = text.substr(1);
+    }
+  }
+  T const ceiling{(limits::max)()};
+  for (char ch : text)
+  {
+    if ((ch < '0') or (ch > '9'))
+      throw conversion_error{"Invalid byte in number.", c.loc};
+
+    computation_type const additional{digit_to_number(ch)};
+
+    if constexpr (not limits::is_signed)
+    {
+      // Check for overflow.  There's no need to check for signed types, since
+      // signed overflow is undefined behaviour and we're running this code at
+      // compile time, where the compiler is required to detect and flag any
+      // undefined behaviour.
+      if ((out > (ceiling / 10)) or ((10 * out) > (ceiling - additional)))
+        throw conversion_error{
+          "Overflow while parsing unsigned integer.", c.loc};
+    }
+    out = 10 * out + sign * computation_type{additional};
+  }
+  return static_cast<T>(out);
+}
+
+
 /// String traits for builtin integer types.
 /** This does not cover `bool` or (unlike `std::integral`) the `char` types.
  *
@@ -222,10 +324,18 @@ template<std::floating_point T> struct float_string_traits
  * problem with that (see #1160).  So, we had to revert to a much clunkier way
  * of creating those specialisations.
  */
-template<pqxx::internal::integer T> struct integer_string_traits
+template<integer T> struct integer_string_traits
 {
-  PQXX_LIBEXPORT PQXX_HOT static T
-  from_string(std::string_view text, ctx = {});
+  PQXX_LIBEXPORT PQXX_HOT static constexpr T
+  from_string(std::string_view text, ctx c = {})
+  {
+    // C++23: std::from_chars() becomes constexpr, so ditch workaround.
+    if (std::is_constant_evaluated())
+      return fake_from_string_integer<T>(text, c);
+    else
+      return from_string_arithmetic<T>(text, c);
+  }
+
   PQXX_LIBEXPORT PQXX_HOT static std::string_view
   to_buf(std::span<char> buf, T const &value, ctx c = {});
 

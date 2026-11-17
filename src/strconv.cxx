@@ -116,12 +116,8 @@ constexpr inline char *bottom_to_buf(char *end)
 }
 
 
-template<typename T>
-concept arith = pqxx::internal::integer<T> or std::floating_point<T>;
-
-
 /// Call to_chars, report errors as exceptions, add zero, return pointer.
-template<arith T>
+template<pqxx::internal::arith T>
 inline char *wrap_to_chars(std::span<char> buf, T const &value, pqxx::sl loc)
 {
   auto const begin{std::data(buf)}, end{begin + std::size(buf)};
@@ -169,46 +165,6 @@ PQXX_COLD std::string state_buffer_overrun(int have_bytes, int need_bytes)
 
 namespace
 {
-template<arith TYPE>
-inline TYPE from_string_arithmetic(std::string_view in, pqxx::ctx c)
-{
-  char const *here{std::data(in)};
-  auto const end{std::data(in) + std::size(in)};
-
-  // Skip whitespace.  This is not the proper way to do it, but I see no way
-  // that any of the supported encodings could ever produce a valid character
-  // whose byte sequence would confuse this code.
-  while (here < end and (*here == ' ' or *here == '\t')) ++here;
-
-  TYPE out{};
-  auto const res{std::from_chars(here, end, out)};
-  if (res.ec == std::errc() and res.ptr == end) [[likely]]
-    return out;
-
-  std::string msg;
-  if (res.ec == std::errc())
-  {
-    msg = "Could not parse full string.";
-  }
-  else
-  {
-    switch (res.ec)
-    {
-    case std::errc::result_out_of_range: msg = "Value out of range."; break;
-    case std::errc::invalid_argument: msg = "Invalid argument."; break;
-    default: break;
-    }
-  }
-
-  auto const base{std::format(
-    "Could not convert '{}' to {}", std::string(in), pqxx::name_type<TYPE>())};
-  if (std::empty(msg))
-    throw pqxx::conversion_error{std::format("{}.", base), c.loc};
-  else
-    throw pqxx::conversion_error{std::format("{}: {}", base, msg), c.loc};
-}
-
-
 // TODO: Remove this workaround once compilers have float charconv.
 #if !defined(PQXX_HAVE_CHARCONV_FLOAT)
 constexpr bool valid_infinity_string(std::string_view text) noexcept
@@ -351,7 +307,7 @@ template<std::floating_point T>
 T float_string_traits<T>::from_string(std::string_view text, pqxx::ctx c)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
-  return from_string_arithmetic<T>(text, c);
+  return pqxx::internal::from_string_arithmetic<T>(text, c);
 #else
   return from_string_awful_float<T>(text, c);
 #endif
@@ -392,12 +348,6 @@ template struct float_string_traits<long double>;
 
 namespace pqxx::internal
 {
-template<pqxx::internal::integer TYPE>
-TYPE integer_string_traits<TYPE>::from_string(std::string_view text, ctx c)
-{
-  return from_string_arithmetic<TYPE>(text, c);
-}
-
 template<pqxx::internal::integer TYPE>
 inline std::string_view
 // NOLINTNEXTLINE(readability-non-const-parameter)

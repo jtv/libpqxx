@@ -516,7 +516,8 @@ consteval bool supports_from_string_8()
  * PostgreSQL and out of to_string() can be converted.
  */
 template<typename TYPE>
-[[nodiscard]] inline TYPE from_string(std::string_view text, ctx c = {})
+[[nodiscard]] inline constexpr TYPE
+from_string(std::string_view text, ctx c = {})
 {
   if constexpr (supports_from_string_8<TYPE>())
     return string_traits<TYPE>::from_string(text, c);

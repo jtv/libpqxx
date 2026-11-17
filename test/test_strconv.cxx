@@ -568,6 +568,36 @@ void test_conversion_context_is_swappable(pqxx::test::context &)
 }
 
 
+// The from_string() function is a bit of a special case: we have a separate
+// compile-time implementation because std::from_chars() isn't constexpr
+// until C++23.  So, test the constexpr version separately.
+//
+// C++23: Do more of these tests only at compile time.
+// C++26: Test the error cases only at compile time as well.
+static_assert(pqxx::from_string<unsigned>("0") == 0);
+static_assert(pqxx::from_string<unsigned>("1") == 1);
+static_assert(pqxx::from_string<int>("0") == 0);
+static_assert(pqxx::from_string<int>("1") == 1);
+static_assert(pqxx::from_string<int>("-1") == -1);
+static_assert(pqxx::from_string<int>("2") == 2);
+static_assert(pqxx::from_string<int>("-2") == -2);
+static_assert(pqxx::from_string<unsigned>("1") == 1);
+static_assert(pqxx::from_string<unsigned>("2") == 2);
+
+static_assert(
+  ((std::numeric_limits<short>::max)() < 32767) or
+  (pqxx::from_string<short>("32767") == 32767));
+static_assert(
+  ((std::numeric_limits<short>::min)() > -32767) or
+  (pqxx::from_string<short>("-32767") == -32767));
+static_assert(
+  ((std::numeric_limits<short>::min)() > -32768) or
+  (pqxx::from_string<short>("-32768") == -32768));
+static_assert(
+  ((std::numeric_limits<unsigned short>::max)() < 65535) or
+  (pqxx::from_string<unsigned short>("65535") == 65535));
+
+
 PQXX_REGISTER_TEST(test_strconv_bool);
 PQXX_REGISTER_TEST(test_strconv_enum);
 PQXX_REGISTER_TEST(test_strconv_class_enum);
