@@ -185,7 +185,8 @@ constexpr bool valid_infinity_string(std::string_view text) noexcept
  * And that's why we need to wrap this in a class.  We can't just do it at the
  * call site, or we'd still be doing it for every call.
  */
-template<arith T> class dumb_stringstream : public std::stringstream
+template<pqxx::internal::arith T>
+class dumb_stringstream : public std::stringstream
 {
 public:
   // Do not initialise the base-class object using "stringstream{}" (with curly
@@ -199,7 +200,7 @@ public:
 };
 
 
-template<arith F>
+template<pqxx::internal::arith F>
 PQXX_COLD inline bool from_dumb_stringstream(
   dumb_stringstream<F> &s, F &result, std::string_view text)
 {
@@ -270,7 +271,7 @@ PQXX_COLD inline T from_string_awful_float(std::string_view text, pqxx::ctx c)
 
 
 #if !defined(PQXX_HAVE_CHARCONV_FLOAT)
-template<arith F>
+template<pqxx::internal::arith F>
 PQXX_COLD inline std::string
 to_dumb_stringstream(dumb_stringstream<F> &s, F value)
 {
