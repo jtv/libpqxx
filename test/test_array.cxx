@@ -544,13 +544,17 @@ void test_array_parses_real_arrays(pqxx::test::context &)
   pqxx::array<int> const empty_a{
     pqxx::from_string<pqxx::array<int>>(empty_s, make_context())};
   PQXX_CHECK_EQUAL(empty_a.dimensions(), 1u);
+  PQXX_CHECK_EQUAL(empty_a.rank(), 1u);
   PQXX_CHECK_EQUAL(empty_a.sizes(), (std::array<std::size_t, 1u>{0u}));
+  PQXX_CHECK_EQUAL(empty_a.extent(0), 0u);
 
   auto const onedim_s{tx.query_value<std::string>("SELECT ARRAY[0, 1, 2]")};
   pqxx::array<int> const onedim_a{
     pqxx::from_string<pqxx::array<int>>(onedim_s, make_context())};
   PQXX_CHECK_EQUAL(onedim_a.dimensions(), 1u);
+  PQXX_CHECK_EQUAL(onedim_a.rank(), 1u);
   PQXX_CHECK_EQUAL(onedim_a.sizes(), (std::array<std::size_t, 1u>{3u}));
+  PQXX_CHECK_EQUAL(onedim_a.extent(0), 3u);
   PQXX_CHECK_EQUAL(onedim_a.at(0), 0);
   PQXX_CHECK_EQUAL(onedim_a[0], 0);
   PQXX_CHECK_EQUAL(onedim_a.at(2), 2);
@@ -564,7 +568,10 @@ void test_array_parses_real_arrays(pqxx::test::context &)
   pqxx::array<int, 2> const twodim_a{
     pqxx::from_string<pqxx::array<int, 2>>(twodim_s, make_context())};
   PQXX_CHECK_EQUAL(twodim_a.dimensions(), 2u);
+  PQXX_CHECK_EQUAL(twodim_a.rank(), 2u);
   PQXX_CHECK_EQUAL(twodim_a.sizes(), (std::array<std::size_t, 2>{2u, 1u}));
+  PQXX_CHECK_EQUAL(twodim_a.extent(0), 2u);
+  PQXX_CHECK_EQUAL(twodim_a.extent(1), 1u);
 
   auto const string_s{tx.query_value<std::string>("SELECT ARRAY['Hello']")};
   pqxx::array<std::string> const string_a{string_s, cx};
@@ -723,6 +730,7 @@ void test_array_at_checks_bounds(pqxx::test::context &)
   // Simple, single-dimensional case:
   pqxx::array<int> const simple{"{0, 1, 2}", cx};
   PQXX_CHECK_EQUAL(simple.dimensions(), 1u);
+  PQXX_CHECK_EQUAL(simple.rank(), 1u);
   auto const size1d{simple.sizes()};
   PQXX_CHECK_EQUAL(std::size(size1d), 1u);
   PQXX_CHECK_EQUAL(size1d[0], 3u);
@@ -740,6 +748,7 @@ void test_array_at_checks_bounds(pqxx::test::context &)
   // Two-dimensional case:
   pqxx::array<int, 2> const twodim{"{{0,1},{2,3},{4,5}}", cx};
   PQXX_CHECK_EQUAL(twodim.dimensions(), 2u);
+  PQXX_CHECK_EQUAL(twodim.rank(), 2u);
   auto const size2d{twodim.sizes()};
   PQXX_CHECK_EQUAL(std::size(size2d), 2u);
   PQXX_CHECK_EQUAL(size2d[0], 3u);
@@ -759,6 +768,7 @@ void test_array_at_checks_bounds(pqxx::test::context &)
     "{{12,13,14},{15,16,17}},{{18,19,20},{21,22,23}}}",
     cx};
   PQXX_CHECK_EQUAL(threedim.dimensions(), 3u);
+  PQXX_CHECK_EQUAL(threedim.rank(), 3u);
   auto const size3d{threedim.sizes()};
   PQXX_CHECK_EQUAL(std::size(size3d), 3u);
   PQXX_CHECK_EQUAL(size3d[0], 4u);
@@ -805,6 +815,26 @@ void test_array_iterates_in_row_major_order(pqxx::test::context &)
   PQXX_CHECK_EQUAL(std::ssize(array), 9);
   PQXX_CHECK_EQUAL(array.front(), 1);
   PQXX_CHECK_EQUAL(array.back(), 9);
+}
+
+
+void test_array_can_be_empty(pqxx::test::context &)
+{
+  PQXX_CHECK((pqxx::array<int, 3>{}).empty());
+
+  pqxx::array<int, 1> const onedim_empty{
+    "{}", pqxx::encoding_group::ascii_safe};
+  PQXX_CHECK(onedim_empty.empty());
+  pqxx::array<int, 2> const twodim_empty{
+    "{{}}", pqxx::encoding_group::ascii_safe};
+  PQXX_CHECK(twodim_empty.empty());
+
+  // Now here's a trickier one.  It contains two sub-arrays... but still no
+  // elements.
+  pqxx::array<int, 3> const threedim_empty{
+    "{{{},{}}}", pqxx::encoding_group::ascii_safe};
+  PQXX_CHECK_EQUAL(threedim_empty.size(), 0u);
+  PQXX_CHECK(threedim_empty.empty());
 }
 
 
@@ -968,6 +998,7 @@ PQXX_REGISTER_TEST(test_array_parses_multidim_arrays);
 PQXX_REGISTER_TEST(test_array_at_checks_bounds);
 PQXX_REGISTER_TEST(test_array_iterates_in_row_major_order);
 PQXX_REGISTER_TEST(test_array_generate_empty_strings);
+PQXX_REGISTER_TEST(test_array_can_be_empty);
 PQXX_REGISTER_TEST(test_result_parses_simple_array);
 PQXX_REGISTER_TEST(test_scan_double_quoted_string);
 PQXX_REGISTER_TEST(test_generate_empty_array);

@@ -231,7 +231,7 @@ static_assert(hex_nibbles['F'] == 15);
 static_assert(hex_nibbles['f'] == 15);
 static_assert(hex_nibbles['G'] == bad_hex);
 static_assert(hex_nibbles['g'] == bad_hex);
-static_assert(hex_nibbles[0xff] == bad_hex);
+static_assert(hex_nibbles[static_cast<char>(0xff)] == bad_hex);
 } // namespace
 
 

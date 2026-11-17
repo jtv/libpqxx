@@ -67,6 +67,7 @@ namespace pqxx
 template<
   not_at_all_borrowed ELEMENT, std::size_t DIMENSIONS = 1u,
   char SEPARATOR = array_separator<ELEMENT>>
+  requires(DIMENSIONS > 0)
 class array final
 {
 public:
@@ -175,7 +176,7 @@ public:
     else
     {
       bool found_empty{false};
-      for (rank_type dim{DIMENSIONS - 1}; dim > 0; --dim)
+      for (rank_type dim{0}; dim < DIMENSIONS; ++dim)
         found_empty = (found_empty || (m_extents.at(dim) == 0));
       return found_empty;
     }
