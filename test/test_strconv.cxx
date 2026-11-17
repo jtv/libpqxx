@@ -540,11 +540,11 @@ void test_from_string_rejects_bad_inputs(pqxx::test::context &)
 void test_conversion_context_is_swappable(pqxx::test::context &)
 {
   std::string const filename{pqxx::sl::current().file_name()};
-  pqxx::sl loc1{pqxx::sl::current()};
-  pqxx::encoding_group enc1{pqxx::encoding_group::ascii_safe};
+  pqxx::sl const loc1{pqxx::sl::current()};
+  pqxx::encoding_group const enc1{pqxx::encoding_group::ascii_safe};
   pqxx::conversion_context c1{enc1, loc1};
-  pqxx::sl loc2{pqxx::sl::current()};
-  pqxx::encoding_group enc2{pqxx::encoding_group::gb18030};
+  pqxx::sl const loc2{pqxx::sl::current()};
+  pqxx::encoding_group const enc2{pqxx::encoding_group::gb18030};
   pqxx::conversion_context c2{enc2, loc2};
 
   PQXX_CHECK_EQUAL(loc1.file_name(), filename);
