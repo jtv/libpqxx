@@ -81,7 +81,7 @@ public:
   using data_handle_type = std::vector<element_type>;
 
   /// Create an empty array.
-  explicit array(
+  explicit constexpr array(
     encoding_group enc = encoding_group::unknown, sl loc = sl::current()) :
           m_ctx{enc, loc}
   {
@@ -98,7 +98,7 @@ public:
   array(array const &) = delete;
 
   /// Array objects can be moved.
-  array(array &&) = default;
+  constexpr array(array &&) = default;
 
   /// Parse an SQL array, read as text from a pqxx::result or stream.
   /** Uses `cx` only during construction, to find out the text encoding in
@@ -114,7 +114,8 @@ public:
           array{data, cx.effective_encoding_group(loc), loc}
   {}
 
-  array(std::string_view data, encoding_group enc, sl loc = sl::current()) :
+  constexpr array(
+    std::string_view data, encoding_group enc, sl loc = sl::current()) :
           m_ctx{enc, loc}
   {
     using group = encoding_group;
@@ -387,7 +388,7 @@ private:
    * walking through the entire array sequentially, and identifying all the
    * character boundaries.  The main parsing routine detects that one.
    */
-  void check_dims(std::string_view data, sl loc)
+  constexpr void check_dims(std::string_view data, sl loc) const
   {
     auto const sz{std::size(data)};
     if (sz < DIMENSIONS * 2)
@@ -431,7 +432,7 @@ private:
   /** Check for a trailing separator, detect any syntax errors at this somewhat
    * complicated point, and return the offset where parsing should continue.
    */
-  [[nodiscard]] std::size_t
+  [[nodiscard]] constexpr std::size_t
   parse_field_end(std::string_view data, std::size_t here, sl loc) const
   {
     auto const sz{std::size(data)};
@@ -483,9 +484,9 @@ private:
     return static_cast<size_type>(separators + 1);
   }
 
-  template<encoding_group ENC> void parse(std::string_view data, sl loc)
+  template<encoding_group ENC>
+  constexpr void parse(std::string_view data, sl loc)
   {
-    static_assert(DIMENSIONS > 0u, "Can't create a zero-dimensional array.");
     conversion_context const c{m_ctx.enc, loc};
     auto const sz{std::size(data)};
     check_dims(data, loc);
@@ -648,7 +649,7 @@ private:
   }
 
   /// Pre-compute indexing factors.
-  void init_factors() noexcept
+  constexpr void init_factors() noexcept
   {
     size_type factor{1};
     for (rank_type dim{DIMENSIONS - 1}; dim > 0; --dim)
