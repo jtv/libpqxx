@@ -191,7 +191,20 @@ struct conversion_context final
     encoding_group e, sl l = sl::current()) :
           enc{e}, loc{l}
   {}
+
+  constexpr void swap(conversion_context &other) noexcept
+  {
+    enc = std::exchange(other.enc, std::move(enc));
+    loc = std::exchange(other.loc, std::move(loc));
+  }
 };
+
+
+/// Support for `std::swap()` on @ref pqxx::conversion_context.
+inline void swap(conversion_context &lhs, conversion_context &rhs) noexcept
+{
+  lhs.swap(rhs);
+}
 
 
 /// Convenience alias: `const` reference to a @ref pqxx::conversion_context.
