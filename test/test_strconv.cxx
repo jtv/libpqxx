@@ -537,6 +537,62 @@ void test_from_string_rejects_bad_inputs(pqxx::test::context &)
 }
 
 
+void test_conversion_context_is_swappable(pqxx::test::context &)
+{
+  pqxx::sl const loc1{pqxx::sl::current()};
+  pqxx::encoding_group const enc1{pqxx::encoding_group::ascii_safe};
+  pqxx::conversion_context c1{enc1, loc1};
+  pqxx::sl const loc2{pqxx::sl::current()};
+  pqxx::encoding_group const enc2{pqxx::encoding_group::gb18030};
+  pqxx::conversion_context c2{enc2, loc2};
+
+  PQXX_CHECK_NOT_EQUAL(loc2.line(), loc1.line());
+
+  PQXX_CHECK_EQUAL(c1.loc.line(), loc1.line());
+  PQXX_CHECK_EQUAL(static_cast<int>(c1.enc), static_cast<int>(enc1));
+  PQXX_CHECK_EQUAL(c2.loc.line(), loc2.line());
+  PQXX_CHECK_EQUAL(static_cast<int>(c2.enc), static_cast<int>(enc2));
+
+  std::swap(c1, c2);
+
+  PQXX_CHECK_EQUAL(c1.loc.line(), loc2.line());
+  PQXX_CHECK_EQUAL(static_cast<int>(c1.enc), static_cast<int>(enc2));
+
+  PQXX_CHECK_EQUAL(c2.loc.line(), loc1.line());
+  PQXX_CHECK_EQUAL(static_cast<int>(c2.enc), static_cast<int>(enc1));
+}
+
+
+// The from_string() function is a bit of a special case: we have a separate
+// compile-time implementation because std::from_chars() isn't constexpr
+// until C++23.  So, test the constexpr version separately.
+//
+// C++23: Do more of these tests only at compile time.
+// C++26: Test the error cases only at compile time as well.
+static_assert(pqxx::from_string<unsigned>("0") == 0);
+static_assert(pqxx::from_string<unsigned>("1") == 1);
+static_assert(pqxx::from_string<int>("0") == 0);
+static_assert(pqxx::from_string<int>("1") == 1);
+static_assert(pqxx::from_string<int>("-1") == -1);
+static_assert(pqxx::from_string<int>("2") == 2);
+static_assert(pqxx::from_string<int>("-2") == -2);
+static_assert(pqxx::from_string<unsigned>("1") == 1);
+static_assert(pqxx::from_string<unsigned>("2") == 2);
+
+static_assert(
+  ((std::numeric_limits<short>::max)() < 32767) or
+  (pqxx::from_string<short>("32767") == 32767));
+static_assert(
+  ((std::numeric_limits<short>::min)() > -32767) or
+  (pqxx::from_string<short>("-32767") == -32767));
+static_assert(
+  ((std::numeric_limits<short>::min)() > -32768) or
+  (pqxx::from_string<short>("-32768") == -32768));
+static_assert(
+  ((std::numeric_limits<unsigned short>::max)() < 65535) or
+  (pqxx::from_string<unsigned short>("65535") == 65535));
+
+
 PQXX_REGISTER_TEST(test_strconv_bool);
 PQXX_REGISTER_TEST(test_strconv_enum);
 PQXX_REGISTER_TEST(test_strconv_class_enum);
@@ -547,4 +603,5 @@ PQXX_REGISTER_TEST(test_to_buf_multi);
 PQXX_REGISTER_TEST(test_to_buf_float);
 PQXX_REGISTER_TEST(test_string_to_string);
 PQXX_REGISTER_TEST(test_from_string_rejects_bad_inputs);
+PQXX_REGISTER_TEST(test_conversion_context_is_swappable);
 } // namespace

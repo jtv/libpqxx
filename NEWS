@@ -30,6 +30,7 @@
  - Fix: `robusttransaction` could get interrupted by notifications.
  - Fix: `basic_transaction::abort()` didn't throw exception on failure.
  - More text conversions are `constexpr`.
+ - `pqxx::array` conforms more closely to `std::mdspan`.
 8.0.2
  - Simple benchmark tool for query performance.
  - Fix an apparent `memcpy()` overlap.

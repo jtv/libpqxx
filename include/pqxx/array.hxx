@@ -56,6 +56,9 @@ namespace pqxx
  * separator for its content type (usually either a comma or a semicolon).  But
  * `pqxx::array` lets you configure a different separator.
  *
+ * Conforms in part (probably the more commonly used part) to the interface of
+ * `std::mdspan`.
+ *
  * @warning This class will not let you use a view as the element type.  It
  * would be technically possible for some types, but we would need somewhere
  * to store the underlying data.  And that would probably defeat the purpose
@@ -64,11 +67,21 @@ namespace pqxx
 template<
   not_at_all_borrowed ELEMENT, std::size_t DIMENSIONS = 1u,
   char SEPARATOR = array_separator<ELEMENT>>
+  requires(DIMENSIONS > 0)
 class array final
 {
 public:
+  using element_type = ELEMENT;
+  using value_type = std::remove_cv_t<ELEMENT>;
+
+  // TODO: Make these overridable, as in std::mdspan.
+  using index_type = std::size_t;
+  using size_type = std::size_t;
+  using rank_type = std::size_t;
+  using data_handle_type = std::vector<element_type>;
+
   /// Create an empty array.
-  explicit array(
+  explicit constexpr array(
     encoding_group enc = encoding_group::unknown, sl loc = sl::current()) :
           m_ctx{enc, loc}
   {
@@ -85,7 +98,7 @@ public:
   array(array const &) = delete;
 
   /// Array objects can be moved.
-  array(array &&) = default;
+  constexpr array(array &&) = default;
 
   /// Parse an SQL array, read as text from a pqxx::result or stream.
   /** Uses `cx` only during construction, to find out the text encoding in
@@ -101,7 +114,8 @@ public:
           array{data, cx.effective_encoding_group(loc), loc}
   {}
 
-  array(std::string_view data, encoding_group enc, sl loc = sl::current()) :
+  constexpr array(
+    std::string_view data, encoding_group enc, sl loc = sl::current()) :
           m_ctx{enc, loc}
   {
     using group = encoding_group;
@@ -124,9 +138,6 @@ public:
 
   ~array() = default;
 
-  /// The element type of values in this array
-  using value_type = ELEMENT;
-
   /// Copying array objects is not supported.
   /** It would be technically _possible_ to support copying, but probably not
    * very useful.  In this case that matters because arrays could get quite
@@ -141,15 +152,42 @@ public:
   /// How many dimensions does this array have?
   /** This value is known at compile time.
    */
-  PQXX_PURE static constexpr std::size_t dimensions() noexcept
+  [[nodiscard]] static constexpr rank_type rank() noexcept
   {
     return DIMENSIONS;
   }
 
+  /// How many dimensions does this array have?
+  /** This value is known at compile time.
+   *
+   * @deprecated Prefer @ref rank() for a more standard-conforming API.
+   */
+  [[nodiscard]] static constexpr rank_type dimensions() noexcept
+  {
+    return DIMENSIONS;
+  }
+
+  /// Is this array empty?
+  [[nodiscard]] constexpr bool empty() const noexcept
+  {
+    if constexpr (DIMENSIONS == 0)
+    {
+      return true;
+    }
+    else
+    {
+      bool found_empty{false};
+      for (rank_type dim{0}; dim < DIMENSIONS; ++dim)
+        found_empty = (found_empty || (m_extents.at(dim) == 0));
+      return found_empty;
+    }
+  }
+
+
   /// What is the separator used for parsing this array's values?
   /** This value is known at compile time.
    */
-  PQXX_PURE [[nodiscard]] static constexpr char separator() noexcept
+  [[nodiscard]] static constexpr char separator() noexcept
   {
     return SEPARATOR;
   }
@@ -158,17 +196,30 @@ public:
   /** The last of the sizes is the number of elements in a single row.  The
    * size before that is the number of rows of elements, and so on.  The first
    * is the "outer" size.
+   *
+   * @deprecated If you prefer a more standard-conforming API, query each
+   * dimension's size individually using @ref extent().
    */
-  PQXX_PURE [[nodiscard]] std::array<std::size_t, DIMENSIONS> const &
-  sizes() const noexcept
+  [[nodiscard]] std::array<size_type, DIMENSIONS> const &sizes() const noexcept
   {
     return m_extents;
   }
 
+  /// Return the array's size along dimension `i`.
+  /** As in `std::mdspan`, this is `noexcept`.  If `i` is out of bounds, the
+   * process terminates.
+   */
+  [[nodiscard]] constexpr size_type extent(rank_type i) const noexcept
+  {
+    assert(i < DIMENSIONS);
+    return m_extents.at(i);
+  }
+
+
   template<std::integral... INDEX>
   [[nodiscard]] ELEMENT const &at(INDEX... index) const
   {
-    static_assert(sizeof...(index) == DIMENSIONS);
+    static_assert(std::equal_to{}(sizeof...(index), DIMENSIONS));
     check_bounds(index...);
     return m_elts.at(locate(index...));
   }
@@ -189,7 +240,7 @@ public:
    * all.  If you need more deterministic exception behaviour, use @ref at().
    */
   template<std::integral... INDEX>
-  PQXX_PURE ELEMENT const &operator[](INDEX... index) const
+  ELEMENT const &operator[](INDEX... index) const
   {
     static_assert(sizeof...(index) == DIMENSIONS);
     // TODO: Use operator[].  Facebook's "infer" sees a bogus buffer overflow.
@@ -210,58 +261,43 @@ public:
    */
   //@{
   /// Begin iteration of individual elements.
-  PQXX_PURE [[nodiscard]] constexpr auto cbegin() const noexcept
+  [[nodiscard]] constexpr auto cbegin() const noexcept
   {
     return m_elts.cbegin();
   }
   /// Return end point of iteration.
-  PQXX_PURE [[nodiscard]] constexpr auto cend() const noexcept
-  {
-    return m_elts.cend();
-  }
+  [[nodiscard]] constexpr auto cend() const noexcept { return m_elts.cend(); }
   /// Begin iteration of individual elements.
-  PQXX_PURE [[nodiscard]] constexpr auto begin() const noexcept
-  {
-    return cbegin();
-  }
+  [[nodiscard]] constexpr auto begin() const noexcept { return cbegin(); }
   /// Return endpoint of iteration.
-  PQXX_PURE [[nodiscard]] constexpr auto end() const noexcept
-  {
-    return cend();
-  }
+  [[nodiscard]] constexpr auto end() const noexcept { return cend(); }
   /// Begin reverse iteration.
-  PQXX_PURE [[nodiscard]] constexpr auto crbegin() const noexcept
+  [[nodiscard]] constexpr auto crbegin() const noexcept
   {
     return m_elts.crbegin();
   }
   /// Return end point of reverse iteration.
-  PQXX_PURE [[nodiscard]] constexpr auto crend() const noexcept
+  [[nodiscard]] constexpr auto crend() const noexcept
   {
     return m_elts.crend();
   }
-  PQXX_PURE [[nodiscard]] constexpr auto rbegin() const noexcept
-  {
-    return crbegin();
-  }
+  [[nodiscard]] constexpr auto rbegin() const noexcept { return crbegin(); }
   /// Return end point of reverse iteration.
-  PQXX_PURE [[nodiscard]] constexpr auto rend() const noexcept
-  {
-    return crend();
-  }
+  [[nodiscard]] constexpr auto rend() const noexcept { return crend(); }
   //@}
 
   /// Number of elements in the array.
-  /** This includes all elements, in all dimensions.  Therefore it is the
-   * product of all values in `sizes()`.
+  /** This includes _all_ elements, in _all_ dimensions.  Therefore it is the
+   * product of all values in @ref sizes().
    */
-  [[nodiscard]] constexpr std::size_t size() const noexcept
+  [[nodiscard]] constexpr size_type size() const noexcept
   {
     return m_elts.size();
   }
 
   /// Number of elements in the array (as a signed number).
   /** This includes all elements, in all dimensions.  Therefore it is the
-   * product of all values in `sizes()`.
+   * product of all values in @ref sizes().
    *
    * In principle, the size could get so large that it had no signed
    * equivalent.  If that can ever happen, this is your own problem and
@@ -296,6 +332,52 @@ public:
     return m_elts.back();
   }
 
+  /// Return a reference to the underlying linear elements storage.
+  /** You probably don't want this.  But `std::mdspan` has it, so we might as
+   * well have it here.
+   */
+  [[nodiscard]] constexpr data_handle_type const &data_handle() const noexcept
+  {
+    return m_elts;
+  }
+
+  /// Each element in a `pqxx::array` has its own location in memory.
+  [[nodiscard]] constexpr bool is_unique() const noexcept { return true; }
+
+  /// Each element can be addressed by some combination of indexes.
+  [[nodiscard]] constexpr bool is_exhaustive() const noexcept { return true; }
+
+  /// Strides are constant.
+  [[nodiscard]] constexpr bool is_strided() const noexcept { return true; }
+
+  /// Each element in a `pqxx::array` has its own location in memory.
+  [[nodiscard]] static constexpr bool is_always_unique() noexcept
+  {
+    return true;
+  }
+
+  /// Each element can be addressed by some combination of indexes.
+  [[nodiscard]] static constexpr bool is_always_exhaustive() noexcept
+  {
+    return true;
+  }
+
+  /// Strides are constant.
+  [[nodiscard]] static constexpr bool is_always_strided() noexcept
+  {
+    return true;
+  }
+
+  constexpr void swap(array &other) noexcept
+  {
+    std::swap(m_elts, other.m_elts);
+    std::swap(m_extents, other.m_extents);
+    std::swap(m_factors, other.m_factors);
+    std::swap(m_ctx, other.m_ctx);
+  }
+
+  // TODO: Support std::submdspan() & std::submdspan_exents().
+
 private:
   /// Throw an error if `data` is not a `DIMENSIONS`-dimensional SQL array.
   /** Sanity-checks two aspects of the array syntax: the opening braces at the
@@ -306,7 +388,7 @@ private:
    * walking through the entire array sequentially, and identifying all the
    * character boundaries.  The main parsing routine detects that one.
    */
-  void check_dims(std::string_view data, sl loc)
+  constexpr void check_dims(std::string_view data, sl loc) const
   {
     auto const sz{std::size(data)};
     if (sz < DIMENSIONS * 2)
@@ -327,7 +409,7 @@ private:
 
     if (data.at(0) != '{')
       throw conversion_error{"Malformed array: does not start with '{'.", loc};
-    for (std::size_t i{0}; i < DIMENSIONS; ++i)
+    for (rank_type i{0}; i < DIMENSIONS; ++i)
       if (data.at(i) != '{')
         throw conversion_error{
           std::format(
@@ -340,7 +422,7 @@ private:
           "dimensions.",
           DIMENSIONS),
         loc};
-    for (std::size_t i{0}; i < DIMENSIONS; ++i)
+    for (rank_type i{0}; i < DIMENSIONS; ++i)
       if (data.at(sz - 1 - i) != '}')
         throw conversion_error{
           "Malformed array: does not end in the right number of '}'.", loc};
@@ -350,7 +432,7 @@ private:
   /** Check for a trailing separator, detect any syntax errors at this somewhat
    * complicated point, and return the offset where parsing should continue.
    */
-  [[nodiscard]] std::size_t
+  [[nodiscard]] constexpr std::size_t
   parse_field_end(std::string_view data, std::size_t here, sl loc) const
   {
     auto const sz{std::size(data)};
@@ -388,22 +470,23 @@ private:
    * as it's fast; doesn't usually underestimate; and never overestimates by
    * orders of magnitude.
    */
-  [[nodiscard]] constexpr std::size_t
+  [[nodiscard]] constexpr size_type
   estimate_elements(std::string_view data) const noexcept
   {
     // Dirty trick: just count the number of bytes that look as if they may be
     // separators.
     auto const separators{
       std::count(std::begin(data), std::end(data), SEPARATOR)};
+
     // The number of dimensions makes no difference here.  It's still one
     // separator between consecutive elements, just possibly with some extra
     // braces as well.
-    return static_cast<std::size_t>(separators + 1);
+    return static_cast<size_type>(separators + 1);
   }
 
-  template<encoding_group ENC> void parse(std::string_view data, sl loc)
+  template<encoding_group ENC>
+  constexpr void parse(std::string_view data, sl loc)
   {
-    static_assert(DIMENSIONS > 0u, "Can't create a zero-dimensional array.");
     conversion_context const c{m_ctx.enc, loc};
     auto const sz{std::size(data)};
     check_dims(data, loc);
@@ -414,24 +497,24 @@ private:
     // with the final dimension and working our way towards the first.  At any
     // given point during parsing, we know the extents starting at this
     // dimension.
-    std::size_t know_extents_from{DIMENSIONS};
+    rank_type know_extents_from{DIMENSIONS};
 
     // Currently parsing this dimension.  We start off at -1, relying on C++'s
-    // well-defined rollover for unsigned numbers.
+    // well-defined underflow behaviour for unsigned numbers.
     // The actual outermost dimension of the array is 0, and the innermost is
     // at the end.  But, the array as a whole is enclosed in braces just like
     // each row.  So we act like there's an anomalous "outer" dimension holding
     // the entire array.
-    constexpr std::size_t outer{std::size_t{0u} - std::size_t{1u}};
+    constexpr rank_type outer{rank_type{0u} - rank_type{1u}};
 
     // We start parsing at the fictional outer dimension.  The input begins
     // with opening braces, one for each dimension, so we'll start off by
     // bumping all the way to the innermost dimension.
-    std::size_t dim{outer};
+    rank_type dim{outer};
 
     // Extent counters, one per "real" dimension.
     // Note initialiser syntax; this zero-initialises all elements.
-    std::array<std::size_t, DIMENSIONS> extents{};
+    std::array<rank_type, DIMENSIONS> extents{};
 
     // Current parsing position.
     std::size_t here{0};
@@ -566,10 +649,10 @@ private:
   }
 
   /// Pre-compute indexing factors.
-  void init_factors() noexcept
+  constexpr void init_factors() noexcept
   {
-    std::size_t factor{1};
-    for (std::size_t dim{DIMENSIONS - 1}; dim > 0; --dim)
+    size_type factor{1};
+    for (rank_type dim{DIMENSIONS - 1}; dim > 0; --dim)
     {
       factor *= m_extents.at(dim);
       m_factors.at(dim - 1) = factor;
@@ -578,7 +661,7 @@ private:
 
   /// Map a multidimensional index to an entry in our linear storage.
   template<typename... INDEX>
-  [[nodiscard]] std::size_t locate(INDEX... index) const noexcept
+  [[nodiscard]] index_type locate(INDEX... index) const noexcept
   {
     static_assert(
       sizeof...(index) == DIMENSIONS,
@@ -587,21 +670,21 @@ private:
   }
 
   template<typename OUTER, typename... INDEX>
-  [[nodiscard]] constexpr std::size_t
+  [[nodiscard]] constexpr index_type
   add_index(OUTER outer, INDEX... indexes) const noexcept
   {
-    std::size_t const first{
-      check_cast<std::size_t>(outer, "array index"sv, m_ctx.loc)};
+    index_type const first{
+      check_cast<index_type>(outer, "array index"sv, m_ctx.loc)};
     if constexpr (sizeof...(indexes) == 0)
     {
       return first;
     }
     else
     {
-      static_assert(sizeof...(indexes) < DIMENSIONS);
+      static_assert(std::less{}(sizeof...(indexes), DIMENSIONS));
       // (Offset by 1 here because the outer dimension is not in there.)
       constexpr auto dimension{DIMENSIONS - (sizeof...(indexes) + 1)};
-      static_assert(dimension < DIMENSIONS);
+      static_assert(std::less{}(dimension, DIMENSIONS));
       return first * m_factors.at(dimension) + add_index(indexes...);
     }
   }
@@ -612,12 +695,12 @@ private:
   template<typename OUTER, std::integral... INDEX>
   constexpr void check_bounds(OUTER outer, INDEX... indexes) const
   {
-    std::size_t const first{
-      check_cast<std::size_t>(outer, "array index"sv, m_ctx.loc)};
-    static_assert(sizeof...(indexes) < DIMENSIONS);
+    size_type const first{
+      check_cast<size_type>(outer, "array index"sv, m_ctx.loc)};
+    static_assert(std::less{}(sizeof...(indexes), DIMENSIONS));
     // (Offset by 1 here because the outer dimension is not in there.)
     constexpr auto dimension{DIMENSIONS - (sizeof...(indexes) + 1)};
-    static_assert(dimension < DIMENSIONS);
+    static_assert(std::less{}(dimension, DIMENSIONS));
     if (std::cmp_greater_equal(first, m_extents.at(dimension)))
       throw range_error{
         std::format(
@@ -638,7 +721,7 @@ private:
   std::vector<ELEMENT> m_elts;
 
   /// Size along each dimension.
-  std::array<std::size_t, DIMENSIONS> m_extents;
+  std::array<size_type, DIMENSIONS> m_extents;
 
   /// Multiplication factors for indexing in each dimension.
   /** This wouldn't make any sense if `locate()` could recurse from the "inner"
@@ -648,7 +731,7 @@ private:
    * We don't need to cache a factor for the outer dimension, since we never
    * multiply by that number.
    */
-  std::array<std::size_t, DIMENSIONS - 1> m_factors;
+  std::array<size_type, DIMENSIONS - 1> m_factors;
 
   /// Conversion context representing the construction point.
   /** It's not always possible to pass a context, e.g. in overloaded operators
