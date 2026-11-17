@@ -195,7 +195,7 @@ class hex_table final
 public:
   consteval hex_table() noexcept
   {
-    for (unsigned i{0}; i < std::size(m_digits); ++i) m_digits.at(i) = bad_hex;
+    m_digits.fill(bad_hex);
     for (unsigned i{0}; i < 10u; ++i)
       m_digits.at('0' + i) = static_cast<uint16_t>(i);
     for (unsigned i{0}; i < 6u; ++i)
@@ -219,6 +219,7 @@ private:
 
 constexpr hex_table const hex_nibbles;
 
+static_assert(hex_nibbles[0x00] == bad_hex);
 static_assert(hex_nibbles['`'] == bad_hex);
 static_assert(hex_nibbles['0'] == 0);
 static_assert(hex_nibbles['9'] == 9);
@@ -230,6 +231,7 @@ static_assert(hex_nibbles['F'] == 15);
 static_assert(hex_nibbles['f'] == 15);
 static_assert(hex_nibbles['G'] == bad_hex);
 static_assert(hex_nibbles['g'] == bad_hex);
+static_assert(hex_nibbles[0xff] == bad_hex);
 } // namespace
 
 
