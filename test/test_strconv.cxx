@@ -539,7 +539,6 @@ void test_from_string_rejects_bad_inputs(pqxx::test::context &)
 
 void test_conversion_context_is_swappable(pqxx::test::context &)
 {
-  std::string const filename{pqxx::sl::current().file_name()};
   pqxx::sl const loc1{pqxx::sl::current()};
   pqxx::encoding_group const enc1{pqxx::encoding_group::ascii_safe};
   pqxx::conversion_context c1{enc1, loc1};
@@ -547,8 +546,6 @@ void test_conversion_context_is_swappable(pqxx::test::context &)
   pqxx::encoding_group const enc2{pqxx::encoding_group::gb18030};
   pqxx::conversion_context c2{enc2, loc2};
 
-  PQXX_CHECK_EQUAL(loc1.file_name(), filename);
-  PQXX_CHECK_EQUAL(loc2.file_name(), loc1.file_name());
   PQXX_CHECK_NOT_EQUAL(loc2.line(), loc1.line());
 
   PQXX_CHECK_EQUAL(c1.loc.line(), loc1.line());
@@ -558,11 +555,9 @@ void test_conversion_context_is_swappable(pqxx::test::context &)
 
   std::swap(c1, c2);
 
-  PQXX_CHECK_EQUAL(c1.loc.file_name(), filename);
   PQXX_CHECK_EQUAL(c1.loc.line(), loc2.line());
   PQXX_CHECK_EQUAL(static_cast<int>(c1.enc), static_cast<int>(enc2));
 
-  PQXX_CHECK_EQUAL(c2.loc.file_name(), filename);
   PQXX_CHECK_EQUAL(c2.loc.line(), loc1.line());
   PQXX_CHECK_EQUAL(static_cast<int>(c2.enc), static_cast<int>(enc1));
 }

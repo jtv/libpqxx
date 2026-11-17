@@ -858,6 +858,25 @@ void test_result_parses_simple_array(pqxx::test::context &)
 }
 
 
+void test_array_is_swappable(pqxx::test::context &)
+{
+  constexpr auto const enc1{pqxx::encoding_group::ascii_safe},
+    enc2{pqxx::encoding_group::sjis};
+  pqxx::array<int, 2> left{"{{6},{7}}", enc1}, right{"{{7},{8},{9}}", enc2};
+  PQXX_CHECK_EQUAL(left.extent(0), 2u);
+  PQXX_CHECK_EQUAL(right.extent(0), 3u);
+  PQXX_CHECK_EQUAL(left.at(0, 0), 6);
+  PQXX_CHECK_EQUAL(right.at(0, 0), 7);
+
+  std::swap(left, right);
+
+  PQXX_CHECK_EQUAL(left.extent(0), 3u);
+  PQXX_CHECK_EQUAL(right.extent(0), 2u);
+  PQXX_CHECK_EQUAL(left.at(0, 0), 7);
+  PQXX_CHECK_EQUAL(right.at(0, 0), 6);
+}
+
+
 // Shorthand for shorthand for std::source_location::current().
 constexpr pqxx::sl here(pqxx::sl loc = pqxx::sl::current())
 {
@@ -1000,6 +1019,7 @@ PQXX_REGISTER_TEST(test_array_iterates_in_row_major_order);
 PQXX_REGISTER_TEST(test_array_generate_empty_strings);
 PQXX_REGISTER_TEST(test_array_can_be_empty);
 PQXX_REGISTER_TEST(test_result_parses_simple_array);
+PQXX_REGISTER_TEST(test_array_is_swappable);
 PQXX_REGISTER_TEST(test_scan_double_quoted_string);
 PQXX_REGISTER_TEST(test_generate_empty_array);
 PQXX_REGISTER_TEST(test_generate_null_value);
