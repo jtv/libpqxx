@@ -476,6 +476,7 @@ template<typename... T> struct nullness<std::variant<T...>> final
 {
   static constexpr bool has_null = (pqxx::has_null<T>() or ...);
   static constexpr bool always_null = (pqxx::always_null<T>() and ...);
+
   [[nodiscard]] PQXX_PURE static constexpr bool
   is_null(std::variant<T...> const &value) noexcept
   {
@@ -1071,8 +1072,7 @@ template<binary T> inline constexpr format param_format(T const &)
 template<nonbinary_range T> inline constexpr bool is_sql_array<T>{true};
 
 
-template<typename TYPE>
-PQXX_INLINE_COV inline std::string to_string(TYPE const &value, ctx c)
+template<typename TYPE> PQXX_INLINE_COV inline constexpr std::string to_string(TYPE const &value, ctx c)
 {
   if (is_null(value))
     throw conversion_error{
