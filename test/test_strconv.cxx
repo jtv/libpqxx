@@ -193,7 +193,7 @@ constexpr std::size_t needs_bytes(T const &value)
 
 // Extra-thorough test for to_buf() & into_buf() on a given type.
 template<typename T>
-bool check_write(
+void check_write(
   T const &value, std::string_view expected,
   pqxx::sl loc = pqxx::sl::current())
 {
