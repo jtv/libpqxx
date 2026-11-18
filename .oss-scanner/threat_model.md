@@ -24,10 +24,10 @@ The tests in the `test/` directory may do strange things, because they're
 _meant_ to exercise the edges and the dark corners.  Memory bugs, undefined
 behaviour etc. in tests have Low priority.  Otherwise, report security
 vulnerabilities in the tests only if they can be exploited by an attacker
-without
+without privileged access to the system running the tests.
 
 Vulnerabilities or bugs that can only be exercised through deprecated features
-have reduced priority.
+(whether in libpqxx or a dependency) have reduced priority.
 
 
 Style guide
@@ -53,6 +53,10 @@ Try to ensure that Markdown files pass a `markdownlint` check:
 * Separate each list from its preceding paragraph with a blank line.
 * Write nontrivial code blocks between triple backquotes; specify language.
 * Write filenames in backquotes to avoid trouble with un-escaped underscores.
+
+When stating conditions in the Impact section of a report ("This needs", "Two
+things most hold", etc.), make sure that the _purpose_ is not ambiguous: are
+those the conditions for reproducing the problem, or for fixing it?
 
 Feel free to capitalise the "l" in "libpqxx" at the beginning of a sentence.
 
