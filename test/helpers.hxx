@@ -29,9 +29,7 @@ struct context final
   /** Seeds the randommiser with a highly predictable 0 initially.  Call the
    * @ref seed() function before consuming random values.
    */
-  explicit constexpr context(std::size_t random_seed) :
-          rnd{0}, rnd_seed{random_seed}
-  {}
+  explicit context(std::size_t random_seed) : rnd{0}, rnd_seed{random_seed} {}
 
   // NOLINTEND(cert-msc32-c,cert-msc51-cpp)
 
