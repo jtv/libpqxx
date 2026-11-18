@@ -535,7 +535,8 @@ void test_version_check_accepts_patch_upgrade(pqxx::test::context &)
 }
 
 
-void test_memmove_moves_distinct_within_array(pqxx::test::context &)
+/// Verify `pqxx::internal::memmove()`: nonoverlapping, within one allocation.
+constexpr bool check_memmove_moves_distinct_within_array()
 {
   std::array<int, 10> all{10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
   auto const src{std::span<int>{all}.subspan(1, 3)};
@@ -561,13 +562,27 @@ void test_memmove_moves_distinct_within_array(pqxx::test::context &)
   pqxx::internal::memmove(wide_dst, src);
   PQXX_CHECK_EQUAL(
     all, std::array<int, 10>{10, 11, 12, 13, 11, 12, 13, 13, 18, 19});
+
+  // Just so we can run this in static_assert().
+  return true;
+}
+
+
+/// @ref pqxx::internal::memmove() copies nonoverlapping blocks.
+/** This test tests the case where the blocks are within the same allocation,
+ * but do not overlap.  This is the easiest case.
+ */
+void test_memmove_moves_distinct_within_array(pqxx::test::context &)
+{
+  // We test this both at compile time and at run time; they get different
+  // implementations.
+  static_assert(check_memmove_moves_distinct_within_array());
+  check_memmove_moves_distinct_within_array();
 }
 
 
 // XXX: Test memmove() with overlap, in both directions.
 // XXX: Test memmove() between unrelated allocations.
-// XXX: Test memmove() at compile time.
-// XXX: Test memmove() between unrelated allocations at compile time.
 
 
 PQXX_REGISTER_TEST(test_make_num);
