@@ -56,15 +56,14 @@ void check_fails(std::string_view text, pqxx::sl loc = pqxx::sl::current())
 
 void test_strconv_bool(pqxx::test::context &)
 {
-  PQXX_CHECK_EQUAL(pqxx::to_string(false), "false", "Wrong to_string(false).");
-  PQXX_CHECK_EQUAL(pqxx::to_string(true), "true", "Wrong to_string(true).");
-
-  PQXX_CHECK_EQUAL(pqxx::from_string<bool>("f"), false);
-  PQXX_CHECK_EQUAL(pqxx::from_string<bool>("false"), false);
-  PQXX_CHECK_EQUAL(pqxx::from_string<bool>("0"), false);
-  PQXX_CHECK_EQUAL(pqxx::from_string<bool>("t"), true);
-  PQXX_CHECK_EQUAL(pqxx::from_string<bool>("true"), true);
-  PQXX_CHECK_EQUAL(pqxx::from_string<bool>("1"), true);
+  static_assert(pqxx::to_string(false) == "false");
+  static_assert(pqxx::to_string(true) == "true");
+  static_assert(pqxx::from_string<bool>("f") == false);
+  static_assert(pqxx::from_string<bool>("false") == false);
+  static_assert(pqxx::from_string<bool>("0") == false);
+  static_assert(pqxx::from_string<bool>("t") == true);
+  static_assert(pqxx::from_string<bool>("true") == true);
+  static_assert(pqxx::from_string<bool>("1") == true);
 
   static constexpr std::string_view bad_strings[]{
     "",   "T",  "F",  "True", "False", "TRUE",  "FALSE",

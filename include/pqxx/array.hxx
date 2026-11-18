@@ -219,7 +219,7 @@ public:
   template<std::integral... INDEX>
   [[nodiscard]] ELEMENT const &at(INDEX... index) const
   {
-    static_assert(std::equal_to{}(sizeof...(index), DIMENSIONS));
+    static_assert(std::cmp_equal(sizeof...(index), DIMENSIONS));
     check_bounds(index...);
     return m_elts.at(locate(index...));
   }
@@ -681,10 +681,10 @@ private:
     }
     else
     {
-      static_assert(std::less{}(sizeof...(indexes), DIMENSIONS));
+      static_assert(std::cmp_less(sizeof...(indexes), DIMENSIONS));
       // (Offset by 1 here because the outer dimension is not in there.)
       constexpr auto dimension{DIMENSIONS - (sizeof...(indexes) + 1)};
-      static_assert(std::less{}(dimension, DIMENSIONS));
+      static_assert(std::cmp_less(dimension, DIMENSIONS));
       return first * m_factors.at(dimension) + add_index(indexes...);
     }
   }
@@ -697,10 +697,10 @@ private:
   {
     size_type const first{
       check_cast<size_type>(outer, "array index"sv, m_ctx.loc)};
-    static_assert(std::less{}(sizeof...(indexes), DIMENSIONS));
+    static_assert(std::cmp_less(sizeof...(indexes), DIMENSIONS));
     // (Offset by 1 here because the outer dimension is not in there.)
     constexpr auto dimension{DIMENSIONS - (sizeof...(indexes) + 1)};
-    static_assert(std::less{}(dimension, DIMENSIONS));
+    static_assert(std::cmp_less(dimension, DIMENSIONS));
     if (std::cmp_greater_equal(first, m_extents.at(dimension)))
       throw range_error{
         std::format(
