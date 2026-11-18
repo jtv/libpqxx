@@ -581,8 +581,62 @@ void test_memmove_moves_distinct_within_array(pqxx::test::context &)
 }
 
 
-// XXX: Test memmove() with overlap, in both directions.
-// XXX: Test memmove() between unrelated allocations.
+constexpr bool check_memmove_handles_overlap()
+{
+  std::array<int, 10> all{10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
+
+  // Moving in the easy direction: source and destination overlap, but
+  // copying in index order will not cause trouble.
+  pqxx::internal::memmove(
+    std::span<int>{all}.subspan(1), std::span<int>{all}.subspan(2, 2));
+  PQXX_CHECK_EQUAL(
+    all, std::array<int, 10>{10, 12, 13, 13, 14, 15, 16, 17, 18, 19});
+
+  // Moving in the difficult direction: writing to the destination in index
+  // order would start overwriting source data that we hadn't copied yet.
+  pqxx::internal::memmove(
+    std::span<int>{all}.subspan(7), std::span<int>{all}.subspan(6, 2));
+  PQXX_CHECK_EQUAL(
+    all, std::array<int, 10>{10, 12, 13, 13, 14, 15, 16, 16, 17, 19});
+}
+
+
+void test_memmove_handles_overlap(pqxx::test::context &)
+{
+  // We test this both at compile time and at run time; they get different
+  // implementations.
+  static_assert(check_memmove_handles_overlap());
+  check_memmove_handles_overlap();
+}
+
+
+constexpr bool check_memmove_handles_separate_allocations()
+{
+  // There is a reason to test the case where source and destination are in
+  // unrelated chunks of memory: pointer comparisons are crucial to memmove()
+  // but the comparison operators are not defined for pointers from separate
+  // allocations.
+  std::array<int, 10> source{10, 11, 12, 13, 14, 15, 16, 17, 18, 19},
+    destination{20, 21, 22, 23, 24, 25, 26, 27, 28, 29};
+  pqxx::internal::memmove(
+    std::span<int>{source}.subspan(2),
+    std::span<int>{destination}.subspan(5, 3));
+
+  // Source is unchanged.
+  PQXX_CHECK(
+    source, std::array<int, 10>{10, 11, 12, 13, 14, 15, 16, 17, 18, 19});
+  PQXX_CHECK(
+    destination, std::array<int, 10>{10, 11, 25, 26, 27, 15, 16, 17, 18, 19});
+}
+
+
+void test_memmove_handles_separate_allocations()
+{
+  // We test this both at compile time and at run time; they get different
+  // implementations.
+  static_assert(check_memmove_handles_separate_allocations());
+  check_memmove_handles_separate_allocations();
+}
 
 
 PQXX_REGISTER_TEST(test_make_num);
@@ -600,4 +654,6 @@ PQXX_REGISTER_TEST(test_source_loc_handles_minimal_source_location);
 PQXX_REGISTER_TEST(test_version_check_requires_identical_abi);
 PQXX_REGISTER_TEST(test_version_check_accepts_patch_upgrade);
 PQXX_REGISTER_TEST(test_memmove_moves_distinct_within_array);
+PQXX_REGISTER_TEST(test_memmove_handles_overlap);
+PQXX_REGISTER_TEST(test_memmove_handles_separate_allocations);
 } // namespace
