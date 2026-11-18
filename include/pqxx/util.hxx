@@ -1002,6 +1002,17 @@ memmove(std::span<TYPE> dst, std::span<TYPE const> src, sl loc = sl::current())
 
   // (No particular need to optimise the compile-time cases.)
 }
+
+
+/// Like `std::memmove()`, but typed, and capable of running at compile time.
+template<typename TYPE>
+inline constexpr void
+memmove(std::span<TYPE> dst, std::span<TYPE> src, sl loc = sl::current())
+  requires(std::is_trivially_copyable_v<TYPE>)
+{
+  std::span<TYPE const> const_src{std::data(src), std::size(src)};
+  memmove(dst, const_src, loc);
+}
 } // namespace pqxx::internal
 
 
