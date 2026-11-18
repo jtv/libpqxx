@@ -965,8 +965,9 @@ memmove(std::span<TYPE> dst, std::span<TYPE const> src, sl loc = sl::current())
   // The partal order is what you'd expect by intuition: within the same
   // array, or one-past-end of the array, they compare just like their indexes
   // into the array do.
-  [[maybe_unused]] constexpr std::less<TYPE> const less{};
-  [[maybe_unused]] TYPE const *const s{std::data(src)}, d{std::data(dst)};
+  [[maybe_unused]] constexpr std::less<TYPE const *> const less{};
+  [[maybe_unused]] TYPE const *const s{std::data(src)};
+  [[maybe_unused]] TYPE const *const d{std::data(dst)};
 
   // C++23: Use "if consteval".
   if (not std::is_constant_evaluated())
