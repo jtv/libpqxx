@@ -106,7 +106,7 @@ generic_into_buf(char *begin, char *end, T const &value, ctx c = {})
   auto const space{end - begin};
   // Include the trailing zero.
   auto const len = std::size(text) + 1;
-  if (len > space)
+  if (std::cmp_greater(len, space))
     throw conversion_overrun{
       std::format("Not enough buffer space to insert {}.", name_type<T>()) +
         state_buffer_overrun(space, len),
