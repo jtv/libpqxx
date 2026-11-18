@@ -58,12 +58,15 @@ void test_strconv_bool(pqxx::test::context &)
 {
   PQXX_CHECK_EQUAL(pqxx::to_string(false), "false");
   PQXX_CHECK_EQUAL(pqxx::to_string(true), "true");
+
+  // NOLINTBEGIN(readability-simplify-boolean-expr)
   static_assert(pqxx::from_string<bool>("f") == false);
   static_assert(pqxx::from_string<bool>("false") == false);
   static_assert(pqxx::from_string<bool>("0") == false);
   static_assert(pqxx::from_string<bool>("t") == true);
   static_assert(pqxx::from_string<bool>("true") == true);
   static_assert(pqxx::from_string<bool>("1") == true);
+  // NOLINTEND(readability-simplify-boolean-expr)
 
   static constexpr std::string_view bad_strings[]{
     "",   "T",  "F",  "True", "False", "TRUE",  "FALSE",
