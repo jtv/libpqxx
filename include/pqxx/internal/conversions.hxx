@@ -1072,7 +1072,9 @@ template<binary T> inline constexpr format param_format(T const &)
 template<nonbinary_range T> inline constexpr bool is_sql_array<T>{true};
 
 
-template<typename TYPE> PQXX_INLINE_COV inline constexpr std::string to_string(TYPE const &value, ctx c)
+template<typename TYPE>
+PQXX_INLINE_COV inline constexpr std::string
+to_string(TYPE const &value, ctx c)
 {
   if (is_null(value))
     throw conversion_error{
