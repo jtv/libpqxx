@@ -56,6 +56,9 @@ Try to ensure that Markdown files pass a `markdownlint` check:
 
 Feel free to capitalise the "l" in "libpqxx" at the beginning of a sentence.
 
+I like to pronounce SQL as "S. Q. L."  So if you need an indefinite article
+directly in front of it, please make it "an", not "a".
+
 Oh, and "prepend" is not a word.  You probably mean "prefix."
 
 
