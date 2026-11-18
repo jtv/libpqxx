@@ -475,7 +475,7 @@ into_buf(std::span<char> buf, TYPE const &value, ctx c = {})
   // may overlap (or be identical).
   if (not std::empty(out)) [[likely]]
   {
-    if (std::cmp_greater(std::size(out), std::size(buf)))
+    if (std::size(out) > std::size(buf))
       throw conversion_overrun{
         std::format(
           "Buffer too small to convert {} value to string (needs a {}-byte "
@@ -484,7 +484,7 @@ into_buf(std::span<char> buf, TYPE const &value, ctx c = {})
         c.loc};
     // Move into place.  The equality check looks redundant, but it may help
     // us avoid some memmove() calls when executing at compile time.
-    if (std::cmp_not_equal(std::data(out), data))
+    if (std::cmp_not_equal(std::data(out), const_cast<char const *>(data)))
       std::memmove(data, std::data(out), sz);
   }
 

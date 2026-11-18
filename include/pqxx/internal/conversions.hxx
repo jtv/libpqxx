@@ -106,7 +106,7 @@ generic_into_buf(char *begin, char *end, T const &value, ctx c = {})
   auto const space{end - begin};
   // Include the trailing zero.
   auto const len = std::size(text) + 1;
-  if (std::cmp_greater(len, space))
+  if (len > space)
     throw conversion_overrun{
       std::format("Not enough buffer space to insert {}.", name_type<T>()) +
         state_buffer_overrun(space, len),
@@ -131,7 +131,7 @@ generic_into_buf(std::span<char> buf, T const &value, ctx c = {})
   auto const space{std::size(buf)};
   // Include the trailing zero.
   auto const len = std::size(text) + 1;
-  if (std::cmp_greater(len, space))
+  if (len > space)
     throw conversion_overrun{
       std::format("Not enough buffer space to insert {}.  ", name_type<T>()) +
         state_buffer_overrun(space, len),
@@ -919,7 +919,7 @@ template<binary DATA> struct string_traits<DATA> final
   {
     // Budget for this type is precise.
     auto const budget{size_buffer(value)};
-    if (std::cmp_less(std::size(buf), budget))
+    if (std::size(buf) < budget)
       throw conversion_overrun{
         "Not enough buffer space to escape binary data.", c.loc};
     internal::esc_bin(value, buf);
@@ -973,7 +973,7 @@ inline void from_string(std::string_view text, TYPE &value, ctx c = {})
   {
     // There's no suitable `TYPE::resize()`.  But perhaps the caller has
     // ensured that `value` is already te right size.
-    if (std::cmp_not_equal(std::size(value), size))
+    if (std::size(value) != size)
       throw conversion_error{
         std::format(
           "Can't convert binary data from SQL text to {}: need {} byte(s), "
