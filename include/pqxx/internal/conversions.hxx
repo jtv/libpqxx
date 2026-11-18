@@ -596,6 +596,7 @@ template<> struct string_traits<std::monostate> final
   {
     return 0;
   }
+
   [[deprecated("Do not convert nulls.")]] static std::monostate
     from_string(std::string_view, ctx = {}) = delete;
 };
@@ -727,13 +728,13 @@ template<> struct nullness<std::string> final : no_null<std::string>
 
 template<> struct string_traits<std::string> final
 {
-  PQXX_INLINE_ONLY static std::string
+  PQXX_INLINE_ONLY static constexpr std::string
   from_string(std::string_view text, ctx = {})
   {
     return std::string{text};
   }
 
-  PQXX_INLINE_ONLY static std::string_view
+  PQXX_INLINE_ONLY static constexpr std::string_view
   to_buf(std::span<char>, std::string const &value, ctx = {})
   {
     return {std::data(value), std::size(value)};
@@ -770,13 +771,13 @@ template<> struct string_traits<std::string_view> final
     return std::size(value);
   }
 
-  PQXX_INLINE_ONLY static std::string_view
+  PQXX_INLINE_ONLY static constexpr std::string_view
   to_buf(std::span<char>, std::string_view const &value, ctx = {})
   {
     return value;
   }
 
-  PQXX_INLINE_ONLY static std::string_view
+  PQXX_INLINE_ONLY static constexpr std::string_view
   from_string(std::string_view value, ctx = {})
   {
     return value;
@@ -879,13 +880,13 @@ template<maybe_type T> struct string_traits<T> final
 {
   using maybe_traits = pqxx::maybe_traits<T>;
 
-  static T from_string(std::string_view text, ctx c = {})
+  static constexpr T from_string(std::string_view text, ctx c = {})
   {
     return maybe_traits::make(
       pqxx::from_string<typename maybe_traits::contained_t>(text, c));
   }
 
-  static std::string_view
+  static constexpr std::string_view
   to_buf(std::span<char> buf, T const &value, ctx c = {})
   {
     if (not maybe_traits::has_value(value))
@@ -893,7 +894,7 @@ template<maybe_type T> struct string_traits<T> final
     return pqxx::to_buf(buf, maybe_traits::get_value(value), c);
   }
 
-  static std::size_t size_buffer(T const &value) noexcept
+  static constexpr std::size_t size_buffer(T const &value) noexcept
   {
     if (pqxx::is_null(value))
       return 0;
@@ -909,12 +910,12 @@ template<binary DATA> struct nullness<DATA> final : no_null<DATA>
 
 template<binary DATA> struct string_traits<DATA> final
 {
-  static std::size_t size_buffer(DATA const &value) noexcept
+  static constexpr std::size_t size_buffer(DATA const &value) noexcept
   {
     return internal::size_esc_bin(std::size(value));
   }
 
-  static std::string_view
+  static constexpr std::string_view
   to_buf(std::span<char> buf, DATA const &value, ctx c = {})
   {
     // Budget for this type is precise.
@@ -929,7 +930,7 @@ template<binary DATA> struct string_traits<DATA> final
   }
 
   /// Convert a string to binary data.
-  static DATA from_string(std::string_view text, ctx c = {})
+  static constexpr DATA from_string(std::string_view text, ctx c = {})
   {
     auto const size{pqxx::internal::size_unesc_bin(std::size(text))};
     DATA buf{};
@@ -961,7 +962,8 @@ template<binary DATA> struct string_traits<DATA> final
 
 /// Optimised specialisation: convert string into existing `binary` object.
 template<binary TYPE>
-inline void from_string(std::string_view text, TYPE &value, ctx c = {})
+inline constexpr void
+from_string(std::string_view text, TYPE &value, ctx c = {})
 {
   auto const size{pqxx::internal::size_unesc_bin(std::size(text))};
   if constexpr (requires { value.resize(std::size(value)); })
@@ -1003,7 +1005,7 @@ template<typename T> struct nonbinary_range_traits
   using elt_traits = string_traits<elt_type>;
   static constexpr zview s_null{"NULL"};
 
-  static std::size_t size_buffer(T const &value) noexcept
+  static constexpr std::size_t size_buffer(T const &value) noexcept
   {
     return (
       // Opening brace.
@@ -1127,7 +1129,7 @@ template<> inline std::string to_string(std::stringstream const &value, ctx)
 
 
 template<typename T>
-inline void into_string(T const &value, std::string &out, ctx c = {})
+inline constexpr void into_string(T const &value, std::string &out, ctx c = {})
 {
   if (is_null(value))
     throw conversion_error{

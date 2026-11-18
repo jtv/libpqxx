@@ -597,7 +597,8 @@ template<enum_type ENUM> struct enum_traits
     return pqxx::to_buf(buf, to_underlying(value), c);
   }
 
-  [[nodiscard]] static ENUM from_string(std::string_view text, ctx c = {})
+  [[nodiscard]] static constexpr ENUM
+  from_string(std::string_view text, ctx c = {})
   {
     return static_cast<ENUM>(pqxx::from_string<impl_type>(text, c));
   }
