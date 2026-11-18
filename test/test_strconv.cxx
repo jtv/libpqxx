@@ -56,8 +56,8 @@ void check_fails(std::string_view text, pqxx::sl loc = pqxx::sl::current())
 
 void test_strconv_bool(pqxx::test::context &)
 {
-  static_assert(pqxx::to_string(false) == "false");
-  static_assert(pqxx::to_string(true) == "true");
+  PQXX_CHECK_EQUAL(pqxx::to_string(false), "false");
+  PQXX_CHECK_EQUAL(pqxx::to_string(true), "true");
   static_assert(pqxx::from_string<bool>("f") == false);
   static_assert(pqxx::from_string<bool>("false") == false);
   static_assert(pqxx::from_string<bool>("0") == false);
@@ -190,7 +190,7 @@ constexpr std::size_t needs_bytes(T const &value)
 
 // Extra-thorough test for to_buf() & into_buf() on a given type.
 template<typename T>
-constexpr bool check_write(
+bool check_write(
   T const &value, std::string_view expected,
   pqxx::sl loc = pqxx::sl::current())
 {
@@ -262,15 +262,13 @@ constexpr bool check_write(
     PQXX_CHECK(pqxx::is_null(a_null));
     PQXX_CHECK_THROWS(pqxx::to_string(a_null), pqxx::conversion_error);
   }
-
-  return true;
 }
 
 
 void test_to_buf_into_buf(pqxx::test::context &tctx)
 {
-  static_assert(check_write(false, "false"));
-  static_assert(check_write(true, "true"));
+  check_write(false, "false");
+  check_write(true, "true");
 
   check_write(short{0}, "0");
   check_write(short{1}, "1");
