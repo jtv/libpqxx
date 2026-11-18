@@ -939,6 +939,69 @@ inline std::size_t copy_chars(
     dst[at++] = '\0';
   return at;
 }
+
+
+/// Like `std::memmove()`, but typed, and capable of running at compile time.
+/** This really copies raw _memory,_ not objects.
+ */
+template<typename TYPE>
+inline constexpr void
+memmove(std::span<TYPE> dst, std::span<TYPE const> src, sl loc = sl::current())
+  requires(std::is_trivially_copyable_v<TYPE>)
+{
+  if (std::size(src) > std::size(dst))
+    throw pqxx::internal_error{
+      "Tried to copy more memory than would fit.", loc};
+
+  // We need to compare pointers here that may not live in the same
+  // allocation.  The built-in comparison operators are not defined for that,
+  // but std::less is.  It defines a total ordering "consistent with the
+  // implementation-defined strict total order over pointers."
+  //
+  // That order in turn is "consistent with the partial order described above:
+  // unspecified results become implementation-defined, while other results
+  // stay the same."
+  //
+  // The partal order is what you'd expect by intuition: within the same
+  // array, or one-past-end of the array, they compare just like their indexes
+  // into the array do.
+  [[maybe_unused]] constexpr std::less<TYPE> const less{};
+  [[maybe_unused]] TYPE const *const s{std::data(src)};
+  [[maybe_unused]] TYPE *const d{std::data(dst)};
+
+  // C++23: Use "if consteval".
+  if (not std::is_constant_evaluated())
+  {
+    auto const src_bytes{std::as_bytes(src)};
+
+    // Punt to the standard library.  This is not constexpr, so had to check.
+    std::memmove(
+      std::data(std::as_writable_bytes(dst)), std::data(src_bytes),
+      std::size(src_bytes));
+  }
+  else if (not less(s, d) and not less(d, s))
+  {
+    // The data is already in the right place.  Nothing to do.
+    assert(dst == src);
+  }
+  else if (less(s, d) and less(d, s + std::size(src)))
+  {
+    // The beginning of dst falls somewhere inside src.  Nasty case.  Going
+    // through the indexes from 0 to end would overwrite data in src before
+    // we've read it.
+    //
+    // So... move backwards.
+    for (std::size_t i{std::size(src)}; i > 0; dst[i] = src[i]) --i;
+  }
+  else
+  {
+    // All the simple cases.  We can just copy in the forwards direction.
+    auto const n{std::size(src)};
+    for (std::size_t i{0}; i < n; ++i) dst[i] = src[i];
+  }
+
+  // (No particular need to optimise the compile-time cases.)
+}
 } // namespace pqxx::internal
 
 

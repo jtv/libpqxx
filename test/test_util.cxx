@@ -535,6 +535,40 @@ void test_version_check_accepts_patch_upgrade(pqxx::test::context &)
 }
 
 
+void test_memmove_moves_distinct_within_array(pqxx::test::context &)
+{
+  std::array<int, 10> all{10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
+  auto const src{std::span<int>{all}.subspan(1, 3)};
+
+  // This destination is too small for the copy.
+  auto const tight_dst{std::span<int>{all}.subspan(5, 2)};
+  PQXX_CHECK_THROWS(pqxx::internal::memmove(dst, src), pqxx::internal_error);
+  // The aborted memmove() did not make any changes.
+  PQXX_CHECK_EQUAL(
+    all, std::array<int, 10>{10, 11, 12, 13, 14, 15, 16, 17, 18, 19});
+
+  // This destination is just the right size.
+  auto const dst{std::span<int>{all}.subspan(5, 3)};
+  pqxx::internal::memmove(dst, src);
+  // This copies src to dst.
+  PQXX_CHECK_EQUAL(
+    all, std::array<int, 10>{10, 11, 12, 13, 14, 11, 12, 13, 18, 19});
+
+  // This destination is larger than needed.  Nevertheless, memmove() copies
+  // only as many elements are as in src.
+  auto const wide_dst{std::span<int>{all}.subspan(4, 4)};
+  pqxx::internal::memmove(wide_dst, src);
+  PQXX_CHECK_EQUAL(
+    all, std::array<int, 10>{10, 11, 12, 13, 11, 12, 13, 13, 18, 19});
+}
+
+
+// XXX: Test memmove() with overlap, in both directions.
+// XXX: Test memmove() between unrelated allocations.
+// XXX: Test memmove() at compile time.
+// XXX: Test memmove() between unrelated allocations at compile time.
+
+
 PQXX_REGISTER_TEST(test_make_num);
 PQXX_REGISTER_TEST(test_binary_cast);
 PQXX_REGISTER_TEST(test_check_cast);
@@ -549,4 +583,5 @@ PQXX_REGISTER_TEST(test_source_loc_handles_func_only);
 PQXX_REGISTER_TEST(test_source_loc_handles_minimal_source_location);
 PQXX_REGISTER_TEST(test_version_check_requires_identical_abi);
 PQXX_REGISTER_TEST(test_version_check_accepts_patch_upgrade);
+PQXX_REGISTER_TEST(test_memmove_moves_distinct_within_array);
 } // namespace
