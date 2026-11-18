@@ -57,3 +57,14 @@ Try to ensure that Markdown files pass a `markdownlint` check:
 Feel free to capitalise the "l" in "libpqxx" at the beginning of a sentence.
 
 Oh, and "prepend" is not a word.  You probably mean "prefix."
+
+
+Python formatting
+-----------------
+
+Follow the style guide as given above.  In addition:
+
+* Indent by 4 spaces.
+* Do not horizontally align arguments with the first one; just 4 spaces.
+* In multi-line lists and tuples, keep a comma at the end for regularity.
+* When line-breaking a function call, break the line right after the `(`.

@@ -29,7 +29,9 @@ struct context final
   /** Seeds the randommiser with a highly predictable 0 initially.  Call the
    * @ref seed() function before consuming random values.
    */
-  explicit context(std::size_t random_seed) : rnd{0}, rnd_seed{random_seed} {}
+  explicit constexpr context(std::size_t random_seed) :
+          rnd{0}, rnd_seed{random_seed}
+  {}
 
   // NOLINTEND(cert-msc32-c,cert-msc51-cpp)
 
@@ -240,7 +242,7 @@ void check(
 #endif
 
 template<typename ACTUAL, typename EXPECTED>
-inline void check_equal(
+inline constexpr void check_equal(
   ACTUAL const &actual, char const *actual_text, EXPECTED const &expected,
   char const *expected_text,
   std::string const &desc = "Equality check failed.", sl loc = sl::current())
@@ -283,7 +285,7 @@ inline void check_equal(
       (value1), #value1, (value2), #value2 __VA_OPT__(, ) __VA_ARGS__)
 #endif
 template<typename VALUE1, typename VALUE2>
-inline void check_not_equal(
+inline constexpr void check_not_equal(
   VALUE1 const &value1, char const text1[], VALUE2 const &value2,
   char const text2[], std::string const &desc = "Inequality check failed.",
   sl loc = sl::current())
@@ -304,7 +306,7 @@ inline void check_not_equal(
 
 /// Verify that two blocks of binary data are equal.
 template<typename VALUE1, typename VALUE2>
-inline void check_equal_bin(
+inline constexpr void check_equal_bin(
   VALUE1 const &value1, VALUE2 const &value2, sl loc = sl::current())
 {
   static_assert(sizeof(std::declval<VALUE1>()[0]) == 1u);

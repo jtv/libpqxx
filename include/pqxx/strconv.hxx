@@ -464,7 +464,7 @@ template<typename TYPE>
  * terminating zero.
  */
 template<typename TYPE>
-[[nodiscard]] inline std::size_t
+[[nodiscard]] inline constexpr std::size_t
 into_buf(std::span<char> buf, TYPE const &value, ctx c = {})
 {
   auto const data{std::data(buf)};
