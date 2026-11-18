@@ -566,7 +566,7 @@ inline void from_string(std::string_view text, T &value, ctx c = {})
  * though.
  */
 template<typename TYPE>
-inline std::string to_string(TYPE const &value, ctx c = {});
+inline constexpr std::string to_string(TYPE const &value, ctx c = {});
 } // namespace pqxx
 
 

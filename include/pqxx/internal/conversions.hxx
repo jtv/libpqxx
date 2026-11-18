@@ -218,6 +218,7 @@ template<typename T>
 concept arith = pqxx::internal::integer<T> or std::floating_point<T>;
 
 
+// C++23: Make constexpr.
 template<arith TYPE>
 inline TYPE from_string_arithmetic(std::string_view in, pqxx::ctx c)
 {
@@ -336,6 +337,7 @@ template<integer T> struct integer_string_traits
       return from_string_arithmetic<T>(text, c);
   }
 
+  // TODO: Make this constexpr.  May require inlining.
   PQXX_LIBEXPORT PQXX_HOT static std::string_view
   to_buf(std::span<char> buf, T const &value, ctx c = {});
 
@@ -350,6 +352,7 @@ template<integer T> struct integer_string_traits
   }
 };
 } // namespace pqxx::internal
+
 
 namespace pqxx
 {
