@@ -542,7 +542,8 @@ void test_memmove_moves_distinct_within_array(pqxx::test::context &)
 
   // This destination is too small for the copy.
   auto const tight_dst{std::span<int>{all}.subspan(5, 2)};
-  PQXX_CHECK_THROWS(pqxx::internal::memmove(dst, src), pqxx::internal_error);
+  PQXX_CHECK_THROWS(
+    pqxx::internal::memmove(tight_dst, src), pqxx::internal_error);
   // The aborted memmove() did not make any changes.
   PQXX_CHECK_EQUAL(
     all, std::array<int, 10>{10, 11, 12, 13, 14, 15, 16, 17, 18, 19});
@@ -555,7 +556,7 @@ void test_memmove_moves_distinct_within_array(pqxx::test::context &)
     all, std::array<int, 10>{10, 11, 12, 13, 14, 11, 12, 13, 18, 19});
 
   // This destination is larger than needed.  Nevertheless, memmove() copies
-  // only as many elements are as in src.
+  // only as many elements as are in src.
   auto const wide_dst{std::span<int>{all}.subspan(4, 4)};
   pqxx::internal::memmove(wide_dst, src);
   PQXX_CHECK_EQUAL(
