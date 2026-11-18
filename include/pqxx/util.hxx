@@ -973,7 +973,8 @@ memmove(std::span<TYPE> dst, std::span<TYPE const> src, sl loc = sl::current())
   {
     auto const src_bytes{std::as_bytes(src)};
 
-    // Punt to the standard library.  This is not constexpr, so had to check.
+    // Punt to the standard library.  This is not constexpr, so had to check
+    // whether we're running at compile time.
     std::memmove(
       std::data(std::as_writable_bytes(dst)), std::data(src_bytes),
       std::size(src_bytes));
