@@ -541,13 +541,16 @@ constexpr bool check_memmove_moves_distinct_within_array()
   std::array<int, 10> all{10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
   auto const src{std::span<int>{all}.subspan(1, 3)};
 
-  // This destination is too small for the copy.
-  auto const tight_dst{std::span<int>{all}.subspan(5, 2)};
-  PQXX_CHECK_THROWS(
-    pqxx::internal::memmove(tight_dst, src), pqxx::internal_error);
-  // The aborted memmove() did not make any changes.
-  PQXX_CHECK_EQUAL(
-    all, (std::array<int, 10>{10, 11, 12, 13, 14, 15, 16, 17, 18, 19}));
+  if ((__cplusplus > 202603L) or not std::is_constant_evaluated())
+  {
+    // This destination is too small for the copy.
+    auto const tight_dst{std::span<int>{all}.subspan(5, 2)};
+    PQXX_CHECK_THROWS(
+      pqxx::internal::memmove(tight_dst, src), pqxx::internal_error);
+    // The aborted memmove() did not make any changes.
+    PQXX_CHECK_EQUAL(
+      all, (std::array<int, 10>{10, 11, 12, 13, 14, 15, 16, 17, 18, 19}));
+  }
 
   // This destination is just the right size.
   auto const dst{std::span<int>{all}.subspan(5, 3)};
@@ -598,6 +601,8 @@ constexpr bool check_memmove_handles_overlap()
     std::span<int>{all}.subspan(7), std::span<int>{all}.subspan(6, 2));
   PQXX_CHECK_EQUAL(
     all, (std::array<int, 10>{10, 12, 13, 13, 14, 15, 16, 16, 17, 19}));
+
+  return true;
 }
 
 
@@ -619,19 +624,22 @@ constexpr bool check_memmove_handles_separate_allocations()
   std::array<int, 10> source{10, 11, 12, 13, 14, 15, 16, 17, 18, 19},
     destination{20, 21, 22, 23, 24, 25, 26, 27, 28, 29};
   pqxx::internal::memmove(
-    std::span<int>{source}.subspan(2),
-    std::span<int>{destination}.subspan(5, 3));
+    std::span<int>{destination}.subspan(2),
+    std::span<int>{source}.subspan(5, 3));
 
   // Source is unchanged.
   PQXX_CHECK_EQUAL(
     source, (std::array<int, 10>{10, 11, 12, 13, 14, 15, 16, 17, 18, 19}));
+  // But some of its data has been copied into destination.
   PQXX_CHECK_EQUAL(
     destination,
-    (std::array<int, 10>{10, 11, 25, 26, 27, 15, 16, 17, 18, 19}));
+    (std::array<int, 10>{20, 21, 15, 16, 17, 25, 26, 27, 28, 29}));
+
+  return true;
 }
 
 
-void test_memmove_handles_separate_allocations()
+void test_memmove_handles_separate_allocations(pqxx::test::context &)
 {
   // We test this both at compile time and at run time; they get different
   // implementations.

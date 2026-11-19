@@ -257,11 +257,14 @@ inline constexpr void check_equal(
   //    hicpp-no-array-decay
   // )
 
-  throw test_failure{
-    std::format(
-      "{}\n{} <> {}.\nExpected: {}\nActual:   {}", desc, actual_text,
-      expected_text, to_string(expected), to_string(actual)),
-    loc};
+  if (std::is_constant_evaluated())
+    throw test_failure{"Values not equal."};
+  else
+    throw test_failure{
+      std::format(
+        "{}\n{} <> {}.\nExpected: {}\nActual:   {}", desc, actual_text,
+        expected_text, to_string(expected), to_string(actual)),
+      loc};
 }
 
 // clang-tidy rule bug:
@@ -469,7 +472,7 @@ inline void check_succeeds(
 
 
 template<typename EXC, std::invocable F>
-inline void check_throws(
+inline constexpr void check_throws(
   F &&f, char const text[],
   std::string desc = "This code did not throw the expected exception.",
   pqxx::sl loc = sl::current())
