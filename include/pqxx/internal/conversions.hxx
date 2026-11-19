@@ -364,6 +364,9 @@ template<integer T> struct integer_string_traits
       }
       else if (value >= 0)
       {
+        // Yes, this is the same as the unsigned-types case above.  But MSVC
+	// complained that otherwise, we might just apply the unary minus
+	// operator to an unsigned number.
         for (; value != 0; value = static_cast<T>(value / ten))
           buf[--start] = number_to_digit(value % ten);
       }
