@@ -68,6 +68,7 @@ void test_strconv_bool(pqxx::test::context &)
   static_assert(pqxx::from_string<bool>("1") == true);
   // NOLINTEND(readability-simplify-boolean-expr)
 
+  // C++26: Test error cases at compile time.
   static constexpr std::string_view bad_strings[]{
     "",   "T",  "F",  "True", "False", "TRUE",  "FALSE",
     "00", "01", "11", "tt",   "ff",    "trues", "falses"};
@@ -87,10 +88,14 @@ void test_strconv_enum(pqxx::test::context &)
   PQXX_CHECK_EQUAL(pqxx::to_string(red), "0");
   PQXX_CHECK_EQUAL(pqxx::to_string(green), "1");
   PQXX_CHECK_EQUAL(pqxx::to_string(blue), "2");
+  static_assert(pqxx::to_string(red) == "0");
+  static_assert(pqxx::to_string(green) == "1");
+  static_assert(pqxx::to_string(blue) == "2");
 
   colour col{};
   pqxx::from_string("2", col);
   PQXX_CHECK_EQUAL(col, blue);
+  static_assert(pqxx::from_string<colour>("2") == blue);
 }
 
 
@@ -102,16 +107,22 @@ void test_strconv_class_enum(pqxx::test::context &)
   weather w{};
   pqxx::from_string("2", w);
   PQXX_CHECK_EQUAL(w, weather::wet);
+  static_assert(pqxx::from_string<weather>("2") == weather::wet);
 
   PQXX_CHECK_EQUAL(pqxx::to_string(many::bottom), "0");
+  static_assert(pqxx::to_string(many::bottom) == "0");
   PQXX_CHECK_EQUAL(
     pqxx::to_string(many::top),
+    pqxx::to_string(std::numeric_limits<unsigned long long>::max()));
+  static_assert(
+    pqxx::to_string(many::top) ==
     pqxx::to_string(std::numeric_limits<unsigned long long>::max()));
 
   pqxx::connection cx;
   pqxx::work tx{cx};
   std::tuple<weather> out;
   tx.exec("SELECT 0").one_row().to(out);
+  PQXX_CHECK_EQUAL(std::get<0>(out), weather::hot);
 }
 
 
@@ -125,12 +136,15 @@ void test_strconv_optional(pqxx::test::context &)
     pqxx::to_string(std::optional<int>{std::in_place, -10000}), "-10000");
 
   static_assert(
-    pqxx::to_string(std::optional<bool>{std::in_place, true}) == "true");
+    pqxx::to_string(std::optional<int>{std::in_place, 10}) == "10");
+  static_assert(
+    pqxx::to_string(std::optional<int>{std::in_place, -10000}) == "-10000");
 }
 
 
 void test_strconv_smart_pointer(pqxx::test::context &)
 {
+  // C++26: Test error case at compile time.
   PQXX_CHECK_THROWS(
     pqxx::to_string(std::unique_ptr<int>{}), pqxx::conversion_error);
   PQXX_CHECK_EQUAL(pqxx::to_string(std::make_unique<int>(10)), "10");
@@ -194,6 +208,7 @@ constexpr std::size_t needs_bytes(T const &value)
 }
 
 
+// XXX: It's ambitious but...  Can we make this constexpr?
 // Extra-thorough test for to_buf() & into_buf() on a given type.
 template<typename T>
 void check_write(

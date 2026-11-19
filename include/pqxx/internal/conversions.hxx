@@ -22,7 +22,8 @@
 namespace pqxx::internal
 {
 /// Convert a number in [0, 9] to its ASCII digit.
-PQXX_PURE PQXX_HOT inline constexpr char number_to_digit(int i) noexcept
+template<integer TYPE>
+PQXX_PURE PQXX_HOT inline constexpr char number_to_digit(TYPE i) noexcept
 {
   PQXX_ASSUME(i >= 0);
   PQXX_ASSUME(i <= 9);
@@ -337,9 +338,52 @@ template<integer T> struct integer_string_traits
       return from_string_arithmetic<T>(text, c);
   }
 
-  // TODO: Make this constexpr.  May require inlining.
-  PQXX_LIBEXPORT PQXX_HOT static std::string_view
-  to_buf(std::span<char> buf, T const &value, ctx c = {});
+  PQXX_LIBEXPORT PQXX_HOT static constexpr std::string_view
+  to_buf(std::span<char> buf, T value, ctx c = {})
+  {
+    // Zero is both common and a nasty special case.  Might as well catch it
+    // here and avoid a function-call penalty in the run-time case, or a
+    // complication in the compile-time case.
+    if (std::cmp_equal(value, 0))
+      return "0";
+    else if (std::is_constant_evaluated())
+    {
+      // Converting at compile time.  Don't worry about buffer overflows
+      // (since the compiler is required to catch those) or optimisation
+      // (since that only affects the build, not use).
+      constexpr T const ten{10};
+
+      // We'll write *backwards* through buf, because it's easier to compute
+      // the digits that way.  One of the fun things about the to_buf() API is
+      // that it doesn't have to write exactly from the beginning of buf.
+      std::size_t start{buf.size()};
+      if (value > 0)
+      {
+        for (; value != 0; value /= ten)
+          buf[--start] = number_to_digit(value % ten);
+      }
+      else
+      {
+        // Can't just start by negating: it might be the minimal value which
+        // "negates" back to itself.
+        //
+        // Luckily the C++ standard nowadays specifies the results of % with
+        // negative numbers!
+        for (; value != 0; value /= ten)
+          buf[--start] = number_to_digit(-(value % ten));
+        buf[--start] = '-';
+      }
+
+      auto const number{buf.subspan(start)};
+      return std::string_view{number.data(), number.size()};
+    }
+    else
+    {
+      // Converting nonzero number at run time.  Call the out-of-line
+      // implementation.
+      return dynamic_to_buf(buf, value, c);
+    }
+  }
 
   PQXX_INLINE_ONLY PQXX_HOT static constexpr std::size_t
   size_buffer(T const &) noexcept
@@ -350,6 +394,11 @@ template<integer T> struct integer_string_traits
      */
     return std::is_signed_v<T> + std::numeric_limits<T>::digits10 + 1;
   }
+
+private:
+  /// Implementation for @ref to_buf() for run-time values.
+  PQXX_LIBEXPORT static std::string_view
+  dynamic_to_buf(std::span<char> buf, T const &value, ctx c = {});
 };
 } // namespace pqxx::internal
 

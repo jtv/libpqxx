@@ -82,6 +82,7 @@ constexpr inline char *neg_to_buf(char *end, T value)
 }
 
 
+// TODO: We can do better now: % is now well-specified for negative numbers.
 /// Write lowest possible negative value at end of buffer.
 /** Like @c neg_to_buf, but for the special case of the bottom value.
  */
@@ -350,9 +351,9 @@ template struct float_string_traits<long double>;
 namespace pqxx::internal
 {
 template<pqxx::internal::integer TYPE>
-inline std::string_view
+std::string_view
 // NOLINTNEXTLINE(readability-non-const-parameter)
-integer_string_traits<TYPE>::to_buf(
+integer_string_traits<TYPE>::dynamic_to_buf(
   std::span<char> buf, TYPE const &value, ctx c)
 {
   static_assert(std::is_integral_v<TYPE>);
