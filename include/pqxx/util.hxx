@@ -983,7 +983,7 @@ memmove(std::span<TYPE> dst, std::span<TYPE const> src, sl loc = sl::current())
   else if (not less(s, d) and not less(d, s))
   {
     // The data is already in the right place.  Nothing to do.
-    assert(dst == src);
+    assert(d == s);
   }
   else if (less(s, d) and less(d, s + std::size(src)))
   {

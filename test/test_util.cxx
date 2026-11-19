@@ -547,21 +547,21 @@ constexpr bool check_memmove_moves_distinct_within_array()
     pqxx::internal::memmove(tight_dst, src), pqxx::internal_error);
   // The aborted memmove() did not make any changes.
   PQXX_CHECK_EQUAL(
-    all, std::array<int, 10>{10, 11, 12, 13, 14, 15, 16, 17, 18, 19});
+    all, (std::array<int, 10>{10, 11, 12, 13, 14, 15, 16, 17, 18, 19}));
 
   // This destination is just the right size.
   auto const dst{std::span<int>{all}.subspan(5, 3)};
   pqxx::internal::memmove(dst, src);
   // This copies src to dst.
   PQXX_CHECK_EQUAL(
-    all, std::array<int, 10>{10, 11, 12, 13, 14, 11, 12, 13, 18, 19});
+    all, (std::array<int, 10>{10, 11, 12, 13, 14, 11, 12, 13, 18, 19}));
 
   // This destination is larger than needed.  Nevertheless, memmove() copies
   // only as many elements as are in src.
   auto const wide_dst{std::span<int>{all}.subspan(4, 4)};
   pqxx::internal::memmove(wide_dst, src);
   PQXX_CHECK_EQUAL(
-    all, std::array<int, 10>{10, 11, 12, 13, 11, 12, 13, 13, 18, 19});
+    all, (std::array<int, 10>{10, 11, 12, 13, 11, 12, 13, 13, 18, 19}));
 
   // Just so we can run this in static_assert().
   return true;
@@ -590,14 +590,14 @@ constexpr bool check_memmove_handles_overlap()
   pqxx::internal::memmove(
     std::span<int>{all}.subspan(1), std::span<int>{all}.subspan(2, 2));
   PQXX_CHECK_EQUAL(
-    all, std::array<int, 10>{10, 12, 13, 13, 14, 15, 16, 17, 18, 19});
+    all, (std::array<int, 10>{10, 12, 13, 13, 14, 15, 16, 17, 18, 19}));
 
   // Moving in the difficult direction: writing to the destination in index
   // order would start overwriting source data that we hadn't copied yet.
   pqxx::internal::memmove(
     std::span<int>{all}.subspan(7), std::span<int>{all}.subspan(6, 2));
   PQXX_CHECK_EQUAL(
-    all, std::array<int, 10>{10, 12, 13, 13, 14, 15, 16, 16, 17, 19});
+    all, (std::array<int, 10>{10, 12, 13, 13, 14, 15, 16, 16, 17, 19}));
 }
 
 
@@ -624,9 +624,10 @@ constexpr bool check_memmove_handles_separate_allocations()
 
   // Source is unchanged.
   PQXX_CHECK(
-    source, std::array<int, 10>{10, 11, 12, 13, 14, 15, 16, 17, 18, 19});
+    source, (std::array<int, 10>{10, 11, 12, 13, 14, 15, 16, 17, 18, 19}));
   PQXX_CHECK(
-    destination, std::array<int, 10>{10, 11, 25, 26, 27, 15, 16, 17, 18, 19});
+    destination,
+    (std::array<int, 10>{10, 11, 25, 26, 27, 15, 16, 17, 18, 19}));
 }
 
 
