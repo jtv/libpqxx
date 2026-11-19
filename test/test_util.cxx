@@ -623,9 +623,9 @@ constexpr bool check_memmove_handles_separate_allocations()
     std::span<int>{destination}.subspan(5, 3));
 
   // Source is unchanged.
-  PQXX_CHECK(
+  PQXX_CHECK_EQUAL(
     source, (std::array<int, 10>{10, 11, 12, 13, 14, 15, 16, 17, 18, 19}));
-  PQXX_CHECK(
+  PQXX_CHECK_EQUAL(
     destination,
     (std::array<int, 10>{10, 11, 25, 26, 27, 15, 16, 17, 18, 19}));
 }
