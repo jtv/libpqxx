@@ -440,8 +440,8 @@ consteval bool supports_to_buf_8()
  * differences.
  */
 template<typename TYPE>
-[[nodiscard]] inline std::string_view constexpr to_buf(
-  std::span<char> buf, TYPE const &value, ctx c = {})
+[[nodiscard]] inline constexpr std::string_view
+to_buf(std::span<char> buf, TYPE const &value, ctx c = {})
 {
   using traits = string_traits<TYPE>;
   if constexpr (supports_to_buf_8<TYPE>())
@@ -464,10 +464,9 @@ template<typename TYPE>
  * terminating zero.
  */
 template<typename TYPE>
-[[nodiscard]] inline std::size_t
+[[nodiscard]] inline constexpr std::size_t
 into_buf(std::span<char> buf, TYPE const &value, ctx c = {})
 {
-  auto const data{std::data(buf)};
   std::string_view out{to_buf(buf, value, c)};
   auto const sz{std::size(out)};
 
@@ -475,14 +474,16 @@ into_buf(std::span<char> buf, TYPE const &value, ctx c = {})
   // may overlap (or be identical).
   if (not std::empty(out)) [[likely]]
   {
-    if (std::cmp_greater(std::size(out), std::size(buf)))
+    if (std::size(out) > std::size(buf))
       throw conversion_overrun{
         std::format(
           "Buffer too small to convert {} value to string (needs a {}-byte "
           "buffer).",
           name_type<TYPE>(), std::size(out)),
         c.loc};
-    std::memmove(data, std::data(out), sz);
+
+    pqxx::internal::memmove(
+      buf, std::span<char const>{out.data(), out.size()}, c.loc);
   }
 
   return sz;
@@ -566,7 +567,7 @@ inline void from_string(std::string_view text, T &value, ctx c = {})
  * though.
  */
 template<typename TYPE>
-inline std::string to_string(TYPE const &value, ctx c = {});
+inline constexpr std::string to_string(TYPE const &value, ctx c = {});
 } // namespace pqxx
 
 
@@ -596,7 +597,8 @@ template<enum_type ENUM> struct enum_traits
     return pqxx::to_buf(buf, to_underlying(value), c);
   }
 
-  [[nodiscard]] static ENUM from_string(std::string_view text, ctx c = {})
+  [[nodiscard]] static constexpr ENUM
+  from_string(std::string_view text, ctx c = {})
   {
     return static_cast<ENUM>(pqxx::from_string<impl_type>(text, c));
   }

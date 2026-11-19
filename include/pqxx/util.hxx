@@ -415,17 +415,18 @@ template<typename MAYBE> struct maybe_traits final
    *
    * The return type would normally be `contained_t const &`.
    */
-  [[nodiscard]] static auto const &get_value(maybe_t const &) = delete;
+  [[nodiscard]] static constexpr auto const &
+  get_value(maybe_t const &) = delete;
 
   /// Create an instance of `maybe_t` not containing any value.
   /** The return type would normally be `contained_t`.
    */
-  [[nodiscard]] static auto make_blank() noexcept = delete;
+  [[nodiscard]] static constexpr auto make_blank() noexcept = delete;
 
   /// Construct an instance of `maybe_t` containing the given value.
   /** The return type would normally be `contained_t`.
    */
-  [[nodiscard]] static auto make(contained_t &&) = delete;
+  [[nodiscard]] static constexpr auto make(contained_t &&) = delete;
 };
 
 
@@ -449,7 +450,7 @@ template<typename CONTAINED> struct maybe_traits<std::optional<CONTAINED>>
     return m.has_value();
   }
 
-  [[nodiscard]] static contained_t const &get_value(maybe_t const &m)
+  [[nodiscard]] static constexpr contained_t const &get_value(maybe_t const &m)
   {
     // clang-tidy rule bug:
     // NOLINTNEXTLINE(cert-dcl03-c)
@@ -458,9 +459,9 @@ template<typename CONTAINED> struct maybe_traits<std::optional<CONTAINED>>
     return m.value();
   }
 
-  [[nodiscard]] static maybe_t make_blank() noexcept { return {}; }
+  [[nodiscard]] static constexpr maybe_t make_blank() noexcept { return {}; }
 
-  [[nodiscard]] static maybe_t make(contained_t &&c) { return {c}; }
+  [[nodiscard]] static constexpr maybe_t make(contained_t &&c) { return {c}; }
 };
 
 
@@ -474,7 +475,7 @@ template<typename CONTAINED> struct maybe_traits<std::shared_ptr<CONTAINED>>
     return bool{m};
   }
 
-  [[nodiscard]] static contained_t const &get_value(maybe_t const &m)
+  [[nodiscard]] static constexpr contained_t const &get_value(maybe_t const &m)
   {
     // clang-tidy rule bug:
     // NOLINTNEXTLINE(cert-dcl03-c)
@@ -482,9 +483,9 @@ template<typename CONTAINED> struct maybe_traits<std::shared_ptr<CONTAINED>>
     return *m;
   }
 
-  [[nodiscard]] static maybe_t make_blank() noexcept { return {}; }
+  [[nodiscard]] static constexpr maybe_t make_blank() noexcept { return {}; }
 
-  [[nodiscard]] static maybe_t make(contained_t &&c)
+  [[nodiscard]] static constexpr maybe_t make(contained_t &&c)
   {
     return std::make_shared<maybe_t>(c);
   }
@@ -501,7 +502,7 @@ template<typename CONTAINED> struct maybe_traits<std::unique_ptr<CONTAINED>>
     return bool{m};
   }
 
-  [[nodiscard]] static contained_t const &get_value(maybe_t const &m)
+  [[nodiscard]] static constexpr contained_t const &get_value(maybe_t const &m)
   {
     // clang-tidy rule bug:
     // NOLINTNEXTLINE(cert-dcl03-c)
@@ -509,9 +510,9 @@ template<typename CONTAINED> struct maybe_traits<std::unique_ptr<CONTAINED>>
     return *m;
   }
 
-  [[nodiscard]] static maybe_t make_blank() noexcept { return {}; }
+  [[nodiscard]] static constexpr maybe_t make_blank() noexcept { return {}; }
 
-  [[nodiscard]] static maybe_t make(contained_t &&c)
+  [[nodiscard]] static constexpr maybe_t make(contained_t &&c)
   {
     return std::make_unique<contained_t>(c);
   }
@@ -938,6 +939,52 @@ inline std::size_t copy_chars(
   if constexpr (terminate)
     dst[at++] = '\0';
   return at;
+}
+
+
+/// Like `std::memmove()`, but typed, and capable of running at compile time.
+/** This really copies raw _memory,_ not objects.
+ */
+template<typename TYPE>
+inline constexpr void
+memmove(std::span<TYPE> dst, std::span<TYPE const> src, sl loc = sl::current())
+  requires(std::is_trivially_copyable_v<TYPE>)
+{
+  auto const len{src.size()};
+  if (len > std::size(dst))
+    throw pqxx::internal_error{
+      "Tried to copy more memory than would fit.", loc};
+
+  // C++23: Use "if consteval".
+  if (std::is_constant_evaluated())
+  {
+    // We're running at compile time.  Deal with the risk of dst overwriting
+    // src simply by allocating some intermediate storage.  Optimisation isn't
+    // as big a concern at compile time.
+    std::vector<TYPE> const tmp{std::begin(src), std::end(src)};
+    for (std::size_t i{0}; i < len; ++i) dst[i] = tmp.at(i);
+  }
+  else
+  {
+    auto const src_bytes{std::as_bytes(src)};
+
+    // Punt to the standard library.  This is not constexpr, so had to check
+    // whether we're running at compile time.
+    std::memmove(
+      std::data(std::as_writable_bytes(dst)), std::data(src_bytes),
+      std::size(src_bytes));
+  }
+}
+
+
+/// Like `std::memmove()`, but typed, and capable of running at compile time.
+template<typename TYPE>
+inline constexpr void
+memmove(std::span<TYPE> dst, std::span<TYPE> src, sl loc = sl::current())
+  requires(std::is_trivially_copyable_v<TYPE>)
+{
+  std::span<TYPE const> const_src{std::data(src), std::size(src)};
+  memmove(dst, const_src, loc);
 }
 } // namespace pqxx::internal
 

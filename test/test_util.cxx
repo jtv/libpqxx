@@ -535,6 +535,119 @@ void test_version_check_accepts_patch_upgrade(pqxx::test::context &)
 }
 
 
+/// Verify `pqxx::internal::memmove()`: nonoverlapping, within one allocation.
+constexpr bool check_memmove_moves_distinct_within_array()
+{
+  std::array<int, 10> all{10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
+  auto const src{std::span<int>{all}.subspan(1, 3)};
+
+  if ((__cplusplus > 202603L) or not std::is_constant_evaluated())
+  {
+    // This destination is too small for the copy.
+    auto const tight_dst{std::span<int>{all}.subspan(5, 2)};
+    PQXX_CHECK_THROWS(
+      pqxx::internal::memmove(tight_dst, src), pqxx::internal_error);
+    // The aborted memmove() did not make any changes.
+    PQXX_CHECK_EQUAL(
+      all, (std::array<int, 10>{10, 11, 12, 13, 14, 15, 16, 17, 18, 19}));
+  }
+
+  // This destination is just the right size.
+  auto const dst{std::span<int>{all}.subspan(5, 3)};
+  pqxx::internal::memmove(dst, src);
+  // This copies src to dst.
+  PQXX_CHECK_EQUAL(
+    all, (std::array<int, 10>{10, 11, 12, 13, 14, 11, 12, 13, 18, 19}));
+
+  // This destination is larger than needed.  Nevertheless, memmove() copies
+  // only as many elements as are in src.
+  auto const wide_dst{std::span<int>{all}.subspan(4, 4)};
+  pqxx::internal::memmove(wide_dst, src);
+  PQXX_CHECK_EQUAL(
+    all, (std::array<int, 10>{10, 11, 12, 13, 11, 12, 13, 13, 18, 19}));
+
+  // Just so we can run this in static_assert().
+  return true;
+}
+
+
+/// @ref pqxx::internal::memmove() copies nonoverlapping blocks.
+/** This test tests the case where the blocks are within the same allocation,
+ * but do not overlap.  This is the easiest case.
+ */
+void test_memmove_moves_distinct_within_array(pqxx::test::context &)
+{
+  // We test this both at compile time and at run time; they get different
+  // implementations.
+  static_assert(check_memmove_moves_distinct_within_array());
+  check_memmove_moves_distinct_within_array();
+}
+
+
+constexpr bool check_memmove_handles_overlap()
+{
+  std::array<int, 10> all{10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
+
+  // Moving in the easy direction: source and destination overlap, but
+  // copying in index order will not cause trouble.
+  pqxx::internal::memmove(
+    std::span<int>{all}.subspan(1), std::span<int>{all}.subspan(2, 2));
+  PQXX_CHECK_EQUAL(
+    all, (std::array<int, 10>{10, 12, 13, 13, 14, 15, 16, 17, 18, 19}));
+
+  // Moving in the difficult direction: writing to the destination in index
+  // order would start overwriting source data that we hadn't copied yet.
+  pqxx::internal::memmove(
+    std::span<int>{all}.subspan(7), std::span<int>{all}.subspan(6, 2));
+  PQXX_CHECK_EQUAL(
+    all, (std::array<int, 10>{10, 12, 13, 13, 14, 15, 16, 16, 17, 19}));
+
+  return true;
+}
+
+
+void test_memmove_handles_overlap(pqxx::test::context &)
+{
+  // We test this both at compile time and at run time; they get different
+  // implementations.
+  static_assert(check_memmove_handles_overlap());
+  check_memmove_handles_overlap();
+}
+
+
+constexpr bool check_memmove_handles_separate_allocations()
+{
+  // There is a reason to test the case where source and destination are in
+  // unrelated chunks of memory: pointer comparisons are crucial to memmove()
+  // but the comparison operators are not defined for pointers from separate
+  // allocations.
+  std::array<int, 10> source{10, 11, 12, 13, 14, 15, 16, 17, 18, 19},
+    destination{20, 21, 22, 23, 24, 25, 26, 27, 28, 29};
+  pqxx::internal::memmove(
+    std::span<int>{destination}.subspan(2),
+    std::span<int>{source}.subspan(5, 3));
+
+  // Source is unchanged.
+  PQXX_CHECK_EQUAL(
+    source, (std::array<int, 10>{10, 11, 12, 13, 14, 15, 16, 17, 18, 19}));
+  // But some of its data has been copied into destination.
+  PQXX_CHECK_EQUAL(
+    destination,
+    (std::array<int, 10>{20, 21, 15, 16, 17, 25, 26, 27, 28, 29}));
+
+  return true;
+}
+
+
+void test_memmove_handles_separate_allocations(pqxx::test::context &)
+{
+  // We test this both at compile time and at run time; they get different
+  // implementations.
+  static_assert(check_memmove_handles_separate_allocations());
+  check_memmove_handles_separate_allocations();
+}
+
+
 PQXX_REGISTER_TEST(test_make_num);
 PQXX_REGISTER_TEST(test_binary_cast);
 PQXX_REGISTER_TEST(test_check_cast);
@@ -549,4 +662,7 @@ PQXX_REGISTER_TEST(test_source_loc_handles_func_only);
 PQXX_REGISTER_TEST(test_source_loc_handles_minimal_source_location);
 PQXX_REGISTER_TEST(test_version_check_requires_identical_abi);
 PQXX_REGISTER_TEST(test_version_check_accepts_patch_upgrade);
+PQXX_REGISTER_TEST(test_memmove_moves_distinct_within_array);
+PQXX_REGISTER_TEST(test_memmove_handles_overlap);
+PQXX_REGISTER_TEST(test_memmove_handles_separate_allocations);
 } // namespace

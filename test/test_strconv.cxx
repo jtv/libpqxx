@@ -56,16 +56,19 @@ void check_fails(std::string_view text, pqxx::sl loc = pqxx::sl::current())
 
 void test_strconv_bool(pqxx::test::context &)
 {
-  PQXX_CHECK_EQUAL(pqxx::to_string(false), "false", "Wrong to_string(false).");
-  PQXX_CHECK_EQUAL(pqxx::to_string(true), "true", "Wrong to_string(true).");
+  PQXX_CHECK_EQUAL(pqxx::to_string(false), "false");
+  PQXX_CHECK_EQUAL(pqxx::to_string(true), "true");
 
-  PQXX_CHECK_EQUAL(pqxx::from_string<bool>("f"), false);
-  PQXX_CHECK_EQUAL(pqxx::from_string<bool>("false"), false);
-  PQXX_CHECK_EQUAL(pqxx::from_string<bool>("0"), false);
-  PQXX_CHECK_EQUAL(pqxx::from_string<bool>("t"), true);
-  PQXX_CHECK_EQUAL(pqxx::from_string<bool>("true"), true);
-  PQXX_CHECK_EQUAL(pqxx::from_string<bool>("1"), true);
+  // NOLINTBEGIN(readability-simplify-boolean-expr)
+  static_assert(pqxx::from_string<bool>("f") == false);
+  static_assert(pqxx::from_string<bool>("false") == false);
+  static_assert(pqxx::from_string<bool>("0") == false);
+  static_assert(pqxx::from_string<bool>("t") == true);
+  static_assert(pqxx::from_string<bool>("true") == true);
+  static_assert(pqxx::from_string<bool>("1") == true);
+  // NOLINTEND(readability-simplify-boolean-expr)
 
+  // C++26: Test error cases at compile time.
   static constexpr std::string_view bad_strings[]{
     "",   "T",  "F",  "True", "False", "TRUE",  "FALSE",
     "00", "01", "11", "tt",   "ff",    "trues", "falses"};
@@ -85,10 +88,14 @@ void test_strconv_enum(pqxx::test::context &)
   PQXX_CHECK_EQUAL(pqxx::to_string(red), "0");
   PQXX_CHECK_EQUAL(pqxx::to_string(green), "1");
   PQXX_CHECK_EQUAL(pqxx::to_string(blue), "2");
+  static_assert(pqxx::to_string(red) == "0");
+  static_assert(pqxx::to_string(green) == "1");
+  static_assert(pqxx::to_string(blue) == "2");
 
   colour col{};
   pqxx::from_string("2", col);
   PQXX_CHECK_EQUAL(col, blue);
+  static_assert(pqxx::from_string<colour>("2") == blue);
 }
 
 
@@ -100,16 +107,22 @@ void test_strconv_class_enum(pqxx::test::context &)
   weather w{};
   pqxx::from_string("2", w);
   PQXX_CHECK_EQUAL(w, weather::wet);
+  static_assert(pqxx::from_string<weather>("2") == weather::wet);
 
   PQXX_CHECK_EQUAL(pqxx::to_string(many::bottom), "0");
+  static_assert(pqxx::to_string(many::bottom) == "0");
   PQXX_CHECK_EQUAL(
     pqxx::to_string(many::top),
+    pqxx::to_string(std::numeric_limits<unsigned long long>::max()));
+  static_assert(
+    pqxx::to_string(many::top) ==
     pqxx::to_string(std::numeric_limits<unsigned long long>::max()));
 
   pqxx::connection cx;
   pqxx::work tx{cx};
   std::tuple<weather> out;
   tx.exec("SELECT 0").one_row().to(out);
+  PQXX_CHECK_EQUAL(std::get<0>(out), weather::hot);
 }
 
 
@@ -121,11 +134,17 @@ void test_strconv_optional(pqxx::test::context &)
     pqxx::to_string(std::optional<int>{std::in_place, 10}), "10");
   PQXX_CHECK_EQUAL(
     pqxx::to_string(std::optional<int>{std::in_place, -10000}), "-10000");
+
+  static_assert(
+    pqxx::to_string(std::optional<int>{std::in_place, 10}) == "10");
+  static_assert(
+    pqxx::to_string(std::optional<int>{std::in_place, -10000}) == "-10000");
 }
 
 
 void test_strconv_smart_pointer(pqxx::test::context &)
 {
+  // C++26: Test error case at compile time.
   PQXX_CHECK_THROWS(
     pqxx::to_string(std::unique_ptr<int>{}), pqxx::conversion_error);
   PQXX_CHECK_EQUAL(pqxx::to_string(std::make_unique<int>(10)), "10");
@@ -139,7 +158,7 @@ void test_strconv_smart_pointer(pqxx::test::context &)
 
 
 // Cast a char to an unsigned int.
-unsigned char_as_unsigned(char n)
+constexpr unsigned char_as_unsigned(char n)
 {
   return static_cast<unsigned char>(n);
 }
@@ -182,20 +201,47 @@ template<typename T> constexpr std::size_t needs_bytes(T const &value)
  */
 template<typename T>
   requires(std::is_arithmetic_v<T>)
-constexpr std::size_t needs_bytes(T const &value)
+std::size_t needs_bytes(T const &value)
 {
   // Implementation using standard formatting library as an authority.
   return std::formatted_size("{}", value);
 }
 
 
+/// Local, `constexpr`, best-effort variant of `name_type()`.
+/** Used for composing test failure messages.
+ */
+template<typename T>
+[[nodiscard]] inline constexpr std::string_view guess_type_name()
+{
+#if defined(PQXX_HAVE_TYPE_DISPLAY)
+  // We know that we can easily get the name at compile time.
+  return pqxx::name_type<T>();
+#else
+  if (std::is_constant_evaluated())
+  {
+    // There's no _reliable_ way to get the type's name.  We may still be
+    // able to get it from name_type(), but there's no easy way to find out
+    // whether we can.
+    //
+    // Luckily, at compile time, the feedback on test failures tends to be
+    // pretty generous with the details.
+    return "<unknown type>";
+  }
+  else
+  {
+    return pqxx::name_type<T>();
+  }
+#endif
+}
+
 // Extra-thorough test for to_buf() & into_buf() on a given type.
 template<typename T>
-void check_write(
+constexpr bool check_write(
   T const &value, std::string_view expected,
   pqxx::sl loc = pqxx::sl::current())
 {
-  std::string_view const name{pqxx::name_type<T>()};
+  std::string_view const name{guess_type_name<T>()};
   std::array<char, 1000> buf{};
   for (auto i{0u}; i < std::size(buf); ++i) buf.at(i) = hash_index(i);
 
@@ -203,57 +249,48 @@ void check_write(
 
   // Test to_buf().
   std::string_view const out{pqxx::to_buf(buf, value, c)};
-  PQXX_CHECK_EQUAL(
-    std::size(out), std::size(expected),
-    std::format("to_buf() for {} wrote wrong length.", name), loc);
+  PQXX_CHECK_EQUAL(std::size(out), std::size(expected), name, loc);
 
   auto const sz{std::size(out)};
   PQXX_CHECK_LESS_EQUAL(
-    sz, pqxx::string_traits<T>::size_buffer(value),
-    std::format("Under-budgeted for to_buf on {}.", name), loc);
-  PQXX_CHECK_LESS(
-    sz, std::size(buf), std::format("Too much to_buf() data for {}.", name),
-    loc);
+    sz, pqxx::string_traits<T>::size_buffer(value), name, loc);
+  PQXX_CHECK_LESS(sz, std::size(buf), name, loc);
 
-  PQXX_CHECK_EQUAL(
-    out, expected, std::format("to_buf() for {} wrote wrong value.", name),
-    loc);
+  PQXX_CHECK_EQUAL(out, expected, name, loc);
   if (sz > 0)
-    PQXX_CHECK_NOT_EQUAL(
-      char_as_unsigned(out.at(sz - 1)), 0u,
-      std::format("to_buf() for {} put terminating zero inside result.", name),
-      loc);
+    PQXX_CHECK_NOT_EQUAL(char_as_unsigned(out.at(sz - 1)), 0u, name, loc);
 
   // Test into_buf().
   for (auto i{0u}; i < std::size(buf); ++i) buf.at(i) = hash_index(i);
   std::size_t const end{pqxx::into_buf(buf, value, c)};
+  PQXX_CHECK_LESS_EQUAL(end, std::size(buf), name, loc);
   PQXX_CHECK_LESS_EQUAL(
-    end, std::size(buf),
-    std::format("into_buf() for {} overran buffer.", name), loc);
-  PQXX_CHECK_LESS_EQUAL(
-    end, pqxx::string_traits<T>::size_buffer(value),
-    std::format("Under-budgeted for into_buf() on {}.", name), loc);
+    end, pqxx::string_traits<T>::size_buffer(value), name, loc);
   PQXX_CHECK_EQUAL(
-    (std::string_view{std::data(buf), end}), expected,
-    std::format("Wrong result from into_buf() on {}.", name), loc);
+    (std::string_view{std::data(buf), end}), expected, name, loc);
 
-  // Check overrun reporting.
-  std::size_t const bytes_needed{needs_bytes(value)};
-  if (bytes_needed > 0u)
+  // Check overrun reporting.  Can't do this at compile time because the
+  // generic implementation of needs_bytes() relies on non-constexpr
+  // std::formatted_size().
+  if (not std::is_constant_evaluated())
   {
-    std::array<char, 2> small{'x', 'y'};
-    std::span<char> const smallspan{small};
-    PQXX_CHECK_THROWS(
-      std::ignore = pqxx::into_buf(smallspan.first<0>(), value, c),
-      pqxx::conversion_overrun);
-    PQXX_CHECK(small[0] == 'x');
-    PQXX_CHECK(small[1] == 'y');
-    if (bytes_needed > 1u)
+    std::size_t const bytes_needed{needs_bytes(value)};
+    if (bytes_needed > 0u)
     {
+      std::array<char, 2> small{'x', 'y'};
+      std::span<char> const smallspan{small};
       PQXX_CHECK_THROWS(
-        std::ignore = pqxx::into_buf(smallspan.first<1>(), value, c),
+        std::ignore = pqxx::into_buf(smallspan.first<0>(), value, c),
         pqxx::conversion_overrun);
+      PQXX_CHECK(small[0] == 'x');
       PQXX_CHECK(small[1] == 'y');
+      if (bytes_needed > 1u)
+      {
+        PQXX_CHECK_THROWS(
+          std::ignore = pqxx::into_buf(smallspan.first<1>(), value, c),
+          pqxx::conversion_overrun);
+        PQXX_CHECK(small[1] == 'y');
+      }
     }
   }
 
@@ -261,8 +298,11 @@ void check_write(
   {
     auto const a_null{pqxx::make_null<T>()};
     PQXX_CHECK(pqxx::is_null(a_null));
-    PQXX_CHECK_THROWS(pqxx::to_string(a_null), pqxx::conversion_error);
+    if (not std::is_constant_evaluated())
+      PQXX_CHECK_THROWS(pqxx::to_string(a_null), pqxx::conversion_error);
   }
+
+  return true;
 }
 
 
@@ -270,6 +310,8 @@ void test_to_buf_into_buf(pqxx::test::context &tctx)
 {
   check_write(false, "false");
   check_write(true, "true");
+  static_assert(check_write(false, "false"));
+  static_assert(check_write(true, "true"));
 
   check_write(short{0}, "0");
   check_write(short{1}, "1");
@@ -291,6 +333,27 @@ void test_to_buf_into_buf(pqxx::test::context &tctx)
   check_write(short{-10000}, "-10000");
   check_write(short{-32767}, "-32767");
   check_write(short{-32768}, "-32768");
+
+  static_assert(check_write(short{0}, "0"));
+  static_assert(check_write(short{1}, "1"));
+  static_assert(check_write(short{10}, "10"));
+  static_assert(check_write(short{99}, "99"));
+  static_assert(check_write(short{100}, "100"));
+  static_assert(check_write(short{999}, "999"));
+  static_assert(check_write(short{1000}, "1000"));
+  static_assert(check_write(short{9999}, "9999"));
+  static_assert(check_write(short{10000}, "10000"));
+  static_assert(check_write(short{32767}, "32767"));
+  static_assert(check_write(short{-1}, "-1"));
+  static_assert(check_write(short{-10}, "-10"));
+  static_assert(check_write(short{-99}, "-99"));
+  static_assert(check_write(short{-100}, "-100"));
+  static_assert(check_write(short{-999}, "-999"));
+  static_assert(check_write(short{-1000}, "-1000"));
+  static_assert(check_write(short{-9999}, "-9999"));
+  static_assert(check_write(short{-10000}, "-10000"));
+  static_assert(check_write(short{-32767}, "-32767"));
+  static_assert(check_write(short{-32768}, "-32768"));
 
   check_write(static_cast<unsigned short>(0), "0");
   check_write(static_cast<unsigned short>(1), "1");
@@ -314,10 +377,28 @@ void test_to_buf_into_buf(pqxx::test::context &tctx)
   check_write(-2147483647, "-2147483647");
   check_write(-2147483648, "-2147483648");
 
+  static_assert(check_write(0, "0"));
+  static_assert(check_write(1, "1"));
+  static_assert(check_write(9, "9"));
+  static_assert(check_write(10, "10"));
+  static_assert(check_write(99, "99"));
+  static_assert(check_write(2147483647, "2147483647"));
+  static_assert(check_write(-1, "-1"));
+  static_assert(check_write(-9, "-9"));
+  static_assert(check_write(-10, "-10"));
+  static_assert(check_write(-99, "-99"));
+  static_assert(check_write(-2147483647, "-2147483647"));
+  static_assert(check_write(-2147483648, "-2147483648"));
+
   check_write(0u, "0");
   check_write(1u, "1");
   check_write(2147483647u, "2147483647");
   check_write(4294967296u, "4294967296");
+
+  static_assert(check_write(0u, "0"));
+  static_assert(check_write(1u, "1"));
+  static_assert(check_write(2147483647u, "2147483647"));
+  static_assert(check_write(4294967296u, "4294967296"));
 
   check_write(0L, "0");
   check_write(1L, "1");
@@ -327,10 +408,23 @@ void test_to_buf_into_buf(pqxx::test::context &tctx)
   check_write(-2147483647L, "-2147483647");
   check_write(-2147483648L, "-2147483648");
 
+  static_assert(check_write(0L, "0"));
+  static_assert(check_write(1L, "1"));
+  static_assert(check_write(100000L, "100000"));
+  static_assert(check_write(2147483647L, "2147483647"));
+  static_assert(check_write(-1L, "-1"));
+  static_assert(check_write(-2147483647L, "-2147483647"));
+  static_assert(check_write(-2147483648L, "-2147483648"));
+
   check_write(0uL, "0");
   check_write(1uL, "1");
   check_write(2147483647uL, "2147483647");
   check_write(4294967296uL, "4294967296");
+
+  static_assert(check_write(0uL, "0"));
+  static_assert(check_write(1uL, "1"));
+  static_assert(check_write(2147483647uL, "2147483647"));
+  static_assert(check_write(4294967296uL, "4294967296"));
 
   check_write(0LL, "0");
   check_write(1LL, "1");
@@ -340,10 +434,23 @@ void test_to_buf_into_buf(pqxx::test::context &tctx)
   check_write(-2147483647LL, "-2147483647");
   check_write(-2147483648LL, "-2147483648");
 
+  static_assert(check_write(0LL, "0"));
+  static_assert(check_write(1LL, "1"));
+  static_assert(check_write(100000LL, "100000"));
+  static_assert(check_write(2147483647LL, "2147483647"));
+  static_assert(check_write(-1LL, "-1"));
+  static_assert(check_write(-2147483647LL, "-2147483647"));
+  static_assert(check_write(-2147483648LL, "-2147483648"));
+
   check_write(0ULL, "0");
   check_write(1ULL, "1");
   check_write(2147483647ULL, "2147483647");
   check_write(4294967296ULL, "4294967296");
+
+  static_assert(check_write(0ULL, "0"));
+  static_assert(check_write(1ULL, "1"));
+  static_assert(check_write(2147483647ULL, "2147483647"));
+  static_assert(check_write(4294967296ULL, "4294967296"));
 
   check_write(0.0f, "0");
   check_write(0.125f, "0.125");
@@ -373,12 +480,17 @@ void test_to_buf_into_buf(pqxx::test::context &tctx)
   check_write(-10000.0L, "-10000");
 
   check_write(std::optional<int>{37}, "37");
+  static_assert(check_write(std::optional<int>{37}, "37"));
 
   check_write(std::variant<int, unsigned long>{482}, "482");
   check_write(std::variant<int, unsigned long>{777UL}, "777");
+  static_assert(check_write(std::variant<int, unsigned long>{482}, "482"));
+  static_assert(check_write(std::variant<int, unsigned long>{777UL}, "777"));
 
   check_write(static_cast<char const *>(""), "");
   check_write(static_cast<char const *>("Hello"), "Hello");
+  static_assert(check_write(static_cast<char const *>(""), ""));
+  static_assert(check_write(static_cast<char const *>("Hello"), "Hello"));
 
   std::array<char, 10> chars{};
   chars.at(0) = '\0';

@@ -22,7 +22,8 @@
 namespace pqxx::internal
 {
 /// Convert a number in [0, 9] to its ASCII digit.
-PQXX_PURE PQXX_HOT inline constexpr char number_to_digit(int i) noexcept
+template<integer TYPE>
+PQXX_PURE PQXX_HOT inline constexpr char number_to_digit(TYPE i) noexcept
 {
   PQXX_ASSUME(i >= 0);
   PQXX_ASSUME(i <= 9);
@@ -131,7 +132,7 @@ generic_into_buf(std::span<char> buf, T const &value, ctx c = {})
   auto const space{std::size(buf)};
   // Include the trailing zero.
   auto const len = std::size(text) + 1;
-  if (std::cmp_greater(len, space))
+  if (len > space)
     throw conversion_overrun{
       std::format("Not enough buffer space to insert {}.  ", name_type<T>()) +
         state_buffer_overrun(space, len),
@@ -218,6 +219,7 @@ template<typename T>
 concept arith = pqxx::internal::integer<T> or std::floating_point<T>;
 
 
+// C++23: Make constexpr.
 template<arith TYPE>
 inline TYPE from_string_arithmetic(std::string_view in, pqxx::ctx c)
 {
@@ -336,8 +338,60 @@ template<integer T> struct integer_string_traits
       return from_string_arithmetic<T>(text, c);
   }
 
-  PQXX_LIBEXPORT PQXX_HOT static std::string_view
-  to_buf(std::span<char> buf, T const &value, ctx c = {});
+  PQXX_LIBEXPORT PQXX_HOT static constexpr std::string_view
+  to_buf(std::span<char> buf, T value, ctx c = {})
+  {
+    // Zero is both common and a nasty special case.  Might as well catch it
+    // here and avoid a function-call penalty in the run-time case, or a
+    // complication in the compile-time case.
+    if (std::cmp_equal(value, 0))
+      return "0";
+    else if (std::is_constant_evaluated())
+    {
+      // Converting at compile time.  Don't worry about buffer overflows
+      // (since the compiler is required to catch those) or optimisation
+      // (since that only affects the build, not use).
+      constexpr T const ten{10};
+
+      // We'll write *backwards* through buf, because it's easier to compute
+      // the digits that way.  One of the fun things about the to_buf() API is
+      // that it doesn't have to write exactly from the beginning of buf.
+      std::size_t start{buf.size()};
+      if constexpr (not std::numeric_limits<T>::is_signed)
+      {
+        for (; value != 0; value = static_cast<T>(value / ten))
+          buf[--start] = number_to_digit(value % ten);
+      }
+      else if (value >= 0)
+      {
+        // Yes, this is the same as the unsigned-types case above.  But MSVC
+	// complained that otherwise, we might just apply the unary minus
+	// operator to an unsigned number.
+        for (; value != 0; value = static_cast<T>(value / ten))
+          buf[--start] = number_to_digit(value % ten);
+      }
+      else
+      {
+        // Can't just start by negating: it might be the minimal value which
+        // "negates" back to itself.
+        //
+        // Luckily the C++ standard nowadays specifies the results of % with
+        // negative numbers!
+        for (; value != 0; value = static_cast<T>(value / ten))
+          buf[--start] = number_to_digit(-(value % ten));
+        buf[--start] = '-';
+      }
+
+      auto const number{buf.subspan(start)};
+      return std::string_view{number.data(), number.size()};
+    }
+    else
+    {
+      // Converting nonzero number at run time.  Call the out-of-line
+      // implementation.
+      return dynamic_to_buf(buf, value, c);
+    }
+  }
 
   PQXX_INLINE_ONLY PQXX_HOT static constexpr std::size_t
   size_buffer(T const &) noexcept
@@ -348,8 +402,14 @@ template<integer T> struct integer_string_traits
      */
     return std::is_signed_v<T> + std::numeric_limits<T>::digits10 + 1;
   }
+
+private:
+  /// Implementation for @ref to_buf() for run-time values.
+  PQXX_LIBEXPORT static std::string_view
+  dynamic_to_buf(std::span<char> buf, T const &value, ctx c = {});
 };
 } // namespace pqxx::internal
+
 
 namespace pqxx
 {
@@ -476,6 +536,7 @@ template<typename... T> struct nullness<std::variant<T...>> final
 {
   static constexpr bool has_null = (pqxx::has_null<T>() or ...);
   static constexpr bool always_null = (pqxx::always_null<T>() and ...);
+
   [[nodiscard]] PQXX_PURE static constexpr bool
   is_null(std::variant<T...> const &value) noexcept
   {
@@ -592,6 +653,7 @@ template<> struct string_traits<std::monostate> final
   {
     return 0;
   }
+
   [[deprecated("Do not convert nulls.")]] static std::monostate
     from_string(std::string_view, ctx = {}) = delete;
 };
@@ -723,13 +785,13 @@ template<> struct nullness<std::string> final : no_null<std::string>
 
 template<> struct string_traits<std::string> final
 {
-  PQXX_INLINE_ONLY static std::string
+  PQXX_INLINE_ONLY static constexpr std::string
   from_string(std::string_view text, ctx = {})
   {
     return std::string{text};
   }
 
-  PQXX_INLINE_ONLY static std::string_view
+  PQXX_INLINE_ONLY static constexpr std::string_view
   to_buf(std::span<char>, std::string const &value, ctx = {})
   {
     return {std::data(value), std::size(value)};
@@ -766,13 +828,13 @@ template<> struct string_traits<std::string_view> final
     return std::size(value);
   }
 
-  PQXX_INLINE_ONLY static std::string_view
+  PQXX_INLINE_ONLY static constexpr std::string_view
   to_buf(std::span<char>, std::string_view const &value, ctx = {})
   {
     return value;
   }
 
-  PQXX_INLINE_ONLY static std::string_view
+  PQXX_INLINE_ONLY static constexpr std::string_view
   from_string(std::string_view value, ctx = {})
   {
     return value;
@@ -875,13 +937,13 @@ template<maybe_type T> struct string_traits<T> final
 {
   using maybe_traits = pqxx::maybe_traits<T>;
 
-  static T from_string(std::string_view text, ctx c = {})
+  static constexpr T from_string(std::string_view text, ctx c = {})
   {
     return maybe_traits::make(
       pqxx::from_string<typename maybe_traits::contained_t>(text, c));
   }
 
-  static std::string_view
+  static constexpr std::string_view
   to_buf(std::span<char> buf, T const &value, ctx c = {})
   {
     if (not maybe_traits::has_value(value))
@@ -889,7 +951,7 @@ template<maybe_type T> struct string_traits<T> final
     return pqxx::to_buf(buf, maybe_traits::get_value(value), c);
   }
 
-  static std::size_t size_buffer(T const &value) noexcept
+  static constexpr std::size_t size_buffer(T const &value) noexcept
   {
     if (pqxx::is_null(value))
       return 0;
@@ -905,17 +967,17 @@ template<binary DATA> struct nullness<DATA> final : no_null<DATA>
 
 template<binary DATA> struct string_traits<DATA> final
 {
-  static std::size_t size_buffer(DATA const &value) noexcept
+  static constexpr std::size_t size_buffer(DATA const &value) noexcept
   {
     return internal::size_esc_bin(std::size(value));
   }
 
-  static std::string_view
+  static constexpr std::string_view
   to_buf(std::span<char> buf, DATA const &value, ctx c = {})
   {
     // Budget for this type is precise.
     auto const budget{size_buffer(value)};
-    if (std::cmp_less(std::size(buf), budget))
+    if (std::size(buf) < budget)
       throw conversion_overrun{
         "Not enough buffer space to escape binary data.", c.loc};
     internal::esc_bin(value, buf);
@@ -925,7 +987,7 @@ template<binary DATA> struct string_traits<DATA> final
   }
 
   /// Convert a string to binary data.
-  static DATA from_string(std::string_view text, ctx c = {})
+  static constexpr DATA from_string(std::string_view text, ctx c = {})
   {
     auto const size{pqxx::internal::size_unesc_bin(std::size(text))};
     DATA buf{};
@@ -957,7 +1019,8 @@ template<binary DATA> struct string_traits<DATA> final
 
 /// Optimised specialisation: convert string into existing `binary` object.
 template<binary TYPE>
-inline void from_string(std::string_view text, TYPE &value, ctx c = {})
+inline constexpr void
+from_string(std::string_view text, TYPE &value, ctx c = {})
 {
   auto const size{pqxx::internal::size_unesc_bin(std::size(text))};
   if constexpr (requires { value.resize(std::size(value)); })
@@ -969,7 +1032,7 @@ inline void from_string(std::string_view text, TYPE &value, ctx c = {})
   {
     // There's no suitable `TYPE::resize()`.  But perhaps the caller has
     // ensured that `value` is already te right size.
-    if (std::cmp_not_equal(std::size(value), size))
+    if (std::size(value) != size)
       throw conversion_error{
         std::format(
           "Can't convert binary data from SQL text to {}: need {} byte(s), "
@@ -999,7 +1062,7 @@ template<typename T> struct nonbinary_range_traits
   using elt_traits = string_traits<elt_type>;
   static constexpr zview s_null{"NULL"};
 
-  static std::size_t size_buffer(T const &value) noexcept
+  static constexpr std::size_t size_buffer(T const &value) noexcept
   {
     return (
       // Opening brace.
@@ -1072,12 +1135,18 @@ template<nonbinary_range T> inline constexpr bool is_sql_array<T>{true};
 
 
 template<typename TYPE>
-PQXX_INLINE_COV inline std::string to_string(TYPE const &value, ctx c)
+PQXX_INLINE_COV inline constexpr std::string
+to_string(TYPE const &value, ctx c)
 {
   if (is_null(value))
-    throw conversion_error{
-      std::format("Attempt to convert null to a string.", name_type<TYPE>()),
-      c.loc};
+  {
+    if (std::is_constant_evaluated())
+      throw conversion_error{"Attempt to convert null to a string."};
+    else
+      throw conversion_error{
+        std::format("Attempt to convert null to a string.", name_type<TYPE>()),
+        c.loc};
+  }
 
   if constexpr (pqxx::always_null<TYPE>())
   {
@@ -1122,7 +1191,7 @@ template<> inline std::string to_string(std::stringstream const &value, ctx)
 
 
 template<typename T>
-inline void into_string(T const &value, std::string &out, ctx c = {})
+inline constexpr void into_string(T const &value, std::string &out, ctx c = {})
 {
   if (is_null(value))
     throw conversion_error{

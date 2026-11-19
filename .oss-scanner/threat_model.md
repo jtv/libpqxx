@@ -24,10 +24,10 @@ The tests in the `test/` directory may do strange things, because they're
 _meant_ to exercise the edges and the dark corners.  Memory bugs, undefined
 behaviour etc. in tests have Low priority.  Otherwise, report security
 vulnerabilities in the tests only if they can be exploited by an attacker
-without
+without privileged access to the system running the tests.
 
 Vulnerabilities or bugs that can only be exercised through deprecated features
-have reduced priority.
+(whether in libpqxx or a dependency) have reduced priority.
 
 
 Style guide
@@ -54,6 +54,24 @@ Try to ensure that Markdown files pass a `markdownlint` check:
 * Write nontrivial code blocks between triple backquotes; specify language.
 * Write filenames in backquotes to avoid trouble with un-escaped underscores.
 
+When stating conditions in the Impact section of a report ("This needs", "Two
+things most hold", etc.), make sure that the _purpose_ is not ambiguous: are
+those the conditions for reproducing the problem, or for fixing it?
+
 Feel free to capitalise the "l" in "libpqxx" at the beginning of a sentence.
 
+I like to pronounce SQL as "S. Q. L."  So if you need an indefinite article
+directly in front of it, please make it "an", not "a".
+
 Oh, and "prepend" is not a word.  You probably mean "prefix."
+
+
+Python formatting
+-----------------
+
+Follow the style guide as given above.  In addition:
+
+* Indent by 4 spaces.
+* Do not horizontally align arguments with the first one; just 4 spaces.
+* In multi-line lists and tuples, keep a comma at the end for regularity.
+* When line-breaking a function call, break the line right after the `(`.

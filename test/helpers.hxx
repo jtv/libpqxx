@@ -126,7 +126,7 @@ private:
 class test_failure : public std::logic_error
 {
 public:
-  explicit test_failure(std::string const &desc, sl loc = sl::current());
+  explicit test_failure(std::string_view desc, sl loc = sl::current());
   test_failure(test_failure const &) = default;
   test_failure(test_failure &&) = default;
   ~test_failure() noexcept override;
@@ -206,8 +206,7 @@ struct registrar final
 
 // Unconditional test failure.
 [[noreturn]] void check_notreached(
-  std::string const &desc =
-    "Execution was never supposed to reach this point.",
+  std::string_view desc = "Execution was never supposed to reach this point.",
   sl loc = sl::current());
 
 // C++23: Use std::stacktrace instead of descriptions.
@@ -222,9 +221,15 @@ struct registrar final
     pqxx::test::check((condition), #condition __VA_OPT__(, ) __VA_ARGS__)
 #endif
 
-void check(
+constexpr inline bool check(
   bool condition, char const text[],
-  std::string const &desc = "Condition check failed,", sl loc = sl::current());
+  std::string_view desc = "Condition check failed,", sl loc = sl::current())
+{
+  if (not condition)
+    throw test_failure{
+      std::format("{} (failed expression: '{}')", desc, text), loc};
+  return true;
+}
 
 // Verify that variable has the expected value.
 // Takes an optional failure description as a third argument.
@@ -240,10 +245,10 @@ void check(
 #endif
 
 template<typename ACTUAL, typename EXPECTED>
-inline void check_equal(
+inline constexpr bool check_equal(
   ACTUAL const &actual, char const *actual_text, EXPECTED const &expected,
-  char const *expected_text,
-  std::string const &desc = "Equality check failed.", sl loc = sl::current())
+  char const *expected_text, std::string_view desc = "Equality check failed.",
+  sl loc = sl::current())
 {
   // clang-tidy rule bug:
   // NOLINTBEGIN(
@@ -251,17 +256,22 @@ inline void check_equal(
   //    hicpp-no-array-decay
   // )
   if (expected == actual)
-    return;
+    return true;
   // NOLINTEND(
   //    cppcoreguidelines-pro-bounds-array-to-pointer-decay,
   //    hicpp-no-array-decay
   // )
 
-  throw test_failure{
-    std::format(
-      "{}\n{} <> {}.\nExpected: {}\nActual:   {}", desc, actual_text,
-      expected_text, to_string(expected), to_string(actual)),
-    loc};
+  if (std::is_constant_evaluated())
+    throw test_failure{"Values not equal."};
+  else
+    throw test_failure{
+      std::format(
+        "{}\n{} <> {}.\nExpected: {}\nActual:   {}", desc, actual_text,
+        expected_text, to_string(expected), to_string(actual)),
+      loc};
+
+  return true;
 }
 
 // clang-tidy rule bug:
@@ -283,17 +293,19 @@ inline void check_equal(
       (value1), #value1, (value2), #value2 __VA_OPT__(, ) __VA_ARGS__)
 #endif
 template<typename VALUE1, typename VALUE2>
-inline void check_not_equal(
+inline constexpr bool check_not_equal(
   VALUE1 const &value1, char const text1[], VALUE2 const &value2,
-  char const text2[], std::string const &desc = "Inequality check failed.",
+  char const text2[], std::string_view desc = "Inequality check failed.",
   sl loc = sl::current())
 {
   if (value1 != value2)
-    return;
+    return true;
   throw test_failure{
     std::format(
       "{} ({} == {}: both are {}).", desc, text1, text2, to_string(value2)),
     loc};
+
+  return true;
 }
 
 // NOLINTEND(
@@ -304,7 +316,7 @@ inline void check_not_equal(
 
 /// Verify that two blocks of binary data are equal.
 template<typename VALUE1, typename VALUE2>
-inline void check_equal_bin(
+inline constexpr bool check_equal_bin(
   VALUE1 const &value1, VALUE2 const &value2, sl loc = sl::current())
 {
   static_assert(sizeof(std::declval<VALUE1>()[0]) == 1u);
@@ -331,26 +343,30 @@ inline void check_equal_bin(
         loc};
     // NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
   }
+
+  return true;
 }
 
 
 /// Verify that two blocks of binary data differ.
 template<typename VALUE1, typename VALUE2>
-inline void check_not_equal_bin(
+inline constexpr bool check_not_equal_bin(
   VALUE1 const &value1, VALUE2 const &value2, sl loc = sl::current())
 {
   auto const sz{std::size(value1)};
   if (not std::cmp_equal(sz, std::size(value2)))
-    return;
+    return true;
 
   for (std::size_t i{0u}; i < sz; ++i)
     if (value1.at(i) != value2.at(i))
-      return;
+      return true;
 
   throw test_failure{
     std::format(
       "Binary data blocks of size {} are unexpectedly identical.", sz),
     loc};
+
+  return true;
 }
 
 // Verify that value1 is less/greater than value2.
@@ -370,9 +386,9 @@ inline void check_not_equal_bin(
       (value1), #value1, (value2), #value2 __VA_OPT__(, ) __VA_ARGS__)
 #endif
 template<typename VALUE1, typename VALUE2>
-inline void check_less(
+inline constexpr bool check_less(
   VALUE1 const &value1, char const text1[], VALUE2 const &value2,
-  char const text2[], std::string const &desc = "Less/greater check failed.",
+  char const text2[], std::string_view desc = "Less/greater check failed.",
   sl loc = sl::current())
 {
   // TODO: Use raw strings once Visual Studio handles them better.
@@ -385,6 +401,7 @@ inline void check_less(
         to_string(value1), to_string(value2)),
       loc};
   // NOLINTEND(modernize-raw-string-literal)
+  return true;
 }
 
 
@@ -407,17 +424,19 @@ inline void check_less(
       (value1), #value1, (value2), #value2 __VA_OPT__(, ) __VA_ARGS__)
 #endif
 template<typename VALUE1, typename VALUE2>
-inline void check_less_equal(
+inline constexpr bool check_less_equal(
   VALUE1 const &value1, char const text1[], VALUE2 const &value2,
-  char const text2[], std::string const &desc = "Less/greater check failed.",
+  char const text2[], std::string_view desc = "Less/greater check failed.",
   sl loc = sl::current())
 {
   if (value1 <= value2)
-    return;
+    return true;
   std::string const fulldesc{std::format(
     R"-({} ({} > {}: "lower"={}, "upper"={}))-", desc, text1, text2, value1,
     value2)};
   throw test_failure{fulldesc, loc};
+
+  return true;
 }
 
 
@@ -469,7 +488,7 @@ inline void check_succeeds(
 
 
 template<typename EXC, std::invocable F>
-inline void check_throws(
+inline constexpr bool check_throws(
   F &&f, char const text[],
   std::string desc = "This code did not throw the expected exception.",
   pqxx::sl loc = sl::current())
@@ -488,7 +507,7 @@ inline void check_throws(
   catch (EXC const &)
   {
     // OK, that's the exception we wanted.
-    return;
+    return true;
   }
   catch (std::exception const &e)
   {
@@ -515,6 +534,9 @@ inline void check_throws(
     check_notreached(
       std::format("{} (\"{}\" threw a non-exception type!)", desc, text), loc);
   }
+
+  // Just so you can use this in static_assert().
+  return true;
 }
 
 
