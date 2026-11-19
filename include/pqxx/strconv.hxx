@@ -440,8 +440,8 @@ consteval bool supports_to_buf_8()
  * differences.
  */
 template<typename TYPE>
-[[nodiscard]] inline std::string_view constexpr to_buf(
-  std::span<char> buf, TYPE const &value, ctx c = {})
+[[nodiscard]] inline constexpr std::string_view
+to_buf(std::span<char> buf, TYPE const &value, ctx c = {})
 {
   using traits = string_traits<TYPE>;
   if constexpr (supports_to_buf_8<TYPE>())
@@ -467,7 +467,6 @@ template<typename TYPE>
 [[nodiscard]] inline constexpr std::size_t
 into_buf(std::span<char> buf, TYPE const &value, ctx c = {})
 {
-  auto const data{std::data(buf)};
   std::string_view out{to_buf(buf, value, c)};
   auto const sz{std::size(out)};
 
@@ -483,7 +482,8 @@ into_buf(std::span<char> buf, TYPE const &value, ctx c = {})
           name_type<TYPE>(), std::size(out)),
         c.loc};
 
-    std::memmove(data, std::data(out), sz);
+    pqxx::internal::memmove(
+      buf, std::span<char const>{out.data(), out.size()}, c.loc);
   }
 
   return sz;

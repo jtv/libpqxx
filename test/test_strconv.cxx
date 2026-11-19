@@ -123,6 +123,9 @@ void test_strconv_optional(pqxx::test::context &)
     pqxx::to_string(std::optional<int>{std::in_place, 10}), "10");
   PQXX_CHECK_EQUAL(
     pqxx::to_string(std::optional<int>{std::in_place, -10000}), "-10000");
+
+  static_assert(
+    pqxx::to_string(std::optional<bool>{std::in_place, true}) == "true");
 }
 
 

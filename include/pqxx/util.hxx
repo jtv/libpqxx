@@ -415,17 +415,18 @@ template<typename MAYBE> struct maybe_traits final
    *
    * The return type would normally be `contained_t const &`.
    */
-  [[nodiscard]] static auto const &get_value(maybe_t const &) = delete;
+  [[nodiscard]] static constexpr auto const &
+  get_value(maybe_t const &) = delete;
 
   /// Create an instance of `maybe_t` not containing any value.
   /** The return type would normally be `contained_t`.
    */
-  [[nodiscard]] static auto make_blank() noexcept = delete;
+  [[nodiscard]] static constexpr auto make_blank() noexcept = delete;
 
   /// Construct an instance of `maybe_t` containing the given value.
   /** The return type would normally be `contained_t`.
    */
-  [[nodiscard]] static auto make(contained_t &&) = delete;
+  [[nodiscard]] static constexpr auto make(contained_t &&) = delete;
 };
 
 
@@ -449,7 +450,7 @@ template<typename CONTAINED> struct maybe_traits<std::optional<CONTAINED>>
     return m.has_value();
   }
 
-  [[nodiscard]] static contained_t const &get_value(maybe_t const &m)
+  [[nodiscard]] static constexpr contained_t const &get_value(maybe_t const &m)
   {
     // clang-tidy rule bug:
     // NOLINTNEXTLINE(cert-dcl03-c)
@@ -458,9 +459,9 @@ template<typename CONTAINED> struct maybe_traits<std::optional<CONTAINED>>
     return m.value();
   }
 
-  [[nodiscard]] static maybe_t make_blank() noexcept { return {}; }
+  [[nodiscard]] static constexpr maybe_t make_blank() noexcept { return {}; }
 
-  [[nodiscard]] static maybe_t make(contained_t &&c) { return {c}; }
+  [[nodiscard]] static constexpr maybe_t make(contained_t &&c) { return {c}; }
 };
 
 
@@ -474,7 +475,7 @@ template<typename CONTAINED> struct maybe_traits<std::shared_ptr<CONTAINED>>
     return bool{m};
   }
 
-  [[nodiscard]] static contained_t const &get_value(maybe_t const &m)
+  [[nodiscard]] static constexpr contained_t const &get_value(maybe_t const &m)
   {
     // clang-tidy rule bug:
     // NOLINTNEXTLINE(cert-dcl03-c)
@@ -482,9 +483,9 @@ template<typename CONTAINED> struct maybe_traits<std::shared_ptr<CONTAINED>>
     return *m;
   }
 
-  [[nodiscard]] static maybe_t make_blank() noexcept { return {}; }
+  [[nodiscard]] static constexpr maybe_t make_blank() noexcept { return {}; }
 
-  [[nodiscard]] static maybe_t make(contained_t &&c)
+  [[nodiscard]] static constexpr maybe_t make(contained_t &&c)
   {
     return std::make_shared<maybe_t>(c);
   }
@@ -501,7 +502,7 @@ template<typename CONTAINED> struct maybe_traits<std::unique_ptr<CONTAINED>>
     return bool{m};
   }
 
-  [[nodiscard]] static contained_t const &get_value(maybe_t const &m)
+  [[nodiscard]] static constexpr contained_t const &get_value(maybe_t const &m)
   {
     // clang-tidy rule bug:
     // NOLINTNEXTLINE(cert-dcl03-c)
@@ -509,9 +510,9 @@ template<typename CONTAINED> struct maybe_traits<std::unique_ptr<CONTAINED>>
     return *m;
   }
 
-  [[nodiscard]] static maybe_t make_blank() noexcept { return {}; }
+  [[nodiscard]] static constexpr maybe_t make_blank() noexcept { return {}; }
 
-  [[nodiscard]] static maybe_t make(contained_t &&c)
+  [[nodiscard]] static constexpr maybe_t make(contained_t &&c)
   {
     return std::make_unique<contained_t>(c);
   }

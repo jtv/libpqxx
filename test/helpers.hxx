@@ -472,7 +472,7 @@ inline void check_succeeds(
 
 
 template<typename EXC, std::invocable F>
-inline constexpr void check_throws(
+inline constexpr bool check_throws(
   F &&f, char const text[],
   std::string desc = "This code did not throw the expected exception.",
   pqxx::sl loc = sl::current())
@@ -491,7 +491,7 @@ inline constexpr void check_throws(
   catch (EXC const &)
   {
     // OK, that's the exception we wanted.
-    return;
+    return true;
   }
   catch (std::exception const &e)
   {
@@ -518,6 +518,9 @@ inline constexpr void check_throws(
     check_notreached(
       std::format("{} (\"{}\" threw a non-exception type!)", desc, text), loc);
   }
+
+  // Just so you can use this in static_assert().
+  return true;
 }
 
 

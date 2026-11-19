@@ -1082,9 +1082,14 @@ PQXX_INLINE_COV inline constexpr std::string
 to_string(TYPE const &value, ctx c)
 {
   if (is_null(value))
-    throw conversion_error{
-      std::format("Attempt to convert null to a string.", name_type<TYPE>()),
-      c.loc};
+  {
+    if (std::is_constant_evaluated())
+      throw conversion_error{"Attempt to convert null to a string."};
+    else
+      throw conversion_error{
+        std::format("Attempt to convert null to a string.", name_type<TYPE>()),
+        c.loc};
+  }
 
   if constexpr (pqxx::always_null<TYPE>())
   {
