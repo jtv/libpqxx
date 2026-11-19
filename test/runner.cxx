@@ -38,8 +38,8 @@
 
 namespace pqxx::test
 {
-test_failure::test_failure(std::string const &desc, sl loc) :
-        std::logic_error{desc}, m_loc{loc}
+test_failure::test_failure(std::string_view desc, sl loc) :
+        std::logic_error{std::string{desc}}, m_loc{loc}
 {}
 
 test_failure::~test_failure() noexcept = default;
@@ -52,17 +52,9 @@ inline void drop_table(transaction_base &t, std::string const &table, sl loc)
 }
 
 
-[[noreturn]] void check_notreached(std::string const &desc, sl loc)
+[[noreturn]] void check_notreached(std::string_view desc, sl loc)
 {
   throw test_failure{desc, loc};
-}
-
-
-void check(bool condition, char const text[], std::string const &desc, sl loc)
-{
-  if (not condition)
-    throw test_failure{
-      std::format("{} (failed expression: '{}')", desc, text), loc};
 }
 
 

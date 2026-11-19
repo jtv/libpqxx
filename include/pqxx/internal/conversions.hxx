@@ -359,7 +359,7 @@ template<integer T> struct integer_string_traits
       std::size_t start{buf.size()};
       if (value > 0)
       {
-        for (; value != 0; value /= ten)
+        for (; value != 0; value = static_cast<T>(value / ten))
           buf[--start] = number_to_digit(value % ten);
       }
       else
@@ -369,7 +369,7 @@ template<integer T> struct integer_string_traits
         //
         // Luckily the C++ standard nowadays specifies the results of % with
         // negative numbers!
-        for (; value != 0; value /= ten)
+        for (; value != 0; value = static_cast<T>(value / ten))
           buf[--start] = number_to_digit(-(value % ten));
         buf[--start] = '-';
       }
