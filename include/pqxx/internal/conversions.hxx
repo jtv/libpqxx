@@ -357,7 +357,12 @@ template<integer T> struct integer_string_traits
       // the digits that way.  One of the fun things about the to_buf() API is
       // that it doesn't have to write exactly from the beginning of buf.
       std::size_t start{buf.size()};
-      if (value > 0)
+      if constexpr (not std::numeric_limits<T>::is_signed)
+      {
+        for (; value != 0; value = static_cast<T>(value / ten))
+          buf[--start] = number_to_digit(value % ten);
+      }
+      else if (value >= 0)
       {
         for (; value != 0; value = static_cast<T>(value / ten))
           buf[--start] = number_to_digit(value % ten);
