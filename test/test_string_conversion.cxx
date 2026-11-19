@@ -38,15 +38,22 @@ constexpr double thres{0.00001};
 void test_string_conversion(pqxx::test::context &tctx)
 {
   PQXX_CHECK_EQUAL("C string array", pqxx::to_string("C string array"));
+  static_assert(pqxx::to_string("C string array") == "C string array");
 
-  char const text_array[]{"C char array"};
+  constexpr char const text_array[]{"C char array"};
   PQXX_CHECK_EQUAL("C char array", pqxx::to_string(text_array));
+  static_assert(pqxx::to_string(text_array) == "C char array");
 
-  char const *text_ptr{"C string pointer"};
+  constexpr char const *const text_ptr{"C string pointer"};
   PQXX_CHECK_EQUAL("C string pointer", pqxx::to_string(text_ptr));
+  static_assert(pqxx::to_string(text_ptr) == "C string pointer");
 
   std::string const cxx_string{"C++ string"};
   PQXX_CHECK_EQUAL("C++ string", pqxx::to_string(cxx_string));
+
+  constexpr std::string_view const sview{"string view"};
+  PQXX_CHECK_EQUAL(pqxx::to_string(sview), "string view");
+  static_assert(pqxx::to_string(sview) == "string view");
 
   PQXX_CHECK_EQUAL("0", pqxx::to_string(0));
   PQXX_CHECK_EQUAL("1", pqxx::to_string(1));
@@ -125,6 +132,7 @@ void test_convert_variant_to_string(pqxx::test::context &)
 void test_integer_conversion(pqxx::test::context &)
 {
   PQXX_CHECK_EQUAL(pqxx::from_string<int>("12"), 12);
+  static_assert(pqxx::from_string<int>("12") == 12);
   PQXX_CHECK_EQUAL(pqxx::from_string<int>(" 12"), 12);
   PQXX_CHECK_THROWS(
     std::ignore = pqxx::from_string<int>(""), pqxx::conversion_error);
