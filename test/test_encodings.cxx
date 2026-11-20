@@ -25,7 +25,7 @@ using namespace std::literals;
 
 
 /// Convenience shorthand: `std::source_location::current()`.
-pqxx::sl loc(pqxx::sl l = pqxx::sl::current())
+[[nodiscard]] constexpr pqxx::sl callsite(pqxx::sl l = pqxx::sl::current())
 {
   return l;
 }
@@ -36,25 +36,25 @@ pqxx::sl loc(pqxx::sl l = pqxx::sl::current())
  * languages using Google Translate, and encoded in the respective encoding
  * groups.
  */
-template<pqxx::encoding_group ENC> std::string_view const eels;
+template<pqxx::encoding_group ENC> constexpr std::string_view const eels;
 
 /// Big5: Traditional Chinese.
 template<>
-auto const eels<pqxx::encoding_group::two_tier>{
+constexpr auto const eels<pqxx::encoding_group::two_tier>{
   "\xa7\xda\xaa\xba\xae\xf0\xb9\xd4\xb2\xee\xb8\xcc\xa5\xfe\xac\x4f\xc5\xc1"
   "\xb3\xbd"sv};
 /// ASCII-safe: German.
 template<>
-auto const eels<pqxx::encoding_group::ascii_safe>{
+constexpr auto const eels<pqxx::encoding_group::ascii_safe>{
   "Mein Luftkissenfahrzeug ist voll mit Aalen."sv};
 /// GB18030: Simplified Chinese.
 template<>
-auto const eels<pqxx::encoding_group::gb18030>{
+constexpr auto const eels<pqxx::encoding_group::gb18030>{
   "\xce\xd2\xb5\xc4\xc6\xf8\xb5\xe6\xb4\xac\xc0\xef\xd7\xb0\xc2\xfa\xc1\xcb"
   "\xf7\xa9\xd3\xe3\xa1\xa3"sv};
 /// SJIS: Japanese.
 template<>
-auto const eels<pqxx::encoding_group::sjis>{
+constexpr auto const eels<pqxx::encoding_group::sjis>{
   "\x8e\x84\x82\xcc\x83\x7a\x83\x6f\x81\x5b\x83\x4e\x83\x89\x83\x74\x83\x67"
   "\x82\xcd\x83\x45\x83\x69\x83\x4d\x82\xc5\x82\xa2\x82\xc1\x82\xcf\x82\xa2"
   "\x82\xc5\x82\xb7"sv};
@@ -64,13 +64,16 @@ auto const eels<pqxx::encoding_group::sjis>{
 /** These represent multibyte characters in various encodings which happen to
  * contain a byte with the same numeric value as the ASCII pipe symbol, '|'.
  */
-template<pqxx::encoding_group ENC> std::string_view const tricky;
+template<pqxx::encoding_group ENC> constexpr std::string_view const tricky;
 
-template<> auto const tricky<pqxx::encoding_group::two_tier>{"\xa1|"sv};
+template<>
+constexpr auto const tricky<pqxx::encoding_group::two_tier>{"\xa1|"sv};
 // (Yeah such a string is not possible here.)
-template<> auto const tricky<pqxx::encoding_group::gb18030>{"\x81|"sv};
-template<> auto const tricky<pqxx::encoding_group::sjis>{"\x81|"sv};
-template<> auto const tricky<pqxx::encoding_group::shift_jis_2004>{"\x81|"sv};
+template<>
+constexpr auto const tricky<pqxx::encoding_group::gb18030>{"\x81|"sv};
+template<> constexpr auto const tricky<pqxx::encoding_group::sjis>{"\x81|"sv};
+template<>
+constexpr auto const tricky<pqxx::encoding_group::shift_jis_2004>{"\x81|"sv};
 
 
 /// Test basic sanity of search in encoding group `ENC`.
@@ -82,60 +85,60 @@ template<> auto const tricky<pqxx::encoding_group::shift_jis_2004>{"\x81|"sv};
  *
  * The texts are both `eels` and `tricky` for each of the encodings.
  */
-template<pqxx::encoding_group ENC> void test_search(std::string_view enc_name)
+template<pqxx::encoding_group ENC>
+constexpr bool test_search(pqxx::sl loc = pqxx::sl::current())
 {
-  auto const finder{pqxx::internal::get_char_finder<'|'>(ENC, loc())};
+  auto const finder{pqxx::internal::get_char_finder<'|'>(ENC, callsite())};
 
   // First, we do some generic tests on ASCII strings.  All supported
   // encodings are ASCII supersets, so a plain ASCII string is valid and
   // correct in each of them.
   PQXX_CHECK_EQUAL(
-    finder("", 0, loc()), 0u,
-    std::format("Empty string search ({}) went out of bounds.", enc_name));
+    finder("", 0, callsite()), 0u, "Empty string search went out of bounds.",
+    loc);
   PQXX_CHECK_EQUAL(
-    finder("|||", 0, loc()), 0u,
-    std::format(
-      "Search on ASCII string ({}) missed starting char.", enc_name));
+    finder("|||", 0, callsite()), 0u,
+    "Search on ASCII string missed starting char.", loc);
   PQXX_CHECK_EQUAL(
-    finder("|||", 1, loc()), 1u,
-    std::format(
-      "Search ({}) at non-zero offset ended in the wrong place.", enc_name));
+    finder("|||", 1, callsite()), 1u,
+    "Search at non-zero offset ended in the wrong place.", loc);
   PQXX_CHECK_EQUAL(
-    finder("abcd", 0, loc()), 4u,
-    std::format(
-      "Search ({}) for absent character in ASCII string went wrong.",
-      enc_name));
+    finder("abcd", 0, callsite()), 4u,
+    "Search for absent character in ASCII string went wrong.", loc);
 
   // Now try searching a text that actually uses ENC.  First a failing search,
   // since the text does not contain the character we're looking for:
   PQXX_CHECK_EQUAL(
-    finder(eels<ENC>, 0, loc()), std::size(eels<ENC>),
+    finder(eels<ENC>, 0, callsite()), std::size(eels<ENC>),
     "Search for absent character did not hit end.");
   // Then, a successful search.
   PQXX_CHECK_EQUAL(
-    finder(std::string{eels<ENC>} + "|nn", 0, loc()), std::size(eels<ENC>),
-    "False negative on search.");
+    finder(std::string{eels<ENC>} + "|nn", 0, callsite()),
+    std::size(eels<ENC>), "False negative on search.");
 
   // Finally, we perform similar searches but for the tricky strings which
   // contain a byte with value 0x7c ("|") inside a multibyte character.  The
   // search should ignore that embedded byte.
   PQXX_CHECK_EQUAL(
-    finder(tricky<ENC>, 0, loc()), std::size(tricky<ENC>),
+    finder(tricky<ENC>, 0, callsite()), std::size(tricky<ENC>),
     "Looks like we fell for an embedded '|' byte.");
   // Then, a successful search.
   PQXX_CHECK_EQUAL(
-    finder(std::string{tricky<ENC>} + "|nn", 0, loc()), std::size(tricky<ENC>),
+    finder(std::string{tricky<ENC>} + "|nn", 0, callsite()),
+    std::size(tricky<ENC>),
     "Did not find '|' after string with embedded '|' byte.");
+
+  return true;
 }
 
 
 void test_find_chars(pqxx::test::context &)
 {
-  test_search<pqxx::encoding_group::two_tier>("big5");
-  test_search<pqxx::encoding_group::ascii_safe>("ascii_safe");
-  test_search<pqxx::encoding_group::gb18030>("gb18030");
-  test_search<pqxx::encoding_group::sjis>("sjis");
-  test_search<pqxx::encoding_group::shift_jis_2004>("shift_jis_2004");
+  static_assert(test_search<pqxx::encoding_group::two_tier>());
+  static_assert(test_search<pqxx::encoding_group::ascii_safe>());
+  static_assert(test_search<pqxx::encoding_group::gb18030>());
+  static_assert(test_search<pqxx::encoding_group::sjis>());
+  static_assert(test_search<pqxx::encoding_group::shift_jis_2004>());
 }
 
 
@@ -158,23 +161,24 @@ void test_find_escapable_chars(pqxx::test::context &)
   constexpr std::string_view fake_backslash{"\x81\x5f"sv},
     fake_tilde{"\x81\xb0"sv}, text{"ab\x81\x5f|\\"sv};
 
-  auto const find_2004{
-    pqxx::internal::get_escape_finder<'\\'>(group::shift_jis_2004, loc())};
+  auto const find_2004{pqxx::internal::get_escape_finder<'\\'>(
+    group::shift_jis_2004, callsite())};
   // This finder finds the special SJIS-2004 2-byte backslash.
-  PQXX_CHECK_EQUAL(find_2004(text, 0, loc()), 2u);
+  PQXX_CHECK_EQUAL(find_2004(text, 0, callsite()), 2u);
   // Of course it also finds an ASCII backslash.
-  PQXX_CHECK_EQUAL(find_2004(text, 4, loc()), 5u);
+  PQXX_CHECK_EQUAL(find_2004(text, 4, callsite()), 5u);
   // Fake tilde is also weird, but our finder isn't looking for that.
-  PQXX_CHECK_EQUAL(find_2004(fake_tilde, 0, loc()), std::size(fake_tilde));
-  PQXX_CHECK_THROWS(find_2004("\x81", 0, loc()), pqxx::argument_error);
+  PQXX_CHECK_EQUAL(
+    find_2004(fake_tilde, 0, callsite()), std::size(fake_tilde));
+  PQXX_CHECK_THROWS(find_2004("\x81", 0, callsite()), pqxx::argument_error);
 
   auto const find_tilde{
-    pqxx::internal::get_escape_finder<'~'>(group::shift_jis_2004, loc())};
+    pqxx::internal::get_escape_finder<'~'>(group::shift_jis_2004, callsite())};
   // This finder does spot the special tilde.
-  PQXX_CHECK_EQUAL(find_tilde(fake_tilde, 0, loc()), 0u);
+  PQXX_CHECK_EQUAL(find_tilde(fake_tilde, 0, callsite()), 0u);
   // It skips the fake backslash, since we're not looking for tildes.
   PQXX_CHECK_EQUAL(
-    find_tilde(fake_backslash, 0, loc()), std::size(fake_backslash));
+    find_tilde(fake_backslash, 0, callsite()), std::size(fake_backslash));
 
   auto const [special, width]{pqxx::internal::special_char(text, 2)};
   PQXX_CHECK_EQUAL(char_to_u(special), char_to_u('\\'));
@@ -186,23 +190,23 @@ void test_find_escapable_chars(pqxx::test::context &)
   // Regular char finders don't know about this wart.  They read the text
   // as the server will send it to us, and the server never sends these.
   auto const find_plain{
-    pqxx::internal::get_char_finder<'\\'>(group::shift_jis_2004, loc())};
-  PQXX_CHECK_EQUAL(find_plain(text, 0, loc()), 5u);
+    pqxx::internal::get_char_finder<'\\'>(group::shift_jis_2004, callsite())};
+  PQXX_CHECK_EQUAL(find_plain(text, 0, callsite()), 5u);
 
   // In plain SJIS, the same bytes are just an unremarkable character.
   auto const find_sjis{
-    pqxx::internal::get_escape_finder<'\\'>(group::sjis, loc())};
-  PQXX_CHECK_EQUAL(find_sjis(text, 0, loc()), 5u);
+    pqxx::internal::get_escape_finder<'\\'>(group::sjis, callsite())};
+  PQXX_CHECK_EQUAL(find_sjis(text, 0, callsite()), 5u);
 }
 
 
 template<pqxx::encoding_group ENC> void check_unfinished_character()
 {
-  auto const finder{pqxx::internal::get_char_finder<'|'>(ENC, loc())};
+  auto const finder{pqxx::internal::get_char_finder<'|'>(ENC, callsite())};
 
   // This happens to be an incomplete character in all supported non-ASCII-safe
   // encodings.
-  PQXX_CHECK_THROWS(finder("\x81", 0, loc()), pqxx::argument_error);
+  PQXX_CHECK_THROWS(finder("\x81", 0, callsite()), pqxx::argument_error);
 }
 
 
@@ -218,9 +222,9 @@ void test_find_chars_fails_for_unfinished_character(pqxx::test::context &)
 template<std::size_t N>
 auto find_x(std::array<char, N> const &data, pqxx::encoding_group enc)
 {
-  auto const find{pqxx::internal::get_char_finder<'|'>(enc, loc())};
+  auto const find{pqxx::internal::get_char_finder<'|'>(enc, callsite())};
   std::string_view const buf{std::data(data), N};
-  return find(buf, 0u, loc());
+  return find(buf, 0u, callsite());
 }
 
 
