@@ -87,6 +87,19 @@ constexpr encoding_group enc_group(std::string_view encoding_name, sl loc)
           return encoding_group::ascii_safe;
       }
       break;
+    case 'J':
+      if (same(encoding_name, "JOHAB"sv))
+        // Going by the discussion on postgres bug #19354, as well as the
+        // Unicode Consortium's conversion table, JOHAB is just another
+        // encoding where bytes 0x00-0x7f are single-byte characters, and
+        // lead bytes 0x80-0xff indicate the beginning of a 2-byte character.
+        //
+        // Older versions of postgres got this wrong and rejected some valid
+        // characters.  However libpqxx doesn't care about the characters.
+        // All it cares about is where the characters begin and end, so that
+        // it can detect special characters.
+        return encoding_group::two_tier;
+      break;
     case 'K':
       if (same(encoding_name, "KOI8R"sv) or same(encoding_name, "KOI8U"sv))
         return encoding_group::ascii_safe;
@@ -206,6 +219,7 @@ static_assert(enc_group("SJIS", sl::current()) == encoding_group::sjis);
 static_assert(
   enc_group("SQL_ASCII", sl::current()) == encoding_group::ascii_safe);
 static_assert(enc_group("UHC", sl::current()) == encoding_group::two_tier);
+static_assert(enc_group("JOHAB", sl::current()) == encoding_group::two_tier);
 static_assert(enc_group("UTF8", sl::current()) == encoding_group::ascii_safe);
 static_assert(
   enc_group("WIN866", sl::current()) == encoding_group::ascii_safe);
