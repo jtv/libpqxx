@@ -17,7 +17,10 @@ using namespace std::literals;
 
 
 /// Because the C++ Core Guidelines don't like numeric constants...
-constexpr int ten{10};
+/** And MSVC makes it worse by thinking that calling this just `ten` shadows
+ * a local variable in one of the headers.
+ */
+constexpr int number_ten{10};
 
 
 /// Render the numeric part of a year value into a buffer.
@@ -63,7 +66,7 @@ year_into_buf(char *begin, std::chrono::year const &value, pqxx::ctx c = {})
       *begin++ = '0';
       if (absy < hundred)
         *begin++ = '0';
-      if (absy < ten)
+      if (absy < number_ten)
         *begin++ = '0';
     }
 
@@ -108,12 +111,12 @@ inline int year_from_buf(std::string_view text, pqxx::sl loc)
 inline char *month_into_buf(char *begin, std::chrono::month const &value)
 {
   unsigned const m{value};
-  if (m >= ten)
+  if (m >= number_ten)
     *begin = '1';
   else
     *begin = '0';
   ++begin;
-  *begin++ = pqxx::internal::number_to_digit(static_cast<int>(m % ten));
+  *begin++ = pqxx::internal::number_to_digit(static_cast<int>(m % number_ten));
   return begin;
 }
 
@@ -128,7 +131,7 @@ month_from_string(std::string_view text, pqxx::sl loc)
     throw pqxx::conversion_error{
       std::format("Invalid month: '{}'.", text), loc};
   return std::chrono::month{unsigned(
-    (ten * pqxx::internal::digit_to_number(text[0])) +
+    (number_ten * pqxx::internal::digit_to_number(text[0])) +
     pqxx::internal::digit_to_number(text[1]))};
 }
 
@@ -137,8 +140,8 @@ month_from_string(std::string_view text, pqxx::sl loc)
 inline char *day_into_buf(char *begin, std::chrono::day const &value)
 {
   unsigned const d{value};
-  *begin++ = pqxx::internal::number_to_digit(static_cast<int>(d / ten));
-  *begin++ = pqxx::internal::number_to_digit(static_cast<int>(d % ten));
+  *begin++ = pqxx::internal::number_to_digit(static_cast<int>(d / number_ten));
+  *begin++ = pqxx::internal::number_to_digit(static_cast<int>(d % number_ten));
   return begin;
 }
 
@@ -152,7 +155,7 @@ inline std::chrono::day day_from_string(std::string_view text, pqxx::sl loc)
     throw pqxx::conversion_error{
       std::format("Bad day in date: '{}'.", text), loc};
   std::chrono::day const d{unsigned(
-    (ten * pqxx::internal::digit_to_number(text[0])) +
+    (number_ten * pqxx::internal::digit_to_number(text[0])) +
     pqxx::internal::digit_to_number(text[1]))};
   if (not d.ok())
     throw pqxx::conversion_error{
