@@ -268,7 +268,7 @@ bool pqxx::pipeline::obtain_result(bool expect_none, sl loc)
   {
     set_error_at(std::begin(m_queries)->first);
     throw std::logic_error{
-      "Got more results from pipeline than there were queries.", loc};
+      "Got more results from pipeline than there were queries."};
   }
 
   // Must be the result for the oldest pending query.
