@@ -29,8 +29,19 @@ using namespace std::literals::string_view_literals;
 
 namespace
 {
-constexpr std::string_view theSeparator{"; "sv}, theDummyValue{"1"sv},
-  theDummyQuery{"SELECT 1; "sv};
+// XXX: Document dummy query,..  Purpose?
+/// Constants used for batching.
+/** The pipeline can combine multiple statements and send them to the server as
+ * a single batch.  It does that by concatenating them, separated by a
+ * semicolon (`the_separator`).
+ *
+ * When the batch consists of multiple queries, we prefix it with a simple
+ * "dummy query".
+ */
+constexpr std::string_view const
+  the_separator{"; "},
+  the_dummy_value{"1"},
+  the_dummy_query{"SELECT 1; "};
 } // namespace
 
 
@@ -207,19 +218,19 @@ void pqxx::pipeline::issue(sl loc)
 
   // Construct cumulative query string for entire batch.
   auto cum{separated_list(
-    theSeparator, oldest, std::end(m_queries),
+    the_separator, oldest, std::end(m_queries),
     [](QueryMap::const_iterator i) { return *i->second.query; })};
   auto const num_issued{
     QueryMap::size_type(std::distance(oldest, std::end(m_queries)))};
-  bool const prepend_dummy{num_issued > 1};
-  if (prepend_dummy)
-    cum = std::format("{}{}", theDummyQuery, cum);
+  bool const prefix_dummy{num_issued > 1};
+  if (prefix_dummy)
+    cum = std::format("{}{}", the_dummy_query, cum);
 
   pqxx::internal::gate::connection_pipeline{trans().conn()}.start_exec(
     cum.c_str());
 
   // Since we managed to send out these queries, update state to reflect this.
-  m_dummy_pending = prepend_dummy;
+  m_dummy_pending = prefix_dummy;
   m_issuedrange.first = oldest;
   m_issuedrange.second = std::end(m_queries);
   m_num_waiting -= check_cast<int>(num_issued, "pipeline issue()"sv, loc);
@@ -257,12 +268,12 @@ bool pqxx::pipeline::obtain_result(bool expect_none, sl loc)
   {
     set_error_at(std::begin(m_queries)->first);
     throw std::logic_error{
-      "Got more results from pipeline than there were queries."};
+      "Got more results from pipeline than there were queries.", loc};
   }
 
   // Must be the result for the oldest pending query.
   if (not std::empty(m_issuedrange.first->second.res)) [[unlikely]]
-    internal_error("Multiple results for one query.", loc);
+    internal_error("Got multiple results for one query.", loc);
 
   m_issuedrange.first->second.res = res;
   ++m_issuedrange.first;
@@ -306,22 +317,23 @@ void pqxx::pipeline::obtain_dummy(sl loc)
     if (std::size(R) > 1) [[unlikely]]
       internal_error("Unexpected result for dummy query in pipeline.", loc);
 
-    if (R.at(0).at(0).view() != theDummyValue) [[unlikely]]
+    if (R.at(0).at(0).view() != the_dummy_value) [[unlikely]]
       internal_error(
         "Dummy query in pipeline returned unexpected value.", loc);
     return;
   }
 
-  // TODO: Can we actually re-issue statements after a failure?
-  /* Execution of this batch failed.
+  // TODO: In a nontransaction, after a failure, re-issue one by one?
+  /* Execution of this entire batch failed, as happens with an SQL syntax
+   * error.
    *
    * When we send multiple statements in one go, the backend treats them as a
    * single transaction.  So the entire batch was effectively rolled back.
    *
    * Since none of the queries in the batch were actually executed, we can
    * afford to replay them one by one until we find the exact query that
-   * caused the error.  This gives us not only a more specific error message
-   * to report, but also tells us which query to report it for.
+   * caused the error.  This not only gives us a more specific error message
+   * to report, but also tells us which query failed.
    */
   // First, give the whole batch the same syntax error message, in case all
   // else is going to fail.

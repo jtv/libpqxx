@@ -28,7 +28,6 @@ namespace pqxx
 {
 // TODO: libpq 14 introduced a similar "pipeline mode."  Replace with that.
 
-// XXX: Working on this documentation.
 /// Non-blocking query execution.
 /** A `pipeline` lets you keep doing other work while your queries are
  * executing, without needing a separate thread.  It decouples the time when
@@ -256,11 +255,17 @@ private:
   }
 
   /// Throw pqxx::internal_error.
-  [[noreturn]] PQXX_PRIVATE void internal_error(std::string const &err, sl);
+  [[noreturn]] PQXX_PRIVATE [[noreturn]] void internal_error(std::string const &err, sl);
 
+  /// Get a result from the server, store it in `m_queries`.
   PQXX_PRIVATE bool obtain_result(bool expect_none, sl);
 
+  /// Get the result for the leading "dummy query" in a batch.
+  /** Every multi-query batch starts off with the dummy query.  This helps in
+   * detecting failed batches.
+   */
   PQXX_PRIVATE void obtain_dummy(sl);
+
   PQXX_PRIVATE void get_further_available_results(sl);
   PQXX_PRIVATE void check_end_results();
 
