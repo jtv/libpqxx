@@ -28,24 +28,80 @@ namespace pqxx
 {
 // TODO: libpq 14 introduced a similar "pipeline mode."  Replace with that.
 
-/// Processes several queries in FIFO manner, optimized for high throughput.
-/** Use a pipeline if you want to keep doing useful work while your queries are
- * executing.  Result retrieval is decoupled from execution request; queries
- * "go in at the front" and results "come out the back."
+// XXX: Working on this documentation.
+/// Non-blocking query execution.
+/** A `pipeline` lets you keep doing other work while your queries are
+ * executing, without needing a separate thread.  It decouples the time when
+ * you request execution of a query from the time when you collect the result.
+ * You insert a query "at the front," and later, a result "comes out the back"
+ * when you ask for it.  In the meantime your thread stays free to do its other
+ * work.  (There may still be a built-in wait if the query is not finished yet
+ * by the time you ask for its result.)
  *
- * Actually, you can retrieve the results in any order if you want, but it may
- * lead to surprising "time travel" effects if any of the queries fails.  In
- * particular, syntax errors in the queries can confuse things and show up too
- * early in the stream of results.
+ * While a pipeline is active, you cannot execute queries, open streams, etc.
+ * on the same transaction.  At any given time, a transaction can have at most
+ * one object of a type derived from @ref pqxx::transaction_focus associated
+ * with it.
  *
- * Generally, if any of the queries fails, it will throw an exception at the
- * point where you request its result.  But it may happen earlier, especially
- * if you request results out of chronological order.
+ * You can feed more queries into the pipeline before the previous query is
+ * done.  The pipeline wlil just queue the queries up and wait for another
+ * opportunity to send them to the server.
  *
- * @warning While a pipeline is active, you cannot execute queries, open
- * streams, etc. on the same transaction.  A transaction can have at most one
- * object of a type derived from @ref pqxx::transaction_focus active on it at a
- * time.
+ * Because of all this, a query may not start executing until you ask for its
+ * result.  There is no background thread managing the pipeline, so the only
+ * opportunities for it to send queries to the server or retrieve results is
+ * when you call it.
+ *
+ *
+ * ### Batching
+ *
+ * A pipeline can optionally _batch_ several queries and send them to the
+ * server in one go.  If the database is remote, this can help save a few
+ * network packet round-trips.
+ *
+ * The pipeline decides for itself exactly which queries to batch together.
+ * All you do is set a limit to how many queries it may send as a single batch.
+ * It's only a limit; actual batches may be smaller depending on the
+ * circumstances.
+ *
+ * If you are using the `pipeline` in a @ref nontransaction, then the batches
+ * execute like little "sub-transactions": if one query in a batch fails, the
+ * whole batch gets rolled back.
+ *
+ *
+ * ### Errors
+ *
+ * If any of the queries in the pipeline fails, it _generally_ throws an
+ * exception when you try to retrieve its result.  But in some cases, such as
+ * SQL syntax errors, the error may also "time-travel" and show up as you try
+ * to collect an _earlier_ result.  It probably doesn't matter when you're
+ * running the pipeline in a @ref dbtransaction, because it will roll back all
+ * the queries you executed in the pipeline.
+ *
+ * Beware of surprising effects when queries fail in a pipeline in a
+ * @ref nontransaction, however.  In that situation, you can continue using
+ * the pipeline after an error, but things get complicated if you also enable
+ * batching of queries by calling @ref retain().  In that situation, an error
+ * will _roll back the whole batch_ of queries that it sent to the server at
+ * once.  So a query _before_ the one that fails may return success, yet still
+ * be rolled back by the later error.  And a query that was already inserted
+ * after the failed one may also fail because of the error.  Effectively, if
+ * you use batching in a pipeline on a @ref nontransaction, the batches become
+ * subtransactions.
+ *
+ * You can issue your queries in one order and then collect the results in a
+ * different order, though of course that can make time-travel effects on
+ * errors more confusing.  For example, a query's result may just not become
+ * available because a previous query failed... even though you may not have
+ * tried to retrieve the previous query's result yet and so haven't seen the
+ * error.
+ *
+ * Once a query in a pipeline has failed, consider the pipeline broken.  Stop
+ * inserting new queries into it, and don't attempt to retrieve any further
+ * query results.  The exception to this is that if you retrieve results out
+ * of order, you can still retrieve the results from earlier queries.  Do so
+ * in the order in which you inserted the queries, and stop when you hit the
+ * oldest error.
  */
 class PQXX_LIBEXPORT pipeline final : public transaction_focus
 {
@@ -144,8 +200,6 @@ public:
    * them to the backend immediately) may negate any performance benefits the
    * pipeline can offer.
    *
-   * Recommended practice is to set this value no higher than the number of
-   * queries you intend to insert at a time.
    * @param retain_max A nonnegative "retention capacity;" passing zero will
    * cause queries to be issued immediately
    * @return Old retention capacity
