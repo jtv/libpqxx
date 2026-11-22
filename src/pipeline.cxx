@@ -86,19 +86,27 @@ pqxx::pipeline::query_id pqxx::pipeline::insert(std::string_view q, sl loc) &
 
   if (m_issuedrange.second == std::end(m_queries))
   {
+    // We had any pending queries issued to the server, but no longer.
+    // Patch up the range of issued queries so that its end marker refers to
+    // our new query, not end().
     m_issuedrange.second = i;
     if (m_issuedrange.first == std::end(m_queries))
+    {
+      // We had no queries issued at all.  Make the beginning of the range of
+      // issued queries refer to the new query.  (The end marker will also
+      // point to it, so the pipeline won't think that the new query has
+      // already been issued.)
       m_issuedrange.first = i;
+    }
   }
+  assert(m_issuedrange.first != std::end(m_queries));
+
   m_num_waiting++;
 
-  if (m_num_waiting > m_retain)
-  {
-    if (have_pending())
-      receive_if_available(loc);
-    if (not have_pending())
-      issue(loc);
-  }
+  if (have_pending())
+    receive_if_available(loc);
+  if ((m_num_waiting > 0) and not have_pending())
+    issue(loc);
 
   return qid;
 }
@@ -321,7 +329,7 @@ void pqxx::pipeline::obtain_dummy(sl loc)
     return;
   }
 
-  // TODO: In a nontransaction, after a failure, re-issue one by one?
+  // TODO: In a nontransaction, failure does not affect dummy query!
   /* Execution of this entire batch failed, as happens with an SQL syntax
    * error.
    *

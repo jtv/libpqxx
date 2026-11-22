@@ -101,6 +101,18 @@ namespace pqxx
  * of order, you can still retrieve the results from earlier queries.  Do so
  * in the order in which you inserted the queries, and stop when you hit the
  * oldest error.
+ *
+ *
+ * ### Recommendations
+ *
+ * Use this class if you need to issue a lot of fast queries, or if have useful
+ * work to complete while waiting for a query's results.
+ *
+ * Use batching only if it helps performance in your specific case (it mainly
+ * depends on communication speed with the server).
+ *
+ * If you are using a pipeline in a @ref nontransaction, you SHOULD NOT call
+ * its @ref retain() function with an argument greater than 1.
  */
 class PQXX_LIBEXPORT pipeline final : public transaction_focus
 {
@@ -194,10 +206,15 @@ public:
   [[nodiscard]] bool empty() const noexcept { return std::empty(m_queries); }
 
   /// Set maximum number of queries to retain before issuing them to backend.
-  /** The pipeline will perform better if multiple queries are issued at once,
-   * but retaining queries until the results are needed (as opposed to issuing
-   * them to the backend immediately) may negate any performance benefits the
-   * pipeline can offer.
+  /** The pipeline will need slightly fewer network packet roundgrips to the
+   * database server if you let it ssue multiple queries at the same time.
+   *
+   * There are drawbacks, however.  Your process will use more memory while
+   * retrieving the results from the database.  And if you're using the
+   * pipeline in a @ref nontransaction, it gets harder to deal with errors.  A
+   * single failed query in a batch will cause the whole batch to be rolled
+   * back, even though the earlier queries in the batch may return "successful"
+   * results.
    *
    * @param retain_max A nonnegative "retention capacity;" passing zero will
    * cause queries to be issued immediately
