@@ -211,7 +211,7 @@ public:
    *
    * There are drawbacks, however.  Your process will use more memory while
    * retrieving the results from the database.  And if you're using the
-   * pipeline in a @ref nontransaction, it gets harder to deal with errors.  A
+   * pipeline in a @ref nontransaction, dealing with errors gets harder.  A
    * single failed query in a batch will cause the whole batch to be rolled
    * back, even though the earlier queries in the batch may return "successful"
    * results.

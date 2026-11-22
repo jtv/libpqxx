@@ -29,14 +29,14 @@ using namespace std::literals::string_view_literals;
 
 namespace
 {
-// XXX: Document dummy query,..  Purpose?
+// XXX: I think we can do it without that dummy query!
 /// Constants used for batching.
 /** The pipeline can combine multiple statements and send them to the server as
  * a single batch.  It does that by concatenating them, separated by a
  * semicolon (`the_separator`).
  *
  * When the batch consists of multiple queries, we prefix it with a simple
- * "dummy query".
+ * "dummy query" to help detect certain kinds of failures.
  */
 constexpr std::string_view const the_separator{"; "}, the_dummy_value{"1"},
   the_dummy_query{"SELECT 1; "};
@@ -196,6 +196,7 @@ void pqxx::pipeline::resume(sl loc) &
   if (not have_pending() and m_num_waiting)
   {
     issue(loc);
+    // XXX: Doesn't seem likely that this call will receive any results.
     receive_if_available(loc);
   }
 }
@@ -288,6 +289,7 @@ bool pqxx::pipeline::obtain_result(bool expect_none, sl loc)
 }
 
 
+// XXX: Should this be called obtain_batch()?
 void pqxx::pipeline::obtain_dummy(sl loc)
 {
   conversion_context const c{{}, loc};
@@ -329,7 +331,8 @@ void pqxx::pipeline::obtain_dummy(sl loc)
     return;
   }
 
-  // TODO: In a nontransaction, failure does not affect dummy query!
+  // TODO: In a nontransaction, most failures don't affect dummy result!
+  // XXX: Loop over results first to check all for errors.
   /* Execution of this entire batch failed, as happens with an SQL syntax
    * error.
    *
