@@ -255,7 +255,7 @@ private:
   }
 
   /// Throw pqxx::internal_error.
-  [[noreturn]] PQXX_PRIVATE [[noreturn]] void internal_error(std::string const &err, sl);
+  PQXX_PRIVATE [[noreturn]] void internal_error(std::string const &err, sl);
 
   /// Get a result from the server, store it in `m_queries`.
   PQXX_PRIVATE bool obtain_result(bool expect_none, sl);

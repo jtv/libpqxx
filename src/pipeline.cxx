@@ -38,9 +38,7 @@ namespace
  * When the batch consists of multiple queries, we prefix it with a simple
  * "dummy query".
  */
-constexpr std::string_view const
-  the_separator{"; "},
-  the_dummy_value{"1"},
+constexpr std::string_view const the_separator{"; "}, the_dummy_value{"1"},
   the_dummy_query{"SELECT 1; "};
 } // namespace
 
