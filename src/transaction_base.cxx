@@ -30,6 +30,7 @@
 
 using namespace std::literals;
 
+
 namespace
 {
 /// The SQL ROLLBACK command.
@@ -38,6 +39,7 @@ namespace
 std::shared_ptr<std::string> const default_rollback_cmd{
   std::make_shared<std::string>("ROLLBACK")};
 } // namespace
+
 
 pqxx::transaction_base::transaction_base(connection &cx, sl loc) :
         m_conn{cx}, m_rollback_cmd{default_rollback_cmd}, m_created_loc{loc}
