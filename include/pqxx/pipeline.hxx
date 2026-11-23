@@ -279,7 +279,7 @@ private:
 
   /// Get the result for the leading "dummy query" in a batch.
   /** Every multi-query batch starts off with the dummy query.  This helps in
-   * detecting failed batches.
+   * detecting some kinds of failed batches.
    */
   PQXX_PRIVATE void obtain_dummy(sl);
 
