@@ -504,7 +504,7 @@ public:
   TYPE query_value(std::string_view query, std::string_view desc)
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-    return exec(query, desc).one_field().as<TYPE>();
+    return exec(query, desc).one_field().template as<TYPE>();
 #include "pqxx/internal/ignore-deprecated-post.hxx"
   }
 
@@ -520,7 +520,7 @@ public:
   {
     // The result and field_ref objects are temporaries, but under C++20
     // lifetime rules they'll live until after we convert the field to TYPE.
-    return exec(query, loc).one_field_ref(loc).as<TYPE>(loc);
+    return exec(query, loc).one_field_ref(loc).template as<TYPE>(loc);
   }
 
   /// Perform query returning exactly one row, and convert its fields.
@@ -558,7 +558,7 @@ public:
     auto const res{exec(query, loc)};
     std::optional<row_ref> const r{res.opt_row_ref(loc)};
     if (r)
-      return {r->as<TYPE...>(loc)};
+      return {r->template as<TYPE...>(loc)};
     else
       return {};
   }
@@ -919,7 +919,7 @@ public:
   {
     // The result and row_ref objects are temporaries, but under C++20 lifetime
     // rules they'll live until after we convert the field to TYPE.
-    return exec(query, parms, loc).one_row_ref(loc).as<TYPE...>(loc);
+    return exec(query, parms, loc).one_row_ref(loc).template as<TYPE...>(loc);
   }
 
   /// Query at most one row of data, and if there is one, convert it.
@@ -937,7 +937,7 @@ public:
     auto const res{exec(query, parms, loc)};
     std::optional<row_ref> r{res.opt_row_ref(loc)};
     if (r)
-      return {r->as<TYPE...>(loc)};
+      return {r->template as<TYPE...>(loc)};
     else
       return {};
   }
