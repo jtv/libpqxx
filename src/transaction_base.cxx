@@ -32,20 +32,15 @@ using namespace std::literals;
 
 namespace
 {
-/// Return a query pointer for the command "ROLLBACK".
-/** Concentrates constructions so as to minimise the number of allocations.
- * This way, the string gets allocated once and then all subsequent invocations
- * copy shared_ptr instances to the same string.
+/// The SQL ROLLBACK command.
+/** Allocated once here to minimise memory allocations.
  */
-std::shared_ptr<std::string> make_rollback_cmd()
-{
-  static auto const cmd{std::make_shared<std::string>("ROLLBACK")};
-  return cmd;
-}
+std::shared_ptr<std::string> const default_rollback_cmd{
+  std::make_shared<std::string>("ROLLBACK")};
 } // namespace
 
 pqxx::transaction_base::transaction_base(connection &cx, sl loc) :
-        m_conn{cx}, m_rollback_cmd{make_rollback_cmd()}, m_created_loc{loc}
+        m_conn{cx}, m_rollback_cmd{default_rollback_cmd}, m_created_loc{loc}
 {}
 
 
@@ -53,7 +48,7 @@ pqxx::transaction_base::transaction_base(
   connection &cx, std::string_view tname, sl loc) :
         m_conn{cx},
         m_name{tname},
-        m_rollback_cmd{make_rollback_cmd()},
+        m_rollback_cmd{default_rollback_cmd},
         m_created_loc{loc}
 {}
 
