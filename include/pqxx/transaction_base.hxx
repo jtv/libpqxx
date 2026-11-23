@@ -540,7 +540,7 @@ public:
     return exec(query, loc)
       .expect_columns(sizeof...(TYPE), loc)
       .one_row_ref(loc)
-      .as<TYPE...>(loc);
+      .template as<TYPE...>(loc);
   }
 
   /// Query at most one row of data, and if there is one, convert it.
@@ -901,7 +901,7 @@ public:
     return exec(query, parms, loc)
       .expect_columns(1, loc)
       .one_field_ref(loc)
-      .as<TYPE>(loc);
+      .template as<TYPE>(loc);
   }
 
   /// Perform query returning exactly one row, and convert its fields.
@@ -1051,7 +1051,7 @@ public:
     return exec(statement, parms, loc)
       .expect_columns(1, loc)
       .one_field_ref(loc)
-      .as<TYPE>(loc);
+      .template as<TYPE>(loc);
   }
 
   /// Perform prepared statement returning exactly 1 value.
@@ -1064,7 +1064,7 @@ public:
     return exec(statement, {}, loc)
       .expect_columns(1, loc)
       .one_field_ref(loc)
-      .as<TYPE>(loc);
+      .template as<TYPE>(loc);
   }
 
   /// Execute prepared statement, load result, perform `func` for each row.
