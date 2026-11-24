@@ -438,12 +438,13 @@ public:
   row one_row(sl = sl::current()) const;
 
   /// Check that result contains exactly 1 row, and return a reference to it.
-  /** You must ensure that the @ref result object stays valid, and does not
-   * move, whenever you access the row.
+  /** A @ref row_ref acts as a _reference to_ a row, not the row itself.  You
+   * must ensure that the @ref result object stays valid, and does not move,
+   * for as long as you might access it.
    *
    * @throw @ref unexpected_rows if the actual count is not equal to `n`.
    */
-  row_ref one_row_ref(sl = sl::current()) const;
+  row_ref one_row_ref(sl = sl::current()) const &;
 
   /// Expect that result contains at most one row, and return as optional.
   /** Returns an empty `std::optional` if the result is empty, or if it has
