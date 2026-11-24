@@ -5,15 +5,13 @@
 
 namespace
 {
-constexpr std::string_view const marker{"application_name="};
-
-
 /// Connect to the database, passing `app_name` for its `application_name`.
 /** Does not do any quoting or escaping.  The caller will have to do that.
  */
-pqxx::connection connect(std::string const &app_name)
+pqxx::connection
+connect(std::string const &app_name, pqxx::sl loc = pqxx::sl::current())
 {
-  return pqxx::connection(std::string{marker} + app_name);
+  return pqxx::connection{std::format("application_name={}", app_name), loc};
 }
 
 
@@ -26,12 +24,20 @@ pqxx::connection connect(std::string const &app_name)
  */
 std::string app_name(pqxx::connection const &cx)
 {
+  constexpr std::string_view const marker{"application_name="};
   std::string const &all{cx.connection_string()};
 
   auto const intro{all.find(marker)};
-  auto const start{intro + std::size(marker)};
-  if (start == std::string::npos or all.at(start) == ' ')
+  auto start{intro + std::size(marker)};
+  if (start == std::string::npos)
     return "";
+
+  // Space around the equals sign is optional (although we assume for finding
+  // the entry we need that there's none before the equals sign).
+  for (; std::isspace(all.at(start)); ++start)
+    if (start == std::size(all))
+      return "";
+
   std::size_t here{start}, end{};
   if (all.at(here) == '\'')
   {
@@ -60,10 +66,14 @@ std::string app_name(pqxx::connection const &cx)
 }
 
 
-void check_connect_string(std::string const &in, std::string const &expected)
+/// Check that the connection's application name is as expected.
+void check_connect_string(
+  std::string const &in, std::string const &expected,
+  pqxx::sl loc = pqxx::sl::current())
 {
-  auto const cx{connect(in)};
-  PQXX_CHECK_EQUAL(app_name(cx), expected);
+  auto const cx{connect(in, loc)};
+  PQXX_CHECK_EQUAL(
+    app_name(cx), expected, "Connection string value did not match.", loc);
 
   // Check that connection_string() produced a valid, more or less equivalent
   // connection string.
@@ -73,9 +83,23 @@ void check_connect_string(std::string const &in, std::string const &expected)
 
 void test_connection_string_escapes(pqxx::test::context &)
 {
-  check_connect_string("pqxxtest", "pqxxtest");
+  // If there are no special characters, quotes are optional.
+  check_connect_string("hello", "hello");
   check_connect_string("'hello'", "hello");
-  check_connect_string("'a b c'", "'a b c'");
+
+  // Embedded spaces need quoting (but no escaping).
+  check_connect_string("x.y", "x.y");
+  check_connect_string("'x y'", "'x y'");
+  check_connect_string("'x\ty'", "'x\ty'");
+  check_connect_string("'x\ny'", "'x\ny'");
+  check_connect_string("'x\ry'", "'x\ry'");
+  check_connect_string("'x\fy'", "'x\fy'");
+  check_connect_string("'x\vy'", "'x\vy'");
+
+  // Tricky: leading & trailing space.
+  check_connect_string(" ' foo ' ", "' foo '");
+
+  // This gets quoted because of the space, not because of the backslashes.
   check_connect_string("'x \\\\y'", "'x \\\\y'");
 
   // TODO: Use raw strings once Visual Studio copes with backslashes there.
@@ -83,9 +107,8 @@ void test_connection_string_escapes(pqxx::test::context &)
   // NOLINTNEXTLINE(modernize-raw-string-literal)
   check_connect_string("\\\\r\\\\n", "\\\\r\\\\n");
 
-  // This does seem to get quoted, even though as I read the spec, that's not
-  // actually required because there's no space in it.
-  check_connect_string("don\\'t", "'don\\'t'");
+  // Embedded quotes need escaping (but not necessarily quoting).
+  check_connect_string("don\\'t", "don\\'t");
 }
 
 

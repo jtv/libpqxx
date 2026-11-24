@@ -1531,17 +1531,44 @@ void pqconninfofree(PQconninfoOption *ptr)
 std::string quote_connect_param(std::string_view val)
 {
   std::string buf;
+  // Sizing pessimistically: say we need to escape every byte, plus quotes.
   buf.reserve(2 * std::size(val) + 2);
 
-  bool const quote{
-    pqxx::str_contains(val, ' ') or pqxx::str_contains(val, '\'')};
+  // Does this string need quoting?  We start out optimistic.  The only case
+  // where we know a priori that we need to quote is if the string is empty.
+  bool quote{std::empty(val)};
 
-  if (quote)
-    buf += '\'';
   for (auto const c : val)
   {
-    if ((c == '\\') or (c == '\''))
+    switch (c)
+    {
+    case '\'':
+    case '\\':
+      // We need to escape an embedded single-quote or backslash, but in itself
+      // it doesn't mean that the string needs quoting.
       buf += '\\';
+      break;
+
+    case ' ':
+    case '\t':
+    case '\n':
+    case '\r':
+    case '\f':
+    case '\v':
+      // Spaces don't need escaping, but they do need quoting.
+      if (not quote)
+      {
+        // We just discovered that we should be quoting this string.  Bit
+        // late, probably not the most efficient way to do it, but... these
+        // strings aren't meant to be long.  The overhead will be small
+        // compared to that of connecting to the database.
+        quote = true;
+        buf.insert(buf.begin(), '\'');
+      }
+      break;
+
+    default: [[likely]] break;
+    }
     buf += c;
   }
   if (quote)
