@@ -264,9 +264,19 @@ void test_connection_client_encoding(pqxx::test::context &tctx)
       static_cast<underlying>(pqxx::encoding_group::ascii_safe));
   }
 
+  // Before even calling libpq, set_client_encoding() sanity-checks the
+  // encoding name.
+  static std::vector<char const *> const insane_encodings{
+    "don't",
+    "\\n",
+  };
+
+  for (char const *const e : insane_encodings)
+    PQXX_CHECK_THROWS(cx.set_client_encoding(e), pqxx::argument_error);
+
   // Covering lots of initial letters because it helps fill out test
   // coverage on an internal switch on that initial character.
-  static std::vector<char const *> const bogus_encodings{
+  std::vector<char const *> const bogus_encodings{
     "ABSENT",
     "BOGUS",
     "ELUSIVE",
