@@ -1062,6 +1062,7 @@ template<typename T> struct nonbinary_range_traits
   using elt_traits = string_traits<elt_type>;
   static constexpr zview s_null{"NULL"};
 
+  /// This will terminate the process if iterating the range fails.
   static constexpr std::size_t size_buffer(T const &value) noexcept
   {
     return (

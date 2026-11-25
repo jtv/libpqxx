@@ -79,7 +79,33 @@ void test_pipeline(pqxx::test::context &)
     std::chrono::duration_cast<std::chrono::seconds>(finish - start).count()};
   PQXX_CHECK_LESS(seconds, 5);
 }
-} // namespace
+
+
+void test_pipeline_batches_queries(pqxx::test::context &tctx)
+{
+  pqxx::connection cx;
+  pqxx::work tx{cx};
+
+  std::vector<std::string> expected;
+  for (int i{0}; i < 5; ++i)
+    expected.push_back(tctx.make_name(std::format("res{}", i)));
+
+  pqxx::pipeline pipe{tx};
+  pipe.retain(3);
+  for (auto const &v : expected) pipe.insert(std::format("SELECT '{}'", v));
+
+  for (std::size_t i{0}; i < std::size(expected); ++i)
+  {
+    auto const [qid, res]{pipe.retrieve()};
+    PQXX_CHECK_EQUAL(res.at(0).at(0).view(), expected.at(i));
+    std::ignore = qid;
+  }
+
+  pipe.complete();
+}
+
 
 PQXX_REGISTER_TEST(test_pipeline_is_consistent);
 PQXX_REGISTER_TEST(test_pipeline);
+PQXX_REGISTER_TEST(test_pipeline_batches_queries);
+} // namespace

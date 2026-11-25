@@ -33,8 +33,9 @@ Vulnerabilities or bugs that can only be exercised through deprecated features
 Style guide
 -----------
 
-Keep your code, documentation, and other text to 79 columns.  Capitalise and
-punctuate code comments just like you would the same text in documentation.
+Keep your code, `README.md`, documentation, and other text to 79 columns.
+Capitalise and punctuate code comments properly, just like you would in
+documentation.
 
 In Markdown text, write identifiers (e.g. C++ classes or Python variables) in
 backquotes (`transaction_base` etc.).  Not just for typesetting but also to

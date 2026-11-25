@@ -53,13 +53,11 @@ void test_071(pqxx::test::context &)
 
   values.clear();
   P.retain(10);
+  // With this batch size we can send up to 10 queries to the server at once.
+  // However the pipeline will try to issue queries as soon as they come in,
+  // meaning that it may never actually fill up a whole batch.
   for (int i{1010}; i > 1000; --i)
-    values[P.insert("SELECT " + pqxx::to_string(i))] = i;
-  for (auto const &c : values)
-  {
-    // Because of the retain(), these queries are never completed.
-    PQXX_CHECK(not P.is_finished(c.first));
-  }
+    values[P.insert(std::format("SELECT {}", i))] = i;
 
   // See that all results are retrieved by complete()
   P.complete();

@@ -32,6 +32,8 @@
  - More text conversions are `constexpr`.
  - `pqxx::array` conforms more closely to `std::mdspan`.
  - Redid quoting/escaping of connection string parameters.
+ - Updated documentation for `pipeline`.
+ - Make `pipeline` issue queries more aggressively.
 8.0.2
  - Simple benchmark tool for query performance.
  - Fix an apparent `memcpy()` overlap.
