@@ -229,6 +229,8 @@ template<typename TYPE> struct string_traits final
 {
   /// Estimate how much buffer space is needed to represent value as SQL text.
   /** The estimate may be a little pessimistic, if it saves time.
+   *
+   * Keep implementations of this function `noexcept`.
    */
   [[nodiscard]] static std::size_t
   size_buffer(TYPE const &value) noexcept = delete;
