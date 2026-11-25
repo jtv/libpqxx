@@ -283,8 +283,7 @@ template<> struct string_traits<legacy_item> final
 {
   // The clang-tidy rule is just wrong here.
   // NOLINTBEGIN(readability-non-const-parameter)
-  static inline zview
-  to_buf(char *begin, char const *end, legacy_item const &value)
+  static zview to_buf(char *begin, char const *end, legacy_item const &value)
   {
     auto const bufsz{static_cast<std::size_t>(end - begin)},
       need{size_buffer(value)};
@@ -301,12 +300,12 @@ template<> struct string_traits<legacy_item> final
   }
   // NOLINTEND(readability-non-const-parameter)
 
-  static inline legacy_item from_string(std::string_view text)
+  static legacy_item from_string(std::string_view text)
   {
     return legacy_item{pqxx::from_string<int>(text)};
   }
 
-  static inline std::size_t size_buffer(legacy_item const &value) noexcept
+  static constexpr std::size_t size_buffer(legacy_item const &value) noexcept
   {
     return pqxx::size_buffer(value.get_val()) + 1;
   }

@@ -143,7 +143,7 @@ template<> struct string_traits<ipv4> final
 
 namespace pqxx::test::internal
 {
-inline char nibble_to_hex(unsigned nibble)
+inline constexpr char nibble_to_hex(unsigned nibble)
 {
   if (nibble < 10)
     return char('0' + nibble);
@@ -154,7 +154,7 @@ inline char nibble_to_hex(unsigned nibble)
 }
 
 
-inline unsigned hex_to_digit(char hex)
+inline constexpr unsigned hex_to_digit(char hex)
 {
   auto const x = static_cast<unsigned char>(hex);
   if (x >= '0' and x <= '9')
@@ -177,7 +177,7 @@ template<> struct nullness<bytea> final : no_null<bytea>
 
 template<> struct string_traits<bytea> final
 {
-  static bytea from_string(std::string_view text)
+  static constexpr bytea from_string(std::string_view text)
   {
     if ((std::size(text) & 1) != 0)
       throw std::runtime_error{"Odd hex size."};
@@ -193,7 +193,7 @@ template<> struct string_traits<bytea> final
   }
 
   // NOLINTNEXTLINE(readability-non-const-parameter)
-  static zview to_buf(char *begin, char *end, bytea const &value)
+  static constexpr zview to_buf(char *begin, char *end, bytea const &value)
   {
     auto const need = size_buffer(value);
     auto const have = end - begin;
@@ -213,12 +213,12 @@ template<> struct string_traits<bytea> final
     return {begin, pos - begin - 1};
   }
 
-  static char *into_buf(char *begin, char *end, bytea const &value)
+  static constexpr char *into_buf(char *begin, char *end, bytea const &value)
   {
     return begin + std::size(to_buf(begin, end, value)) + 1;
   }
 
-  static std::size_t size_buffer(bytea const &value)
+  static constexpr std::size_t size_buffer(bytea const &value) noexcept
   {
     return 2 + 2 * std::size(value) + 1;
   }

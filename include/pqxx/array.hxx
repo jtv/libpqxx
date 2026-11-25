@@ -770,7 +770,7 @@ public:
     return {std::data(buf), len - 1};
   }
 
-  static std::size_t size_buffer(array_type const &value) noexcept
+  static constexpr std::size_t size_buffer(array_type const &value) noexcept
   {
     if constexpr (is_unquoted_safe<elt_type>)
       return 3 + std::accumulate(

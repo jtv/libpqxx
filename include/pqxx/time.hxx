@@ -65,7 +65,7 @@ struct PQXX_LIBEXPORT string_traits<std::chrono::year_month_day> final
   [[nodiscard]] static std::chrono::year_month_day
   from_string(std::string_view text, sl = sl::current());
 
-  [[nodiscard]] static std::size_t
+  [[nodiscard]] static constexpr std::size_t
   size_buffer(std::chrono::year_month_day const &) noexcept
   {
     static_assert(int{(std::chrono::year::min)()} >= -99999);
