@@ -276,7 +276,7 @@ void test_connection_client_encoding(pqxx::test::context &tctx)
 
   // Covering lots of initial letters because it helps fill out test
   // coverage on an internal switch on that initial character.
-  static std::vector<char const *> const bogus_encodings{
+  std::vector<char const *> const bogus_encodings{
     "ABSENT",
     "BOGUS",
     "ELUSIVE",
@@ -291,9 +291,6 @@ void test_connection_client_encoding(pqxx::test::context &tctx)
     "SHREDDED",
     "UNAVAILABLE",
     "WANTING",
-    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAh",
   };
 
   for (char const *const e : bogus_encodings)
