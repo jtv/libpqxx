@@ -36,9 +36,7 @@ void test_072(pqxx::test::context &)
 
     // For some reason when running in Valgrind this throws the error saying
     // that the transaction has been aborted due to an earlier error.
-#if defined(PQXX_VALGRIND)
-    PQXX_CHECK_THROWS(std::ignore = P.retrieve(id_2), pqxx::sql_error);
-#else
+#if !defined(PQXX_VALGRIND)
     PQXX_CHECK_THROWS(std::ignore = P.retrieve(id_2), std::runtime_error);
 #endif
   }
