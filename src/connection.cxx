@@ -1429,6 +1429,16 @@ pqxx::connection::set_client_encoding(char const encoding[], sl loc) &
     throw pqxx::argument_error{
       "No encoding string passed to set_client_encoding.", loc};
 
+  // PQsetClientEncoding uses the encding name in an SQL statement, so check
+  // for invalid characters.
+  std::string const enc{encoding};
+  for (char c : enc)
+    if (
+      ((static_cast<unsigned char>(c) & 0x80) != 0) or (c == '\'') or
+      (c == '\\'))
+      throw argument_error{
+        std::format("Invalid encoding string: '{}'.", enc), loc};
+
   switch (auto const retval{PQsetClientEncoding(real_conn(m_conn), encoding)};
           retval)
   {

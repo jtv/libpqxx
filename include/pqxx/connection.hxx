@@ -514,7 +514,9 @@ public:
   [[nodiscard]] std::string get_client_encoding(sl loc = sl::current()) const;
 
   /// Set client-side character encoding, by name.
-  /**
+  /** Can only be used in situations where the connection can execute SQL
+   * statements.
+   *
    * @param encoding Name of the character set encoding to use.
    */
   void set_client_encoding(zview encoding, sl loc = sl::current()) &
@@ -523,7 +525,9 @@ public:
   }
 
   /// Set client-side character encoding, by name.
-  /**
+  /** Can only be used in situations where the connection can execute SQL
+   * statements.
+   *
    * @param encoding Name of the character set encoding to use.
    */
   PQXX_ZARGS void
