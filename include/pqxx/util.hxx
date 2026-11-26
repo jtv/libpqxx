@@ -24,6 +24,7 @@
 #include <functional>
 #include <iterator>
 #include <limits>
+#include <list>
 #include <memory>
 #include <optional>
 #include <stdexcept>
@@ -37,6 +38,7 @@
 #include "pqxx/except.hxx"
 #include "pqxx/types.hxx"
 #include "pqxx/version.hxx"
+#include "pqxx/zview.hxx"
 
 
 /// The home of all libpqxx classes, functions, templates, etc.
@@ -613,6 +615,11 @@ inline constexpr char const *as_c_string(std::string const &str) noexcept
 {
   return str.c_str();
 }
+/// Get a raw C string pointer.
+inline constexpr char const *as_c_string(std::string_view const &str) noexcept
+{
+  return std::data(str);
+}
 
 
 // LCOV_EXCL_START
@@ -986,6 +993,75 @@ memmove(std::span<TYPE> dst, std::span<TYPE> src, sl loc = sl::current())
   std::span<TYPE const> const_src{std::data(src), std::size(src)};
   memmove(dst, const_src, loc);
 }
+
+
+// C++26: Can probably replace innards with a std::hive.
+/// An append-only, stable store for strings.
+/** Copies strings into internal storage, then keeps them around for as long
+ * as the `string_store` exists.  There is no deletion.  There's no iteration
+ * or lookup either; it just stores the actual string contents.
+ *
+ * Once stored inside, each string stays in place for the rest of the store's
+ * lifetime.
+ */
+class string_store final
+{
+public:
+  string_store() = default;
+  string_store(string_store const &) = delete;
+  string_store(string_store &&) = default;
+  string_store &operator=(string_store const &) = delete;
+  string_store &operator=(string_store &&) = default;
+
+  /// Store `in` and return a view to its stored copy.
+  /** The stored copy is zero-terminated, so that you can use it as a C-style
+   * string.
+   */
+  [[nodiscard]] zview store(std::string_view str)
+  {
+    for (auto &block : m_store)
+      if (fits(str, block))
+        // We can still append within this block without needing to grow it.
+        return insert(str, block);
+
+    // No room in existing blocks.  Allocate a fresh one.
+    std::vector<char> &block{m_store.emplace_back()};
+    // (Arbitrarily chosen starting size.)
+    block.reserve((std::max)(std::size_t{480}, 3u * str.size() + 1u));
+    return insert(str, block);
+  }
+
+private:
+  [[nodiscard]] bool fits(std::string_view str, std::vector<char> &block) const
+  {
+    return (block.capacity() - block.size()) > str.size();
+  }
+
+  /// Insert `str` into `block`.  Assume there's room.
+  /** This never resizes `block`.  To do so would invalidate any existing
+   * views into the block.
+   */
+  [[nodiscard]] zview insert(std::string_view str, std::vector<char> &block)
+  {
+    auto const sz{std::size(str)}, start{std::size(block)},
+      cap{block.capacity()};
+    assert(start + sz < cap);
+
+    // C++23: Use append_range().
+    block.resize(start + sz);
+    str.copy(std::data(block) + start, sz);
+    block.push_back('\0');
+
+    assert(std::size(block) == start + sz + 1u);
+    // The data still fits.
+    assert(std::size(block) <= cap);
+    // The vector has not reallocated.
+    assert(block.capacity() == cap);
+    return zview{std::data(block) + start, sz};
+  }
+
+  std::list<std::vector<char>> m_store;
+};
 } // namespace pqxx::internal
 
 

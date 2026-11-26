@@ -1722,12 +1722,13 @@ inline connection::connection(
   // )
   auto [keys, values]{parsed_string.parse()};
 
-  // Merge key/value pairs into the pairs we got from the connection string.
-  for (auto const &[org_key, org_value] : params)
-  {
-    auto const key{pqxx::internal::as_c_string(org_key)},
-      value{pqxx::internal::as_c_string(org_value)};
+  // Store parameter key/value strings here for the duration, since we may see
+  // them as temporaries as we iterate them.
+  pqxx::internal::string_store strings;
 
+  // Merge key/value pairs into the pairs we got from the connection string.
+  for (auto const &[key, value] : params)
+  {
     // Did we have a value for key already?  This is a horrible O(n^2) search,
     // in principle, but there's only so many possible options.  Trying to
     // optimise this might make it worse in common practical cases.
@@ -1737,21 +1738,21 @@ inline connection::connection(
     // then O(n^2) is at worst O(b^2).  Since b is a constant, O(b^2) boils
     // down to O(1).)
     auto const it{std::ranges::find_if(keys, [key](char const *existing) {
-      return std::strcmp(existing, key) == 0;
+      return std::strcmp(existing, pqxx::internal::as_c_string(key)) == 0;
     })};
 
     if (it == keys.end())
     {
       // New key.  Append.
-      keys.push_back(key);
-      values.push_back(value);
+      keys.push_back(strings.store(key).c_str());
+      values.push_back(strings.store(value).c_str());
     }
     else
     {
       // A key we've already seen.  Override.
       auto const idx{
         static_cast<std::size_t>(std::distance(keys.begin(), it))};
-      values[idx] = value;
+      values[idx] = strings.store(value).c_str();
     }
   }
 
