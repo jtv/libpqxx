@@ -71,6 +71,13 @@ public:
   row_ref(result const &res, result_size_type index) :
           m_result{&res}, m_index{index}
   {}
+
+  /// Refer to a @ref row (while its @ref result remains in place).
+  /** @warning Use the resulting object only while the underlying @ref result
+   * remains valid and in the same place in memory.
+   */
+  explicit inline row_ref(row const &);
+
   ~row_ref() = default;
 
   row_ref &operator=(row_ref const &) noexcept = default;
@@ -685,6 +692,8 @@ public:
   [[deprecated("Swap iterators, not rows.")]] void swap(row &) noexcept;
 
 private:
+  friend class row_ref;
+
   /// Return @ref row_ref for this row.
   /** @warning The @ref row_ref holds a reference to the @ref result object
    * _inside this `row` object._  So if you change that, the @ref row_ref
@@ -1003,6 +1012,10 @@ public:
   //@}
 };
 
+
+inline row_ref::row_ref(row const &home_row) :
+        m_result{&home_row.home()}, m_index{home_row.row_number()}
+{}
 
 const_row_iterator
 const_row_iterator::operator+(difference_type o) const noexcept
