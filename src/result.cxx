@@ -588,7 +588,7 @@ pqxx::row pqxx::result::one_row(sl loc) const
 }
 
 
-pqxx::row_ref pqxx::result::one_row_ref(sl loc) const &
+pqxx::row_ref pqxx::result::one_row_ref(sl loc) const
 {
   check_one_row(loc);
   return front();

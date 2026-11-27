@@ -162,10 +162,26 @@ void test_row_swap(pqxx::test::context &)
 }
 
 
+void test_row_ref_initialises_from_row(pqxx::test::context &)
+{
+  pqxx::connection cx;
+  pqxx::work tx{cx};
+
+  pqxx::row const row{tx.exec("SELECT 20").one_row()};
+
+  // We're constructing a row_ref from a row.  The row can be temporary but the
+  // result has to stay in memory (and can't move).
+  pqxx::row_ref const ref{row};
+
+  PQXX_CHECK_EQUAL(ref.at(0).view(), "20");
+}
+
+
 PQXX_REGISTER_TEST(test_row);
 PQXX_REGISTER_TEST(test_row_iterator);
 PQXX_REGISTER_TEST(test_row_as);
 PQXX_REGISTER_TEST(test_row_iterator_array_index_offsets_iterator);
 PQXX_REGISTER_TEST(test_row_as_tuple);
 PQXX_REGISTER_TEST(test_row_swap);
+PQXX_REGISTER_TEST(test_row_ref_initialises_from_row);
 } // namespace
