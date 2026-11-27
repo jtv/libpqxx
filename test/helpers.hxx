@@ -76,11 +76,15 @@ struct context final
   }
 
   /// Generate an ASCII name with a given prefix and a randomised suffix.
-  std::string make_name(std::string_view prefix = {})
+  /**
+   * @param prefix A bit of text to start with; an underscore follows.
+   * @param fixed_len Length of the suffix.
+   */
+  std::string make_name(std::string_view prefix = {}, int fixed_len = -1)
   {
     static constexpr std::string_view chars{
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_"};
-    int const extra{5 + make_num(8)};
+    int const extra{(fixed_len >= 0) ? fixed_len : (5 + make_num(8))};
     std::string out{prefix};
     out.push_back('_');
     out.reserve(std::size(out) + static_cast<unsigned>(extra));

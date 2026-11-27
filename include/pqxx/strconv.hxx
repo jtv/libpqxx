@@ -214,6 +214,59 @@ inline void swap(conversion_context &lhs, conversion_context &rhs) noexcept
 using ctx = conversion_context const &;
 
 
+/// Does `TYPE` have one or more inherent null values?
+/** Some types, such as pointers, have natural null values built in.  Most
+ * types do not: an integer is never null (even if it may be zero), a C++
+ * string is never null (even if it may be empty), and so on.
+ *
+ * This is different from an SQL field _containing_ a null value, but in
+ * libpqxx you can treat them pretty much the same.
+ */
+template<typename TYPE> [[nodiscard]] inline constexpr bool has_null() noexcept
+{
+  using base_type = std::remove_cvref_t<TYPE>;
+  return nullness<base_type>::has_null;
+}
+
+
+/// Is a value of `TYPE` always null?
+/** This is the case for some special types, such as `std::nullopt_t`.
+ */
+template<typename TYPE>
+[[nodiscard]] inline constexpr bool always_null() noexcept
+{
+  using base_type = std::remove_cvref_t<TYPE>;
+  return nullness<base_type>::always_null;
+}
+
+
+/// Is `value` a null?
+template<typename TYPE>
+[[nodiscard]] inline constexpr bool is_null(TYPE const &value) noexcept
+{
+  using base_type = std::remove_cvref_t<TYPE>;
+  if constexpr (always_null<base_type>())
+    return true;
+  else
+    return nullness<base_type>::is_null(value);
+}
+
+
+/// Return a null value of `TYPE`.
+/** Only available for types that _have_ a null value.
+ *
+ * There may be multiple null values, or even ones that look the same but
+ * which don't compare as equal, as is the case in SQL.
+ */
+template<typename TYPE>
+[[nodiscard]] inline constexpr TYPE make_null()
+  requires(pqxx::has_null<TYPE>())
+{
+  using base_type = std::remove_cvref_t<TYPE>;
+  return nullness<base_type>::null();
+}
+
+
 /// Traits class for use in string conversions.
 /** Specialize this template for a type for which you wish to add to_string
  * and from_string support.
@@ -446,6 +499,9 @@ template<typename TYPE>
 to_buf(std::span<char> buf, TYPE const &value, ctx c = {})
 {
   using traits = string_traits<TYPE>;
+  if (is_null(value))
+    throw conversion_error{std::format(
+      "Attempted to convert a null {} to string.", name_type<TYPE>())};
   if constexpr (supports_to_buf_8<TYPE>())
   {
     return traits::to_buf(buf, value, c);
@@ -758,59 +814,6 @@ to_buf_multi(std::span<char> buf, TYPE... value)
  */
 template<typename TYPE>
 inline void into_string(TYPE const &value, std::string &out);
-
-
-/// Does `TYPE` have one or more inherent null values?
-/** Some types, such as pointers, have natural null values built in.  Most
- * types do not: an integer is never null (even if it may be zero), a C++
- * string is never null (even if it may be empty), and so on.
- *
- * This is different from an SQL field _containing_ a null value, but in
- * libpqxx you can treat them pretty much the same.
- */
-template<typename TYPE> [[nodiscard]] inline constexpr bool has_null() noexcept
-{
-  using base_type = std::remove_cvref_t<TYPE>;
-  return nullness<base_type>::has_null;
-}
-
-
-/// Is a value of `TYPE` always null?
-/** This is the case for some special types, such as `std::nullopt_t`.
- */
-template<typename TYPE>
-[[nodiscard]] inline constexpr bool always_null() noexcept
-{
-  using base_type = std::remove_cvref_t<TYPE>;
-  return nullness<base_type>::always_null;
-}
-
-
-/// Is `value` a null?
-template<typename TYPE>
-[[nodiscard]] inline constexpr bool is_null(TYPE const &value) noexcept
-{
-  using base_type = std::remove_cvref_t<TYPE>;
-  if constexpr (always_null<base_type>())
-    return true;
-  else
-    return nullness<base_type>::is_null(value);
-}
-
-
-/// Return a null value of `TYPE`.
-/** Only available for types that _have_ a null value.
- *
- * There may be multiple null values, or even ones that look the same but
- * which don't compare as equal, as is the case in SQL.
- */
-template<typename TYPE>
-[[nodiscard]] inline constexpr TYPE make_null()
-  requires(pqxx::has_null<TYPE>())
-{
-  using base_type = std::remove_cvref_t<TYPE>;
-  return nullness<base_type>::null();
-}
 
 
 /// Does this type translate to an SQL array?

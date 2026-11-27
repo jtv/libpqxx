@@ -1021,17 +1021,21 @@ public:
   {
     for (auto &block : m_store)
       if (fits(str, block))
-        // We can still append within this block without needing to grow it.
         return insert(str, block);
 
-    // No room in existing blocks.  Allocate a fresh one.
-    std::vector<char> &block{m_store.emplace_back()};
-    // (Arbitrarily chosen starting size.)
-    block.reserve((std::max)(std::size_t{480}, 3u * str.size() + 1u));
+    // No room in existing blocks.  Allocate a fresh one, with a more or less
+    // arbitrarily chosen initial size, but no less than the size of `str`
+    // plus room for the terminating zero.
+    auto &block = m_store.emplace_back();
+    block.reserve((std::max)(s_min_block, 3u * str.size()));
     return insert(str, block);
   }
 
 private:
+  /// Minimum storage block size.  Each block can have its own size though.
+  static constexpr std::size_t s_min_block{480u};
+
+  /// Will `str` fit into the spare capacity at the end of `block`?
   [[nodiscard]] bool fits(std::string_view str, std::vector<char> &block) const
   {
     return (block.capacity() - block.size()) > str.size();

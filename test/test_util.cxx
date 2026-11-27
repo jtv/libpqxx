@@ -648,6 +648,100 @@ void test_memmove_handles_separate_allocations(pqxx::test::context &)
 }
 
 
+/// Compare two pointers, even if they're in separate allocations.
+inline int cmp_pointers(char const *lhs, char const *rhs) noexcept
+{
+  constexpr auto const less{std::less<char const *>{}};
+  if (less(lhs, rhs))
+    return 1;
+  else if (less(rhs, lhs))
+    return -1;
+  else
+    return 0;
+}
+
+
+void test_string_store_stores_empty_strings(pqxx::test::context &)
+{
+  pqxx::internal::string_store strings;
+  auto const empty1{strings.store("")};
+  PQXX_CHECK_EQUAL(std::size(empty1), 0u);
+  PQXX_CHECK_NOT_EQUAL(empty1.c_str(), nullptr);
+  // Storing an empty string does in fact take up space: the terminating zero.
+  PQXX_CHECK(*empty1.c_str() == '\0');
+
+  auto const empty2{strings.store("")};
+  PQXX_CHECK_EQUAL(std::size(empty2), 0u);
+  PQXX_CHECK_NOT_EQUAL(empty1.c_str(), nullptr);
+  PQXX_CHECK(*empty2.c_str() == '\0');
+  PQXX_CHECK_EQUAL(cmp_pointers(empty1.c_str(), empty2.c_str()), 1);
+
+  // Force the string_store to allocate a new block.  (Assuming it doesn't
+  // check for duplicates or anything clever like that.)
+  for (int i{0}; i < 1000; ++i)
+  {
+    auto const e{strings.store("")};
+    PQXX_CHECK_EQUAL(std::size(e), 0u);
+    PQXX_CHECK_NOT_EQUAL(e.c_str(), nullptr);
+    PQXX_CHECK(*e.c_str() == '\0');
+    PQXX_CHECK_NOT_EQUAL(cmp_pointers(e.c_str(), empty1.c_str()), 0);
+    PQXX_CHECK_NOT_EQUAL(cmp_pointers(e.c_str(), empty2.c_str()), 0);
+  }
+}
+
+
+void test_string_store_stores_strings(pqxx::test::context &tctx)
+{
+  std::vector<std::string> backup;
+  pqxx::internal::string_store strings;
+  std::vector<pqxx::zview> copies;
+
+  {
+    std::vector<std::string> inputs;
+
+    // White-box testing: store more data than string_store can fit into a
+    // single block.
+    for (int i{0}; i < 500; ++i) inputs.push_back(tctx.make_name());
+
+    // C++23: Use append_range().
+    for (auto const &s : inputs) copies.push_back(strings.store(s));
+
+    // The inputs can safely move to somewhere else, because the string_store
+    // holds persistent copies.
+    // C++23: Use append_range().
+    for (auto const &s : inputs) backup.push_back(s);
+
+    // Overwrite the original inputs, before that vector gets destroyed.
+    for (std::size_t i{0}; i < std::size(inputs); ++i) inputs[i] = "gone";
+  }
+
+  // Without any connection to the original strings, the store still holds
+  // the strings we gave it.
+  PQXX_CHECK_EQUAL(std::size(backup), std::size(copies));
+  for (std::size_t i{0}; i < std::size(backup); ++i)
+    PQXX_CHECK_EQUAL(copies.at(i), backup.at(i));
+}
+
+
+void test_string_store_stores_various_sizes(pqxx::test::context &tctx)
+{
+  std::vector<std::string> inputs;
+  pqxx::internal::string_store strings;
+
+  // Some of these will be longer than the default storage block size.
+  for (std::size_t i{0}; i < 100; ++i)
+    inputs.push_back(tctx.make_name("", tctx.make_num(1000)));
+
+  std::vector<pqxx::zview> stored{};
+  // (Specifying a size to avoid an optimisation hint from static analysis.)
+  stored.reserve(100'000);
+  for (auto const &s : inputs) stored.push_back(strings.store(s));
+
+  for (std::size_t i{0}; i < std::size(stored); ++i)
+    PQXX_CHECK_EQUAL(stored.at(i), inputs.at(i));
+}
+
+
 PQXX_REGISTER_TEST(test_make_num);
 PQXX_REGISTER_TEST(test_binary_cast);
 PQXX_REGISTER_TEST(test_check_cast);
@@ -665,4 +759,7 @@ PQXX_REGISTER_TEST(test_version_check_accepts_patch_upgrade);
 PQXX_REGISTER_TEST(test_memmove_moves_distinct_within_array);
 PQXX_REGISTER_TEST(test_memmove_handles_overlap);
 PQXX_REGISTER_TEST(test_memmove_handles_separate_allocations);
+PQXX_REGISTER_TEST(test_string_store_stores_empty_strings);
+PQXX_REGISTER_TEST(test_string_store_stores_strings);
+PQXX_REGISTER_TEST(test_string_store_stores_various_sizes);
 } // namespace
