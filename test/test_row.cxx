@@ -167,11 +167,11 @@ void test_row_ref_initialises_from_row(pqxx::test::context &)
   pqxx::connection cx;
   pqxx::work tx{cx};
 
-  pqxx::result const res{tx.exec("SELECT 20")};
+  pqxx::row const row{tx.exec("SELECT 20").one_row()};
 
   // We're constructing a row_ref from a row.  The row can be temporary but the
   // result has to stay in memory (and can't move).
-  pqxx::row_ref const ref{res.one_row()};
+  pqxx::row_ref const ref{row};
 
   PQXX_CHECK_EQUAL(ref.at(0).view(), "20");
 }

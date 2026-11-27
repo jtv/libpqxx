@@ -73,9 +73,8 @@ public:
   {}
 
   /// Refer to a @ref row (while its @ref result remains in place).
-  /** @warning Use the resulting object only while the underlying @ref result
-   * remains valid and in the same place in memory.  (The actual @ref row does
-   * not need to remain valid, only the @ref result.)
+  /** @warning Use the resulting object only while the @ref row object remains
+   * and in the same place in memory.
    */
   explicit inline row_ref(row const &);
 
