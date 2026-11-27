@@ -193,13 +193,14 @@ void test_convert_null(pqxx::test::context &)
   PQXX_CHECK_EQUAL(tx.quote(std::nullopt), "NULL");
   PQXX_CHECK_EQUAL(tx.quote(std::monostate{}), "NULL");
 
-  std::vector<char> buf{100u, '.'};
+  std::vector<char> buf;
+  buf.resize(100u, '.');
   char const *const null{nullptr};
   PQXX_CHECK_THROWS(
     std::ignore = pqxx::to_buf(buf, null), pqxx::conversion_error);
 
   // The failed conversion attempt did not write anything to buf.
-  for (char c : buf) PQXX_CHECK(c == '.');
+  PQXX_CHECK_EQUAL((std::string_view{std::data(buf), 10u}), "..........");
 }
 
 
