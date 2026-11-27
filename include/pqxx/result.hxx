@@ -444,7 +444,7 @@ public:
    *
    * @throw @ref unexpected_rows if the actual count is not equal to `n`.
    */
-  row_ref one_row_ref(sl = sl::current()) const &;
+  row_ref one_row_ref(sl = sl::current()) const;
 
   /// Expect that result contains at most one row, and return as optional.
   /** Returns an empty `std::optional` if the result is empty, or if it has
