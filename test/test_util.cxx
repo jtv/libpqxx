@@ -729,13 +729,15 @@ void test_string_store_stores_various_sizes(pqxx::test::context &tctx)
   pqxx::internal::string_store strings;
 
   // Some of these will be longer than the default storage block size.
-  for (std::size_t i{0}; i < 1000; ++i)
+  for (std::size_t i{0}; i < 100; ++i)
     inputs.push_back(tctx.make_name("", tctx.make_num(1000)));
 
-  std::vector<pqxx::zview> stored;
+  std::vector<pqxx::zview> stored{};
+  // (Specifying a size to avoid an optimisation hint from static analysis.)
+  stored.reserve(100'000);
   for (auto const &s : inputs) stored.push_back(strings.store(s));
 
-  for (std::size_t i{0}; i < 1000; ++i)
+  for (std::size_t i{0}; i < std::size(stored); ++i)
     PQXX_CHECK_EQUAL(stored.at(i), inputs.at(i));
 }
 

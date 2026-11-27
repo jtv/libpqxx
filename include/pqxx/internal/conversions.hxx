@@ -703,11 +703,8 @@ template<> struct string_traits<char const *> final
   PQXX_ZARGS static constexpr std::size_t
   size_buffer(char const *value) noexcept
   {
-    if (pqxx::is_null(value))
-      return 0;
-    else
-      // std::char_traits::length() is like std::strlen(), but constexpr.
-      return std::char_traits<char>::length(value);
+    // std::char_traits::length() is like std::strlen(), but constexpr.
+    return std::char_traits<char>::length(value);
   }
 };
 

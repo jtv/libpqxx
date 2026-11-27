@@ -193,7 +193,7 @@ void test_convert_null(pqxx::test::context &)
   PQXX_CHECK_EQUAL(tx.quote(std::nullopt), "NULL");
   PQXX_CHECK_EQUAL(tx.quote(std::monostate{}), "NULL");
 
-  std::vector<char> buf{100};
+  std::vector<char> buf{100u};
   char const *const null{nullptr};
   PQXX_CHECK_THROWS(
     std::ignore = pqxx::to_buf(buf, null), pqxx::conversion_error);
