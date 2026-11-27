@@ -1026,7 +1026,10 @@ public:
     // No room in existing blocks.  Allocate a fresh one, with a more or less
     // arbitrarily chosen initial size, but no less than the size of `str`
     // plus room for the terminating zero.
-    std::vector<char> &block{m_store.emplace_back()};
+    m_store.emplace_back();
+    assert(not m_store.empty());
+    // XXX: Does this help?
+    std::vector<char> &block{m_store.back()};
     block.reserve((std::max)(s_min_block, 3u * str.size()));
     return insert(str, block);
   }
