@@ -169,8 +169,8 @@ void test_row_ref_initialises_from_row(pqxx::test::context &)
 
   pqxx::row const row{tx.exec("SELECT 20").one_row()};
 
-  // We're constructing a row_ref from a row.  The row can be temporary but the
-  // result has to stay in memory (and can't move).
+  // Construct a row_ref from a row.  This relies on the row remaining valid
+  // and not moving.
   pqxx::row_ref const ref{row};
 
   PQXX_CHECK_EQUAL(ref.at(0).view(), "20");

@@ -35,6 +35,7 @@
  - Updated documentation for `pipeline`.
  - Make `pipeline` issue queries more aggressively.
  - You can now construct a `row_ref` from a `row`... if you're careful.
+ - You can now construct a `field_ref` from a `field`... if you're careful.
 8.0.2
  - Simple benchmark tool for query performance.
  - Fix an apparent `memcpy()` overlap.
