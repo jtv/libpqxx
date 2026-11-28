@@ -105,7 +105,9 @@ PQXX_COLD pqxx::largeobject::largeobject(dbtransaction &t) :
 
 PQXX_COLD
 pqxx::largeobject::largeobject(dbtransaction &t, std::string_view file) :
-        m_id{lo_import(real_conn(raw_connection(t)), std::data(file))}
+        // (Converting file name to std::string to ensure zero termination.)
+        m_id{
+          lo_import(real_conn(raw_connection(t)), std::string{file}.c_str())}
 {
   if (m_id == oid_none)
   {
