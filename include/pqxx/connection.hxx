@@ -1812,7 +1812,8 @@ pqxx::connection::esc_like(std::string_view text, sl loc) const
     // NOLINTEND(cert-dcl03-c)
 
     out.push_back(escape_char);
-    auto const [special, width]{pqxx::internal::special_char(data, here)};
+    auto const [special, width]{pqxx::internal::special_char(text, here)};
+
     // Append the special character, or if it's the special nasty SJIS-2004
     // backslash, just a plain old backslash.
     out.push_back(special);
