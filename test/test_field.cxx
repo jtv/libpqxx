@@ -148,6 +148,21 @@ void test_field_converts_binary(pqxx::test::context &tctx)
 }
 
 
+void test_field_ref_initialises_from_field(pqxx::test::context &)
+{
+  pqxx::connection cx;
+  pqxx::work tx{cx};
+  pqxx::field const f{tx.exec("SELECT 24").one_row().at(0)};
+
+  // Construct a field_ref from a field.  This relies on the field remaining
+  // valid and not moving.
+  pqxx::field_ref const ref{f};
+
+  PQXX_CHECK_EQUAL(ref.view(), "24");
+}
+
+
 PQXX_REGISTER_TEST(test_field);
 PQXX_REGISTER_TEST(test_field_converts_binary);
+PQXX_REGISTER_TEST(test_field_ref_initialises_from_field);
 } // namespace

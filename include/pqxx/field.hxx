@@ -62,6 +62,13 @@ public:
     row_size_type col_num) noexcept :
           m_result(&res), m_row{row_num}, m_column{col_num}
   {}
+
+  /// Refer to a @ref field (which must remain valid and in place).
+  /** @warning Use the resulting object only while the @ref field object
+   * remains valid, and does not move.
+   */
+  explicit inline field_ref(field const &);
+
   ~field_ref() = default;
 
   field_ref &operator=(field_ref const &) noexcept = default;
@@ -604,6 +611,8 @@ public:
   }
 
 private:
+  friend class field_ref;
+
   /** Create field as reference to a field in a result set.
    * @param r Row that this field is part of.
    * @param c Column number of this field.
@@ -646,6 +655,11 @@ private:
    */
   row_size_type m_col = 0;
 };
+
+
+inline field_ref::field_ref(field const &f) :
+        m_result{&f.home()}, m_row{f.row_number()}, m_column{f.column_number()}
+{}
 
 
 inline char const *field_ref::c_str() const & noexcept

@@ -72,9 +72,9 @@ public:
           m_result{&res}, m_index{index}
   {}
 
-  /// Refer to a @ref row (while its @ref result remains in place).
+  /// Refer to a @ref row (which must remain valid and in place).
   /** @warning Use the resulting object only while the @ref row object remains
-   * and in the same place in memory.
+   * valid, and does not move.
    */
   explicit inline row_ref(row const &);
 
